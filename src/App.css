@@ -1,0 +1,83 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  font-family: sans-serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header,
+.footer {
+  height: 60px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  width: 100%;
+}
+
+/* Left side (2/3 width) */
+.left-pane {
+  flex: 2;
+  position: relative;
+  overflow: hidden; /* ✅ guards against infinite growth */
+  /* background-color: #cce5ff; */
+}
+
+/* App.css or TapestryView.css */
+.canvas-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+}
+
+/* Right side (1/3 width, vertical stack) */
+.right-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom vertical layout: 1/7, 3/7, 3/7 */
+.right-pane .audio {
+  flex: 1;
+}
+
+.right-pane .channel,
+.right-pane .lyrics {
+  flex: 3;
+}
+
+.audio {
+  background-color: #ffcccc; /* light red */
+}
+
+.channel {
+  background-color: #ccffcc; /* light green */
+}
+
+.lyrics {
+  background-color: #fff8b3; /* light yellow */
+}
