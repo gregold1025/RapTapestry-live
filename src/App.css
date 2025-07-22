@@ -38,6 +38,7 @@ body,
   flex: 2;
   position: relative;
   overflow: hidden; /* ✅ guards against infinite growth */
+  /* background-color: transparent; */
   /* background-color: #cce5ff; */
 }
 
@@ -81,3 +82,7 @@ body,
 .lyrics {
   background-color: #fff8b3; /* light yellow */
 }
+
+/* svg {
+  outline: 1px dashed red;
+} */

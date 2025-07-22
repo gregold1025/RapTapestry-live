@@ -5,7 +5,7 @@ import { Container, Graphics } from "pixi.js";
 
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import "../../App.css";
+import "./index.css";
 
 extend({ Container, Graphics });
 
@@ -19,6 +19,16 @@ export function PlayheadLine() {
 
     const g = graphicsRef.current;
     const { secondsPerRow, rowHeight, width } = layout;
+
+    // PixiPlayheadOverlay.jsx → inside PlayheadLine’s useEffect:
+    console.log(
+      "Pixi rowHeight:",
+      layout.rowHeight,
+      "rows:",
+      layout.numberOfRows,
+      "totalH:",
+      layout.height
+    );
 
     const timeToX = (t) => {
       const tInRow = t % secondsPerRow;

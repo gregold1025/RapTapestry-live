@@ -49,11 +49,11 @@ export function WordBlock({
           const isSelected = selectedIds.includes(id);
           const isMatch = matchedIds.has(id);
 
-          if (isMatch) {
-            console.log(
-              `🔍 Syllable ${id}: match=${isMatch}, selected=${isSelected}`
-            );
-          }
+          //   if (isMatch) {
+          //     console.log(
+          //       `🔍 Syllable ${id}: match=${isMatch}, selected=${isSelected}`
+          //     );
+          //   }
 
           return (
             <div
