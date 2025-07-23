@@ -1,0 +1,28 @@
+/* src/components/LyricsView/LyricsView.css */
+
+/*  
+   Make sure the parent .lyrics (from app.css) can actually shrink,
+   and override its yellow background with white:
+*/
+.right-pane .lyrics {
+  position: relative;
+  min-height: 0; /* allow it to shrink below its content size */
+  overflow: hidden; /* prevent it from growing past this box */
+  background: none; /* clear out the old yellow */
+}
+
+/* The new top‐level container */
+.lyrics-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* fill whatever its parent .lyrics gives it */
+  background: white; /* your desired background */
+}
+
+/* The scrollable list of all lines */
+.lyrics-lines {
+  flex: 1; /* take all available vertical space */
+  min-height: 0; /* CRUCIAL: let this flex‐child actually shrink */
+  overflow-y: auto; /* scroll when content overflows */
+  padding: 12px;
+}

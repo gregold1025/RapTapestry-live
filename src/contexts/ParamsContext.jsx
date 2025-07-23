@@ -1,8 +1,10 @@
+// src/contexts/ParamsContext.jsx
 import React, { createContext, useContext, useState } from "react";
 
 const ParamsContext = createContext();
 
 export function ParamsProvider({ children }) {
+  // … your existing state …
   const [showVocals, setShowVocals] = useState(true);
   const [wildcardSkips, setWildcardSkips] = useState(1);
   const [minMatchLen, setMinMatchLen] = useState(2);
@@ -24,11 +26,25 @@ export function ParamsProvider({ children }) {
     UW: "#5c6bc0",
   });
 
-  const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#ffffff");
-  const [showWordRects, setShowWordRects] = useState(true);
+  // ** syllables **
+  const [showSyllables, setShowSyllables] = useState(true);
+  const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
+  const [syllableOpacity, setSyllableOpacity] = useState(1);
 
+  // ** words **
+  const [showWords, setShowWords] = useState(true);
+  const [wordActiveColor, setWordActiveColor] = useState("#00aaff");
+  const [wordInactiveColor, setWordInactiveColor] = useState("#cccccc");
+  const [wordOpacity, setWordOpacity] = useState(0.6);
+
+  // ** lines **
+  const [showLines, setShowLines] = useState(true);
+  const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
+  const [lineInactiveColor, setLineInactiveColor] = useState("#eeeeee");
+  const [lineOpacity, setLineOpacity] = useState(0.3);
+
+  // bass etc...
   const [showBass, setShowBass] = useState(true);
-
   const [bassParams, setBassParams] = useState({
     rectHeight: 10,
     fillColor: "#aaccff",
@@ -38,7 +54,7 @@ export function ParamsProvider({ children }) {
   return (
     <ParamsContext.Provider
       value={{
-        // Vocals
+        // — vocals / syllables —
         showVocals,
         setShowVocals,
         wildcardSkips,
@@ -47,12 +63,35 @@ export function ParamsProvider({ children }) {
         setMinMatchLen,
         vowelColors,
         setVowelColors,
+
+        showSyllables,
+        setShowSyllables,
         inactiveSyllableColor,
         setInactiveSyllableColor,
-        showWordRects,
-        setShowWordRects,
+        syllableOpacity,
+        setSyllableOpacity,
 
-        // Bass
+        // — words —
+        showWords,
+        setShowWords,
+        wordActiveColor,
+        setWordActiveColor,
+        wordInactiveColor,
+        setWordInactiveColor,
+        wordOpacity,
+        setWordOpacity,
+
+        // — lines —
+        showLines,
+        setShowLines,
+        lineActiveColor,
+        setLineActiveColor,
+        lineInactiveColor,
+        setLineInactiveColor,
+        lineOpacity,
+        setLineOpacity,
+
+        // — bass (existing) —
         showBass,
         setShowBass,
         bassParams,

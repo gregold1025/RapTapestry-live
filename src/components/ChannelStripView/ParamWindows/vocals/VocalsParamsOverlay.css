@@ -1,7 +1,20 @@
+.vocals-params-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
 .vocals-params-window {
   background: white;
   border-radius: 10px;
-  width: min(500px, 90vw);
+  width: 80%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -108,15 +121,28 @@
   border-radius: 5px;
 }
 
-.vocals-params-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.vocals-params-window .visuals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(12px, 4vw, 20px);
+}
+
+.vocals-params-window .visual-section {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(8px, 2vw, 12px);
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+/* individual section hooks if you need more specific styling */
+.vocals-params-window .syllable-visuals {
+  /* … */
+}
+.vocals-params-window .word-visuals {
+  /* … */
+}
+.vocals-params-window .line-visuals {
+  /* … */
 }

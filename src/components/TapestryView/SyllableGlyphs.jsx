@@ -14,19 +14,22 @@ export default function SyllableGlyphs({
 }) {
   const { layout } = useTapestryLayout();
   const { matchedIds, selectedIds } = useSyllableSelection();
-  const { vowelColors } = useParams();
+  const { showSyllables, vowelColors, inactiveSyllableColor, syllableOpacity } =
+    useParams();
   const { seekAll } = useAudioEngine();
-  if (!layout || !timeToX) return null;
+
+  if (!layout || !timeToX || !showSyllables) return null;
 
   const { secondsPerRow, rowHeight } = layout;
+  const radius = 8;
   const syllables = [];
-  const radius = 10;
 
   transcriptionData.lines.forEach((line, lineIdx) => {
     if (!line.words) return;
     line.words.forEach((word, wordIdx) => {
       if (typeof word.start !== "number" || typeof word.end !== "number")
         return;
+
       const nSyllables = word.nSyllables ?? 1;
       const wordDuration = word.end - word.start;
       const syllableDuration = wordDuration / nSyllables;
@@ -44,13 +47,16 @@ export default function SyllableGlyphs({
         const vertOff = ((centroids[ci] ?? 0.5) * 0.5 - 0.5) * rowHeight;
         const y = baseY + vertOff;
         const id = `${lineIdx}-${wordIdx}-${si}`;
+
         const isSelected = selectedIds.includes(id);
         const isMatch = matchedIds.has(id);
+
+        // pick fill from params
         const fill = isSelected
           ? vowelColors[vowel] ?? "#ff0000"
           : isMatch
           ? vowelColors[vowel] ?? "#cccccc"
-          : "#dddddd";
+          : inactiveSyllableColor;
 
         syllables.push(
           <circle
@@ -59,6 +65,7 @@ export default function SyllableGlyphs({
             cy={y}
             r={radius}
             fill={fill}
+            opacity={syllableOpacity}
             stroke={isSelected ? "red" : "none"}
             strokeWidth={isSelected ? 2 : 0}
             style={{ cursor: "pointer" }}

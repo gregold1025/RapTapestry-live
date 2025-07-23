@@ -12,14 +12,16 @@ export default function WordGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { matchedWordIds, selectedWordIds, toggleWord } = useWordSelection();
-  const { wordColors } = useParams(); // e.g. { default: "#88ccee", match: "#cccccc", selected: "#ff8888" }
+  const { matchedWordIds, selectedWordIds } = useWordSelection();
+  const { showWords, wordActiveColor, wordInactiveColor, wordOpacity } =
+    useParams();
   const { seekAll } = useAudioEngine();
-  if (!layout || !timeToX) return null;
+
+  if (!layout || !timeToX || !showWords) return null;
 
   const { secondsPerRow, rowHeight, width } = layout;
-  const barHeight = rowHeight * 0.4; // 60% of row
-  const vPad = rowHeight - barHeight; // vertical centering
+  const barHeight = rowHeight * 0.3;
+  const vPad = (rowHeight - barHeight) / 2 - 4;
 
   const glyphs = [];
 
@@ -31,7 +33,6 @@ export default function WordGlyphs({
 
       const id = `${lineIdx}-${wordIdx}`;
       const startX = timeToX(word.start);
-      // width of word-bar may wrap row boundaries, so mod by secondsPerRow
       const dur = word.end - word.start;
       const widthPx = (dur / secondsPerRow) * width;
       const row = Math.floor(word.start / secondsPerRow);
@@ -40,14 +41,9 @@ export default function WordGlyphs({
       const isSelected = selectedWordIds.includes(id);
       const isMatch = matchedWordIds.has(id);
 
-      // pick colors from params or defaults
-      const fill = isSelected
-        ? wordColors?.selected ?? "#ff8888"
-        : isMatch
-        ? wordColors?.match ?? "#ff8888"
-        : wordColors?.default ?? "#88ccee";
-      const stroke = isSelected ? "#aa0000" : isMatch ? "#444444" : "none";
-      const strokeWidth = isSelected || isMatch ? 2 : 0;
+      // pick fill from params
+      const fill = isSelected || isMatch ? wordActiveColor : wordInactiveColor;
+      const stroke = isSelected ? "#aa0000" : "none";
 
       glyphs.push(
         <rect
@@ -57,8 +53,9 @@ export default function WordGlyphs({
           width={widthPx}
           height={barHeight}
           fill={fill}
+          opacity={wordOpacity}
           stroke={stroke}
-          strokeWidth={strokeWidth}
+          strokeWidth={isSelected ? 2 : 0}
           style={{ cursor: "pointer" }}
           onClick={() => seekAll(word.start)}
           onMouseEnter={(e) =>
