@@ -5,7 +5,7 @@ import { Container, Graphics } from "pixi.js";
 
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import "./index.css";
+import "./TapestryView.css";
 
 extend({ Container, Graphics });
 

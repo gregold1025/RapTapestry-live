@@ -5,7 +5,7 @@ import PixiPlayheadOverlay from "./pixiPlayheadOverlay";
 import { useCanvasHoverInfo } from "./hooks/useCanvasHoverInfo";
 import { CanvasHoverTooltip } from "./CanvasHoverToolTip";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import "./index.css";
+import "./TapestryView.css";
 
 export default function TapestryView({ transcription }) {
   const { containerRef } = useTapestryLayout();

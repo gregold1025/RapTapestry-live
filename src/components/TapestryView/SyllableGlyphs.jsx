@@ -20,6 +20,7 @@ export default function SyllableGlyphs({
 
   const { secondsPerRow, rowHeight } = layout;
   const syllables = [];
+  const radius = 10;
 
   transcriptionData.lines.forEach((line, lineIdx) => {
     if (!line.words) return;
@@ -35,7 +36,7 @@ export default function SyllableGlyphs({
 
       for (let si = 0; si < nSyllables; si++) {
         const start = word.start + si * syllableDuration;
-        const x = timeToX(start);
+        const x = timeToX(start) + radius;
         const vowel = vowels[si] ?? "AH";
         const row = Math.floor(start / secondsPerRow);
         const baseY = row * rowHeight + rowHeight / 2;
@@ -56,10 +57,10 @@ export default function SyllableGlyphs({
             key={id}
             cx={x}
             cy={y}
-            r={10}
+            r={radius}
             fill={fill}
-            stroke={isMatch ? "black" : "none"}
-            strokeWidth={isMatch ? 1.5 : 0}
+            stroke={isSelected ? "red" : "none"}
+            strokeWidth={isSelected ? 2 : 0}
             style={{ cursor: "pointer" }}
             onClick={() => seekAll(start)}
             onMouseEnter={(e) =>

@@ -13,6 +13,7 @@ import { LineSelectionProvider } from "./contexts/LineSelectionContext";
 import AudioControlsView from "./components/AudioControlsView";
 import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
+import ChannelStripsPanel from "./components/ChannelStripView";
 
 export default function App() {
   const [selectedSong, setSelectedSong] = useState("93Til");
@@ -35,49 +36,47 @@ export default function App() {
     <ParamsProvider>
       <AudioProvider audioFiles={audio}>
         <SyllableSelectionProvider transcriptionData={transcriptionData}>
-          <div className="app-container">
-            <header className="header">
-              <select
-                value={selectedSong}
-                onChange={(e) => setSelectedSong(e.target.value)}
-              >
-                <option value="93Til">93Til</option>
-              </select>
-            </header>
+          <LineSelectionProvider>
+            <WordSelectionProvider transcriptionData={transcriptionData}>
+              <div className="app-container">
+                <header className="header">
+                  <select
+                    value={selectedSong}
+                    onChange={(e) => setSelectedSong(e.target.value)}
+                  >
+                    <option value="93Til">93Til</option>
+                  </select>
+                </header>
 
-            <main className="main-content">
-              <div className="left-pane">
-                <LineSelectionProvider>
-                  <WordSelectionProvider>
+                <main className="main-content">
+                  <div className="left-pane">
                     <TapestryLayoutProvider
                       transcriptionData={transcriptionData}
                     >
                       <TapestryView transcription={transcriptionData} />
                     </TapestryLayoutProvider>
-                  </WordSelectionProvider>
-                </LineSelectionProvider>
-              </div>
+                  </div>
 
-              <div className="right-pane">
-                <div className="right-pane-section lyrics">
-                  <LineSelectionProvider>
-                    <WordSelectionProvider>
+                  <div className="right-pane">
+                    <div className="right-pane-section lyrics">
                       <LyricsView
                         transcriptionData={transcriptionData}
                         height="100%"
                       />
-                    </WordSelectionProvider>
-                  </LineSelectionProvider>
-                </div>
-                <div className="right-pane-section channel">Channel Strips</div>
-                <div className="right-pane-section audio">
-                  <AudioControlsView />
-                </div>
-              </div>
-            </main>
+                    </div>
+                    <div className="right-pane-section channel">
+                      <ChannelStripsPanel />
+                    </div>
+                    <div className="right-pane-section audio">
+                      <AudioControlsView />
+                    </div>
+                  </div>
+                </main>
 
-            <footer className="footer">Footer</footer>
-          </div>
+                <footer className="footer">Footer</footer>
+              </div>
+            </WordSelectionProvider>
+          </LineSelectionProvider>
         </SyllableSelectionProvider>
       </AudioProvider>
     </ParamsProvider>

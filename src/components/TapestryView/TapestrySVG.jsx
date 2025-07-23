@@ -2,7 +2,8 @@
 import React from "react";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import SyllableGlyphs from "./SyllableGlyphs";
-import "./index.css";
+import WordGlyphs from "./WordGlyphs";
+import "./TapestryView.css";
 
 export default function TapestrySVG({
   transcriptionData,
@@ -20,6 +21,12 @@ export default function TapestrySVG({
       viewBox={`0 0 ${width} ${rowHeight * numberOfRows}`}
       preserveAspectRatio="none"
     >
+      <WordGlyphs
+        transcriptionData={transcriptionData}
+        timeToX={timeToX}
+        onGlyphHoverEnter={onGlyphHoverEnter}
+        onGlyphHoverLeave={onGlyphHoverLeave}
+      />
       <SyllableGlyphs
         transcriptionData={transcriptionData}
         timeToX={timeToX}

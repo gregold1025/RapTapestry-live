@@ -1,0 +1,87 @@
+/* src/components/ChannelStripView/ChannelStrip.css */
+
+.channel-strip {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 12px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  box-sizing: border-box;
+  /* Fill its grid cell and enforce a minimum height */
+  height: 100%;
+  min-height: 120px;
+}
+
+.channel-strip-label {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-weight: bold;
+  font-size: clamp(12px, 2.5vw, 20px);
+}
+
+.volume-fader-container {
+  grid-row: 2;
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.volume-fader {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 10px;
+  -webkit-appearance: none;
+  background: #ddd;
+}
+
+.volume-fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #666;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.button-grid {
+  grid-row: 2;
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.button-grid button {
+  width: 100%;
+  height: 100%;
+  font-size: clamp(12px, 2.5vw, 20px);
+  cursor: pointer;
+}
+
+.button-grid button.active {
+  background: #ccc;
+}
+
+.channel-strips-panel {
+  display: grid;
+  /* Two columns, two rows that each share available height equally */
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  height: 100%;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.channel-strips-panel > * {
+  /* Force each strip to stretch to fill its cell */
+  align-self: stretch;
+  justify-self: stretch;
+}

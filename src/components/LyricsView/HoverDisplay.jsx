@@ -5,7 +5,7 @@ export function HoverDisplay({ hoverData }) {
   return (
     <div
       style={{
-        marginTop: "12px",
+        // marginTop: "12px",
         fontSize: 24,
         color: "#444",
         fontFamily: "monospace",

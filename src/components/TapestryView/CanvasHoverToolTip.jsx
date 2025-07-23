@@ -14,7 +14,7 @@ export function CanvasHoverTooltip({ hoverInfo }) {
     border: "1px solid #ccc",
     borderRadius: 4,
     padding: "4px 8px",
-    fontSize: 12,
+    fontSize: 30,
     fontFamily: "sans-serif",
     color: "#333",
     zIndex: 9999,
