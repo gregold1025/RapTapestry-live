@@ -14,18 +14,42 @@ export function WordBlock({
   onSyllableHover,
   onHoverEnd,
 }) {
-  const vowels = extractVowels(word.phones?.[0]); // returns array of vowels
+  const vowels = extractVowels(word.phones?.[0]);
   const nSyllables = word.nSyllables ?? 1;
 
   const wordId = `${lineIdx}-${wordIdx}`;
   const isCurrent = playheadTime >= word.start && playheadTime < word.end;
   const isHovered = hoverData?.type === "word" && hoverData.text === word.text;
 
-  const { selectedWordId, toggleWord } = useWordSelection();
+  const {
+    selectedWordId,
+    matchedWordIds,
+    toggleWord,
+    wordActiveColor,
+    wordInactiveColor,
+    wordOpacity,
+  } = useWordSelection();
+
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
     useSyllableSelection();
 
   const isWordSelected = selectedWordId === wordId;
+  const isWordMatched = matchedWordIds.has(wordId);
+
+  // small helper to turn "#rrggbb" into "rgba(r,g,b,alpha)"
+  const hexToRgba = (hex, alpha = 1) => {
+    const [r, g, b] = hex
+      .replace(/^#/, "")
+      .match(/.{2}/g)
+      .map((h) => parseInt(h, 16));
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  // choose base fill hex, then apply alpha
+  const baseHex =
+    isWordSelected || isWordMatched ? wordActiveColor : wordInactiveColor;
+
+  const bgRgba = hexToRgba(baseHex, wordOpacity);
 
   return (
     <div
@@ -46,14 +70,8 @@ export function WordBlock({
           const vowel = vowels[i] ?? "AH";
           const color = vowelColors[vowel] ?? "#cccccc";
 
-          const isSelected = selectedIds.includes(id);
-          const isMatch = matchedIds.has(id);
-
-          //   if (isMatch) {
-          //     console.log(
-          //       `🔍 Syllable ${id}: match=${isMatch}, selected=${isSelected}`
-          //     );
-          //   }
+          const isSel = selectedIds.includes(id);
+          const isMtch = matchedIds.has(id);
 
           return (
             <div
@@ -63,8 +81,8 @@ export function WordBlock({
                 width: 20,
                 height: 20,
                 borderRadius: "50%",
-                backgroundColor: isSelected || isMatch ? color : "#cccccc",
-                border: isSelected ? "2px solid red" : "1px solid #999",
+                backgroundColor: isSel || isMtch ? color : "#cccccc",
+                border: isSel ? "2px solid red" : "1px solid #999",
                 cursor: "pointer",
               }}
               onClick={() => handleSyllableClick(id, vowel)}
@@ -90,11 +108,7 @@ export function WordBlock({
         style={{
           fontSize: 30,
           fontWeight: isCurrent ? "bold" : "normal",
-          backgroundColor: isWordSelected
-            ? "lightgreen"
-            : isHovered
-            ? "yellow"
-            : "transparent",
+          backgroundColor: bgRgba,
           cursor: "pointer",
           padding: "0 4px",
         }}

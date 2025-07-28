@@ -1,4 +1,3 @@
-// src/components/ChannelStripView/ParamWindows/vocals/VocalsParamsOverlay.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "../../../../contexts/ParamsContext";
 import "./VocalsParamsOverlay.css";
@@ -30,6 +29,10 @@ export function VocalsParamsOverlay({ onClose }) {
     setWordInactiveColor,
     wordOpacity,
     setWordOpacity,
+    exactMatches,
+    setExactMatches,
+    ignorePlurals,
+    setIgnorePlurals,
 
     // line visuals
     showLines,
@@ -42,7 +45,7 @@ export function VocalsParamsOverlay({ onClose }) {
     setLineOpacity,
   } = useParams();
 
-  // local copies for num & palette to avoid immediate context writes
+  // Local copies for numeric & palette controls
   const [wildcard, setWildcard] = useState(wildcardSkips);
   const [minMatch, setMinMatch] = useState(minMatchLen);
   const [colors, setColors] = useState(contextVowelColors);
@@ -67,7 +70,6 @@ export function VocalsParamsOverlay({ onClose }) {
     setVowelColors(nc);
   };
 
-  // generic handlers for toggles / colors / ranges
   const toggle = (fn) => (e) => fn(e.target.checked);
   const pickColor = (fn) => (e) => fn(e.target.value);
   const pickRange = (fn) => (e) => fn(+e.target.value);
@@ -82,9 +84,8 @@ export function VocalsParamsOverlay({ onClose }) {
           </button>
         </header>
 
-        {/* ── visual panels side by side ── */}
         <div className="visuals-grid">
-          {/* ── syllable visuals ── */}
+          {/* ── Syllable Visuals ── */}
           <div className="visual-section syllable-visuals">
             <h3>Syllable Visuals</h3>
             <label className="toggle-control">
@@ -132,8 +133,8 @@ export function VocalsParamsOverlay({ onClose }) {
                 onChange={pickRange(setSyllableOpacity)}
               />
             </label>
-            {/* ── numeric matching controls ── */}
-            <section className="number-controls">
+
+            <div className="number-controls">
               <label>
                 Max Wildcard Skips:
                 <input
@@ -154,10 +155,10 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={handleMinMatchChange}
                 />
               </label>
-            </section>
+            </div>
           </div>
 
-          {/* ── word visuals ── */}
+          {/* ── Word Visuals ── */}
           <div className="visual-section word-visuals">
             <h3>Word Visuals</h3>
             <label className="toggle-control">
@@ -198,9 +199,27 @@ export function VocalsParamsOverlay({ onClose }) {
                 onChange={pickRange(setWordOpacity)}
               />
             </label>
+
+            <label className="toggle-control">
+              <input
+                type="checkbox"
+                checked={exactMatches}
+                onChange={toggle(setExactMatches)}
+              />
+              Exact Match
+            </label>
+
+            <label className="toggle-control">
+              <input
+                type="checkbox"
+                checked={ignorePlurals}
+                onChange={toggle(setIgnorePlurals)}
+              />
+              Ignore Plurals
+            </label>
           </div>
 
-          {/* ── line visuals ── */}
+          {/* ── Line Visuals ── */}
           <div className="visual-section line-visuals">
             <h3>Line Visuals</h3>
             <label className="toggle-control">

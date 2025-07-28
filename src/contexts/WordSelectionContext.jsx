@@ -1,5 +1,6 @@
 // src/contexts/WordSelectionContext.jsx
 import React, { createContext, useContext, useState, useMemo } from "react";
+import { useParams } from "./ParamsContext";
 import { extractRhymingWords } from "../utils/extractRhymingWords";
 
 const WordSelectionContext = createContext();
@@ -7,6 +8,15 @@ const WordSelectionContext = createContext();
 export function WordSelectionProvider({ transcriptionData, children }) {
   // The single word the user clicked on (or `null`)
   const [selectedWordId, setSelectedWordId] = useState(null);
+
+  // ── pull in your visual & logical parameters ──
+  const {
+    wordActiveColor,
+    wordInactiveColor,
+    wordOpacity,
+    exactMatches,
+    ignorePlurals,
+  } = useParams();
 
   // Toggle selection on/off
   const toggleWord = (wordId) =>
@@ -18,7 +28,8 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     [selectedWordId]
   );
 
-  /*   // Build a map: "lineIdx-wordIdx" → phones string
+  /* 
+  // Build a map: "lineIdx-wordIdx" → phones string
   const wordPhonesMap = useMemo(() => {
     const map = new Map();
     transcriptionData.lines.forEach((line, lineIdx) => {
@@ -32,27 +43,29 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     });
     return map;
   }, [transcriptionData]);
+  */
 
-  // Find all IDs whose phones === the selected word’s phones
-  const matchedWordIds = useMemo(() => {
-    if (!selectedWordId) return new Set();
-    const selectedPhones = wordPhonesMap.get(selectedWordId);
-    if (!selectedPhones) return new Set();
+  // Build a map from each word to its *first* phones string
+  const wordPhonesMap = useMemo(() => {
+    const map = new Map();
+    transcriptionData.lines.forEach((line, i) =>
+      line.words?.forEach((w, j) => {
+        const id = `${i}-${j}`;
+        const phonesStr = Array.isArray(w.phones)
+          ? w.phones[0]
+          : String(w.phones || "");
+        map.set(id, phonesStr);
+      })
+    );
+    return map;
+  }, [transcriptionData]);
 
-    const result = new Set();
-    for (let [id, phones] of wordPhonesMap.entries()) {
-      if (phones === selectedPhones) result.add(id);
-    }
-    return result;
-  }, [wordPhonesMap, selectedWordId]); */
-
+  // Build our rhyming map
   const wordRhymesMap = useMemo(() => {
-    // Map<id, phonesStr>
     const m = new Map();
     transcriptionData.lines.forEach((line, i) => {
       line.words?.forEach((w, j) => {
         const id = `${i}-${j}`;
-        // pick your canonical phones string
         const phonesStr = Array.isArray(w.phones)
           ? w.phones[0]
           : String(w.phones || "");
@@ -62,13 +75,58 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     return m;
   }, [transcriptionData]);
 
+  // helper to strip trailing ARPAbet 'S' phone
+  const stripPluralSuffix = (phones) => {
+    const parts = phones.split(" ");
+    if (parts[parts.length - 1] === "S") parts.pop();
+    return parts.join(" ");
+  };
+
+  // Find all IDs matching either *exact* phones or *rhyming* phones
   const matchedWordIds = useMemo(() => {
     if (!selectedWordId) return new Set();
-    // find all ids that rhyme with the selected word
-    const phonesStr = wordRhymesMap.get(selectedWordId);
-    const rhymers = extractRhymingWords(phonesStr, wordRhymesMap);
-    return new Set(rhymers);
-  }, [selectedWordId, wordRhymesMap]);
+
+    // PERF: grab whichever map we need
+    if (exactMatches) {
+      // ── exact match mode ──
+      const rawSel = wordPhonesMap.get(selectedWordId) || "";
+      const selPhones = ignorePlurals ? stripPluralSuffix(rawSel) : rawSel;
+
+      const result = new Set();
+      for (let [id, rawPhones] of wordPhonesMap.entries()) {
+        const candidate = ignorePlurals
+          ? stripPluralSuffix(rawPhones)
+          : rawPhones;
+        if (candidate === selPhones) {
+          result.add(id);
+        }
+      }
+      return result;
+    } else {
+      // ── rhyming mode ──
+      let raw = wordRhymesMap.get(selectedWordId) || "";
+      const keyPhones = ignorePlurals ? stripPluralSuffix(raw) : raw;
+
+      // build a sanitized rhyme‐map if we need to ignore plurals
+      const rhymeMap = ignorePlurals
+        ? new Map(
+            Array.from(wordRhymesMap.entries()).map(([id, ph]) => [
+              id,
+              stripPluralSuffix(ph),
+            ])
+          )
+        : wordRhymesMap;
+
+      const rhymers = extractRhymingWords(keyPhones, rhymeMap);
+      return new Set(rhymers);
+    }
+  }, [
+    selectedWordId,
+    wordPhonesMap,
+    wordRhymesMap,
+    exactMatches,
+    ignorePlurals,
+  ]);
 
   return (
     <WordSelectionContext.Provider
@@ -77,6 +135,11 @@ export function WordSelectionProvider({ transcriptionData, children }) {
         selectedWordIds,
         matchedWordIds,
         toggleWord,
+
+        // ── now available to any consumer ──
+        wordActiveColor,
+        wordInactiveColor,
+        wordOpacity,
       }}
     >
       {children}

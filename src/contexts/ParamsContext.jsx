@@ -6,8 +6,6 @@ const ParamsContext = createContext();
 export function ParamsProvider({ children }) {
   // … your existing state …
   const [showVocals, setShowVocals] = useState(true);
-  const [wildcardSkips, setWildcardSkips] = useState(1);
-  const [minMatchLen, setMinMatchLen] = useState(2);
   const [vowelColors, setVowelColors] = useState({
     AA: "#00c2a0",
     AE: "#ffff33",
@@ -27,20 +25,28 @@ export function ParamsProvider({ children }) {
   });
 
   // ** syllables **
+  //// visual
   const [showSyllables, setShowSyllables] = useState(true);
   const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
   const [syllableOpacity, setSyllableOpacity] = useState(1);
+  //// logical
+  const [wildcardSkips, setWildcardSkips] = useState(1);
+  const [minMatchLen, setMinMatchLen] = useState(2);
 
   // ** words **
+  //// visual
   const [showWords, setShowWords] = useState(true);
   const [wordActiveColor, setWordActiveColor] = useState("#00aaff");
-  const [wordInactiveColor, setWordInactiveColor] = useState("#cccccc");
+  const [wordInactiveColor, setWordInactiveColor] = useState("transparent");
   const [wordOpacity, setWordOpacity] = useState(0.6);
+  ////logical
+  const [exactMatches, setExactMatches] = useState(false);
+  const [ignorePlurals, setIgnorePlurals] = useState(false);
 
   // ** lines **
   const [showLines, setShowLines] = useState(true);
   const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
-  const [lineInactiveColor, setLineInactiveColor] = useState("#eeeeee");
+  const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
 
   // bass etc...
@@ -54,22 +60,23 @@ export function ParamsProvider({ children }) {
   return (
     <ParamsContext.Provider
       value={{
-        // — vocals / syllables —
+        // — vocals -
         showVocals,
         setShowVocals,
-        wildcardSkips,
-        setWildcardSkips,
-        minMatchLen,
-        setMinMatchLen,
-        vowelColors,
-        setVowelColors,
 
+        // - syllables —
         showSyllables,
         setShowSyllables,
+        vowelColors,
+        setVowelColors,
         inactiveSyllableColor,
         setInactiveSyllableColor,
         syllableOpacity,
         setSyllableOpacity,
+        wildcardSkips,
+        setWildcardSkips,
+        minMatchLen,
+        setMinMatchLen,
 
         // — words —
         showWords,
@@ -80,6 +87,10 @@ export function ParamsProvider({ children }) {
         setWordInactiveColor,
         wordOpacity,
         setWordOpacity,
+        exactMatches,
+        setExactMatches,
+        ignorePlurals,
+        setIgnorePlurals,
 
         // — lines —
         showLines,
