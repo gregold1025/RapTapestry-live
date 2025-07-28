@@ -30,11 +30,20 @@ export function WordBlock({
     wordOpacity,
   } = useWordSelection();
 
+  console.log(
+    `%c[WordBlock:${lineIdx}-${wordIdx}]`,
+    "color:orange",
+    "selectedWordId=",
+    selectedWordId,
+    "matchedWordIds=",
+    [...matchedWordIds]
+  );
+
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
     useSyllableSelection();
 
   const isWordSelected = selectedWordId === wordId;
-  const isWordMatched = matchedWordIds.has(wordId);
+  const isWordMatched = selectedWordId !== null && matchedWordIds.has(wordId);
 
   // small helper to turn "#rrggbb" into "rgba(r,g,b,alpha)"
   const hexToRgba = (hex, alpha = 1) => {
@@ -45,11 +54,10 @@ export function WordBlock({
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  // choose base fill hex, then apply alpha
-  const baseHex =
-    isWordSelected || isWordMatched ? wordActiveColor : wordInactiveColor;
-
-  const bgRgba = hexToRgba(baseHex, wordOpacity);
+  const bgRgba =
+    isWordSelected || isWordMatched
+      ? hexToRgba(wordActiveColor, wordOpacity)
+      : "transparent";
 
   return (
     <div
