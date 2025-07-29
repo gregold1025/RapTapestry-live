@@ -1,19 +1,13 @@
 // src/utils/computeLayout.js
-
 export function computeLayout({
-  transcriptionData,
+  duration,
   width,
   height,
   estimated_bpm = 103,
   barsPerRow = 8,
 }) {
-  // 1. Find the last word end time
-  let maxEndTime = 0;
-  transcriptionData.lines?.forEach((line) =>
-    line.words?.forEach((word) => {
-      if (word.end > maxEndTime) maxEndTime = word.end;
-    })
-  );
+  // 1. Use provided duration
+  const maxEndTime = duration || 0;
 
   // 2. Time-based grid calculation
   const secondsPerBar = (60 / estimated_bpm) * 4;

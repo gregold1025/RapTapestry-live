@@ -1,9 +1,9 @@
 // src/components/TapestryView/WordGlyphs.jsx
 import React from "react";
-import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import { useWordSelection } from "../../contexts/WordSelectionContext";
-import { useParams } from "../../contexts/ParamsContext";
-import { useAudioEngine } from "../../contexts/AudioContext";
+import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
+import { useParams } from "../../../contexts/ParamsContext";
+import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function WordGlyphs({
   transcriptionData,

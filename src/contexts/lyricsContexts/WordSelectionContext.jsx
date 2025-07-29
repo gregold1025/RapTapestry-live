@@ -1,7 +1,7 @@
 // src/contexts/WordSelectionContext.jsx
 import React, { createContext, useContext, useState, useMemo } from "react";
-import { useParams } from "./ParamsContext";
-import { extractRhymingWords } from "../utils/extractRhymingWords";
+import { useParams } from "../ParamsContext";
+import { extractRhymingWords } from "../../utils/extractRhymingWords";
 
 const WordSelectionContext = createContext();
 

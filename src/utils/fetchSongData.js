@@ -2,19 +2,30 @@ export async function fetchSongData(songName) {
   const basePath = `/data/${songName}`;
   const audioPath = `${basePath}/audio`;
   const midiPath = `${basePath}/midi`;
-  const transcriptionPath = `${basePath}/lyric-transcription.json`;
+  const lyricTranscriptionPath = `${basePath}/lyric-transcription.json`;
+  const drumTranscriptionPath = `${basePath}/drum-transcription.json`;
 
   // Categories to retrieve
   const stems = ["Vocals", "Bass", "Drums", "Other"];
 
-  // Get transcription
-  let transcriptionData = null;
+  // Get lyric transcription
+  let lyricTranscription = null;
   try {
-    const res = await fetch(transcriptionPath);
+    const res = await fetch(lyricTranscriptionPath);
     if (!res.ok) throw new Error("Lyric transcription not found");
-    transcriptionData = await res.json();
+    lyricTranscription = await res.json();
   } catch (err) {
-    console.error(`Error loading transcription for ${songName}:`, err);
+    console.error(`Error loading lyric transcription for ${songName}:`, err);
+  }
+
+  // Get drum transcription (optional)
+  let drumTranscription = null;
+  try {
+    const res = await fetch(drumTranscriptionPath);
+    if (res.ok) drumTranscription = await res.json();
+    else console.warn(`No drum transcription found for ${songName}`);
+  } catch (err) {
+    console.warn(`Error loading drum transcription for ${songName}:`, err);
   }
 
   // Get audio URLs (all assumed to exist)
@@ -35,9 +46,25 @@ export async function fetchSongData(songName) {
     }
   }
 
+  // Compute song duration (using the Vocals stem)
+  let duration = null;
+  try {
+    duration = await new Promise((resolve, reject) => {
+      const audio = new Audio(audioFiles.vocals);
+      audio.addEventListener("loadedmetadata", () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", reject);
+    });
+  } catch (err) {
+    console.warn(`Unable to determine duration for ${songName}:`, err);
+  }
+
   return {
-    transcriptionData,
+    lyricTranscription,
     audio: audioFiles,
     midi: midiFiles,
+    drumTranscription,
+    duration, // float, no rounding
   };
 }

@@ -1,5 +1,4 @@
 // src/contexts/TapestryLayoutContext.jsx
-
 import React, {
   createContext,
   useContext,
@@ -13,8 +12,8 @@ const TapestryLayoutContext = createContext();
 
 export function TapestryLayoutProvider({
   children,
-  transcriptionData,
-  estimated_bpm = 103,
+  duration,
+  estimated_bpm,
   barsPerRow = 8,
 }) {
   const containerRef = useRef(null);
@@ -22,11 +21,11 @@ export function TapestryLayoutProvider({
 
   useEffect(() => {
     const container = containerRef.current;
-
-    if (!container || !transcriptionData?.lines?.length) {
+    if (!container || !duration || !estimated_bpm) {
       console.warn("❌ Cannot compute layout yet", {
         container,
-        transcriptionData,
+        duration,
+        estimated_bpm,
       });
       return;
     }
@@ -34,16 +33,16 @@ export function TapestryLayoutProvider({
     const { clientWidth, clientHeight } = container;
 
     const newLayout = computeLayout({
-      transcriptionData,
+      duration,
       width: clientWidth,
       height: clientHeight,
       estimated_bpm,
       barsPerRow,
     });
 
-    console.log("✅ One-time layout computed:", newLayout);
+    console.log("✅ Layout computed:", newLayout);
     setLayout(newLayout);
-  }, [transcriptionData, estimated_bpm, barsPerRow]);
+  }, [duration, estimated_bpm, barsPerRow]);
 
   return (
     <TapestryLayoutContext.Provider value={{ layout, containerRef }}>

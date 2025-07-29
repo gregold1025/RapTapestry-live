@@ -1,8 +1,8 @@
 // src/components/LyricsView/WordBlock.jsx
 import React from "react";
 import { extractVowels } from "../../utils/extractVowels";
-import { useWordSelection } from "../../contexts/WordSelectionContext";
-import { useSyllableSelection } from "../../contexts/SyllableSelectionContext";
+import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
+import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 
 export function WordBlock({
   word,

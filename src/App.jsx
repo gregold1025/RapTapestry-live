@@ -6,9 +6,9 @@ import { AudioProvider } from "./contexts/AudioContext";
 import { ParamsProvider } from "./contexts/ParamsContext";
 import { TapestryLayoutProvider } from "./contexts/TapestryLayoutContext";
 
-import { SyllableSelectionProvider } from "./contexts/SyllableSelectionContext";
-import { WordSelectionProvider } from "./contexts/WordSelectionContext";
-import { LineSelectionProvider } from "./contexts/LineSelectionContext";
+import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSelectionContext";
+import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionContext";
+import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
 
 import AudioControlsView from "./components/AudioControlsView";
 import LyricsView from "./components/LyricsView";
@@ -30,14 +30,15 @@ export default function App() {
 
   if (!songData) return <div>Loading song data...</div>;
 
-  const { transcriptionData, audio, midi } = songData;
+  const { lyricTranscription, drumTranscription, audio, midi, duration } =
+    songData;
 
   return (
     <ParamsProvider>
       <AudioProvider audioFiles={audio}>
-        <SyllableSelectionProvider transcriptionData={transcriptionData}>
+        <SyllableSelectionProvider transcriptionData={lyricTranscription}>
           <LineSelectionProvider>
-            <WordSelectionProvider transcriptionData={transcriptionData}>
+            <WordSelectionProvider transcriptionData={lyricTranscription}>
               <div className="app-container">
                 <header className="header">
                   <select
@@ -51,16 +52,20 @@ export default function App() {
                 <main className="main-content">
                   <div className="left-pane">
                     <TapestryLayoutProvider
-                      transcriptionData={transcriptionData}
+                      duration={songData.duration}
+                      estimated_bpm={drumTranscription.estimated_bpm}
                     >
-                      <TapestryView transcription={transcriptionData} />
+                      <TapestryView
+                        lyricTranscription={lyricTranscription}
+                        drumTranscription={drumTranscription}
+                      />
                     </TapestryLayoutProvider>
                   </div>
 
                   <div className="right-pane">
                     <div className="right-pane-section lyrics">
                       <LyricsView
-                        transcriptionData={transcriptionData}
+                        transcriptionData={lyricTranscription}
                         height="100%"
                       />
                     </div>

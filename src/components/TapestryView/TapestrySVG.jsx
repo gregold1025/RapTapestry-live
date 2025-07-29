@@ -1,14 +1,15 @@
 // src/components/TapestryView/TapestrySVG.jsx
 import React from "react";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import SyllableGlyphs from "./SyllableGlyphs";
-import WordGlyphs from "./WordGlyphs";
-import LineGlyphs from "./LineGlyphs";
-import MusicalGrid from "./MusicalGrid";
+import VocalsGlyphs from "./vocals/VocalsGlyphs";
+import DrumsGlyphs from "./drums/DrumsGlyphs";
+import DrumGrid from "./drums/DrumGrid";
+import MusicalGrid from "./global/MusicalGrid";
 import "./TapestryView.css";
 
 export default function TapestrySVG({
-  transcriptionData,
+  lyricTranscriptionData,
+  drumTranscriptionData,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -23,25 +24,16 @@ export default function TapestrySVG({
       viewBox={`0 0 ${width} ${rowHeight * numberOfRows}`}
       preserveAspectRatio="none"
     >
-      <LineGlyphs
-        transcriptionData={transcriptionData}
+      <VocalsGlyphs
+        lyricTranscriptionData={lyricTranscriptionData}
         timeToX={timeToX}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
-      <WordGlyphs
-        transcriptionData={transcriptionData}
-        timeToX={timeToX}
-        onGlyphHoverEnter={onGlyphHoverEnter}
-        onGlyphHoverLeave={onGlyphHoverLeave}
-      />
-      <SyllableGlyphs
-        transcriptionData={transcriptionData}
-        timeToX={timeToX}
-        onGlyphHoverEnter={onGlyphHoverEnter}
-        onGlyphHoverLeave={onGlyphHoverLeave}
-      />
-      <MusicalGrid beatsPerMeasure={4} strokeColor="#666" />
+      <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>
+      <DrumGrid drumTranscriptionData={drumTranscriptionData} />
+
+      {/* <MusicalGrid beatsPerMeasure={4} strokeColor="#666" /> */}
     </svg>
   );
 }

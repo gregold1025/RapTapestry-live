@@ -1,5 +1,5 @@
 import { WordBlock } from "./WordBlock";
-import { useLineSelection } from "../../contexts/LineSelectionContext";
+import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
 
 export function WordLine({
   line,

@@ -1,9 +1,9 @@
 // src/components/TapestryView/LineGlyphs.jsx
 import React from "react";
-import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import { useLineSelection } from "../../contexts/LineSelectionContext";
-import { useParams } from "../../contexts/ParamsContext";
-import { useAudioEngine } from "../../contexts/AudioContext";
+import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import { useLineSelection } from "../../../contexts/lyricsContexts/LineSelectionContext";
+import { useParams } from "../../../contexts/ParamsContext";
+import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function LineGlyphs({
   transcriptionData,

@@ -1,10 +1,10 @@
 // src/components/TapestryView/SyllableGlyphs.jsx
 import React from "react";
-import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import { useSyllableSelection } from "../../contexts/SyllableSelectionContext";
-import { useParams } from "../../contexts/ParamsContext";
-import { extractVowels } from "../../utils/extractVowels";
-import { useAudioEngine } from "../../contexts/AudioContext";
+import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
+import { useParams } from "../../../contexts/ParamsContext";
+import { extractVowels } from "../../../utils/extractVowels";
+import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function SyllableGlyphs({
   transcriptionData,

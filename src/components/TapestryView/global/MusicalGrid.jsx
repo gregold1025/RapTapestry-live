@@ -1,6 +1,6 @@
 // src/components/TapestryView/MusicalGrid.jsx
 import React from "react";
-import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
+import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 
 export default function MusicalGrid({
   beatsPerMeasure = 4,

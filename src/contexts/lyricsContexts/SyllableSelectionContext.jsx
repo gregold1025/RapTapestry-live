@@ -5,8 +5,8 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import { useParams } from "./ParamsContext";
-import { extractVowels } from "../utils/extractVowels";
+import { useParams } from "../ParamsContext";
+import { extractVowels } from "../../utils/extractVowels";
 
 const SyllableSelectionContext = createContext();
 

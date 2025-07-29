@@ -3,9 +3,9 @@ import React, { useRef, useEffect } from "react";
 import { Application, extend } from "@pixi/react";
 import { Container, Graphics } from "pixi.js";
 
-import { useAudioEngine } from "../../contexts/AudioContext";
-import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
-import "./TapestryView.css";
+import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import "../TapestryView.css";
 
 extend({ Container, Graphics });
 

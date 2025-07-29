@@ -1,13 +1,16 @@
 // src/components/TapestryView/TapestryView.jsx
 import React from "react";
 import TapestrySVG from "./TapestrySVG";
-import PixiPlayheadOverlay from "./pixiPlayheadOverlay";
+import PixiPlayheadOverlay from "./global/pixiPlayheadOverlay";
 import { useCanvasHoverInfo } from "./hooks/useCanvasHoverInfo";
-import { CanvasHoverTooltip } from "./CanvasHoverToolTip";
+import { CanvasHoverTooltip } from "./global/CanvasHoverToolTip";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import "./TapestryView.css";
 
-export default function TapestryView({ transcription }) {
+export default function TapestryView({
+  lyricTranscription,
+  drumTranscription,
+}) {
   const { containerRef } = useTapestryLayout();
   const { hoverInfo, onHoverEnter, onHoverMove, onHoverLeave } =
     useCanvasHoverInfo();
@@ -20,7 +23,8 @@ export default function TapestryView({ transcription }) {
       onMouseLeave={onHoverLeave}
     >
       <TapestrySVG
-        transcriptionData={transcription}
+        lyricTranscriptionData={lyricTranscription}
+        drumTranscriptionData={drumTranscription}
         onGlyphHoverEnter={onHoverEnter}
         onGlyphHoverLeave={onHoverLeave}
       />
