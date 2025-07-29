@@ -4,7 +4,8 @@ import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import VocalsGlyphs from "./vocals/VocalsGlyphs";
 import DrumsGlyphs from "./drums/DrumsGlyphs";
 import DrumGrid from "./drums/DrumGrid";
-import MusicalGrid from "./global/MusicalGrid";
+import SVGPlayhead from "./global/SVGPlayhead";
+import HorizontalGrid from "./global/HorizontalGrid";
 import "./TapestryView.css";
 
 export default function TapestrySVG({
@@ -26,14 +27,12 @@ export default function TapestrySVG({
     >
       <VocalsGlyphs
         lyricTranscriptionData={lyricTranscriptionData}
-        timeToX={timeToX}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
-      <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>
+      <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>{" "}
       <DrumGrid drumTranscriptionData={drumTranscriptionData} />
-
-      {/* <MusicalGrid beatsPerMeasure={4} strokeColor="#666" /> */}
+      <HorizontalGrid />
     </svg>
   );
 }

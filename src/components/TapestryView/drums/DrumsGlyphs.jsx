@@ -1,11 +1,9 @@
 import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 
-// Helper: consolidate events within a merge window
+// Merge logic (same as before)
 function mergeEvents({ downbeats, beats, drum_hits, mergeWindow }) {
   const events = [];
-
-  // Wrap everything with source tags
   downbeats.forEach((t) =>
     events.push({ time: t, sources: { downbeat: true }, category: "mid" })
   );
@@ -20,12 +18,10 @@ function mergeEvents({ downbeats, beats, drum_hits, mergeWindow }) {
     })
   );
 
-  // Sort by time
   events.sort((a, b) => a.time - b.time);
 
   const merged = [];
   let currentGroup = [];
-
   for (const ev of events) {
     if (
       currentGroup.length === 0 ||
@@ -38,36 +34,30 @@ function mergeEvents({ downbeats, beats, drum_hits, mergeWindow }) {
     }
   }
   if (currentGroup.length) merged.push(consolidateGroup(currentGroup));
-
   return merged;
 }
 
-// Helper: combine a group into a single reinforced event
 function consolidateGroup(group) {
-  const time = group.reduce((sum, ev) => sum + ev.time, 0) / group.length; // average time
+  const time = group.reduce((sum, ev) => sum + ev.time, 0) / group.length;
   const combinedSources = {
     downbeat: group.some((e) => e.sources.downbeat),
     beat: group.some((e) => e.sources.beat),
     onset: group.some((e) => e.sources.onset),
   };
-  const category = group.find((e) => e.sources.onset)?.category || "mid"; // prefer onset category if present
-  const reinforcementCount =
-    (combinedSources.downbeat ? 1 : 0) +
-    (combinedSources.beat ? 1 : 0) +
-    (combinedSources.onset ? 1 : 0);
-
-  return { time, category, reinforcementCount };
+  const category = group.find((e) => e.sources.onset)?.category || "mid";
+  return { time, category, sources: combinedSources };
 }
 
-// Helper: category to Y offset multiplier
-function categoryYOffset(category, rowHeight) {
+// Y offset for category
+function hitYOffset(category, rowHeight) {
   switch (category) {
-    case "low":
-      return rowHeight * 0.9;
     case "high":
-      return rowHeight * 0.6;
+      return rowHeight * 0.25;
+    case "mid":
+      return rowHeight * 0.375;
+    case "low":
     default:
-      return rowHeight * 0.75; // mid
+      return rowHeight * 0.5;
   }
 }
 
@@ -75,14 +65,11 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   if (!layout || !drumTranscriptionData) return null;
 
-  const { estimated_bpm, secondsPerRow, rowHeight, width, numberOfRows } =
-    layout;
-  const { downbeats, beats, drum_hits } = drumTranscriptionData;
+  const { rowHeight, timeToPixels } = layout;
+  const { downbeats, beats, drum_hits, estimated_bpm } = drumTranscriptionData;
 
-  // Merge window: 1/32 note in seconds
-  const mergeWindow = (60 / estimated_bpm) * (4 / 32);
+  const mergeWindow = (60 / (estimated_bpm || 103)) * (4 / 32);
 
-  // Consolidate and memoize events
   const mergedEvents = useMemo(
     () =>
       mergeEvents({
@@ -94,31 +81,25 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
     [downbeats, beats, drum_hits, mergeWindow]
   );
 
-  // Helper: convert time to SVG X/Y
-  const timeToX = (t) => ((t % secondsPerRow) / secondsPerRow) * width;
-  const timeToRow = (t) => Math.floor(t / secondsPerRow);
+  const glyphs = mergedEvents.map((ev, idx) => {
+    const { x, y } = timeToPixels(ev.time);
+    const lineHeight = rowHeight * 0.25;
+    const y1 = y + hitYOffset(ev.category, rowHeight);
+    const y2 = y1 + lineHeight;
 
-  return (
-    <>
-      {mergedEvents.map((ev, idx) => {
-        const row = timeToRow(ev.time);
-        const cx = timeToX(ev.time);
-        const cy = row * rowHeight + categoryYOffset(ev.category, rowHeight);
+    return (
+      <line
+        key={`glyph-${idx}`}
+        x1={x}
+        y1={y1}
+        x2={x}
+        y2={y2}
+        stroke="gray"
+        strokeWidth={2}
+        opacity={0.8}
+      />
+    );
+  });
 
-        // Radius based on reinforcement count
-        const radius = 1 + ev.reinforcementCount * 3; // base 4, +3 per source
-
-        return (
-          <circle
-            key={idx}
-            cx={cx}
-            cy={cy}
-            r={radius}
-            fill="blue"
-            opacity={0.8}
-          />
-        );
-      })}
-    </>
-  );
+  return <>{glyphs}</>;
 }

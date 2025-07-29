@@ -3,6 +3,7 @@ import React from "react";
 import { extractVowels } from "../../utils/extractVowels";
 import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
 import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
+import { useParams } from "../../contexts/ParamsContext";
 
 export function WordBlock({
   word,
@@ -21,23 +22,17 @@ export function WordBlock({
   const isCurrent = playheadTime >= word.start && playheadTime < word.end;
   const isHovered = hoverData?.type === "word" && hoverData.text === word.text;
 
-  const {
-    selectedWordId,
-    matchedWordIds,
-    toggleWord,
-    wordActiveColor,
-    wordInactiveColor,
-    wordOpacity,
-  } = useWordSelection();
+  const { selectedWordId, matchedWordIds, toggleWord } = useWordSelection();
+  const { wordActiveColor, wordInactiveColor, wordOpacity } = useParams();
 
-  console.log(
-    `%c[WordBlock:${lineIdx}-${wordIdx}]`,
-    "color:orange",
-    "selectedWordId=",
-    selectedWordId,
-    "matchedWordIds=",
-    [...matchedWordIds]
-  );
+  // console.log(
+  //   `%c[WordBlock:${lineIdx}-${wordIdx}]`,
+  //   "color:orange",
+  //   "selectedWordId=",
+  //   selectedWordId,
+  //   "matchedWordIds=",
+  //   [...matchedWordIds]
+  // );
 
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
     useSyllableSelection();

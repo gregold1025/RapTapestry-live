@@ -1,4 +1,3 @@
-// src/components/TapestryView/SyllableGlyphs.jsx
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
@@ -8,7 +7,6 @@ import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function SyllableGlyphs({
   transcriptionData,
-  timeToX,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -18,12 +16,12 @@ export default function SyllableGlyphs({
     useParams();
   const { seekAll } = useAudioEngine();
 
-  if (!layout || !timeToX || !showSyllables) return null;
+  if (!layout || !showSyllables) return null;
 
-  const { secondsPerRow, rowHeight } = layout;
+  const { rowHeight, timeToPixels } = layout;
   const radius = 8;
 
-  // first, build a flat-ordered list of all syllable IDs
+  // build a flat-ordered list of all syllable IDs
   const flatOrderedIds = [];
   transcriptionData.lines.forEach((line, li) =>
     line.words?.forEach((word, wi) => {
@@ -35,7 +33,6 @@ export default function SyllableGlyphs({
   );
   const idToFlatIndex = new Map(flatOrderedIds.map((id, idx) => [id, idx]));
 
-  // collect syllable glyphs and remember their coords
   const glyphCoords = new Map();
   const syllables = [];
 
@@ -53,15 +50,13 @@ export default function SyllableGlyphs({
 
       for (let si = 0; si < nSyllables; si++) {
         const start = word.start + si * syllableDuration;
-        const x = timeToX(start) + radius;
-        const row = Math.floor(start / secondsPerRow);
-        const baseY = row * rowHeight + rowHeight / 2;
+        const { x, y, row } = timeToPixels(start);
         const ci = Math.floor(si * spacing);
         const vertOff = ((centroids[ci] ?? 0.5) * 0.5 - 0.5) * rowHeight;
-        const y = baseY + vertOff;
+        const finalY = y + rowHeight / 2 + vertOff;
         const id = `${li}-${wi}-${si}`;
 
-        glyphCoords.set(id, { x, y });
+        glyphCoords.set(id, { x, y: finalY });
 
         const isSelected = selectedIds.includes(id);
         const isMatch = matchedIds.has(id);
@@ -74,8 +69,8 @@ export default function SyllableGlyphs({
         syllables.push(
           <circle
             key={id}
-            cx={x}
-            cy={y}
+            cx={x + radius}
+            cy={finalY}
             r={radius}
             fill={fill}
             opacity={syllableOpacity}
@@ -101,7 +96,7 @@ export default function SyllableGlyphs({
     });
   });
 
-  // connector for exactly two selected syllables
+  // connectors stay the same, using glyphCoords
   const connectors = [];
   if (selectedIds.length === 2) {
     const [a, b] = selectedIds;
@@ -111,18 +106,19 @@ export default function SyllableGlyphs({
       connectors.push(
         <line
           key={`sel-${a}-${b}`}
-          x1={pA.x}
+          x1={pA.x + radius}
           y1={pA.y}
-          x2={pB.x}
+          x2={pB.x + radius}
           y2={pB.y}
           stroke="#f00"
           strokeWidth={20}
+          strokeDasharray="4 1"
+          strokeLinecap="round"
         />
       );
     }
   }
 
-  // connectors for matched pairs (adjacent in flat sequence)
   const matchedSorted = Array.from(matchedIds)
     .filter((id) => idToFlatIndex.has(id))
     .sort((u, v) => idToFlatIndex.get(u) - idToFlatIndex.get(v));
@@ -137,13 +133,14 @@ export default function SyllableGlyphs({
         connectors.push(
           <line
             key={`match-${a}-${b}`}
-            x1={pA.x}
+            x1={pA.x + radius}
             y1={pA.y}
-            x2={pB.x}
+            x2={pB.x + radius}
             y2={pB.y}
             stroke="#000"
-            strokeWidth={20}
+            strokeWidth={16}
             strokeDasharray="4 1"
+            strokeLinecap="round"
           />
         );
       }

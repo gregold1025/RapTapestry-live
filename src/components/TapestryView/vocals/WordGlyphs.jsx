@@ -1,4 +1,3 @@
-// src/components/TapestryView/WordGlyphs.jsx
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
@@ -7,7 +6,6 @@ import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function WordGlyphs({
   transcriptionData,
-  timeToX,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -17,9 +15,9 @@ export default function WordGlyphs({
     useParams();
   const { seekAll } = useAudioEngine();
 
-  if (!layout || !timeToX || !showWords) return null;
+  if (!layout || !showWords) return null;
 
-  const { secondsPerRow, rowHeight, width } = layout;
+  const { rowHeight, timeToPixels } = layout;
   const barHeight = rowHeight * 0.3;
   const vPad = (rowHeight - barHeight) / 2 - 4;
 
@@ -32,16 +30,14 @@ export default function WordGlyphs({
         return;
 
       const id = `${lineIdx}-${wordIdx}`;
-      const startX = timeToX(word.start);
-      const dur = word.end - word.start;
-      const widthPx = (dur / secondsPerRow) * width;
-      const row = Math.floor(word.start / secondsPerRow);
-      const y = row * rowHeight + vPad;
+      const { x: startX, y, row } = timeToPixels(word.start);
+      const { x: endX } = timeToPixels(word.end);
+      const widthPx = Math.max(1, endX - startX);
+      const rectY = row * rowHeight + vPad;
 
       const isSelected = selectedWordIds.includes(id);
       const isMatch = matchedWordIds.has(id);
 
-      // pick fill from params
       const fill = isSelected || isMatch ? wordActiveColor : wordInactiveColor;
       const stroke = isSelected ? "#aa0000" : "none";
 
@@ -49,7 +45,7 @@ export default function WordGlyphs({
         <rect
           key={id}
           x={startX}
-          y={y}
+          y={rectY}
           width={widthPx}
           height={barHeight}
           fill={fill}

@@ -6,7 +6,6 @@ import SyllableGlyphs from "./SyllableGlyphs";
 
 export default function VocalsGlyphs({
   lyricTranscriptionData,
-  timeToX,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -18,19 +17,16 @@ export default function VocalsGlyphs({
     <>
       <LineGlyphs
         transcriptionData={lyricTranscriptionData}
-        timeToX={timeToX}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
       <WordGlyphs
         transcriptionData={lyricTranscriptionData}
-        timeToX={timeToX}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
       <SyllableGlyphs
         transcriptionData={lyricTranscriptionData}
-        timeToX={timeToX}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />

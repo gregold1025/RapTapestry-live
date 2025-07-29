@@ -54,6 +54,8 @@ export default function App() {
                     <TapestryLayoutProvider
                       duration={songData.duration}
                       estimated_bpm={drumTranscription.estimated_bpm}
+                      downbeats={drumTranscription.downbeats}
+                      barsPerRow={8}
                     >
                       <TapestryView
                         lyricTranscription={lyricTranscription}

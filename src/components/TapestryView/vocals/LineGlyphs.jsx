@@ -1,5 +1,4 @@
-// src/components/TapestryView/LineGlyphs.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useLineSelection } from "../../../contexts/lyricsContexts/LineSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -7,7 +6,6 @@ import { useAudioEngine } from "../../../contexts/AudioContext";
 
 export default function LineGlyphs({
   transcriptionData,
-  timeToX,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -17,25 +15,31 @@ export default function LineGlyphs({
     useParams();
   const { seekAll } = useAudioEngine();
 
-  if (!layout || !timeToX || !showLines) return null;
+  // Track hover
+  const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
 
-  const { secondsPerRow, rowHeight, width } = layout;
+  if (!layout || !showLines) return null;
+
+  const { rowHeight, width, timeToPixels } = layout;
 
   return transcriptionData.lines.flatMap((line, lineIdx) => {
     if (typeof line.start !== "number" || typeof line.end !== "number")
       return [];
 
-    const startRow = Math.floor(line.start / secondsPerRow);
-    const endRow = Math.floor(line.end / secondsPerRow);
     const isSelected = selectedLineIdx === lineIdx;
+    const isHovered = hoveredLineIdx === lineIdx;
 
     const fill = isSelected ? lineActiveColor : lineInactiveColor;
-    const stroke = isSelected ? "#00aa00" : "none";
+    const stroke = isHovered ? "black" : "none";
+    const strokeWidth = isHovered ? 2 : isSelected ? 2 : 0;
 
     const rects = [];
+    const { x: startX, row: startRow } = timeToPixels(line.start);
+    const { x: endX, row: endRow } = timeToPixels(line.end);
+
     for (let row = startRow; row <= endRow; row++) {
-      const x1 = row === startRow ? timeToX(line.start) : 0;
-      const x2 = row === endRow ? timeToX(line.end) : width;
+      const x1 = row === startRow ? startX : 0;
+      const x2 = row === endRow ? endX : width;
       const segWidth = Math.max(1, x2 - x1);
 
       rects.push(
@@ -48,19 +52,23 @@ export default function LineGlyphs({
           fill={fill}
           opacity={lineOpacity}
           stroke={stroke}
-          strokeWidth={isSelected ? 2 : 0}
+          strokeWidth={strokeWidth}
           style={{ cursor: "pointer" }}
           onClick={() => seekAll(line.start)}
-          onMouseEnter={(e) =>
-            onGlyphHoverEnter?.(e, {
-              type: "line",
-              lineIdx,
-              text: line.text.trim(),
-              start: line.start,
-              end: line.end,
-            })
-          }
-          onMouseLeave={onGlyphHoverLeave}
+          onMouseEnter={(e) => {
+            setHoveredLineIdx(lineIdx);
+            // onGlyphHoverEnter?.(e, {
+            //   type: "line",
+            //   lineIdx,
+            //   text: line.text,
+            //   start: line.start,
+            //   end: line.end,
+            // });
+          }}
+          onMouseLeave={(e) => {
+            setHoveredLineIdx(null);
+            onGlyphHoverLeave?.(e);
+          }}
         />
       );
     }

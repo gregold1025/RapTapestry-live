@@ -18,33 +18,17 @@ export function PlayheadLine() {
     if (!layout || !graphicsRef.current) return;
 
     const g = graphicsRef.current;
-    const { secondsPerRow, rowHeight, width } = layout;
+    const { rowHeight, timeToPixels } = layout;
 
-    // PixiPlayheadOverlay.jsx → inside PlayheadLine’s useEffect:
-    console.log(
-      "Pixi rowHeight:",
-      layout.rowHeight,
-      "rows:",
-      layout.numberOfRows,
-      "totalH:",
-      layout.height
-    );
-
-    const timeToX = (t) => {
-      const tInRow = t % secondsPerRow;
-      return (tInRow / secondsPerRow) * width;
-    };
-
-    const currentX = timeToX(playheadTime);
-    const currentRow = Math.floor(playheadTime / secondsPerRow);
-    const currentY = currentRow * rowHeight;
+    // Map playheadTime to locked grid coordinates
+    const { x: currentX, y: currentY } = timeToPixels(playheadTime);
 
     g.clear();
     g.setStrokeStyle({ width: 3, color: 0xff0000, alpha: 1 });
     g.moveTo(currentX, currentY);
     g.lineTo(currentX, currentY + rowHeight);
     g.stroke();
-  }, [playheadTime, layout]); // ✅ React-compliant hook
+  }, [playheadTime, layout]);
 
   return <pixiGraphics ref={graphicsRef} />;
 }

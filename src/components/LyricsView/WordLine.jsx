@@ -1,5 +1,6 @@
 import { WordBlock } from "./WordBlock";
 import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
+import { useParams } from "../../contexts/ParamsContext";
 
 export function WordLine({
   line,
@@ -12,7 +13,21 @@ export function WordLine({
   onHoverEnd,
 }) {
   const { selectedLineIdx, toggleLine } = useLineSelection();
+  const { lineActiveColor, lineOpacity } = useParams();
   const isSelected = selectedLineIdx === lineIdx;
+
+  // small helper to turn "#rrggbb" into "rgba(r,g,b,alpha)"
+  const hexToRgba = (hex, alpha = 1) => {
+    const [r, g, b] = hex
+      .replace(/^#/, "")
+      .match(/.{2}/g)
+      .map((h) => parseInt(h, 16));
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const bgRgba = isSelected
+    ? hexToRgba(lineActiveColor, lineOpacity)
+    : "transparent";
 
   return (
     <div
@@ -21,7 +36,7 @@ export function WordLine({
         paddingBottom: 6,
         borderBottom: "1px dashed #ccc",
         fontWeight: isCurrent ? "bold" : "normal",
-        backgroundColor: isSelected ? "#e6f7ff" : "transparent",
+        backgroundColor: bgRgba,
         display: "flex",
         alignItems: "center",
         gap: "12px",

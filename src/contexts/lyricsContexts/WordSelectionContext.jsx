@@ -10,13 +10,7 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   const [selectedWordId, setSelectedWordId] = useState(null);
 
   // ── pull in your visual & logical parameters ──
-  const {
-    wordActiveColor,
-    wordInactiveColor,
-    wordOpacity,
-    exactMatches,
-    ignorePlurals,
-  } = useParams();
+  const { exactMatches, ignorePlurals } = useParams();
 
   // Toggle selection on/off
   const toggleWord = (wordId) =>
@@ -135,11 +129,6 @@ export function WordSelectionProvider({ transcriptionData, children }) {
         selectedWordIds,
         matchedWordIds,
         toggleWord,
-
-        // ── now available to any consumer ──
-        wordActiveColor,
-        wordInactiveColor,
-        wordOpacity,
       }}
     >
       {children}

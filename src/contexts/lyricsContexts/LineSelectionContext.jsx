@@ -1,5 +1,6 @@
 // src/contexts/LineSelectionContext.jsx
 import { createContext, useContext, useState } from "react";
+import { useParams } from "../ParamsContext";
 
 const LineSelectionContext = createContext();
 
