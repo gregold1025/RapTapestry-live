@@ -4,6 +4,7 @@ export async function fetchSongData(songName) {
   const midiPath = `${basePath}/midi`;
   const lyricTranscriptionPath = `${basePath}/lyric-transcription.json`;
   const drumTranscriptionPath = `${basePath}/drum-transcription.json`;
+  const bassTranscriptionPath = `${basePath}/bass-transcription.json`;
 
   // Categories to retrieve
   const stems = ["Vocals", "Bass", "Drums", "Other"];
@@ -23,6 +24,16 @@ export async function fetchSongData(songName) {
   try {
     const res = await fetch(drumTranscriptionPath);
     if (res.ok) drumTranscription = await res.json();
+    else console.warn(`No drum transcription found for ${songName}`);
+  } catch (err) {
+    console.warn(`Error loading drum transcription for ${songName}:`, err);
+  }
+
+  // Get drum transcription (optional)
+  let bassTranscription = null;
+  try {
+    const res = await fetch(bassTranscriptionPath);
+    if (res.ok) bassTranscription = await res.json();
     else console.warn(`No drum transcription found for ${songName}`);
   } catch (err) {
     console.warn(`Error loading drum transcription for ${songName}:`, err);
@@ -65,6 +76,7 @@ export async function fetchSongData(songName) {
     audio: audioFiles,
     midi: midiFiles,
     drumTranscription,
+    bassTranscription,
     duration, // float, no rounding
   };
 }

@@ -4,7 +4,7 @@ import { HoverDisplay } from "./HoverDisplay";
 import { useHoverInfo } from "./hooks/useHoverInfo";
 import { useAudioEngine } from "../../contexts/AudioContext";
 
-const nLines = 8;
+const nLines = 12;
 
 export default function LyricsView({ transcriptionData, height }) {
   const { playheadTime } = useAudioEngine();

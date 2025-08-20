@@ -30,8 +30,14 @@ export default function App() {
 
   if (!songData) return <div>Loading song data...</div>;
 
-  const { lyricTranscription, drumTranscription, audio, midi, duration } =
-    songData;
+  const {
+    lyricTranscription,
+    drumTranscription,
+    bassTranscription,
+    audio,
+    midi,
+    duration,
+  } = songData;
 
   return (
     <ParamsProvider>
@@ -60,6 +66,7 @@ export default function App() {
                       <TapestryView
                         lyricTranscription={lyricTranscription}
                         drumTranscription={drumTranscription}
+                        bassTranscription={bassTranscription}
                       />
                     </TapestryLayoutProvider>
                   </div>

@@ -30,7 +30,7 @@ export default function LineGlyphs({
     const isHovered = hoveredLineIdx === lineIdx;
 
     const fill = isSelected ? lineActiveColor : lineInactiveColor;
-    const stroke = isHovered ? "black" : "none";
+    const stroke = isHovered ? lineActiveColor : "none";
     const strokeWidth = isHovered ? 2 : isSelected ? 2 : 0;
 
     const rects = [];

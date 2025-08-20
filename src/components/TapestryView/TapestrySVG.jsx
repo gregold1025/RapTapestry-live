@@ -3,6 +3,7 @@ import React from "react";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import VocalsGlyphs from "./vocals/VocalsGlyphs";
 import DrumsGlyphs from "./drums/DrumsGlyphs";
+import BassGlyphs from "./bass/BassGlyphs";
 import DrumGrid from "./drums/DrumGrid";
 import SVGPlayhead from "./global/SVGPlayhead";
 import HorizontalGrid from "./global/HorizontalGrid";
@@ -11,6 +12,7 @@ import "./TapestryView.css";
 export default function TapestrySVG({
   lyricTranscriptionData,
   drumTranscriptionData,
+  bassTranscriptionData,
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
@@ -30,8 +32,9 @@ export default function TapestrySVG({
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
-      <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>{" "}
+      <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>
       <DrumGrid drumTranscriptionData={drumTranscriptionData} />
+      <BassGlyphs bassTranscriptionData={bassTranscriptionData} />
       <HorizontalGrid />
     </svg>
   );

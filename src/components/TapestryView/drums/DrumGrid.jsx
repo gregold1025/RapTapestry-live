@@ -1,12 +1,11 @@
 // src/components/TapestryView/drums/DrumGrid.jsx
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import { useAudioEngine } from "../../../contexts/AudioContext";
 
-export default function DrumGrid({
-  drumTranscriptionData,
-  strokeColor = "#000",
-}) {
+export default function DrumGrid({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
+  const { playheadTime } = useAudioEngine();
   if (!layout || !drumTranscriptionData) return null;
 
   const { rowHeight, timeToPixels } = layout;
@@ -14,9 +13,15 @@ export default function DrumGrid({
 
   const lines = [];
 
+  const tolerance = 0.08;
+
   // Draw downbeats (full height)
   downbeats.forEach((t, i) => {
     const { x, y } = timeToPixels(t);
+    // Highlight if playhead is "on" this event
+    const isActive = Math.abs(downbeats[i] - playheadTime) <= tolerance;
+    const strokeWidth = isActive ? 8 : 3;
+    const stroke = isActive ? "red" : "black";
     lines.push(
       <line
         key={`downbeat-${i}`}
@@ -24,9 +29,9 @@ export default function DrumGrid({
         y1={y}
         x2={x}
         y2={y + rowHeight}
-        stroke={strokeColor}
-        strokeWidth={3}
-        opacity={0.8}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        opacity={0.4}
       />
     );
   });
@@ -34,6 +39,10 @@ export default function DrumGrid({
   // Draw normal beats (full height)
   beats.forEach((t, i) => {
     const { x, y } = timeToPixels(t);
+
+    const isActive = Math.abs(beats[i] - playheadTime) <= tolerance;
+    const strokeWidth = isActive ? 6 : 1;
+    const stroke = isActive ? "red" : "black";
     lines.push(
       <line
         key={`beat-${i}`}
@@ -41,8 +50,8 @@ export default function DrumGrid({
         y1={y}
         x2={x}
         y2={y + rowHeight}
-        stroke={strokeColor}
-        strokeWidth={1}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
         opacity={0.5}
       />
     );

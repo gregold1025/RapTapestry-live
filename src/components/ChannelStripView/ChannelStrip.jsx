@@ -32,7 +32,7 @@ export function ChannelStrip({
   const [visible, setVisible] = useState(initialVisible);
 
   // Grab the ParamsContext setter for the vocal-visibility flag
-  const { setShowVocals, setShowBass } = useParams();
+  const { setShowVocals, setShowBass, setShowDrums } = useParams();
 
   useEffect(() => {
     if (audio) {
@@ -47,10 +47,10 @@ export function ChannelStrip({
     onVisualToggle(stemKey, next);
 
     // If this is the vocals strip, also update the global flag
-    if (stemKey === "vocals") {
-      setShowVocals(next);
-    }
+    if (stemKey === "vocals") setShowVocals(next);
+
     if (stemKey === "bass") setShowBass(next);
+    if (stemKey === "drums") setShowDrums(next);
   };
 
   return (

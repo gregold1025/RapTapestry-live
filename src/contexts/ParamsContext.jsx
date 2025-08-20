@@ -49,13 +49,16 @@ export function ParamsProvider({ children }) {
   const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
 
-  // bass etc...
+  // bass
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
     rectHeight: 10,
     fillColor: "#aaccff",
     opacity: 0.7,
   });
+
+  // drums
+  const [showDrums, setShowDrums] = useState(true);
 
   return (
     <ParamsContext.Provider
@@ -107,6 +110,10 @@ export function ParamsProvider({ children }) {
         setShowBass,
         bassParams,
         setBassParams,
+
+        // – drums –
+        showDrums,
+        setShowDrums,
       }}
     >
       {children}

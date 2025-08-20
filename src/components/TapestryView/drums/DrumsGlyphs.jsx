@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
+import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useParams } from "../../../contexts/ParamsContext";
 
 // Merge logic (same as before)
 function mergeEvents({ downbeats, beats, drum_hits, mergeWindow }) {
@@ -63,7 +65,10 @@ function hitYOffset(category, rowHeight) {
 
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
-  if (!layout || !drumTranscriptionData) return null;
+  const { playheadTime } = useAudioEngine();
+  const { showDrums } = useParams();
+
+  if (!layout || !drumTranscriptionData || !showDrums) return null;
 
   const { rowHeight, timeToPixels } = layout;
   const { downbeats, beats, drum_hits, estimated_bpm } = drumTranscriptionData;
@@ -81,21 +86,28 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
     [downbeats, beats, drum_hits, mergeWindow]
   );
 
+  const tolerance = 0.08; // ~20ms window
+
   const glyphs = mergedEvents.map((ev, idx) => {
     const { x, y } = timeToPixels(ev.time);
     const lineHeight = rowHeight * 0.25;
     const y1 = y + hitYOffset(ev.category, rowHeight);
     const y2 = y1 + lineHeight;
 
+    // Highlight if playhead is "on" this event
+    const isActive = false; //Math.abs(ev.time - playheadTime) <= tolerance;
+    const strokeWidth = isActive ? 5 : 2;
+    const stroke = isActive ? "red" : "gray";
+
     return (
       <line
         key={`glyph-${idx}`}
-        x1={x}
+        x1={x + 2.5}
         y1={y1}
-        x2={x}
+        x2={x - 2.5}
         y2={y2}
-        stroke="gray"
-        strokeWidth={2}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
         opacity={0.8}
       />
     );
