@@ -19,6 +19,10 @@ export function VocalsParamsOverlay({ onClose }) {
     setInactiveSyllableColor,
     syllableOpacity,
     setSyllableOpacity,
+    syllableRadius,
+    setSyllableRadius,
+    syllableArcCurve,
+    setSyllableArcCurve,
 
     // word visuals
     showWords,
@@ -132,6 +136,32 @@ export function VocalsParamsOverlay({ onClose }) {
                 value={syllableOpacity}
                 onChange={pickRange(setSyllableOpacity)}
               />
+            </label>
+
+            <label>
+              Radius:
+              <input
+                type="range"
+                min={2}
+                max={20}
+                step={1}
+                value={syllableRadius}
+                onChange={pickRange(setSyllableRadius)}
+              />
+              <span>{syllableRadius}px</span>
+            </label>
+
+            <label>
+              Arc Curvature:
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={syllableArcCurve}
+                onChange={pickRange(setSyllableArcCurve)}
+              />
+              <span>{syllableArcCurve}</span>
             </label>
 
             <div className="number-controls">

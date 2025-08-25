@@ -5,8 +5,8 @@ import { useAudioEngine } from "../../contexts/AudioContext";
 import { useParams } from "../../contexts/ParamsContext";
 import { ChannelStrip } from "./ChannelStrip.jsx";
 import { VocalsParamsOverlay } from "./ParamWindows/vocals/VocalsParamsOverlay";
-
 import { BassParamsOverlay } from "./ParamWindows/bass/BassParamsOverlay";
+import { DrumsParamsOverlay } from "./ParamWindows/drums/DrumsParamsOverlay";
 import "./ChannelStrip.css";
 
 export default function ChannelStripsPanel({ onEditClick }) {
@@ -27,24 +27,17 @@ export default function ChannelStripsPanel({ onEditClick }) {
     other: true,
   });
 
-  // which stem’s params window is open
+  // Which stem’s params window is open
   const [editingStem, setEditingStem] = useState(null);
 
-  const [bassParams, setBassParams] = useState({
-    rectHeight: 10,
-    fillColor: "#aaccff",
-    opacity: 0.7,
-  });
-
-  const handleSaveBassParams = ({ rectHeight, fillColor, opacity }) => {
-    setBassParams({ rectHeight, fillColor, opacity });
-    setEditingStem(null);
+  const handleMute = (stemKey, isMuted) => {
+    audioRefs.current[stemKey].muted = isMuted;
   };
 
-  const handleMute = (stemKey, isMuted) =>
-    (audioRefs.current[stemKey].muted = isMuted);
-  const handleVisual = (stemKey, visible) =>
+  const handleVisual = (stemKey, visible) => {
     setShowVisual((v) => ({ ...v, [stemKey]: visible }));
+  };
+
   const handleEdit = (stemKey) => {
     setEditingStem(stemKey);
     onEditClick?.(stemKey);
@@ -82,14 +75,13 @@ export default function ChannelStripsPanel({ onEditClick }) {
           onClose={handleCloseOverlay}
         />
       )}
+
       {editingStem === "bass" && (
-        <BassParamsOverlay
-          initialHeight={bassParams.rectHeight}
-          initialColor={bassParams.fillColor}
-          initialOpacity={bassParams.opacity}
-          onSave={handleSaveBassParams}
-          onClose={handleCloseOverlay}
-        />
+        <BassParamsOverlay onClose={handleCloseOverlay} />
+      )}
+
+      {editingStem === "drums" && (
+        <DrumsParamsOverlay onClose={handleCloseOverlay} />
       )}
     </div>
   );

@@ -19,8 +19,14 @@ export default function BassGlyphs({ bassTranscriptionData }) {
 
   if (!layout || !bassTranscriptionData || !showBass) return null;
 
-  const { rectHeight, fillColor, opacity } = bassParams;
+  const { rectHeight, fillColor, opacity, blur = 0 } = bassParams;
   const { rowHeight, secondsPerRow, timeToPixels, width } = layout;
+
+  // unique filter id to avoid collisions if multiple instances render
+  const filterId = useMemo(
+    () => `bass-blur-${Math.random().toString(36).slice(2)}`,
+    []
+  );
 
   const tolerance = 0.08; // ~80ms visual playhead window
 
@@ -72,5 +78,28 @@ export default function BassGlyphs({ bassTranscriptionData }) {
     opacity,
   ]);
 
-  return <>{glyphs}</>;
+  return (
+    <>
+      {/* Only inject the filter definition if blur > 0 */}
+      {blur > 0 && (
+        <defs>
+          <filter
+            id={filterId}
+            // expand the filter region so the blur doesn't get clipped
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%"
+            filterUnits="objectBoundingBox"
+            // stdDeviation is in user units (pixels)
+          >
+            <feGaussianBlur in="SourceGraphic" stdDeviation={blur} />
+          </filter>
+        </defs>
+      )}
+
+      {/* Apply blur to all bass rects as a group if enabled */}
+      {blur > 0 ? <g filter={`url(#${filterId})`}>{glyphs}</g> : <>{glyphs}</>}
+    </>
+  );
 }

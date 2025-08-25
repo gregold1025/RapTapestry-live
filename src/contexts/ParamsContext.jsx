@@ -29,6 +29,8 @@ export function ParamsProvider({ children }) {
   const [showSyllables, setShowSyllables] = useState(true);
   const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
   const [syllableOpacity, setSyllableOpacity] = useState(1);
+  const [syllableRadius, setSyllableRadius] = useState(8);
+  const [syllableArcCurve, setSyllableArcCurve] = useState(1);
   //// logical
   const [wildcardSkips, setWildcardSkips] = useState(1);
   const [minMatchLen, setMinMatchLen] = useState(2);
@@ -55,10 +57,17 @@ export function ParamsProvider({ children }) {
     rectHeight: 10,
     fillColor: "#aaccff",
     opacity: 0.7,
+    blur: 0,
   });
 
   // drums
   const [showDrums, setShowDrums] = useState(true);
+  const [drumParams, setDrumParams] = useState({
+    strokeWeight: 8,
+    tilt: -20,
+    fillColor: "#0011bb",
+    opacity: 0.5,
+  });
 
   return (
     <ParamsContext.Provider
@@ -76,6 +85,11 @@ export function ParamsProvider({ children }) {
         setInactiveSyllableColor,
         syllableOpacity,
         setSyllableOpacity,
+        syllableRadius,
+        setSyllableRadius,
+        syllableArcCurve,
+        setSyllableArcCurve,
+
         wildcardSkips,
         setWildcardSkips,
         minMatchLen,
@@ -114,6 +128,8 @@ export function ParamsProvider({ children }) {
         // – drums –
         showDrums,
         setShowDrums,
+        drumParams,
+        setDrumParams,
       }}
     >
       {children}

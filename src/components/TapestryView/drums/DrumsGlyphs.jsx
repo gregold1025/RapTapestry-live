@@ -63,10 +63,13 @@ function hitYOffset(category, rowHeight) {
   }
 }
 
+// clamp helper
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
-  const { showDrums } = useParams();
+  const { showDrums, drumParams } = useParams();
 
   if (!layout || !drumTranscriptionData || !showDrums) return null;
 
@@ -86,7 +89,17 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
     [downbeats, beats, drum_hits, mergeWindow]
   );
 
-  const tolerance = 0.08; // ~20ms window
+  const tolerance = 0.08; // ~20ms
+  const {
+    strokeWeight = 2,
+    fillColor = "#bbbbbb",
+    tilt = 10,
+    opacity = 0.8,
+  } = drumParams || {};
+
+  // enforce the requested tilt range and convert to radians
+  const tiltDeg = clamp(tilt, -20, 20);
+  const tiltRad = (tiltDeg * Math.PI) / 180;
 
   const glyphs = mergedEvents.map((ev, idx) => {
     const { x, y } = timeToPixels(ev.time);
@@ -94,21 +107,24 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
     const y1 = y + hitYOffset(ev.category, rowHeight);
     const y2 = y1 + lineHeight;
 
-    // Highlight if playhead is "on" this event
-    const isActive = false; //Math.abs(ev.time - playheadTime) <= tolerance;
-    const strokeWidth = isActive ? 5 : 2;
-    const stroke = isActive ? "red" : "gray";
+    // keep the line centered at x; skew is Δx across full height
+    const halfDx = (Math.tan(tiltRad) * lineHeight) / 2;
+
+    // Highlight if playhead is "on" this event (kept but disabled)
+    const isActive = false; // Math.abs(ev.time - playheadTime) <= tolerance;
+    const stroke = isActive ? "red" : fillColor;
 
     return (
       <line
         key={`glyph-${idx}`}
-        x1={x + 2.5}
+        x1={x + halfDx}
         y1={y1}
-        x2={x - 2.5}
+        x2={x - halfDx}
         y2={y2}
         stroke={stroke}
-        strokeWidth={strokeWidth}
-        opacity={0.8}
+        strokeWidth={strokeWeight}
+        opacity={opacity}
+        vectorEffect="non-scaling-stroke"
       />
     );
   });

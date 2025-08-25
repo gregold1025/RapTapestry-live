@@ -26,3 +26,15 @@
   overflow-y: auto; /* scroll when content overflows */
   padding: 12px;
 }
+
+.word {
+  font-size: 2.5rem; /* 80px assuming 16px base */
+  font-weight: normal;
+  background-color: transparent; /* overridden dynamically if needed */
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.word.current {
+  font-weight: bold;
+}

@@ -12,14 +12,21 @@ export default function SyllableGlyphs({
 }) {
   const { layout } = useTapestryLayout();
   const { matchedIds, selectedIds } = useSyllableSelection();
-  const { showSyllables, vowelColors, inactiveSyllableColor, syllableOpacity } =
-    useParams();
+  const {
+    showSyllables,
+    vowelColors,
+    inactiveSyllableColor,
+    syllableOpacity,
+    syllableRadius,
+    syllableArcCurve,
+  } = useParams();
+
   const { seekAll } = useAudioEngine();
 
   if (!layout || !showSyllables) return null;
 
   const { rowHeight, timeToPixels } = layout;
-  const radius = 8;
+  const radius = syllableRadius ?? 8;
 
   // build a flat-ordered list of all syllable IDs
   const flatOrderedIds = [];
@@ -96,22 +103,32 @@ export default function SyllableGlyphs({
     });
   });
 
-  // connectors stay the same, using glyphCoords
+  // === CONNECTORS ===
   const connectors = [];
+
+  // Selected arc (red)
   if (selectedIds.length === 2) {
     const [a, b] = selectedIds;
     const pA = glyphCoords.get(a);
     const pB = glyphCoords.get(b);
     if (pA && pB) {
+      const x1 = pA.x + radius;
+      const y1 = pA.y;
+      const x2 = pB.x + radius;
+      const y2 = pB.y;
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const curvature = syllableArcCurve ?? 1;
+      const radiusArc = curvature === 0 ? 0.01 : distance / (2 * curvature);
+
       connectors.push(
-        <line
+        <path
           key={`sel-${a}-${b}`}
-          x1={pA.x + radius}
-          y1={pA.y}
-          x2={pB.x + radius}
-          y2={pB.y}
+          d={`M ${x1} ${y1} A ${radiusArc} ${radiusArc} 0 0 1 ${x2} ${y2}`}
+          fill="none"
           stroke="#f00"
-          strokeWidth={20}
+          strokeWidth={10}
           strokeDasharray="4 1"
           strokeLinecap="round"
         />
@@ -119,6 +136,7 @@ export default function SyllableGlyphs({
     }
   }
 
+  // Matched arcs (black)
   const matchedSorted = Array.from(matchedIds)
     .filter((id) => idToFlatIndex.has(id))
     .sort((u, v) => idToFlatIndex.get(u) - idToFlatIndex.get(v));
@@ -126,19 +144,31 @@ export default function SyllableGlyphs({
   for (let i = 0; i < matchedSorted.length - 1; i++) {
     const a = matchedSorted[i];
     const b = matchedSorted[i + 1];
-    if (idToFlatIndex.get(b) === idToFlatIndex.get(a) + 1) {
+
+    if (
+      idToFlatIndex.get(b) === idToFlatIndex.get(a) + 1 &&
+      !(selectedIds.includes(a) && selectedIds.includes(b))
+    ) {
       const pA = glyphCoords.get(a);
       const pB = glyphCoords.get(b);
       if (pA && pB) {
+        const x1 = pA.x + radius;
+        const y1 = pA.y;
+        const x2 = pB.x + radius;
+        const y2 = pB.y;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const curvature = syllableArcCurve ?? 1;
+        const radiusArc = curvature === 0 ? 0.01 : distance / (2 * curvature);
+
         connectors.push(
-          <line
+          <path
             key={`match-${a}-${b}`}
-            x1={pA.x + radius}
-            y1={pA.y}
-            x2={pB.x + radius}
-            y2={pB.y}
+            d={`M ${x1} ${y1} A ${radiusArc} ${radiusArc} 0 0 1 ${x2} ${y2}`}
+            fill="none"
             stroke="#000"
-            strokeWidth={16}
+            strokeWidth={10}
             strokeDasharray="4 1"
             strokeLinecap="round"
           />

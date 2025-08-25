@@ -5,6 +5,8 @@ import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionCon
 import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 
+import "./LyricsView.css";
+
 export function WordBlock({
   word,
   lineIdx,
@@ -104,17 +106,10 @@ export function WordBlock({
       </div>
 
       <span
-        className="word"
+        className={`word ${isCurrent ? "current" : ""}`}
         onClick={() => toggleWord(wordId)}
         onMouseEnter={() => onWordHover?.(word)}
         onMouseLeave={onHoverEnd}
-        style={{
-          fontSize: 30,
-          fontWeight: isCurrent ? "bold" : "normal",
-          backgroundColor: bgRgba,
-          cursor: "pointer",
-          padding: "0 4px",
-        }}
       >
         {word.text}
       </span>

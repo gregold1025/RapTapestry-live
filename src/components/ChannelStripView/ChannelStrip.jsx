@@ -48,7 +48,6 @@ export function ChannelStrip({
 
     // If this is the vocals strip, also update the global flag
     if (stemKey === "vocals") setShowVocals(next);
-
     if (stemKey === "bass") setShowBass(next);
     if (stemKey === "drums") setShowDrums(next);
   };

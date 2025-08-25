@@ -29,14 +29,14 @@
   align-items: center;
   padding: clamp(12px, 4vw, 20px);
   border-bottom: 1px solid #ccc;
-  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-size: 2.5rem;
   background: #f7f7f7;
 }
 
 .vocals-params-window .close-btn {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 2.5rem;
   cursor: pointer;
   color: #333;
 }
@@ -49,7 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  font-size: 2rem;
   box-sizing: border-box;
 }
 
@@ -63,7 +63,7 @@
 .vocals-params-window input[type="color"],
 .vocals-params-window input[type="range"] {
   padding: 6px;
-  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-size: 2rem;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
