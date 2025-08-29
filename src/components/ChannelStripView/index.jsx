@@ -7,6 +7,7 @@ import { ChannelStrip } from "./ChannelStrip.jsx";
 import { VocalsParamsOverlay } from "./ParamWindows/vocals/VocalsParamsOverlay";
 import { BassParamsOverlay } from "./ParamWindows/bass/BassParamsOverlay";
 import { DrumsParamsOverlay } from "./ParamWindows/drums/DrumsParamsOverlay";
+import ParamsPortal from "./ParamWindows/ParamsPortal.jsx";
 import "./ChannelStrip.css";
 
 export default function ChannelStripsPanel({ onEditClick }) {
@@ -67,21 +68,21 @@ export default function ChannelStripsPanel({ onEditClick }) {
       ))}
 
       {editingStem === "vocals" && (
-        <VocalsParamsOverlay
-          initialWildcard={wildcardSkips}
-          initialMinMatch={minMatchLen}
-          initialColors={vowelColors}
-          onSave={handleSaveParams}
-          onClose={handleCloseOverlay}
-        />
+        <ParamsPortal>
+          <VocalsParamsOverlay onClose={handleCloseOverlay} />
+        </ParamsPortal>
       )}
 
       {editingStem === "bass" && (
-        <BassParamsOverlay onClose={handleCloseOverlay} />
+        <ParamsPortal>
+          <BassParamsOverlay onClose={handleCloseOverlay} />
+        </ParamsPortal>
       )}
 
       {editingStem === "drums" && (
-        <DrumsParamsOverlay onClose={handleCloseOverlay} />
+        <ParamsPortal>
+          <DrumsParamsOverlay onClose={handleCloseOverlay} />
+        </ParamsPortal>
       )}
     </div>
   );

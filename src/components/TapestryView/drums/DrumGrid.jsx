@@ -20,8 +20,8 @@ export default function DrumGrid({ drumTranscriptionData }) {
     const { x, y } = timeToPixels(t);
     // Highlight if playhead is "on" this event
     const isActive = Math.abs(downbeats[i] - playheadTime) <= tolerance;
-    const strokeWidth = isActive ? 8 : 3;
-    const stroke = isActive ? "red" : "black";
+    const strokeWidth = 3;
+    const stroke = "black";
     lines.push(
       <line
         key={`downbeat-${i}`}
@@ -41,8 +41,8 @@ export default function DrumGrid({ drumTranscriptionData }) {
     const { x, y } = timeToPixels(t);
 
     const isActive = Math.abs(beats[i] - playheadTime) <= tolerance;
-    const strokeWidth = isActive ? 6 : 1;
-    const stroke = isActive ? "red" : "black";
+    const strokeWidth = 1;
+    const stroke = "black";
     lines.push(
       <line
         key={`beat-${i}`}

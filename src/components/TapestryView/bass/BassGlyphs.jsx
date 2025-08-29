@@ -82,7 +82,7 @@ export default function BassGlyphs({ bassTranscriptionData }) {
     <>
       {/* Only inject the filter definition if blur > 0 */}
       {blur > 0 && (
-        <defs>
+        <defs pointerEvents="none">
           <filter
             id={filterId}
             // expand the filter region so the blur doesn't get clipped

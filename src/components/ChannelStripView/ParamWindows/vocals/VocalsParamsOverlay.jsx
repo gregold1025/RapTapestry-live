@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "../../../../contexts/ParamsContext";
-import "./VocalsParamsOverlay.css";
+import "../Overlay.css"; // ← NEW shared stylesheet
 
 export function VocalsParamsOverlay({ onClose }) {
   const {
-    // matching params
     wildcardSkips,
     setWildcardSkips,
     minMatchLen,
@@ -12,7 +11,6 @@ export function VocalsParamsOverlay({ onClose }) {
     vowelColors: contextVowelColors,
     setVowelColors,
 
-    // syllable visuals
     showSyllables,
     setShowSyllables,
     inactiveSyllableColor,
@@ -24,7 +22,6 @@ export function VocalsParamsOverlay({ onClose }) {
     syllableArcCurve,
     setSyllableArcCurve,
 
-    // word visuals
     showWords,
     setShowWords,
     wordActiveColor,
@@ -38,7 +35,6 @@ export function VocalsParamsOverlay({ onClose }) {
     ignorePlurals,
     setIgnorePlurals,
 
-    // line visuals
     showLines,
     setShowLines,
     lineActiveColor,
@@ -49,7 +45,6 @@ export function VocalsParamsOverlay({ onClose }) {
     setLineOpacity,
   } = useParams();
 
-  // Local copies for numeric & palette controls
   const [wildcard, setWildcard] = useState(wildcardSkips);
   const [minMatch, setMinMatch] = useState(minMatchLen);
   const [colors, setColors] = useState(contextVowelColors);
@@ -57,6 +52,10 @@ export function VocalsParamsOverlay({ onClose }) {
   useEffect(() => setWildcard(wildcardSkips), [wildcardSkips]);
   useEffect(() => setMinMatch(minMatchLen), [minMatchLen]);
   useEffect(() => setColors(contextVowelColors), [contextVowelColors]);
+
+  const toggle = (fn) => (e) => fn(e.target.checked);
+  const pickColor = (fn) => (e) => fn(e.target.value);
+  const pickRange = (fn) => (e) => fn(+e.target.value);
 
   const handleWildcardChange = (e) => {
     const v = Number(e.target.value);
@@ -74,13 +73,9 @@ export function VocalsParamsOverlay({ onClose }) {
     setVowelColors(nc);
   };
 
-  const toggle = (fn) => (e) => fn(e.target.checked);
-  const pickColor = (fn) => (e) => fn(e.target.value);
-  const pickRange = (fn) => (e) => fn(+e.target.value);
-
   return (
-    <div className="vocals-params-overlay">
-      <div className="vocals-params-window">
+    <div className="params-overlay">
+      <div className="params-window">
         <header>
           <h2>Vocal Stem Parameters</h2>
           <button className="close-btn" onClick={onClose}>
@@ -88,214 +83,216 @@ export function VocalsParamsOverlay({ onClose }) {
           </button>
         </header>
 
-        <div className="visuals-grid">
-          {/* ── Syllable Visuals ── */}
-          <div className="visual-section syllable-visuals">
-            <h3>Syllable Visuals</h3>
-            <label className="toggle-control">
-              <input
-                type="checkbox"
-                checked={showSyllables}
-                onChange={toggle(setShowSyllables)}
-              />
-              Show Syllables
-            </label>
+        <div className="params-body">
+          <div className="visuals-grid">
+            {/* Syllables */}
+            <div className="visual-section">
+              <h3>Syllable Visuals</h3>
 
-            <div className="color-palette">
-              Active Vowel Colors
-              <div className="palette-grid">
-                {Object.entries(colors).map(([vowel, color]) => (
-                  <label key={vowel}>
-                    {vowel}
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(e) => handleVowelColorChange(vowel, e)}
-                    />
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <label>
-              Inactive Color:
-              <input
-                type="color"
-                value={inactiveSyllableColor}
-                onChange={pickColor(setInactiveSyllableColor)}
-              />
-            </label>
-
-            <label>
-              Opacity:
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={syllableOpacity}
-                onChange={pickRange(setSyllableOpacity)}
-              />
-            </label>
-
-            <label>
-              Radius:
-              <input
-                type="range"
-                min={2}
-                max={20}
-                step={1}
-                value={syllableRadius}
-                onChange={pickRange(setSyllableRadius)}
-              />
-              <span>{syllableRadius}px</span>
-            </label>
-
-            <label>
-              Arc Curvature:
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={syllableArcCurve}
-                onChange={pickRange(setSyllableArcCurve)}
-              />
-              <span>{syllableArcCurve}</span>
-            </label>
-
-            <div className="number-controls">
-              <label>
-                Max Wildcard Skips:
+              <label className="toggle-control">
                 <input
-                  type="number"
+                  type="checkbox"
+                  checked={showSyllables}
+                  onChange={toggle(setShowSyllables)}
+                />
+                Show Syllables
+              </label>
+
+              <div className="control">
+                Active Vowel Colors
+                <div className="palette-grid">
+                  {Object.entries(colors).map(([vowel, color]) => (
+                    <label key={vowel}>
+                      {vowel}
+                      <input
+                        type="color"
+                        value={color}
+                        onChange={(e) => handleVowelColorChange(vowel, e)}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <label className="control inline">
+                Inactive Color:
+                <input
+                  type="color"
+                  value={inactiveSyllableColor}
+                  onChange={pickColor(setInactiveSyllableColor)}
+                />
+              </label>
+
+              <label className="control">
+                Opacity{" "}
+                <span className="meta">{syllableOpacity.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={syllableOpacity}
+                  onChange={pickRange(setSyllableOpacity)}
+                />
+              </label>
+
+              <label className="control">
+                Radius <span className="meta">{syllableRadius}px</span>
+                <input
+                  type="range"
+                  min={2}
+                  max={20}
+                  step={1}
+                  value={syllableRadius}
+                  onChange={pickRange(setSyllableRadius)}
+                />
+              </label>
+
+              <label className="control">
+                Arc Curvature{" "}
+                <span className="meta">{syllableArcCurve.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={syllableArcCurve}
+                  onChange={pickRange(setSyllableArcCurve)}
+                />
+              </label>
+
+              <label className="control">
+                Max Wildcard Skips <span className="meta">{wildcard}</span>
+                <input
+                  type="range"
                   min={0}
                   max={3}
+                  step={1}
                   value={wildcard}
                   onChange={handleWildcardChange}
                 />
               </label>
-              <label>
-                Min Match Length:
+
+              <label className="control">
+                Min Match Length <span className="meta">{minMatch}</span>
                 <input
-                  type="number"
+                  type="range"
                   min={0}
                   max={3}
+                  step={1}
                   value={minMatch}
                   onChange={handleMinMatchChange}
                 />
               </label>
             </div>
-          </div>
 
-          {/* ── Word Visuals ── */}
-          <div className="visual-section word-visuals">
-            <h3>Word Visuals</h3>
-            <label className="toggle-control">
-              <input
-                type="checkbox"
-                checked={showWords}
-                onChange={toggle(setShowWords)}
-              />
-              Show Words
-            </label>
+            {/* Words */}
+            <div className="visual-section">
+              <h3>Word Visuals</h3>
 
-            <label>
-              Active Color:
-              <input
-                type="color"
-                value={wordActiveColor}
-                onChange={pickColor(setWordActiveColor)}
-              />
-            </label>
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showWords}
+                  onChange={toggle(setShowWords)}
+                />
+                Show Words
+              </label>
 
-            <label>
-              Inactive Color:
-              <input
-                type="color"
-                value={wordInactiveColor}
-                onChange={pickColor(setWordInactiveColor)}
-              />
-            </label>
+              <label className="control inline">
+                Active Color:
+                <input
+                  type="color"
+                  value={wordActiveColor}
+                  onChange={pickColor(setWordActiveColor)}
+                />
+              </label>
 
-            <label>
-              Opacity:
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={wordOpacity}
-                onChange={pickRange(setWordOpacity)}
-              />
-            </label>
+              <label className="control inline">
+                Inactive Color:
+                <input
+                  type="color"
+                  value={wordInactiveColor}
+                  onChange={pickColor(setWordInactiveColor)}
+                />
+              </label>
 
-            <label className="toggle-control">
-              <input
-                type="checkbox"
-                checked={exactMatches}
-                onChange={toggle(setExactMatches)}
-              />
-              Exact Match
-            </label>
+              <label className="control">
+                Opacity <span className="meta">{wordOpacity.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={wordOpacity}
+                  onChange={pickRange(setWordOpacity)}
+                />
+              </label>
 
-            <label className="toggle-control">
-              <input
-                type="checkbox"
-                checked={ignorePlurals}
-                onChange={toggle(setIgnorePlurals)}
-              />
-              Ignore Plurals
-            </label>
-          </div>
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={exactMatches}
+                  onChange={toggle(setExactMatches)}
+                />
+                Exact Match
+              </label>
 
-          {/* ── Line Visuals ── */}
-          <div className="visual-section line-visuals">
-            <h3>Line Visuals</h3>
-            <label className="toggle-control">
-              <input
-                type="checkbox"
-                checked={showLines}
-                onChange={toggle(setShowLines)}
-              />
-              Show Lines
-            </label>
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={ignorePlurals}
+                  onChange={toggle(setIgnorePlurals)}
+                />
+                Ignore Plurals
+              </label>
+            </div>
 
-            <label>
-              Active Color:
-              <input
-                type="color"
-                value={lineActiveColor}
-                onChange={pickColor(setLineActiveColor)}
-              />
-            </label>
+            {/* Lines */}
+            <div className="visual-section">
+              <h3>Line Visuals</h3>
 
-            <label>
-              Inactive Color:
-              <input
-                type="color"
-                value={lineInactiveColor}
-                onChange={pickColor(setLineInactiveColor)}
-              />
-            </label>
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showLines}
+                  onChange={toggle(setShowLines)}
+                />
+                Show Lines
+              </label>
 
-            <label>
-              Opacity:
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={lineOpacity}
-                onChange={pickRange(setLineOpacity)}
-              />
-            </label>
+              <label className="control inline">
+                Active Color:
+                <input
+                  type="color"
+                  value={lineActiveColor}
+                  onChange={pickColor(setLineActiveColor)}
+                />
+              </label>
+
+              <label className="control inline">
+                Inactive Color:
+                <input
+                  type="color"
+                  value={lineInactiveColor}
+                  onChange={pickColor(setLineInactiveColor)}
+                />
+              </label>
+
+              <label className="control">
+                Opacity <span className="meta">{lineOpacity.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={lineOpacity}
+                  onChange={pickRange(setLineOpacity)}
+                />
+              </label>
+            </div>
           </div>
         </div>
-
-        <footer>
-          <button onClick={onClose}>Close</button>
-        </footer>
       </div>
     </div>
   );

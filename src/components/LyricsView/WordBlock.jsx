@@ -110,6 +110,7 @@ export function WordBlock({
         onClick={() => toggleWord(wordId)}
         onMouseEnter={() => onWordHover?.(word)}
         onMouseLeave={onHoverEnd}
+        style={{ backgroundColor: bgRgba }}
       >
         {word.text}
       </span>

@@ -89,7 +89,6 @@ export function ParamsProvider({ children }) {
         setSyllableRadius,
         syllableArcCurve,
         setSyllableArcCurve,
-
         wildcardSkips,
         setWildcardSkips,
         minMatchLen,

@@ -116,6 +116,7 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
 
     return (
       <line
+        pointerEvents="none"
         key={`glyph-${idx}`}
         x1={x + halfDx}
         y1={y1}
