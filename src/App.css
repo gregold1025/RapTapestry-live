@@ -1,7 +1,16 @@
-* {
+/* ===========================
+   0) Global scale & base type
+   =========================== */
+:root {
+  /* 1.0 = 16px base; 1.125 ≈ 18px; bump to taste */
+  --ui-scale: 1.125;
+}
+
+/* Reset + font rendering */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html,
@@ -9,71 +18,155 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  font-size: 30px;
-  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+
+  /* Base typography (scaled) */
+  font-size: calc(16px * var(--ui-scale));
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji");
+  line-height: 1.25;
+
+  /* Prevent platform text auto-boosting */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Smoothing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Help Safari compositing a bit */
+html { backface-visibility: hidden; }
+
+/* Headings & general text sizes (rem so they follow --ui-scale) */
+h1 { font-size: 1.375rem; font-weight: 700; } /* ~22px @ 16px base */
+h2 { font-size: 1.25rem;  font-weight: 600; } /* ~20px */
+h3, .label { font-size: 1.125rem; font-weight: 600; } /* ~18px */
+p, span, button, input, select { font-size: 1rem; } /* ~16px */
+
+
+/* ===========================
+   1) App frame
+   =========================== */
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 100%;
+  background: #ffffff;
+  color: #000000;
 }
 
+/* Header/Footer */
 .header,
 .footer {
-  height: 60px;
-  background-color: #eee;
+  background: #929292;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
+  border-bottom: 1px solid #252b39;
 }
 
+/* Header-specific font sizing for controls */
+.header {
+  --header-font-size: 4rem; /* tweak to scale the select */
+  font-size: var(--header-font-size);
+}
+
+/* Header <select>: inherit size/family cleanly across browsers */
+.header select {
+  font: inherit;          /* font-size, line-height, family */
+  line-height: 1.1;
+  padding: 1.25rem 1.5rem;
+  color: #e9eef5;
+  background: #0d0f12;
+  border: 1px solid #252b39;
+  border-radius: 6px;
+}
+
+/* Footer top border feels more natural than bottom */
+.footer {
+  border-bottom: 0;
+  border-top: 1px solid #252b39;
+}
+
+
+/* ===========================
+   2) Main split (L/R)
+   =========================== */
 .main-content {
   flex: 1;
   display: flex;
   width: 100%;
+  /* CRUCIAL for Safari: allow flex children to shrink/scroll */
+  min-height: 0;
+  min-width: 0;
 }
 
-/* Left side (2/3 width) */
+/* Left (2/3) */
 .left-pane {
-  flex: 2;
+  flex: 2 1 0;
   position: relative;
-  overflow: hidden; /* ✅ guards against infinite growth */
-  /* background-color: transparent; */
-  /* background-color: #cce5ff; */
+  overflow: hidden;
+  min-width: 0; /* Safari: avoid width growth */
+  min-height: 0; /* Safari: allow child to shrink */
+  border-right: 1px solid #252b39; /* subtle divider */
+  background: #ffffff;
+  color: #000000;
 }
 
-/* Right side (1/3 width, vertical stack) */
+/* Right (1/3) vertical stack */
 .right-pane {
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #ffffff;
+  color: #000000;
 }
 
-/* Custom vertical layout: 1/9, 3/9, 5/9 */
+/* Three sections inside right pane: 1/9, 3/9, 5/9 */
+.right-pane .audio   { flex: 1 1 0; min-height: 0; }
+.right-pane .channel { flex: 3 1 0; min-height: 0; }
+.right-pane .lyrics  { flex: 5 1 0; min-height: 0; }
+
+/* Make each right-pane section a flex container so its child can fill */
+.right-pane .right-pane-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Ensure the immediate child fills its slot (no more, no less) */
+.right-pane .right-pane-section > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Allow internal scrolling inside the three sections */
+.right-pane .lyrics,
+.right-pane .channel,
 .right-pane .audio {
-  flex: 1;
+  overflow: auto;
 }
 
-.right-pane .channel {
-  flex: 3;
-}
-.right-pane .lyrics {
-  flex: 5;
-}
+/* (Optional) legacy color blocks; comment out to keep pure white */
+.audio  { background: #1a2030; color: #ffffff; }
+.channel{ background: #111624; color: #ffffff; }
+.lyrics { background: #0b0f1a; color: #ffffff; }
 
-.audio {
-  background-color: #ffcccc; /* light red */
-}
 
-.channel {
-  background-color: #888888; /* light green */
+/* ===========================
+   3) Utilities / text layout
+   =========================== */
+/* Word spans render as boxes so highlights look consistent */
+.word {
+  display: inline-block;
+  line-height: 1.15;
 }
-
-.lyrics {
-  background-color: #fff8b3; /* light yellow */
-}
-
-/* svg {
-  outline: 1px dashed red;
-} */

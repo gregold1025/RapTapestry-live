@@ -1,40 +1,74 @@
-/* src/components/LyricsView/LyricsView.css */
-
-/*  
-   Make sure the parent .lyrics (from app.css) can actually shrink,
-   and override its yellow background with white:
-*/
-.right-pane .lyrics {
+/* Container that sits inside right-pane .lyrics */
+.lyrics-container {
   position: relative;
-  min-height: 0; /* allow it to shrink below its content size */
-  overflow: hidden; /* prevent it from growing past this box */
-  background: none; /* clear out the old yellow */
-}
-
-/* The new top‐level container */
-.lyrics-view {
   display: flex;
   flex-direction: column;
-  height: 100%; /* fill whatever its parent .lyrics gives it */
-  background: white; /* your desired background */
+  height: 100%;
+  min-height: 0; /* allow to shrink in Safari */
+  overflow: hidden; /* we’ll add scroll on the inner scroller */
+  padding: 12px; /* tell the hook this if you want exact math */
+  background: #fff;
+  color: #000;
+
+  /* Hook writes these: */
+  --lyrics-fs: 18px; /* fallback before hook runs */
+  --lyrics-lh: 1.2;
 }
 
-/* The scrollable list of all lines */
+/* Scroll area for lines */
 .lyrics-lines {
-  flex: 1; /* take all available vertical space */
-  min-height: 0; /* CRUCIAL: let this flex‐child actually shrink */
-  overflow-y: auto; /* scroll when content overflows */
-  padding: 12px;
+  flex: 1;
+  min-height: 0; /* CRITICAL for Safari */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.word {
-  font-size: 2.5rem; /* 80px assuming 16px base */
-  font-weight: normal;
-  background-color: transparent; /* overridden dynamically if needed */
+/* Each line */
+.line {
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* The “select line” square */
+.line .line-select {
   cursor: pointer;
-  padding: 0 4px;
+  user-select: none;
+  padding: 0 6px;
+  font-size: calc(var(--lyrics-fs) * 1);
 }
 
+/* Words area */
+.words-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Word chip */
+.word {
+  display: inline-block;
+  font-weight: 500;
+  font-size: var(--lyrics-fs); /* computed by hook */
+  line-height: var(--lyrics-lh);
+  padding: 0 4px;
+  background-color: transparent; /* inline style may override for highlight */
+  color: #000;
+  cursor: pointer;
+}
 .word.current {
-  font-weight: bold;
+  font-weight: 700;
+}
+
+/* Small syllable circles above the word */
+.lyrics-syllable-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  outline: none;
+  border: 1px solid #999;
 }

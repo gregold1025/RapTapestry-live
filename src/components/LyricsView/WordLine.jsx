@@ -43,22 +43,14 @@ export function WordLine({
       }}
     >
       <div
+        className="line-select"
         onClick={() => toggleLine(lineIdx)}
-        style={{
-          cursor: "pointer",
-          fontSize: 20,
-          userSelect: "none",
-          padding: "0 6px",
-        }}
-        title="Select line"
+        title="Select Line"
       >
         🟦
       </div>
 
-      <div
-        className="words-container"
-        style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}
-      >
+      <div className="words-container">
         {line.words?.map((word, wordIdx) => (
           <WordBlock
             key={wordIdx}

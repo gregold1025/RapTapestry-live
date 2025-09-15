@@ -8,17 +8,11 @@ export default function ParamsPortal({ children }) {
 
   useEffect(() => {
     const host = hostRef.current;
-
-    // Style the host so it's ALWAYS the real viewport, not a panel
     host.id = "params-overlay-root";
     host.style.position = "fixed";
-    host.style.inset = "0"; // top/right/bottom/left: 0
-    host.style.zIndex = "2147483647"; // above everything
-    host.style.pointerEvents = "none"; // host ignores clicks…
-    // the child overlay will re-enable pointerEvents
-    // (see CSS below)
-
-    // Mount at end of <body>
+    host.style.inset = "0";
+    host.style.zIndex = "2147483647"; // very high, above app chrome
+    // IMPORTANT: do NOT set pointer-events here
     document.body.appendChild(host);
     return () => {
       try {

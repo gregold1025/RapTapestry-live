@@ -58,7 +58,7 @@ export function ChannelStrip({
       <div className="channel-strip-label">{stemKey.toUpperCase()}</div>
 
       {/* Vertical volume fader */}
-      <div className="volume-fader-container">
+      {/* <div className="volume-fader-container">
         <input
           type="range"
           min={0}
@@ -68,7 +68,7 @@ export function ChannelStrip({
           onChange={(e) => setVolume(parseFloat(e.target.value))}
           className="volume-fader"
         />
-      </div>
+      </div> */}
 
       {/* Control buttons */}
       <div className="button-grid">

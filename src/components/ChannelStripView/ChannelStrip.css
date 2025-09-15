@@ -1,87 +1,157 @@
-/* src/components/ChannelStripView/ChannelStrip.css */
-
+/* ============ Channel Strip (single) ============ */
 .channel-strip {
   display: grid;
   grid-template-rows: auto 1fr;
   grid-template-columns: auto 1fr;
   gap: 12px;
   padding: 12px;
-  background: #f0f0f0;
-  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  border: 8px solid #222;
+  border-radius: 6px;
   box-sizing: border-box;
-  /* Fill its grid cell and enforce a minimum height */
+
+  width: 100%;
   height: 100%;
-  min-height: 120px;
+  min-width: 0; /* allow shrinking in grid cells (Safari) */
+  min-height: 160px; /* give Safari a real box to work with */
+  overflow: hidden; /* prevent accidental overflow */
 }
 
 .channel-strip-label {
   grid-column: 1 / -1;
   text-align: center;
-  font-weight: bold;
-  font-size: 2rem;
+  font-weight: 700;
+  font-size: 3rem; /* fixed size = consistent across panes */
+  line-height: 1.2;
 }
 
+/* Volume fader container stays flex-centered */
 .volume-fader-container {
   grid-row: 2;
   grid-column: 1;
   display: flex;
-  align-items: center;
+  align-items: center; /* vertical centring */
   justify-content: center;
+  min-width: 44px; /* keep room for the vertical slider */
 }
 
+/* Volume fader uses a fraction of its container height */
 .volume-fader {
   writing-mode: vertical-lr;
   direction: rtl;
-  width: 10px;
-  -webkit-appearance: none;
-  background: #ddd;
-}
 
+  width: 12px; /* track thickness */
+  height: 50%; /* take up one-quarter of container height */
+  margin: 0;
+
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+/* WebKit track/thumb */
+.volume-fader::-webkit-slider-runnable-track {
+  /* width: 12px;
+  height: 200px; */
+  background: #e5e5e5;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
 .volume-fader::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 10px;
-  height: 10px;
-  background: #666;
+  appearance: none;
+  /* width: 18px;
+  height: 18px; */
+  margin-top: -3px; /* centers thumb on track */
+  background: #333;
+  border-radius: 50%;
+  border: 1px solid #111;
+  cursor: pointer;
+}
+
+/* Firefox track/thumb */
+.volume-fader::-moz-range-track {
+  /* width: 12px;
+  height: 200px; */
+  background: #e5e5e5;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.volume-fader::-moz-range-thumb {
+  /* width: 18px;
+  height: 18px; */
+  background: #333;
+  border: 1px solid #111;
   border-radius: 50%;
   cursor: pointer;
 }
 
+/* ============ Buttons grid (Mute/Solo/Visible/Edit) ============ */
 .button-grid {
   grid-row: 2;
   grid-column: 2;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 5px;
+  gap: 8px;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   box-sizing: border-box;
 }
 
+/* Your chosen, fixed button style */
 .button-grid button {
   width: 100%;
   height: 100%;
-  font-size: 2rem;
+  font-size: 3rem; /* fixed size; no rem surprises */
+  font-weight: 300;
+  color: #000;
+  background: #fafafa;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
   cursor: pointer;
+
+  display: flex; /* keep label centered */
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .button-grid button.active {
-  background: #ccc;
+  background: #e8e8e8;
 }
 
+/* ============ 2x2 panel holding four strips ============ */
 .channel-strips-panel {
   display: grid;
-  /* Two columns, two rows that each share available height equally */
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  height: 100%;
+  grid-template-rows: repeat(
+    2,
+    minmax(160px, 1fr)
+  ); /* equal rows w/ sane min */
   gap: 16px;
   padding: 16px;
+  background: #fff;
+  color: #000;
   box-sizing: border-box;
+
+  height: 100%;
+  min-width: 0; /* Safari: allow shrinking inside right pane */
+  min-height: 0;
+  overflow: hidden; /* avoid accidental growth */
 }
 
 .channel-strips-panel > * {
-  /* Force each strip to stretch to fill its cell */
   align-self: stretch;
   justify-self: stretch;
+  min-width: 0;
+  min-height: 0;
 }
