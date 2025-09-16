@@ -56,7 +56,8 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   // helper to strip trailing ARPAbet 'S' phone
   const stripPluralSuffix = (phones) => {
     const parts = phones.split(" ");
-    if (parts[parts.length - 1] === "S") parts.pop();
+    if (parts[parts.length - 1] === "S" || parts[parts.length - 1] === "Z")
+      parts.pop();
     return parts.join(" ");
   };
 

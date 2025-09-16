@@ -4,7 +4,6 @@ import { extractVowels } from "../../utils/extractVowels";
 import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
 import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
-
 import "./LyricsView.css";
 
 export function WordBlock({
@@ -24,17 +23,19 @@ export function WordBlock({
   const isCurrent = playheadTime >= word.start && playheadTime < word.end;
   const isHovered = hoverData?.type === "word" && hoverData.text === word.text;
 
-  const { selectedWordId, matchedWordIds, toggleWord } = useWordSelection();
-  const { wordActiveColor, wordInactiveColor, wordOpacity } = useParams();
+  const {
+    selectedWordId,
+    matchedWordIds, // rhyme/exact matches
+    alliterationMatchedWordIds, // ← alliteration matches (Set)
+    toggleWord,
+  } = useWordSelection();
 
-  // console.log(
-  //   `%c[WordBlock:${lineIdx}-${wordIdx}]`,
-  //   "color:orange",
-  //   "selectedWordId=",
-  //   selectedWordId,
-  //   "matchedWordIds=",
-  //   [...matchedWordIds]
-  // );
+  const {
+    wordActiveColor,
+    wordInactiveColor,
+    wordOpacity,
+    showAlliteration, // ← toggle from ParamsContext
+  } = useParams();
 
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
     useSyllableSelection();
@@ -42,7 +43,13 @@ export function WordBlock({
   const isWordSelected = selectedWordId === wordId;
   const isWordMatched = selectedWordId !== null && matchedWordIds.has(wordId);
 
-  // small helper to turn "#rrggbb" into "rgba(r,g,b,alpha)"
+  // Alliteration match (gated by toggle)
+  const isAlliterationMatch =
+    showAlliteration &&
+    selectedWordId !== null &&
+    alliterationMatchedWordIds?.has?.(wordId);
+
+  // "#rrggbb" -> rgba(...)
   const hexToRgba = (hex, alpha = 1) => {
     const [r, g, b] = hex
       .replace(/^#/, "")
@@ -51,10 +58,16 @@ export function WordBlock({
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
+  // Background for selected/rhyme matches
   const bgRgba =
     isWordSelected || isWordMatched
       ? hexToRgba(wordActiveColor, wordOpacity)
       : "transparent";
+
+  // 5px outline for alliteration matches
+  const outlineStyle = isAlliterationMatch
+    ? `5px solid ${wordActiveColor}`
+    : "none";
 
   return (
     <div
@@ -83,6 +96,8 @@ export function WordBlock({
               key={i}
               className="lyrics-syllable-circle"
               style={{
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
                 backgroundColor: isSel || isMtch ? color : "#cccccc",
                 border: isSel ? "2px solid red" : "1px solid #999",
@@ -108,7 +123,11 @@ export function WordBlock({
         onClick={() => toggleWord(wordId)}
         onMouseEnter={() => onWordHover?.(word)}
         onMouseLeave={onHoverEnd}
-        style={{ backgroundColor: bgRgba }}
+        style={{
+          backgroundColor: bgRgba,
+          outline: outlineStyle,
+          outlineOffset: "2px", // small gap so the outline doesn't touch glyph
+        }}
       >
         {word.text}
       </span>

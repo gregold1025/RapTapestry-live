@@ -69,10 +69,7 @@ export function ChannelStrip({
           SOLO
         </button>
 
-        <button
-          className={!visible ? "active" : ""}
-          onClick={handleVisualClick}
-        >
+        <button className={visible ? "active" : ""} onClick={handleVisualClick}>
           VISIBLE
         </button>
 
