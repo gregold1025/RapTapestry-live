@@ -1,10 +1,19 @@
+// src/components/AudioControlsView/index.jsx
 import React, { useState, useEffect } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { PlayPauseButton } from "./UIElements/PlayPauseButton";
 import { StopButton } from "./UIElements/StopButton";
 import { ScrubSlider } from "./UIElements/ScrubSlider";
 import { VolumeControl } from "./UIElements/VolumeControl";
-import "./AudioControlsView.css"; // ← NEW
+import "./AudioControlsView.css";
+
+function fmtTime(sec = 0) {
+  if (!isFinite(sec)) return "0:00";
+  const s = Math.max(0, Math.floor(sec));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
 
 export default function AudioControlsView() {
   const {
@@ -40,15 +49,34 @@ export default function AudioControlsView() {
 
   return (
     <div className="audio-controls">
-      <PlayPauseButton
-        isPlaying={isPlaying}
-        onClick={() => (isPlaying ? pauseAll() : playAll())}
-      />
-      <StopButton onClick={stopAll} />
+      {/* Top row: transport centered */}
+      <div className="ac-transport">
+        <PlayPauseButton
+          isPlaying={isPlaying}
+          onClick={() => (isPlaying ? pauseAll() : playAll())}
+        />
+        <StopButton onClick={stopAll} />
+      </div>
 
-      <ScrubSlider value={currentTime} max={duration} onChange={seekAll} />
+      {/* Middle: scrub bar */}
+      <div className="ac-scrub-row">
+        <ScrubSlider
+          value={currentTime}
+          max={duration || 0}
+          onChange={seekAll}
+        />
+      </div>
 
-      <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
+      {/* Bottom: time labels */}
+      <div className="ac-time-row">
+        <span className="ac-time ac-time-current">{fmtTime(currentTime)}</span>
+        <span className="ac-time ac-time-total">{fmtTime(duration)}</span>
+      </div>
+
+      {/* Volume on the right (popover) */}
+      <div className="ac-volume">
+        <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState } from "react";
 const ParamsContext = createContext();
 
 export function ParamsProvider({ children }) {
-  // … your existing state …
+  // — VOCALS —
   const [showVocals, setShowVocals] = useState(true);
   const [vowelColors, setVowelColors] = useState({
     AA: "#00c2a0",
@@ -24,34 +24,37 @@ export function ParamsProvider({ children }) {
     UW: "#5c6bc0",
   });
 
-  // ** syllables **
-  //// visual
+  // — SYLLABLES —
+  // visual
   const [showSyllables, setShowSyllables] = useState(true);
   const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
   const [syllableOpacity, setSyllableOpacity] = useState(1);
   const [syllableRadius, setSyllableRadius] = useState(8);
   const [syllableArcCurve, setSyllableArcCurve] = useState(1);
-  //// logical
+  // logical
   const [wildcardSkips, setWildcardSkips] = useState(1);
   const [minMatchLen, setMinMatchLen] = useState(2);
 
-  // ** words **
-  //// visual
+  // — WORDS —
+  // visual
   const [showWords, setShowWords] = useState(true);
   const [wordActiveColor, setWordActiveColor] = useState("#00aaff");
   const [wordInactiveColor, setWordInactiveColor] = useState("transparent");
   const [wordOpacity, setWordOpacity] = useState(0.6);
-  ////logical
+  // logical / selection-display
   const [exactMatches, setExactMatches] = useState(false);
   const [ignorePlurals, setIgnorePlurals] = useState(false);
+  const [showRhymes, setShowRhymes] = useState(true); // NEW: show matchedWordIds on other views
+  const [showAlliteration, setShowAlliteration] = useState(true); // NEW: show alliterationMatchedWordIds
 
-  // ** lines **
+  // — LINES —
   const [showLines, setShowLines] = useState(true);
   const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
   const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
+  const [showEndRhymes, setShowEndRhymes] = useState(false); // NEW: line-level rhyme highlights
 
-  // bass
+  // — BASS —
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
     rectHeight: 10,
@@ -60,7 +63,7 @@ export function ParamsProvider({ children }) {
     blur: 0,
   });
 
-  // drums
+  // — DRUMS —
   const [showDrums, setShowDrums] = useState(true);
   const [drumParams, setDrumParams] = useState({
     strokeWeight: 8,
@@ -69,18 +72,24 @@ export function ParamsProvider({ children }) {
     opacity: 0.5,
   });
 
+  // — GLOBAL TAPESTRY (grids/background) —
+  const [showHorizontalGrid, setShowHorizontalGrid] = useState(true); // rows
+  const [showVerticalGrid, setShowVerticalGrid] = useState(true); // beats
+  const [tapestryBackgroundColor, setTapestryBackgroundColor] =
+    useState("#ffffff");
+
   return (
     <ParamsContext.Provider
       value={{
-        // — vocals -
+        // vocals
         showVocals,
         setShowVocals,
-
-        // - syllables —
-        showSyllables,
-        setShowSyllables,
         vowelColors,
         setVowelColors,
+
+        // syllables
+        showSyllables,
+        setShowSyllables,
         inactiveSyllableColor,
         setInactiveSyllableColor,
         syllableOpacity,
@@ -94,7 +103,7 @@ export function ParamsProvider({ children }) {
         minMatchLen,
         setMinMatchLen,
 
-        // — words —
+        // words
         showWords,
         setShowWords,
         wordActiveColor,
@@ -107,8 +116,12 @@ export function ParamsProvider({ children }) {
         setExactMatches,
         ignorePlurals,
         setIgnorePlurals,
+        showRhymes,
+        setShowRhymes,
+        showAlliteration,
+        setShowAlliteration,
 
-        // — lines —
+        // lines
         showLines,
         setShowLines,
         lineActiveColor,
@@ -117,18 +130,28 @@ export function ParamsProvider({ children }) {
         setLineInactiveColor,
         lineOpacity,
         setLineOpacity,
+        showEndRhymes,
+        setShowEndRhymes,
 
-        // — bass (existing) —
+        // bass
         showBass,
         setShowBass,
         bassParams,
         setBassParams,
 
-        // – drums –
+        // drums
         showDrums,
         setShowDrums,
         drumParams,
         setDrumParams,
+
+        // tapestry/global
+        showHorizontalGrid,
+        setShowHorizontalGrid,
+        showVerticalGrid,
+        setShowVerticalGrid,
+        tapestryBackgroundColor,
+        setTapestryBackgroundColor,
       }}
     >
       {children}

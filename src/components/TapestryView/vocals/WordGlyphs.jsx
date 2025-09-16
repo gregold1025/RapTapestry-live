@@ -1,3 +1,4 @@
+// src/components/TapestryView/vocals/WordGlyphs.jsx
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
@@ -10,7 +11,11 @@ export default function WordGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { matchedWordIds, selectedWordIds } = useWordSelection();
+  const {
+    matchedWordIds, // rhyme/exact matches (existing)
+    selectedWordIds,
+    alliterationMatchedWordIds, // NEW: words sharing first phone
+  } = useWordSelection();
   const { showWords, wordActiveColor, wordInactiveColor, wordOpacity } =
     useParams();
   const { seekAll } = useAudioEngine();
@@ -25,6 +30,7 @@ export default function WordGlyphs({
 
   transcriptionData.lines.forEach((line, lineIdx) => {
     if (!line.words) return;
+
     line.words.forEach((word, wordIdx) => {
       if (typeof word.start !== "number" || typeof word.end !== "number")
         return;
@@ -37,35 +43,71 @@ export default function WordGlyphs({
 
       const isSelected = selectedWordIds.includes(id);
       const isMatch = matchedWordIds.has(id);
+      const isAllit = alliterationMatchedWordIds.has(id);
 
       const fill = isSelected || isMatch ? wordActiveColor : wordInactiveColor;
-      const stroke = isSelected ? "#aa0000" : "none";
 
+      // Base filled bar
       glyphs.push(
         <rect
-          key={id}
+          key={`${id}-base`}
           x={startX}
           y={rectY}
           width={widthPx}
           height={barHeight}
           fill={fill}
           opacity={wordOpacity}
-          stroke={stroke}
-          strokeWidth={isSelected ? 2 : 0}
+          stroke="none"
           style={{ cursor: "pointer" }}
           onClick={() => seekAll(word.start)}
           onMouseEnter={(e) =>
-            onGlyphHoverEnter(e, {
+            onGlyphHoverEnter?.(e, {
               type: "word",
               wordText: word.text,
               phones: Array.isArray(word.phones)
                 ? word.phones.join(" ")
-                : String(word.phones),
+                : String(word.phones || ""),
             })
           }
           onMouseLeave={onGlyphHoverLeave}
         />
       );
+
+      // Alliteration outline (5px, wordActiveColor)
+      if (isAllit) {
+        glyphs.push(
+          <rect
+            key={`${id}-allit`}
+            x={startX}
+            y={rectY}
+            width={widthPx}
+            height={barHeight}
+            fill="none"
+            stroke={wordActiveColor}
+            strokeWidth={5}
+            opacity={1}
+            pointerEvents="none" // outline shouldn't swallow clicks
+          />
+        );
+      }
+
+      // Selected outline (2px, red) — drawn on top
+      if (isSelected) {
+        glyphs.push(
+          <rect
+            key={`${id}-selected`}
+            x={startX}
+            y={rectY}
+            width={widthPx}
+            height={barHeight}
+            fill="none"
+            stroke="#aa0000"
+            strokeWidth={2}
+            opacity={1}
+            pointerEvents="none"
+          />
+        );
+      }
     });
   });
 

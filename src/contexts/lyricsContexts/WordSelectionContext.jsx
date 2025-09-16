@@ -1,7 +1,8 @@
-// src/contexts/WordSelectionContext.jsx
+// src/contexts/lyricsContexts/WordSelectionContext.jsx
 import React, { createContext, useContext, useState, useMemo } from "react";
 import { useParams } from "../ParamsContext";
 import { extractRhymingWords } from "../../utils/extractRhymingWords";
+import { extractAlliterativeWords } from "../../utils/extractAlliterations";
 
 const WordSelectionContext = createContext();
 
@@ -10,7 +11,7 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   const [selectedWordId, setSelectedWordId] = useState(null);
 
   // ── pull in your visual & logical parameters ──
-  const { exactMatches, ignorePlurals } = useParams();
+  const { exactMatches, ignorePlurals /*, alliterationMode */ } = useParams();
 
   // Toggle selection on/off
   const toggleWord = (wordId) =>
@@ -21,23 +22,6 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     () => (selectedWordId ? [selectedWordId] : []),
     [selectedWordId]
   );
-
-  /* 
-  // Build a map: "lineIdx-wordIdx" → phones string
-  const wordPhonesMap = useMemo(() => {
-    const map = new Map();
-    transcriptionData.lines.forEach((line, lineIdx) => {
-      line.words?.forEach((word, wordIdx) => {
-        const id = `${lineIdx}-${wordIdx}`;
-        const phonesStr = Array.isArray(word.phones)
-          ? word.phones.join(" ")
-          : String(word.phones || "");
-        map.set(id, phonesStr);
-      });
-    });
-    return map;
-  }, [transcriptionData]);
-  */
 
   // Build a map from each word to its *first* phones string
   const wordPhonesMap = useMemo(() => {
@@ -54,7 +38,7 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     return map;
   }, [transcriptionData]);
 
-  // Build our rhyming map
+  // Build our rhyming map (same content as wordPhonesMap; kept for clarity)
   const wordRhymesMap = useMemo(() => {
     const m = new Map();
     transcriptionData.lines.forEach((line, i) => {
@@ -80,7 +64,6 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   const matchedWordIds = useMemo(() => {
     if (!selectedWordId) return new Set();
 
-    // PERF: grab whichever map we need
     if (exactMatches) {
       // ── exact match mode ──
       const rawSel = wordPhonesMap.get(selectedWordId) || "";
@@ -101,7 +84,6 @@ export function WordSelectionProvider({ transcriptionData, children }) {
       let raw = wordRhymesMap.get(selectedWordId) || "";
       const keyPhones = ignorePlurals ? stripPluralSuffix(raw) : raw;
 
-      // build a sanitized rhyme‐map if we need to ignore plurals
       const rhymeMap = ignorePlurals
         ? new Map(
             Array.from(wordRhymesMap.entries()).map(([id, ph]) => [
@@ -122,12 +104,25 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     ignorePlurals,
   ]);
 
+  // NEW: Alliteration — matching the *first phone*
+  // (You can later replace the hard-coded option with a param flag.)
+  const alliterationMatchedWordIds = useMemo(() => {
+    if (!selectedWordId) return new Set();
+    const selPhones = wordPhonesMap.get(selectedWordId) || "";
+    // Example option: only match on consonants (common alliteration notion)
+    const list = extractAlliterativeWords(selPhones, wordPhonesMap, {
+      consonantsOnly: true,
+    });
+    return new Set(list);
+  }, [selectedWordId, wordPhonesMap]);
+
   return (
     <WordSelectionContext.Provider
       value={{
         selectedWordId,
         selectedWordIds,
-        matchedWordIds,
+        matchedWordIds, // rhyme/exact matches (existing)
+        alliterationMatchedWordIds, // NEW: initial-phone matches
         toggleWord,
       }}
     >

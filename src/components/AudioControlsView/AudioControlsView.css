@@ -1,42 +1,65 @@
 /* ===== AudioControlsView.css ===== */
 
-/* Panel layout */
+/* Panel layout becomes a column; volume floats on the right */
 .audio-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
 
   /* sizing tokens */
-  --scrub-track-h: 0.75rem;
-  --scrub-thumb-d: 1.25rem;
+  --scrub-track-h: 1rem;
+  --scrub-thumb-d: 3rem;
+  --scrub-fill: #d93030;
 
-  /* match Overlay sliders (your request) for VOLUME */
   --vol-track-h: 2rem;
   --vol-thumb-d: 3.5rem;
 }
 
-/* Buttons */
+/* Volume lives at top-right corner of the panel */
+.ac-volume {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Transport row centered */
+.ac-transport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+}
+/* Add margin below transport row to separate from scrub slider */
+.ac-transport {
+  margin: 36px;
+}
+/* Buttons — icons at 3rem */
 .ac-btn {
   border-radius: 6px;
   border: 1px solid #d0d0d0;
   background: #fff;
   color: #000;
-  padding: 6px 10px;
+  padding: 4px 8px;
   cursor: pointer;
-  font-size: 1rem;
+
+  font-size: 8rem;
+  line-height: 1;
 }
 
-/* Let the scrub grow to fill space */
+/* Scrub row */
+.ac-scrub-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scrub slider expands full width */
 .scrub-slider {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-/* ====== SCRUB slider (horizontal, slimmer) ====== */
-.scrub-slider {
-  width: 100%;
+  width: 85%;
   height: var(--scrub-track-h);
   -webkit-appearance: none;
   appearance: none;
@@ -47,8 +70,8 @@
 /* WebKit/Blink track */
 .scrub-slider::-webkit-slider-runnable-track {
   height: var(--scrub-track-h);
-  background: #e5e7eb;
-  border: 1px solid #dadde2;
+  background: var(--scrub-fill);
+  border: 1px solid #a32222;
   border-radius: 999px;
 }
 /* WebKit/Blink thumb */
@@ -58,94 +81,42 @@
   width: var(--scrub-thumb-d);
   height: var(--scrub-thumb-d);
   border-radius: 999px;
-  background: #cfd6e6;
-  border: 1px solid #9199aa;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  border: 2px solid #9199aa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   margin-top: calc((var(--scrub-track-h) - var(--scrub-thumb-d)) / 2);
 }
 
 /* Firefox */
 .scrub-slider::-moz-range-track {
   height: var(--scrub-track-h);
-  background: #e5e7eb;
-  border: 1px solid #dadde2;
+  background: var(--scrub-fill);
+  border: 1px solid #a32222;
   border-radius: 999px;
 }
 .scrub-slider::-moz-range-thumb {
   width: var(--scrub-thumb-d);
   height: var(--scrub-thumb-d);
   border-radius: 999px;
-  background: #cfd6e6;
-  border: 1px solid #9199aa;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  border: 2px solid #9199aa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 
-/* ====== VOLUME control (popover, vertical, large) ====== */
-.volume-control {
-  position: relative;
-  display: inline-flex;
+/* Time row — left/right aligned under the scrub */
+.ac-time-row {
+  display: flex;
   align-items: center;
-}
-.volume-icon {
-  cursor: pointer;
-  font-size: 1.2rem;
+  justify-content: space-between;
+  color: #fff;
+
+  padding: 0 2px;
+  margin-top: -2px; /* snugs it closer to slider */
 }
 
-/* The floating slider above the icon */
-.volume-popover {
-  position: absolute;
-  top: -12px; /* tweak to your taste */
-  right: 0;
-  transform: translateY(-100%) rotate(-90deg);
-  transform-origin: top right;
-  /* spacing and hit-area */
-  padding: 0;
-}
-
-/* Big range: matches your Overlay style */
-.volume-range {
-  width: 140px; /* length of the slider bar when rotated */
-  height: var(--vol-track-h);
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-/* WebKit/Blink track */
-.volume-range::-webkit-slider-runnable-track {
-  height: var(--vol-track-h);
-  background: #2a3140;
-  border: 1px solid #3a4354;
-  border-radius: 999px;
-}
-/* WebKit/Blink thumb */
-.volume-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: var(--vol-thumb-d);
-  height: var(--vol-thumb-d);
-  border-radius: 999px;
-  background: #cfd6e6;
-  border: 1px solid #9199aa;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  margin-top: calc((var(--vol-track-h) - var(--vol-thumb-d)) / 2);
-}
-
-/* Firefox */
-.volume-range::-moz-range-track {
-  height: var(--vol-track-h);
-  background: #2a3140;
-  border: 1px solid #3a4354;
-  border-radius: 999px;
-}
-.volume-range::-moz-range-thumb {
-  width: var(--vol-thumb-d);
-  height: var(--vol-thumb-d);
-  border-radius: 999px;
-  background: #cfd6e6;
-  border: 1px solid #9199aa;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
+.ac-time {
+  min-width: 3.5ch; /* enough for m:ss */
+  letter-spacing: 0.3px;
+  font-size: 4rem;
 }

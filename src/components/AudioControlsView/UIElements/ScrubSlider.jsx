@@ -1,6 +1,6 @@
+// ScrubSlider.jsx
 export function ScrubSlider({ value, max, onChange }) {
   const handleChange = (e) => onChange(parseFloat(e.target.value));
-
   return (
     <input
       className="scrub-slider"
