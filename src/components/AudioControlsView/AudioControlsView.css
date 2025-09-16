@@ -1,6 +1,6 @@
-/* AudioControlsView.css */
+/* ===== AudioControlsView.css ===== */
 
-/* Layout of the strip */
+/* Panel layout */
 .audio-controls {
   display: flex;
   align-items: center;
@@ -8,86 +8,144 @@
   padding: 8px;
   position: relative;
 
-  /* slider sizing tokens (scoped to this panel only) */
-  --ac-slider-track-h: 2rem; /* track thickness */
-  --ac-slider-thumb-d: 3.5rem; /* knob diameter */
+  /* sizing tokens */
+  --scrub-track-h: 0.75rem;
+  --scrub-thumb-d: 1.25rem;
+
+  /* match Overlay sliders (your request) for VOLUME */
+  --vol-track-h: 2rem;
+  --vol-thumb-d: 3.5rem;
 }
 
-/* Let the scrub slider expand */
-.audio-controls .scrub-wrap {
-  flex: 1;
+/* Buttons */
+.ac-btn {
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  color: #000;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Let the scrub grow to fill space */
+.scrub-slider {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-/* ====== Big sliders (scoped) ======
-   By default this will style *all* range inputs inside the audio-controls panel
-   (Scrub + Volume). If you want ONLY volume styled, see the "Only volume" block below. */
-
-/* Base */
-.audio-controls input[type="range"] {
+/* ====== SCRUB slider (horizontal, slimmer) ====== */
+.scrub-slider {
   width: 100%;
-  height: var(--ac-slider-track-h);
-  background: transparent;
+  height: var(--scrub-track-h);
   -webkit-appearance: none;
   appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
 /* WebKit/Blink track */
-.audio-controls input[type="range"]::-webkit-slider-runnable-track {
-  height: var(--ac-slider-track-h);
-  background: #2a3140;
-  border: 1px solid #3a4354;
+.scrub-slider::-webkit-slider-runnable-track {
+  height: var(--scrub-track-h);
+  background: #e5e7eb;
+  border: 1px solid #dadde2;
   border-radius: 999px;
 }
-
 /* WebKit/Blink thumb */
-.audio-controls input[type="range"]::-webkit-slider-thumb {
+.scrub-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: var(--ac-slider-thumb-d);
-  height: var(--ac-slider-thumb-d);
+  width: var(--scrub-thumb-d);
+  height: var(--scrub-thumb-d);
   border-radius: 999px;
   background: #cfd6e6;
   border: 1px solid #9199aa;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  margin-top: calc((var(--ac-slider-track-h) - var(--ac-slider-thumb-d)) / 2);
+  margin-top: calc((var(--scrub-track-h) - var(--scrub-thumb-d)) / 2);
 }
 
-/* Firefox track */
-.audio-controls input[type="range"]::-moz-range-track {
-  height: var(--ac-slider-track-h);
+/* Firefox */
+.scrub-slider::-moz-range-track {
+  height: var(--scrub-track-h);
+  background: #e5e7eb;
+  border: 1px solid #dadde2;
+  border-radius: 999px;
+}
+.scrub-slider::-moz-range-thumb {
+  width: var(--scrub-thumb-d);
+  height: var(--scrub-thumb-d);
+  border-radius: 999px;
+  background: #cfd6e6;
+  border: 1px solid #9199aa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+/* ====== VOLUME control (popover, vertical, large) ====== */
+.volume-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.volume-icon {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* The floating slider above the icon */
+.volume-popover {
+  position: absolute;
+  top: -12px; /* tweak to your taste */
+  right: 0;
+  transform: translateY(-100%) rotate(-90deg);
+  transform-origin: top right;
+  /* spacing and hit-area */
+  padding: 0;
+}
+
+/* Big range: matches your Overlay style */
+.volume-range {
+  width: 140px; /* length of the slider bar when rotated */
+  height: var(--vol-track-h);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* WebKit/Blink track */
+.volume-range::-webkit-slider-runnable-track {
+  height: var(--vol-track-h);
   background: #2a3140;
   border: 1px solid #3a4354;
   border-radius: 999px;
 }
+/* WebKit/Blink thumb */
+.volume-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--vol-thumb-d);
+  height: var(--vol-thumb-d);
+  border-radius: 999px;
+  background: #cfd6e6;
+  border: 1px solid #9199aa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  margin-top: calc((var(--vol-track-h) - var(--vol-thumb-d)) / 2);
+}
 
-/* Firefox thumb */
-.audio-controls input[type="range"]::-moz-range-thumb {
-  width: var(--ac-slider-thumb-d);
-  height: var(--ac-slider-thumb-d);
+/* Firefox */
+.volume-range::-moz-range-track {
+  height: var(--vol-track-h);
+  background: #2a3140;
+  border: 1px solid #3a4354;
+  border-radius: 999px;
+}
+.volume-range::-moz-range-thumb {
+  width: var(--vol-thumb-d);
+  height: var(--vol-thumb-d);
   border-radius: 999px;
   background: #cfd6e6;
   border: 1px solid #9199aa;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
-
-/* ====== Optional: ONLY style the volume slider, not the scrub slider ======
-   If your VolumeControl passes a class down to the <input type="range"> (e.g., "volume-range"),
-   uncomment this block and comment out the generic blocks above. */
-
-/*
-.audio-controls input[type="range"].volume-range {
-  width: 100%;
-  height: var(--ac-slider-track-h);
-  background: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-}
-.audio-controls input[type="range"].volume-range::-webkit-slider-runnable-track { ...same as above... }
-.audio-controls input[type="range"].volume-range::-webkit-slider-thumb { ...same as above... }
-.audio-controls input[type="range"].volume-range::-moz-range-track { ...same as above... }
-.audio-controls input[type="range"].volume-range::-moz-range-thumb { ...same as above... }
-*/

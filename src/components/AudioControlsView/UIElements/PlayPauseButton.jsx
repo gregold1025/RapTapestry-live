@@ -1,3 +1,7 @@
 export function PlayPauseButton({ isPlaying, onClick }) {
-  return <button onClick={onClick}>{isPlaying ? "Pause" : "Play"}</button>;
+  return (
+    <button className="ac-btn playpause-btn" onClick={onClick}>
+      {isPlaying ? "Pause" : "Play"}
+    </button>
+  );
 }

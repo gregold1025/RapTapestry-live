@@ -46,14 +46,8 @@ export default function AudioControlsView() {
       />
       <StopButton onClick={stopAll} />
 
-      {/* If ScrubSlider renders an <input type="range"> it will pick up the scoped styles. */}
-      <div className="scrub-wrap">
-        <ScrubSlider value={currentTime} max={duration} onChange={seekAll} />
-      </div>
+      <ScrubSlider value={currentTime} max={duration} onChange={seekAll} />
 
-      {/* If you ONLY want the big style on the volume slider, 
-          add a class prop (if VolumeControl supports it) like className="volume-range"
-          and use the ".audio-controls .volume-range" block below. */}
       <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
     </div>
   );

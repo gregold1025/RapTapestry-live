@@ -10,15 +10,14 @@ export function WordLine({
   onWordHover,
   onSyllableHover,
   onHoverEnd,
-  dataLineIdx, // ← camelCase prop
+  dataLineIdx,
 }) {
-  const { selectedLineIdx, toggleLine } = useLineSelection();
+  const { selectedLineIdx, toggleLine, matchedLineIdxs } = useLineSelection();
   const { lineActiveColor, lineOpacity } = useParams();
+
   const isSelected = selectedLineIdx === lineIdx;
+  const isMatched = matchedLineIdxs?.has?.(lineIdx);
   const isCurrent = playheadTime >= line.start && playheadTime < line.end;
-  if (isCurrent) {
-    console.log("Current line:", lineIdx, line.text);
-  }
 
   const hexToRgba = (hex, alpha = 1) => {
     const [r, g, b] = hex
@@ -28,30 +27,43 @@ export function WordLine({
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  const bgRgba = isSelected
-    ? hexToRgba(lineActiveColor, lineOpacity)
-    : "transparent";
+  // both selected and matched share same background
+  const bgRgba =
+    isSelected || isMatched
+      ? hexToRgba(lineActiveColor, lineOpacity)
+      : "transparent";
+
+  // red outline only if selected
+  const outlineStyle = isSelected ? "2px solid red" : "none";
 
   return (
     <div
-      className={`line ${isCurrent ? "current" : ""}`}
-      data-line-idx={
-        dataLineIdx
-      } /* rendered as data attribute for scroll anchoring */
+      className={[
+        "line",
+        isCurrent ? "current" : "",
+        isSelected ? "selected" : "",
+        isMatched ? "matched" : "",
+      ]
+        .join(" ")
+        .trim()}
+      data-line-idx={dataLineIdx}
       style={{
         paddingBottom: 6,
         borderBottom: "1px dashed #ccc",
-        // fontWeight: isCurrent ? "bold" : "normal",
         backgroundColor: bgRgba,
         display: "flex",
         alignItems: "center",
         gap: "12px",
+        outline: outlineStyle, // red outline on selection
+        outlineOffset: "-2px", // keeps outline inside
       }}
     >
       <div
         className="line-select"
         onClick={() => toggleLine(lineIdx)}
-        title="Select line"
+        title={isSelected ? "Unselect line" : "Select line"}
+        aria-pressed={isSelected}
+        role="button"
       >
         {isSelected ? "■" : "□"}
       </div>

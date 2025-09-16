@@ -61,8 +61,10 @@ export default function BassGlyphs({ bassTranscriptionData }) {
             y={y}
             width={segWidth}
             height={rectHeight}
-            fill={isActive ? "#ffcc00" : fillColor}
-            opacity={isActive ? 1.0 : opacity}
+            // fill={isActive ? "#ffcc00" : fillColor}
+            fill={fillColor}
+            // opacity={isActive ? 1.0 : opacity}
+            opacity={opacity}
           />
         );
       }

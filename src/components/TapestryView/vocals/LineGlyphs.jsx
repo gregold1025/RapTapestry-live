@@ -10,7 +10,7 @@ export default function LineGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { selectedLineIdx } = useLineSelection();
+  const { selectedLineIdx, matchedLineIdxs } = useLineSelection();
   const { showLines, lineActiveColor, lineInactiveColor, lineOpacity } =
     useParams();
   const { seekAll } = useAudioEngine();
@@ -27,11 +27,19 @@ export default function LineGlyphs({
       return [];
 
     const isSelected = selectedLineIdx === lineIdx;
+    const isMatched = matchedLineIdxs?.has?.(lineIdx);
     const isHovered = hoveredLineIdx === lineIdx;
 
-    const fill = isSelected ? lineActiveColor : lineInactiveColor;
-    const stroke = isHovered ? lineActiveColor : "none";
-    const strokeWidth = isHovered ? 2 : isSelected ? 2 : 0;
+    // fill color: active color for both selected & matched
+    const fill = isSelected || isMatched ? lineActiveColor : lineInactiveColor;
+
+    // outline logic: selected gets red, hovered gets active color
+    const stroke = isSelected
+      ? lineActiveColor
+      : isHovered
+      ? lineActiveColor
+      : "none";
+    const strokeWidth = isSelected || isHovered ? 2 : 0;
 
     const rects = [];
     const { x: startX, row: startRow } = timeToPixels(line.start);
@@ -57,6 +65,7 @@ export default function LineGlyphs({
           onClick={() => seekAll(line.start)}
           onMouseEnter={(e) => {
             setHoveredLineIdx(lineIdx);
+            // optional hover callback
             // onGlyphHoverEnter?.(e, {
             //   type: "line",
             //   lineIdx,

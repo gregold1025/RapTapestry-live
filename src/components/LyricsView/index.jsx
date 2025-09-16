@@ -136,7 +136,7 @@ export default function LyricsView({ transcriptionData, height = "100%" }) {
           disabled={currentLineIndex < 0}
           title={isFollowing ? "Following playhead" : "Re-enable following"}
         >
-          {isFollowing ? "Following…" : "Recenter to current line"}
+          {isFollowing ? "Following…" : "Recenter"}
         </button>
         <div className="footer-spacer" />
         <div className="footer-hover">
