@@ -4,6 +4,7 @@ import { PlayPauseButton } from "./UIElements/PlayPauseButton";
 import { StopButton } from "./UIElements/StopButton";
 import { ScrubSlider } from "./UIElements/ScrubSlider";
 import { VolumeControl } from "./UIElements/VolumeControl";
+import "./AudioControlsView.css"; // ← NEW
 
 export default function AudioControlsView() {
   const {
@@ -38,26 +39,21 @@ export default function AudioControlsView() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        padding: "8px",
-        position: "relative",
-      }}
-    >
+    <div className="audio-controls">
       <PlayPauseButton
         isPlaying={isPlaying}
         onClick={() => (isPlaying ? pauseAll() : playAll())}
       />
       <StopButton onClick={stopAll} />
-      <ScrubSlider
-        value={currentTime}
-        max={duration}
-        onChange={seekAll}
-        style={{ flex: 1 }}
-      />
+
+      {/* If ScrubSlider renders an <input type="range"> it will pick up the scoped styles. */}
+      <div className="scrub-wrap">
+        <ScrubSlider value={currentTime} max={duration} onChange={seekAll} />
+      </div>
+
+      {/* If you ONLY want the big style on the volume slider, 
+          add a class prop (if VolumeControl supports it) like className="volume-range"
+          and use the ".audio-controls .volume-range" block below. */}
       <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
     </div>
   );

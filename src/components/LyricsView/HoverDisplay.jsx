@@ -6,7 +6,6 @@ export function HoverDisplay({ hoverData }) {
     <div
       style={{
         // marginTop: "12px",
-        fontSize: 24,
         color: "#444",
         fontFamily: "monospace",
         minHeight: "1.2em",

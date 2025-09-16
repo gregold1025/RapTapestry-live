@@ -22,16 +22,21 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0px;
 }
 
 /* Each line */
 .line {
-  padding-bottom: 6px;
-  border-bottom: 1px dashed #ccc;
+  padding: 24px;
+  border-bottom: 2px dashed #ccc;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.line.current {
+  font-weight: 800;
 }
 
 /* The “select line” square */
@@ -51,8 +56,8 @@
 
 /* Word chip */
 .word {
-  display: inline-block;
-  font-weight: 500;
+  display: inline-block; /* highlight hugs text */
+
   font-size: var(--lyrics-fs); /* computed by hook */
   line-height: var(--lyrics-lh);
   padding: 0 4px;
@@ -61,14 +66,47 @@
   cursor: pointer;
 }
 .word.current {
-  font-weight: 700;
+  color: #f00;
 }
 
 /* Small syllable circles above the word */
 .lyrics-syllable-circle {
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   outline: none;
   border: 1px solid #999;
+}
+
+/* Footer: recenter button + hover info */
+.lyrics-footer {
+  border-top: 1px solid #e5e7eb;
+  font-size: 3rem;
+  background: #fafafa;
+  padding: 12px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recenter-btn {
+  padding: 10px 10px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #bbb;
+  color: #000;
+  cursor: pointer;
+  font-size: 3rem;
+}
+
+.footer-spacer {
+  flex: 1;
+}
+
+.footer-hover {
+  font-size: 3rem;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

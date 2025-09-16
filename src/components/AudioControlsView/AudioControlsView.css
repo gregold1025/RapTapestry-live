@@ -1,0 +1,93 @@
+/* AudioControlsView.css */
+
+/* Layout of the strip */
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  position: relative;
+
+  /* slider sizing tokens (scoped to this panel only) */
+  --ac-slider-track-h: 2rem; /* track thickness */
+  --ac-slider-thumb-d: 3.5rem; /* knob diameter */
+}
+
+/* Let the scrub slider expand */
+.audio-controls .scrub-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ====== Big sliders (scoped) ======
+   By default this will style *all* range inputs inside the audio-controls panel
+   (Scrub + Volume). If you want ONLY volume styled, see the "Only volume" block below. */
+
+/* Base */
+.audio-controls input[type="range"] {
+  width: 100%;
+  height: var(--ac-slider-track-h);
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* WebKit/Blink track */
+.audio-controls input[type="range"]::-webkit-slider-runnable-track {
+  height: var(--ac-slider-track-h);
+  background: #2a3140;
+  border: 1px solid #3a4354;
+  border-radius: 999px;
+}
+
+/* WebKit/Blink thumb */
+.audio-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--ac-slider-thumb-d);
+  height: var(--ac-slider-thumb-d);
+  border-radius: 999px;
+  background: #cfd6e6;
+  border: 1px solid #9199aa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  margin-top: calc((var(--ac-slider-track-h) - var(--ac-slider-thumb-d)) / 2);
+}
+
+/* Firefox track */
+.audio-controls input[type="range"]::-moz-range-track {
+  height: var(--ac-slider-track-h);
+  background: #2a3140;
+  border: 1px solid #3a4354;
+  border-radius: 999px;
+}
+
+/* Firefox thumb */
+.audio-controls input[type="range"]::-moz-range-thumb {
+  width: var(--ac-slider-thumb-d);
+  height: var(--ac-slider-thumb-d);
+  border-radius: 999px;
+  background: #cfd6e6;
+  border: 1px solid #9199aa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+/* ====== Optional: ONLY style the volume slider, not the scrub slider ======
+   If your VolumeControl passes a class down to the <input type="range"> (e.g., "volume-range"),
+   uncomment this block and comment out the generic blocks above. */
+
+/*
+.audio-controls input[type="range"].volume-range {
+  width: 100%;
+  height: var(--ac-slider-track-h);
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.audio-controls input[type="range"].volume-range::-webkit-slider-runnable-track { ...same as above... }
+.audio-controls input[type="range"].volume-range::-webkit-slider-thumb { ...same as above... }
+.audio-controls input[type="range"].volume-range::-moz-range-track { ...same as above... }
+.audio-controls input[type="range"].volume-range::-moz-range-thumb { ...same as above... }
+*/

@@ -6,17 +6,20 @@ export function WordLine({
   line,
   lineIdx,
   playheadTime,
-  isCurrent,
   hoverData,
   onWordHover,
   onSyllableHover,
   onHoverEnd,
+  dataLineIdx, // ← camelCase prop
 }) {
   const { selectedLineIdx, toggleLine } = useLineSelection();
   const { lineActiveColor, lineOpacity } = useParams();
   const isSelected = selectedLineIdx === lineIdx;
+  const isCurrent = playheadTime >= line.start && playheadTime < line.end;
+  if (isCurrent) {
+    console.log("Current line:", lineIdx, line.text);
+  }
 
-  // small helper to turn "#rrggbb" into "rgba(r,g,b,alpha)"
   const hexToRgba = (hex, alpha = 1) => {
     const [r, g, b] = hex
       .replace(/^#/, "")
@@ -31,11 +34,14 @@ export function WordLine({
 
   return (
     <div
-      className="line"
+      className={`line ${isCurrent ? "current" : ""}`}
+      data-line-idx={
+        dataLineIdx
+      } /* rendered as data attribute for scroll anchoring */
       style={{
         paddingBottom: 6,
         borderBottom: "1px dashed #ccc",
-        fontWeight: isCurrent ? "bold" : "normal",
+        // fontWeight: isCurrent ? "bold" : "normal",
         backgroundColor: bgRgba,
         display: "flex",
         alignItems: "center",
@@ -45,12 +51,15 @@ export function WordLine({
       <div
         className="line-select"
         onClick={() => toggleLine(lineIdx)}
-        title="Select Line"
+        title="Select line"
       >
-        🟦
+        {isSelected ? "■" : "□"}
       </div>
 
-      <div className="words-container">
+      <div
+        className="words-container"
+        style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}
+      >
         {line.words?.map((word, wordIdx) => (
           <WordBlock
             key={wordIdx}
