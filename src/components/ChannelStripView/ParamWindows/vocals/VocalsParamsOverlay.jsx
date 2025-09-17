@@ -1,16 +1,11 @@
+// src/components/ChannelStrips/ParamWindows/vocals/VocalsParamsOverlay.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "../../../../contexts/ParamsContext";
-import "../Overlay.css"; // ← NEW shared stylesheet
+import "../Overlay.css";
 
 export function VocalsParamsOverlay({ onClose }) {
   const {
-    wildcardSkips,
-    setWildcardSkips,
-    minMatchLen,
-    setMinMatchLen,
-    vowelColors: contextVowelColors,
-    setVowelColors,
-
+    // syllable visuals + logic
     showSyllables,
     setShowSyllables,
     inactiveSyllableColor,
@@ -22,6 +17,12 @@ export function VocalsParamsOverlay({ onClose }) {
     syllableArcCurve,
     setSyllableArcCurve,
 
+    wildcardSkips,
+    setWildcardSkips,
+    minMatchLen,
+    setMinMatchLen,
+
+    // word visuals + logic
     showWords,
     setShowWords,
     wordActiveColor,
@@ -35,6 +36,13 @@ export function VocalsParamsOverlay({ onClose }) {
     ignorePlurals,
     setIgnorePlurals,
 
+    // NEW word-layer visibility toggles
+    showRhymes,
+    setShowRhymes,
+    showAlliteration,
+    setShowAlliteration,
+
+    // line visuals
     showLines,
     setShowLines,
     lineActiveColor,
@@ -43,8 +51,17 @@ export function VocalsParamsOverlay({ onClose }) {
     setLineInactiveColor,
     lineOpacity,
     setLineOpacity,
+
+    // NEW line-layer toggle
+    showEndRhymes,
+    setShowEndRhymes,
+
+    // vowel palette
+    vowelColors: contextVowelColors,
+    setVowelColors,
   } = useParams();
 
+  // local mirrors for quick UI feedback
   const [wildcard, setWildcard] = useState(wildcardSkips);
   const [minMatch, setMinMatch] = useState(minMatchLen);
   const [colors, setColors] = useState(contextVowelColors);
@@ -85,7 +102,7 @@ export function VocalsParamsOverlay({ onClose }) {
 
         <div className="params-body">
           <div className="visuals-grid">
-            {/* Syllables */}
+            {/* ───────────── Syllables ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
                 <input
@@ -95,7 +112,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
                 <h3>Syllable Glyphs</h3>
               </label>
-              –––––––––––––––––––––––––––––––––––––––––––––––
+
               <div className="control">
                 Active Vowel Colors
                 <div className="palette-grid">
@@ -111,6 +128,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   ))}
                 </div>
               </div>
+
               <label className="control inline">
                 Inactive Color:
                 <input
@@ -119,6 +137,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickColor(setInactiveSyllableColor)}
                 />
               </label>
+
               <label className="control">
                 Opacity{" "}
                 <span className="meta">{syllableOpacity.toFixed(2)}</span>
@@ -131,17 +150,19 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickRange(setSyllableOpacity)}
                 />
               </label>
+
               <label className="control">
                 Radius <span className="meta">{syllableRadius}px</span>
                 <input
                   type="range"
                   min={2}
-                  max={20}
+                  max={50}
                   step={1}
                   value={syllableRadius}
                   onChange={pickRange(setSyllableRadius)}
                 />
               </label>
+
               <label className="control">
                 Arc Curvature{" "}
                 <span className="meta">{syllableArcCurve.toFixed(2)}</span>
@@ -154,7 +175,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickRange(setSyllableArcCurve)}
                 />
               </label>
-              –––––––––––––––––––––––––––––––––––––––––––––––
+
               <label className="control">
                 Max Wildcard Skips <span className="meta">{wildcard}</span>
                 <input
@@ -166,6 +187,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={handleWildcardChange}
                 />
               </label>
+
               <label className="control">
                 Min Match Length <span className="meta">{minMatch}</span>
                 <input
@@ -179,7 +201,7 @@ export function VocalsParamsOverlay({ onClose }) {
               </label>
             </div>
 
-            {/* Words */}
+            {/* ───────────── Words ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
                 <input
@@ -189,7 +211,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
                 <h3>Word Glyphs</h3>
               </label>
-              –––––––––––––––––––––––––––––––––––––––––––––––
+
               <label className="control inline">
                 Active Color:
                 <input
@@ -198,6 +220,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickColor(setWordActiveColor)}
                 />
               </label>
+
               <label className="control inline">
                 Inactive Color:
                 <input
@@ -206,6 +229,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickColor(setWordInactiveColor)}
                 />
               </label>
+
               <label className="control">
                 Opacity <span className="meta">{wordOpacity.toFixed(2)}</span>
                 <input
@@ -217,7 +241,18 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickRange(setWordOpacity)}
                 />
               </label>
-              –––––––––––––––––––––––––––––––––––––––––––––––
+
+              {/* NEW toggles */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showRhymes}
+                  onChange={toggle(setShowRhymes)}
+                />
+                Show Rhymes
+              </label>
+
+              {/* Existing match logic toggles */}
               <label className="toggle-control">
                 <input
                   type="checkbox"
@@ -226,6 +261,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
                 Exact Match
               </label>
+
               <label className="toggle-control">
                 <input
                   type="checkbox"
@@ -234,9 +270,18 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
                 Ignore Plurals
               </label>
+
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showAlliteration}
+                  onChange={toggle(setShowAlliteration)}
+                />
+                Show Alliteration
+              </label>
             </div>
 
-            {/* Lines */}
+            {/* ───────────── Lines ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
                 <input
@@ -246,7 +291,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
                 <h3>Line Glyphs</h3>
               </label>
-              –––––––––––––––––––––––––––––––––––––––––––––––
+
               <label className="control inline">
                 Active Color:
                 <input
@@ -255,6 +300,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickColor(setLineActiveColor)}
                 />
               </label>
+
               <label className="control inline">
                 Inactive Color:
                 <input
@@ -263,6 +309,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickColor(setLineInactiveColor)}
                 />
               </label>
+
               <label className="control">
                 Opacity <span className="meta">{lineOpacity.toFixed(2)}</span>
                 <input
@@ -273,6 +320,16 @@ export function VocalsParamsOverlay({ onClose }) {
                   value={lineOpacity}
                   onChange={pickRange(setLineOpacity)}
                 />
+              </label>
+
+              {/* NEW toggle */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showEndRhymes}
+                  onChange={toggle(setShowEndRhymes)}
+                />
+                End Rhymes
               </label>
             </div>
           </div>

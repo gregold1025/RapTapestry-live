@@ -16,11 +16,17 @@ export default function WordGlyphs({
     selectedWordIds,
     alliterationMatchedWordIds, // NEW: words sharing first phone
   } = useWordSelection();
-  const { showWords, wordActiveColor, wordInactiveColor, wordOpacity } =
-    useParams();
+  const {
+    showWords,
+    wordActiveColor,
+    wordInactiveColor,
+    wordOpacity,
+    showRhymes,
+    showAlliteration,
+  } = useParams();
   const { seekAll } = useAudioEngine();
 
-  if (!layout || !showWords) return null;
+  if (!layout || !showWords || !showRhymes) return null;
 
   const { rowHeight, timeToPixels } = layout;
   const barHeight = rowHeight * 0.3;
@@ -74,7 +80,7 @@ export default function WordGlyphs({
       );
 
       // Alliteration outline (5px, wordActiveColor)
-      if (isAllit) {
+      if (showAlliteration && isAllit) {
         glyphs.push(
           <rect
             key={`${id}-allit`}

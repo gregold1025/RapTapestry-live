@@ -9,7 +9,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
   const [selectedLineIdx, setSelectedLineIdx] = useState(null);
 
   // Visual / logical params that influence matching
-  const { exactMatches, ignorePlurals } = useParams();
+  const { exactMatches, ignorePlurals, showEndRhymes } = useParams();
 
   // Precompute line endings, rhyme keys, and indices
   const extracted = useMemo(() => {
@@ -18,7 +18,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
 
   // Lines matching the selected one (by exact phones or rhyme key)
   const matchedLineIdxs = useMemo(() => {
-    if (selectedLineIdx == null) return new Set();
+    if (selectedLineIdx == null || !showEndRhymes) return new Set();
     return getMatchingLinesFor(extracted, selectedLineIdx, { exactMatches });
   }, [extracted, selectedLineIdx, exactMatches]);
 

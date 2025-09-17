@@ -52,7 +52,7 @@ export function ParamsProvider({ children }) {
   const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
   const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
-  const [showEndRhymes, setShowEndRhymes] = useState(false); // NEW: line-level rhyme highlights
+  const [showEndRhymes, setShowEndRhymes] = useState(true); // NEW: line-level rhyme highlights
 
   // — BASS —
   const [showBass, setShowBass] = useState(true);
@@ -65,12 +65,15 @@ export function ParamsProvider({ children }) {
 
   // — DRUMS —
   const [showDrums, setShowDrums] = useState(true);
+  const [showDrumGlyphs, setShowDrumGlyphs] = useState(true);
   const [drumParams, setDrumParams] = useState({
     strokeWeight: 8,
     tilt: -20,
     fillColor: "#0011bb",
     opacity: 0.5,
   });
+  const [showDownbeats, setShowDownbeats] = useState(true);
+  const [showBeatsLines, setShowBeatLines] = useState(true);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true); // rows
@@ -142,6 +145,12 @@ export function ParamsProvider({ children }) {
         // drums
         showDrums,
         setShowDrums,
+        showDownbeats,
+        setShowDownbeats,
+        showBeatsLines,
+        setShowBeatLines,
+        showDrumGlyphs,
+        setShowDrumGlyphs,
         drumParams,
         setDrumParams,
 

@@ -2933,7 +2933,7 @@
           "start": 71.85674123673938,
           "end": 72.37671765537429,
           "text": "Sedatives ",
-          "phones": ["Sedatives"],
+          "phones": ["S EH1 D AH0 T IH0 V Z"],
           "nSyllables": 4,
           "centroid": [
             0.9755112405553329, 0.9688746622334143, 0.9160378858842898,
@@ -3039,7 +3039,7 @@
           "start": 74.15663693454763,
           "end": 74.65661426015812,
           "text": "Sedatives ",
-          "phones": ["Sedatives"],
+          "phones": ["S EH1 D AH0 T IH0 V Z"],
           "nSyllables": 4,
           "centroid": [
             0.9716274400258446, 0.9569008415297501, 0.9222638651398621,

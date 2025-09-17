@@ -11,7 +11,8 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   const [selectedWordId, setSelectedWordId] = useState(null);
 
   // ── pull in your visual & logical parameters ──
-  const { exactMatches, ignorePlurals /*, alliterationMode */ } = useParams();
+  const { exactMatches, ignorePlurals, showAlliteration, showRhymes } =
+    useParams();
 
   // Toggle selection on/off
   const toggleWord = (wordId) =>
@@ -81,6 +82,7 @@ export function WordSelectionProvider({ transcriptionData, children }) {
       }
       return result;
     } else {
+      if (!showRhymes) return new Set();
       // ── rhyming mode ──
       let raw = wordRhymesMap.get(selectedWordId) || "";
       const keyPhones = ignorePlurals ? stripPluralSuffix(raw) : raw;
@@ -103,12 +105,13 @@ export function WordSelectionProvider({ transcriptionData, children }) {
     wordRhymesMap,
     exactMatches,
     ignorePlurals,
+    showRhymes,
   ]);
 
   // NEW: Alliteration — matching the *first phone*
   // (You can later replace the hard-coded option with a param flag.)
   const alliterationMatchedWordIds = useMemo(() => {
-    if (!selectedWordId) return new Set();
+    if (!selectedWordId || !showAlliteration) return new Set();
     const selPhones = wordPhonesMap.get(selectedWordId) || "";
     // Example option: only match on consonants (common alliteration notion)
     const list = extractAlliterativeWords(selPhones, wordPhonesMap, {

@@ -69,9 +69,10 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
-  const { showDrums, drumParams } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams } = useParams();
 
-  if (!layout || !drumTranscriptionData || !showDrums) return null;
+  if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs)
+    return null;
 
   const { rowHeight, timeToPixels } = layout;
   const { downbeats, beats, drum_hits, estimated_bpm } = drumTranscriptionData;
@@ -98,7 +99,7 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
   } = drumParams || {};
 
   // enforce the requested tilt range and convert to radians
-  const tiltDeg = clamp(tilt, -20, 20);
+  const tiltDeg = clamp(tilt, -60, 60);
   const tiltRad = (tiltDeg * Math.PI) / 180;
 
   const glyphs = mergedEvents.map((ev, idx) => {

@@ -2,10 +2,12 @@
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useParams } from "../../../contexts/ParamsContext";
 
 export default function DrumGrid({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
+  const { showDrums, showDownbeats, showBeatsLines } = useParams();
   if (!layout || !drumTranscriptionData) return null;
 
   const { rowHeight, timeToPixels } = layout;
@@ -108,42 +110,46 @@ export default function DrumGrid({ drumTranscriptionData }) {
   const tolerance = 0.08;
 
   // Draw downbeats (full height)
-  downbeats.forEach((t, i) => {
-    const { x, y } = timeToPixels(t);
-    const isActive = Math.abs(t - playheadTime) <= tolerance;
-    lines.push(
-      <line
-        key={`downbeat-${i}`}
-        x1={x}
-        y1={y + 0.5} // half-px nudge to avoid top-edge clip
-        x2={x}
-        y2={y + rowHeight - 0.5}
-        stroke="black"
-        strokeWidth={3}
-        opacity={isActive ? 0.7 : 0.4}
-        vectorEffect="non-scaling-stroke"
-      />
-    );
-  });
+  if (showDownbeats && showDrums) {
+    downbeats.forEach((t, i) => {
+      const { x, y } = timeToPixels(t);
+      const isActive = Math.abs(t - playheadTime) <= tolerance;
+      lines.push(
+        <line
+          key={`downbeat-${i}`}
+          x1={x}
+          y1={y + 0.5} // half-px nudge to avoid top-edge clip
+          x2={x}
+          y2={y + rowHeight - 0.5}
+          stroke="black"
+          strokeWidth={3}
+          opacity={isActive ? 0.7 : 0.4}
+          vectorEffect="non-scaling-stroke"
+        />
+      );
+    });
+  }
 
   // Draw normal beats (full height)
-  beats.forEach((t, i) => {
-    const { x, y } = timeToPixels(t);
-    const isActive = Math.abs(t - playheadTime) <= tolerance;
-    lines.push(
-      <line
-        key={`beat-${i}`}
-        x1={x}
-        y1={y + 0.5}
-        x2={x}
-        y2={y + rowHeight - 0.5}
-        stroke="black"
-        strokeWidth={1}
-        opacity={isActive ? 0.8 : 0.5}
-        vectorEffect="non-scaling-stroke"
-      />
-    );
-  });
+  if (showBeatsLines && showDrums) {
+    beats.forEach((t, i) => {
+      const { x, y } = timeToPixels(t);
+      const isActive = Math.abs(t - playheadTime) <= tolerance;
+      lines.push(
+        <line
+          key={`beat-${i}`}
+          x1={x}
+          y1={y + 0.5}
+          x2={x}
+          y2={y + rowHeight - 0.5}
+          stroke="black"
+          strokeWidth={1}
+          opacity={isActive ? 0.8 : 0.5}
+          vectorEffect="non-scaling-stroke"
+        />
+      );
+    });
+  }
 
   return <g className="drum-grid">{lines}</g>;
 }

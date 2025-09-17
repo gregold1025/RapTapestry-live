@@ -1,24 +1,38 @@
+// src/components/ChannelStrips/ParamWindows/drums/DrumsParamsOverlay.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "../../../../contexts/ParamsContext";
 import "../Overlay.css";
 
 export function DrumsParamsOverlay({ onClose }) {
-  const { drumParams, setDrumParams } = useParams();
+  const {
+    // NEW toggles
+    showDrumGlyphs,
+    setShowDrumGlyphs,
+    showDownbeats,
+    setShowDownbeats,
+    showBeatsLines, // note: state name includes the "s"
+    setShowBeatLines, // setter name (as you defined)
+    // Existing drum params blob
+    drumParams,
+    setDrumParams,
+  } = useParams();
 
+  // Local mirrors for sliders/inputs (keeps UI snappy, updates context on change)
   const [strokeWeight, setStrokeWeight] = useState(
-    drumParams.strokeWeight ?? 2
+    drumParams.strokeWeight ?? 8
   );
-  const [tilt, setTilt] = useState(drumParams.tilt ?? 0);
-  const [fillColor, setFillColor] = useState(drumParams.fillColor ?? "#ff8800");
-  const [opacity, setOpacity] = useState(drumParams.opacity ?? 0.8);
+  const [tilt, setTilt] = useState(drumParams.tilt ?? -20);
+  const [fillColor, setFillColor] = useState(drumParams.fillColor ?? "#0011bb");
+  const [opacity, setOpacity] = useState(drumParams.opacity ?? 0.5);
 
   useEffect(() => {
-    setStrokeWeight(drumParams.strokeWeight ?? 2);
-    setTilt(drumParams.tilt ?? 0);
-    setFillColor(drumParams.fillColor ?? "#ff8800");
-    setOpacity(drumParams.opacity ?? 0.8);
+    setStrokeWeight(drumParams.strokeWeight ?? 8);
+    setTilt(drumParams.tilt ?? -20);
+    setFillColor(drumParams.fillColor ?? "#0011bb");
+    setOpacity(drumParams.opacity ?? 0.5);
   }, [drumParams]);
 
+  // Handlers for sliders/inputs (write-through to context)
   const handleStrokeChange = (e) => {
     const v = Number(e.target.value);
     setStrokeWeight(v);
@@ -51,10 +65,26 @@ export function DrumsParamsOverlay({ onClose }) {
         </header>
 
         <div className="params-body">
-          <div className="visuals-grid">
+          {/* Force two columns for this overlay */}
+          <div
+            className="visuals-grid"
+            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
+          >
+            {/* -------- Column 1: Glyphs -------- */}
             <div className="visual-section">
-              <h3>Stroke & Shape</h3>
+              <h3>Glyphs</h3>
 
+              {/* Show/Hide Drum Glyphs */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={!!showDrumGlyphs}
+                  onChange={(e) => setShowDrumGlyphs(e.target.checked)}
+                />
+                Show Drum Glyphs
+              </label>
+
+              {/* Stroke Weight */}
               <label className="control">
                 Stroke Weight <span className="meta">{strokeWeight}px</span>
                 <input
@@ -67,6 +97,7 @@ export function DrumsParamsOverlay({ onClose }) {
                 />
               </label>
 
+              {/* Tilt */}
               <label className="control">
                 Tilt <span className="meta">{tilt}°</span>
                 <input
@@ -79,6 +110,7 @@ export function DrumsParamsOverlay({ onClose }) {
                 />
               </label>
 
+              {/* Opacity */}
               <label className="control">
                 Opacity <span className="meta">{opacity.toFixed(2)}</span>
                 <input
@@ -91,6 +123,7 @@ export function DrumsParamsOverlay({ onClose }) {
                 />
               </label>
 
+              {/* Fill Color */}
               <label className="control inline">
                 Fill Color:
                 <input
@@ -98,6 +131,31 @@ export function DrumsParamsOverlay({ onClose }) {
                   value={fillColor}
                   onChange={handleColorChange}
                 />
+              </label>
+            </div>
+
+            {/* -------- Column 2: Grid -------- */}
+            <div className="visual-section">
+              <h3>Grid</h3>
+
+              {/* Downbeats */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={!!showDownbeats}
+                  onChange={(e) => setShowDownbeats(e.target.checked)}
+                />
+                Show Downbeats
+              </label>
+
+              {/* Beat Lines */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={!!showBeatsLines}
+                  onChange={(e) => setShowBeatLines(e.target.checked)}
+                />
+                Show Beat Lines
               </label>
             </div>
           </div>
