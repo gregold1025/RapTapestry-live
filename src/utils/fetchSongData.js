@@ -29,7 +29,7 @@ export async function fetchSongData(songName) {
     console.warn(`Error loading drum transcription for ${songName}:`, err);
   }
 
-  // Get drum transcription (optional)
+  // Get bass transcription (optional)
   let bassTranscription = null;
   try {
     const res = await fetch(bassTranscriptionPath);
@@ -45,17 +45,17 @@ export async function fetchSongData(songName) {
     audioFiles[stem.toLowerCase()] = `${audioPath}/${songName}_${stem}.mp3`;
   }
 
-  // Try to load MIDI file for each stem
-  const midiFiles = {};
-  for (let stem of stems) {
-    const url = `${midiPath}/${songName}_${stem}.mid`;
-    try {
-      const res = await fetch(url, { method: "HEAD" }); // check if exists
-      if (res.ok) midiFiles[stem.toLowerCase()] = url;
-    } catch (err) {
-      console.warn(`MIDI file for ${stem} not found or unreadable: ${url}`);
-    }
-  }
+  // // Try to load MIDI file for each stem
+  // const midiFiles = {};
+  // for (let stem of stems) {
+  //   const url = `${midiPath}/${songName}_${stem}.mid`;
+  //   try {
+  //     const res = await fetch(url, { method: "HEAD" }); // check if exists
+  //     if (res.ok) midiFiles[stem.toLowerCase()] = url;
+  //   } catch (err) {
+  //     console.warn(`MIDI file for ${stem} not found or unreadable: ${url}`);
+  //   }
+  // }
 
   // Compute song duration (using the Vocals stem)
   let duration = null;
@@ -74,7 +74,7 @@ export async function fetchSongData(songName) {
   return {
     lyricTranscription,
     audio: audioFiles,
-    midi: midiFiles,
+    // midi: midiFiles,
     drumTranscription,
     bassTranscription,
     duration, // float, no rounding

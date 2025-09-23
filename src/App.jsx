@@ -147,6 +147,7 @@ export default function App() {
                       duration={duration}
                       estimated_bpm={drumTranscription.estimated_bpm}
                       downbeats={drumTranscription.downbeats}
+                      beats={drumTranscription.beats}
                       barsPerRow={8}
                     >
                       <TapestryView

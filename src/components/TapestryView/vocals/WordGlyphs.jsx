@@ -26,7 +26,7 @@ export default function WordGlyphs({
   } = useParams();
   const { seekAll } = useAudioEngine();
 
-  if (!layout || !showWords || !showRhymes) return null;
+  if (!layout || !showWords) return null;
 
   const { rowHeight, timeToPixels } = layout;
   const barHeight = rowHeight * 0.3;
@@ -51,7 +51,10 @@ export default function WordGlyphs({
       const isMatch = matchedWordIds.has(id);
       const isAllit = alliterationMatchedWordIds.has(id);
 
-      const fill = isSelected || isMatch ? wordActiveColor : wordInactiveColor;
+      const fill =
+        isSelected || (isMatch && showRhymes)
+          ? wordActiveColor
+          : wordInactiveColor;
 
       // Base filled bar
       glyphs.push(
@@ -80,7 +83,7 @@ export default function WordGlyphs({
       );
 
       // Alliteration outline (5px, wordActiveColor)
-      if (showAlliteration && isAllit) {
+      if (showAlliteration && isAllit && !isSelected) {
         glyphs.push(
           <rect
             key={`${id}-allit`}
@@ -97,7 +100,7 @@ export default function WordGlyphs({
         );
       }
 
-      // Selected outline (2px, red) — drawn on top
+      // Selected outline (3px, red) — drawn on top
       if (isSelected) {
         glyphs.push(
           <rect
@@ -108,7 +111,7 @@ export default function WordGlyphs({
             height={barHeight}
             fill="none"
             stroke="#aa0000"
-            strokeWidth={2}
+            strokeWidth={7}
             opacity={1}
             pointerEvents="none"
           />

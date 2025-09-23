@@ -65,7 +65,9 @@ export function WordBlock({
       : "transparent";
 
   // 5px outline for alliteration matches
-  const outlineStyle = isAlliterationMatch
+  const outlineStyle = isWordSelected
+    ? "5px solid red"
+    : isAlliterationMatch
     ? `5px solid ${wordActiveColor}`
     : "none";
 
@@ -126,7 +128,7 @@ export function WordBlock({
         style={{
           backgroundColor: bgRgba,
           outline: outlineStyle,
-          outlineOffset: "2px", // small gap so the outline doesn't touch glyph
+          outlineOffset: "0px", // small gap so the outline doesn't touch glyph
         }}
       >
         {word.text}

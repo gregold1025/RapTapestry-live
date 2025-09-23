@@ -39,7 +39,7 @@ export default function LineGlyphs({
       : isHovered
       ? lineActiveColor
       : "none";
-    const strokeWidth = isSelected || isHovered ? 2 : 0;
+    const strokeWidth = isSelected || isHovered ? 3 : 0;
 
     const rects = [];
     const { x: startX, row: startRow } = timeToPixels(line.start);
@@ -59,8 +59,8 @@ export default function LineGlyphs({
           height={rowHeight}
           fill={fill}
           opacity={lineOpacity}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
+          stroke={isSelected ? "red" : stroke}
+          strokeWidth={isSelected ? 8 : strokeWidth}
           style={{ cursor: "pointer" }}
           onClick={() => seekAll(line.start)}
           onMouseEnter={(e) => {

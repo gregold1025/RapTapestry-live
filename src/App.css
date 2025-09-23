@@ -24,7 +24,7 @@ body,
   /* Base typography (scaled) */
   font-size: calc(16px * var(--ui-scale));
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji");
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   line-height: 1.25;
 
   /* Prevent platform text auto-boosting */
@@ -37,14 +37,31 @@ body,
 }
 
 /* Help Safari compositing a bit */
-html { backface-visibility: hidden; }
+html {
+  backface-visibility: hidden;
+}
 
 /* Headings & general text sizes (rem so they follow --ui-scale) */
-h1 { font-size: 1.375rem; font-weight: 700; } /* ~22px @ 16px base */
-h2 { font-size: 1.25rem;  font-weight: 600; } /* ~20px */
-h3, .label { font-size: 1.125rem; font-weight: 600; } /* ~18px */
-p, span, button, input, select { font-size: 1rem; } /* ~16px */
-
+h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+} /* ~22px @ 16px base */
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+} /* ~20px */
+h3,
+.label {
+  font-size: 1.125rem;
+  font-weight: 600;
+} /* ~18px */
+p,
+span,
+button,
+input,
+select {
+  font-size: 1rem;
+} /* ~16px */
 
 /* ===========================
    1) App frame
@@ -70,13 +87,13 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
 
 /* Header-specific font sizing for controls */
 .header {
-  --header-font-size: 4rem; /* tweak to scale the select */
+  --header-font-size: 1rem; /* tweak to scale the select */
   font-size: var(--header-font-size);
 }
 
 /* Header <select>: inherit size/family cleanly across browsers */
 .header select {
-  font: inherit;          /* font-size, line-height, family */
+  font: inherit; /* font-size, line-height, family */
   line-height: 1.1;
   padding: 1.25rem 1.5rem;
   color: #e9eef5;
@@ -90,7 +107,6 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
   border-bottom: 0;
   border-top: 1px solid #252b39;
 }
-
 
 /* ===========================
    2) Main split (L/R)
@@ -128,9 +144,18 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
 }
 
 /* Three sections inside right pane: 1/9, 3/9, 5/9 */
-.right-pane .audio   { flex: 1 1 0; min-height: 0; }
-.right-pane .channel { flex: 3 1 0; min-height: 0; }
-.right-pane .lyrics  { flex: 5 1 0; min-height: 0; }
+.right-pane .audio {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.right-pane .channel {
+  flex: 3 1 0;
+  min-height: 0;
+}
+.right-pane .lyrics {
+  flex: 5 1 0;
+  min-height: 0;
+}
 
 /* Make each right-pane section a flex container so its child can fill */
 .right-pane .right-pane-section {
@@ -157,10 +182,18 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
 }
 
 /* (Optional) legacy color blocks; comment out to keep pure white */
-.audio  { background: #1a2030; color: #ffffff; }
-.channel{ background: #111624; color: #ffffff; }
-.lyrics { background: #0b0f1a; color: #ffffff; }
-
+.audio {
+  background: #1a2030;
+  color: #ffffff;
+}
+.channel {
+  background: #111624;
+  color: #ffffff;
+}
+.lyrics {
+  background: #0b0f1a;
+  color: #ffffff;
+}
 
 /* ===========================
    3) Utilities / text layout

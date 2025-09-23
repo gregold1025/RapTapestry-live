@@ -117,7 +117,7 @@ export function WordLine({
           color: "#000",
           cursor: "pointer",
           lineHeight: 1,
-          fontSize: "3rem",
+          fontSize: "1rem",
           boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
         }}
       >

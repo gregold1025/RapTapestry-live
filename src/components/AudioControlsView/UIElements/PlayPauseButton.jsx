@@ -6,13 +6,13 @@ export function PlayPauseButton({ isPlaying, onClick }) {
       onClick={onClick}
       title="Play/Pause"
       style={{
-        width: "8rem",
-        height: "8rem",
+        width: "2em",
+        height: "2em",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: 0,
-        borderRadius: "0.5rem",
+        borderRadius: ".5em",
       }}
     >
       {isPlaying ? (

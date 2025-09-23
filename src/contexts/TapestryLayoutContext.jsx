@@ -16,6 +16,7 @@ export function TapestryLayoutProvider({
   duration,
   estimated_bpm,
   downbeats = [],
+  beats = [], // <— NEW prop (already passed from App.jsx)
   barsPerRow = 8,
 }) {
   const containerRef = useRef(null);
@@ -27,14 +28,14 @@ export function TapestryLayoutProvider({
       !container ||
       !duration ||
       !estimated_bpm ||
-      !Array.isArray(downbeats) ||
-      downbeats.length === 0
+      !Array.isArray(beats) ||
+      beats.length === 0
     ) {
       console.warn("❌ Cannot compute layout yet", {
         container,
         duration,
         estimated_bpm,
-        downbeatsCount: downbeats?.length ?? 0,
+        beatsCount: beats?.length ?? 0,
       });
       return;
     }
@@ -45,28 +46,31 @@ export function TapestryLayoutProvider({
       duration,
       width: clientWidth,
       height: clientHeight,
-      downbeats,
+      beats, // use beats as the primary grid
+      downbeats, // kept for reference if you still want to show them somewhere
       barsPerRow,
+      estimated_bpm,
+      // timeSig optional; defaults to 4/4 inside computeLayout
     });
 
-    // Attach utilities
+    if (!newLayout) return;
+
     const mappedLayout = {
       ...newLayout,
       timeToPixels: (t) =>
         timeToPixels(
           t,
           newLayout.rowBoundaries,
-          downbeats,
+          newLayout.gridTimes, // <— use inferred beats grid
           newLayout.width,
           newLayout.rowHeight,
-          barsPerRow
+          newLayout.beatsPerRow // <— segments per row = beats per row
         ),
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
-      downbeats, // make available for grid/glyph components
     };
 
     setLayout(mappedLayout);
-  }, [duration, estimated_bpm, downbeats, barsPerRow]);
+  }, [duration, estimated_bpm, beats, downbeats, barsPerRow]);
 
   return (
     <TapestryLayoutContext.Provider value={{ layout, containerRef }}>

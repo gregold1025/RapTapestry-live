@@ -6,13 +6,13 @@ export function StopButton({ onClick }) {
       onClick={onClick}
       title="Stop"
       style={{
-        width: "8rem",
-        height: "8rem",
+        width: "2em",
+        height: "2em",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: 0,
-        borderRadius: "0.5rem",
+        borderRadius: "0.5em",
       }}
     >
       <svg

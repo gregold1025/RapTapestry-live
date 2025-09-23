@@ -22,7 +22,7 @@
   grid-column: 1 / -1;
   text-align: center;
   font-weight: 700;
-  font-size: 3rem; /* fixed size = consistent across panes */
+  font-size: 1em; /* fixed size = consistent across panes */
   line-height: 1.2;
 }
 
@@ -105,7 +105,7 @@
 .button-grid button {
   width: 100%;
   height: 100%;
-  font-size: 3rem; /* fixed size; no rem surprises */
+  font-size: 1em; /* fixed size; no rem surprises */
   font-weight: 300;
   color: #000;
   background: #fafafa;
