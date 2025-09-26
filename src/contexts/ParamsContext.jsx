@@ -28,8 +28,8 @@ export function ParamsProvider({ children }) {
   // visual
   const [showSyllables, setShowSyllables] = useState(true);
   const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
-  const [syllableOpacity, setSyllableOpacity] = useState(1);
-  const [syllableRadius, setSyllableRadius] = useState(8);
+  const [syllableOpacity, setSyllableOpacity] = useState(0.8);
+  const [syllableRadius, setSyllableRadius] = useState(7);
   const [syllableArcCurve, setSyllableArcCurve] = useState(1);
   // logical
   const [wildcardSkips, setWildcardSkips] = useState(1);
@@ -67,7 +67,7 @@ export function ParamsProvider({ children }) {
   const [showDrums, setShowDrums] = useState(true);
   const [showDrumGlyphs, setShowDrumGlyphs] = useState(true);
   const [drumParams, setDrumParams] = useState({
-    strokeWeight: 8,
+    strokeWeight: 5,
     tilt: -20,
     fillColor: "#0011bb",
     opacity: 0.5,

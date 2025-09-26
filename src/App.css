@@ -87,7 +87,7 @@ select {
 
 /* Header-specific font sizing for controls */
 .header {
-  --header-font-size: 1rem; /* tweak to scale the select */
+  --header-font-size: 1.5rem; /* tweak to scale the select */
   font-size: var(--header-font-size);
 }
 

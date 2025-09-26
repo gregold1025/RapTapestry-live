@@ -59,7 +59,7 @@ export default function SyllableGlyphs({
         const start = word.start + si * syllableDuration;
         const { x, y, row } = timeToPixels(start);
         const ci = Math.floor(si * spacing);
-        const vertOff = ((centroids[ci] ?? 0.5) * 0.5 - 0.5) * rowHeight;
+        const vertOff = ((centroids[ci] ?? 0.5) * 0.5 - 0.65) * rowHeight;
         const finalY = y + rowHeight / 2 + vertOff;
         const id = `${li}-${wi}-${si}`;
 

@@ -94,7 +94,7 @@ export function VocalsParamsOverlay({ onClose }) {
     <div className="params-overlay">
       <div className="params-window">
         <header>
-          <h2>Vocal Stem Parameters</h2>
+          <h1>Vocal Stem Parameters</h1>
           <button className="close-btn" onClick={onClose}>
             ×
           </button>
@@ -102,6 +102,85 @@ export function VocalsParamsOverlay({ onClose }) {
 
         <div className="params-body">
           <div className="visuals-grid">
+            {/* ───────────── Words ───────────── */}
+            <div className="visual-section">
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showWords}
+                  onChange={toggle(setShowWords)}
+                />
+                <h2>Word Glyphs</h2>
+              </label>
+
+              <label className="control inline">
+                Active Color:
+                <input
+                  type="color"
+                  value={wordActiveColor}
+                  onChange={pickColor(setWordActiveColor)}
+                />
+              </label>
+
+              <label className="control inline">
+                Inactive Color:
+                <input
+                  type="color"
+                  value={wordInactiveColor}
+                  onChange={pickColor(setWordInactiveColor)}
+                />
+              </label>
+
+              <label className="control">
+                Opacity <span className="meta">{wordOpacity.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={wordOpacity}
+                  onChange={pickRange(setWordOpacity)}
+                />
+              </label>
+
+              {/* NEW toggles */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showRhymes}
+                  onChange={toggle(setShowRhymes)}
+                />
+                Show Rhymes
+              </label>
+
+              {/* Existing match logic toggles */}
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={exactMatches}
+                  onChange={toggle(setExactMatches)}
+                />
+                Exact Match
+              </label>
+
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={ignorePlurals}
+                  onChange={toggle(setIgnorePlurals)}
+                />
+                Ignore Plurals
+              </label>
+
+              <label className="toggle-control">
+                <input
+                  type="checkbox"
+                  checked={showAlliteration}
+                  onChange={toggle(setShowAlliteration)}
+                />
+                Show Alliteration
+              </label>
+            </div>
             {/* ───────────── Syllables ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
@@ -110,7 +189,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   checked={showSyllables}
                   onChange={toggle(setShowSyllables)}
                 />
-                <h3>Syllable Glyphs</h3>
+                <h2>Syllable Glyphs</h2>
               </label>
 
               <div className="control">
@@ -201,86 +280,6 @@ export function VocalsParamsOverlay({ onClose }) {
               </label>
             </div>
 
-            {/* ───────────── Words ───────────── */}
-            <div className="visual-section">
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showWords}
-                  onChange={toggle(setShowWords)}
-                />
-                <h3>Word Glyphs</h3>
-              </label>
-
-              <label className="control inline">
-                Active Color:
-                <input
-                  type="color"
-                  value={wordActiveColor}
-                  onChange={pickColor(setWordActiveColor)}
-                />
-              </label>
-
-              <label className="control inline">
-                Inactive Color:
-                <input
-                  type="color"
-                  value={wordInactiveColor}
-                  onChange={pickColor(setWordInactiveColor)}
-                />
-              </label>
-
-              <label className="control">
-                Opacity <span className="meta">{wordOpacity.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={wordOpacity}
-                  onChange={pickRange(setWordOpacity)}
-                />
-              </label>
-
-              {/* NEW toggles */}
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showRhymes}
-                  onChange={toggle(setShowRhymes)}
-                />
-                Show Rhymes
-              </label>
-
-              {/* Existing match logic toggles */}
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={exactMatches}
-                  onChange={toggle(setExactMatches)}
-                />
-                Exact Match
-              </label>
-
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={ignorePlurals}
-                  onChange={toggle(setIgnorePlurals)}
-                />
-                Ignore Plurals
-              </label>
-
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showAlliteration}
-                  onChange={toggle(setShowAlliteration)}
-                />
-                Show Alliteration
-              </label>
-            </div>
-
             {/* ───────────── Lines ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
@@ -289,7 +288,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   checked={showLines}
                   onChange={toggle(setShowLines)}
                 />
-                <h3>Line Glyphs</h3>
+                <h2>Line Glyphs</h2>
               </label>
 
               <label className="control inline">

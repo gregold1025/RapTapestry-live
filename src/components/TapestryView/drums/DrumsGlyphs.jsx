@@ -8,12 +8,12 @@ import { useParams } from "../../../contexts/ParamsContext";
 function hitYOffset(category, rowHeight) {
   switch (category) {
     case "high":
-      return rowHeight * 0.25;
+      return rowHeight * 0.3;
     case "mid":
-      return rowHeight * 0.375;
+      return rowHeight * 0.425;
     case "low":
     default:
-      return rowHeight * 0.5;
+      return rowHeight * 0.55;
   }
 }
 

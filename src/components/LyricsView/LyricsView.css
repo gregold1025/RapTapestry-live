@@ -28,10 +28,10 @@
 
 /* Each line */
 .line {
-  padding: 24px;
+  padding: 12px;
   border-bottom: 2px dashed #ccc;
   font-weight: 500;
-  font-size: 1em;
+  font-size: 1rem;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -45,8 +45,8 @@
 .line .line-select {
   cursor: pointer;
   user-select: none;
-  padding: 0 6px;
-  font-size: calc(var(--lyrics-fs) * 1);
+  padding: 0px;
+  font-size: 1rem;
 }
 
 /* Words area */
@@ -60,8 +60,8 @@
 .word {
   display: inline-block; /* highlight hugs text */
 
-  font-size: 1em; /* computed by hook */
-  line-height: 1em;
+  font-size: 1rem; /* computed by hook */
+  line-height: 1rem;
   padding: 0 4px;
   background-color: transparent; /* inline style may override for highlight */
   color: #000;
@@ -73,8 +73,8 @@
 
 /* Small syllable circles above the word */
 .lyrics-syllable-circle {
-  width: 40px;
-  height: 40px;
+  width: 0.75rem;
+  height: 0.75rem;
   border-radius: 50%;
   outline: none;
   border: 1px solid #999;
@@ -83,7 +83,7 @@
 /* Footer: recenter button + hover info */
 .lyrics-footer {
   border-top: 1px solid #e5e7eb;
-  font-size: 1em;
+  font-size: 1rem;
   background: #fafafa;
   padding: 12px 12px;
   display: flex;
@@ -106,7 +106,7 @@
 }
 
 .footer-hover {
-  font-size: 1em;
+  font-size: 1rem;
   color: #444;
   white-space: nowrap;
   overflow: hidden;

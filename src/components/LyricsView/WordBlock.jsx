@@ -98,8 +98,6 @@ export function WordBlock({
               key={i}
               className="lyrics-syllable-circle"
               style={{
-                width: 20,
-                height: 20,
                 borderRadius: "50%",
                 backgroundColor: isSel || isMtch ? color : "#cccccc",
                 border: isSel ? "2px solid red" : "1px solid #999",

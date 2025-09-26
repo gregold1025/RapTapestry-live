@@ -4,13 +4,6 @@
    Tokens (overlay-only; does not touch html/body)
    ---------------------------------------------- */
 :root {
-  /* Type scale (keeping your large values) */
-  --fs-1: 3rem; /* small annotations */
-  --fs-2: 3.125rem; /* base */
-  --fs-3: 3.125rem; /* labels */
-  --fs-4: 3.375rem; /* subsection titles */
-  --fs-5: 4.5rem; /* header title */
-
   /* Colors & layout */
   --bg: #0d0f12;
   --panel: #151922;
@@ -18,13 +11,15 @@
   --muted: #a9b2c3;
   --border: #252b39;
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
-  --radius: 14px;
-  --gap: 1.25rem;
-  --pad: 1.5rem;
+  --radius: 12px;
 
-  /* Slider sizing tokens */
-  --slider-track-h: 2rem; /* track thickness */
-  --slider-thumb-d: 3.5rem; /* knob diameter */
+  /* Compact spacing */
+  --gap: 0.75rem;
+  --pad: 0.75rem;
+
+  /* Slider sizing (smaller) */
+  --slider-track-h: 0.5rem;
+  --slider-thumb-d: 1.25rem;
 }
 
 /* ----------------------------------------------
@@ -37,7 +32,6 @@
   background: rgba(0, 0, 0, 0.55);
   display: grid;
   place-items: center;
-  padding: 2rem;
   pointer-events: auto;
 }
 
@@ -49,7 +43,7 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
-  font-size: var(--fs-2);
+  font-size: 1rem; /* base everywhere */
 }
 
 /* Header */
@@ -57,14 +51,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--fs-5);
-  padding: 1rem var(--pad);
+  font-size: 1.5rem; /* header size */
+  padding: 0.75rem var(--pad);
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, #191f2a, #151922);
 }
 .params-window h2 {
   margin: 0;
-  font-size: var(--fs-5);
+  font-size: 1.5rem; /* keep explicit for safety */
   font-weight: 600;
   letter-spacing: 0.2px;
 }
@@ -72,10 +66,10 @@
   border: none;
   background: transparent;
   color: var(--muted);
-  font-size: 4rem;
+  font-size: 2rem; /* smaller icon */
   line-height: 1;
   cursor: pointer;
-  padding: 1.25rem 1.5rem;
+  padding: 0.25rem 0.5rem;
 }
 .close-btn:hover {
   color: var(--text);
@@ -92,7 +86,7 @@
 .visuals-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: var(--gap);
 }
 @media (max-width: 1100px) {
   .visuals-grid {
@@ -113,12 +107,12 @@
   padding: var(--pad);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 .visual-section h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: var(--fs-4);
-  letter-spacing: 0.3px;
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem; /* labels/titles ~1rem */
+  letter-spacing: 0.2px;
   color: var(--muted);
 }
 
@@ -133,39 +127,38 @@ label.control,
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 3px solid var(--border);
-  padding: 1rem;
-  margin-bottom: 1rem;
+  border: 2px solid var(--border); /* thinner */
+  padding: 0.5rem; /* tighter */
+  margin-bottom: 0.5rem; /* tighter */
   border-radius: 8px;
   background: #111;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
-  font-size: var(--fs-3);
+  font-size: 1rem; /* keep simple */
 }
 .control.inline {
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 label span.meta {
   color: var(--muted);
-  font-size: var(--fs-1);
-  margin-left: 0.4rem;
+  font-size: 0.875rem; /* small annotation */
+  margin-left: 0.25rem;
 }
 
-/* Bigger color swatch & checkbox */
+/* Bigger color swatch & checkbox (but scaled down) */
 input[type="color"] {
-  inline-size: 80%;
-  block-size: 3rem;
+  inline-size: 60%;
+  block-size: 2rem;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: #0c1017;
 }
 input[type="checkbox"] {
-  width: 3.5rem;
-  height: 3.5rem;
-  transform: translateY(2px);
+  width: 1.25rem;
+  height: 1.25rem;
   accent-color: #6aa3ff;
 }
 
@@ -173,16 +166,16 @@ input[type="checkbox"] {
 .palette-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2rem;
-  width: 90%;
-  margin-bottom: 5rem;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
 }
 .palette-grid label {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5rem;
-  font-size: var(--fs-2);
+  gap: 0.25rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 
@@ -190,20 +183,19 @@ input[type="checkbox"] {
 .toggle-control {
   flex-direction: row;
   align-items: center;
-  gap: 2rem;
+  gap: 0.75rem;
 }
 .toggle-control > input {
   order: 2;
 }
 
 /* ----------------------------------------------
-   Range sliders — LARGE knobs (cross-engine)
+   Range sliders — compact, cross-engine
    ---------------------------------------------- */
 .params-window input[type="range"] {
   width: 100%;
   height: var(--slider-track-h);
   background: transparent;
-  /* critical: allow custom styling */
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
@@ -227,7 +219,6 @@ input[type="checkbox"] {
   background: #cfd6e6;
   border: 1px solid #9199aa;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  /* center the tall thumb on the thinner track */
   margin-top: calc((var(--slider-track-h) - var(--slider-thumb-d)) / 2);
 }
 
@@ -252,7 +243,6 @@ input[type="checkbox"] {
 
 /* ----------------------------------------------
    Force viewport-bounded window sizing
-   (wins over any legacy CSS that might still be bundled)
    ---------------------------------------------- */
 #params-overlay-root .params-window,
 .params-overlay .params-window {
