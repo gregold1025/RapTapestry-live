@@ -18,6 +18,7 @@ export default function HorizontalGrid({ strokeColor = "#666" }) {
         x2={width}
         y2={y}
         stroke={strokeColor}
+        opacity={0.2}
         strokeWidth={1}
       />
     );

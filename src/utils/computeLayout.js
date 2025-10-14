@@ -103,6 +103,7 @@ export function computeLayout({
 
   const numberOfRows = Math.max(1, rowBoundaries.length - 1);
   const rowHeight = height / numberOfRows;
+  //const rowHeight = 500;
   const columnWidth = width / beatsPerRow;
 
   return {

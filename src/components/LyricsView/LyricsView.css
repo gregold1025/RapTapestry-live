@@ -6,7 +6,7 @@
   height: 100%;
   min-height: 0; /* allow to shrink in Safari */
   overflow: hidden; /* we’ll add scroll on the inner scroller */
-  padding: 12px; /* tell the hook this if you want exact math */
+  padding: 12px 12px 0px 12px; /* tell the hook this if you want exact math */
   background: #fff;
   color: #000;
   font-size: 1em;

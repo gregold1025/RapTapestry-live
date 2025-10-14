@@ -66,6 +66,9 @@ export function VocalsParamsOverlay({ onClose }) {
   const [minMatch, setMinMatch] = useState(minMatchLen);
   const [colors, setColors] = useState(contextVowelColors);
 
+  // NEW: collapsed by default
+  const [isVowelPaletteOpen, setIsVowelPaletteOpen] = useState(false);
+
   useEffect(() => setWildcard(wildcardSkips), [wildcardSkips]);
   useEffect(() => setMinMatch(minMatchLen), [minMatchLen]);
   useEffect(() => setColors(contextVowelColors), [contextVowelColors]);
@@ -181,6 +184,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 Show Alliteration
               </label>
             </div>
+
             {/* ───────────── Syllables ───────────── */}
             <div className="visual-section">
               <label className="toggle-control">
@@ -192,20 +196,43 @@ export function VocalsParamsOverlay({ onClose }) {
                 <h2>Syllable Glyphs</h2>
               </label>
 
+              {/* Collapsible Active Vowel Colors */}
               <div className="control">
-                Active Vowel Colors
-                <div className="palette-grid">
-                  {Object.entries(colors).map(([vowel, color]) => (
-                    <label key={vowel}>
-                      {vowel}
-                      <input
-                        type="color"
-                        value={color}
-                        onChange={(e) => handleVowelColorChange(vowel, e)}
-                      />
-                    </label>
-                  ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>Active Vowel Colors</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsVowelPaletteOpen((v) => !v)}
+                    aria-expanded={isVowelPaletteOpen}
+                    aria-controls="vowel-palette"
+                    title={isVowelPaletteOpen ? "Collapse" : "Expand"}
+                    style={{
+                      marginLeft: "auto",
+                      border: "none",
+                      background: "transparent",
+                      cursor: "pointer",
+                      padding: "2px 4px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {isVowelPaletteOpen ? "▲" : "▼"}
+                  </button>
                 </div>
+
+                {isVowelPaletteOpen && (
+                  <div className="palette-grid" id="vowel-palette">
+                    {Object.entries(colors).map(([vowel, color]) => (
+                      <label key={vowel}>
+                        {vowel}
+                        <input
+                          type="color"
+                          value={color}
+                          onChange={(e) => handleVowelColorChange(vowel, e)}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <label className="control inline">
@@ -320,8 +347,6 @@ export function VocalsParamsOverlay({ onClose }) {
                   onChange={pickRange(setLineOpacity)}
                 />
               </label>
-
-              {/* NEW toggle */}
               <label className="toggle-control">
                 <input
                   type="checkbox"

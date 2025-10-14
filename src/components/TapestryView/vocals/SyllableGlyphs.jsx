@@ -128,7 +128,7 @@ export default function SyllableGlyphs({
           d={`M ${x1} ${y1} A ${radiusArc} ${radiusArc} 0 0 1 ${x2} ${y2}`}
           fill="none"
           stroke="#f00"
-          strokeWidth={10}
+          strokeWidth={3}
           strokeDasharray="4 1"
           strokeLinecap="round"
         />
@@ -168,7 +168,7 @@ export default function SyllableGlyphs({
             d={`M ${x1} ${y1} A ${radiusArc} ${radiusArc} 0 0 1 ${x2} ${y2}`}
             fill="none"
             stroke="#000"
-            strokeWidth={10}
+            strokeWidth={3}
             strokeDasharray="4 1"
             strokeLinecap="round"
           />

@@ -73,7 +73,7 @@ export default function DrumGrid({ drumTranscriptionData }) {
           y2={y + rowHeight - 0.5}
           stroke="black"
           strokeWidth={3}
-          opacity={isActive ? 0.7 : 0.4}
+          opacity={0.2}
           vectorEffect="non-scaling-stroke"
         />
       );
@@ -115,7 +115,7 @@ export default function DrumGrid({ drumTranscriptionData }) {
           y2={y + rowHeight - 0.5}
           stroke="black"
           strokeWidth={1}
-          opacity={isActive ? 0.8 : 0.5}
+          opacity={0.2}
           vectorEffect="non-scaling-stroke"
         />
       );

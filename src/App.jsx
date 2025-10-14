@@ -1,8 +1,9 @@
+// App.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { fetchSongData } from "./utils/fetchSongData";
 
-import { AudioProvider } from "./contexts/AudioContext";
+import { AudioProvider, useAudioEngine } from "./contexts/AudioContext"; // ⬅️ import useAudioEngine
 import { ParamsProvider } from "./contexts/ParamsContext";
 import { TapestryLayoutProvider } from "./contexts/TapestryLayoutContext";
 
@@ -15,6 +16,19 @@ import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
 
+// Helper child that binds stopAll into a ref the parent can call.
+function StopAllBinder({ bindRef }) {
+  const { stopAll } = useAudioEngine();
+  useEffect(() => {
+    bindRef.current = stopAll;
+    return () => {
+      // Clear on unmount to avoid calling a stale function
+      bindRef.current = null;
+    };
+  }, [stopAll, bindRef]);
+  return null;
+}
+
 export default function App() {
   const [selectedSong, setSelectedSong] = useState("Amen");
   const [songData, setSongData] = useState(null);
@@ -24,19 +38,20 @@ export default function App() {
   // If you end up needing it again later:
   const tapestryContainerRef = useRef(null);
 
+  // Ref where StopAllBinder will drop in the current stopAll()
+  const stopAllRef = useRef(null);
+
   useEffect(() => {
     let cancelled = false;
-    const token = Symbol("song-load"); // prevents late setState from older requests
+    const token = Symbol("song-load");
     setLoading(true);
     setLoadError(null);
-    // Optional: clear old data to force a clean "Loading…" during swap
     setSongData(null);
 
     (async () => {
       try {
         const data = await fetchSongData(selectedSong);
         if (cancelled) return;
-        // Only accept the latest request
         setSongData(data);
       } catch (err) {
         if (cancelled) return;
@@ -51,14 +66,17 @@ export default function App() {
     };
   }, [selectedSong]);
 
+  const handleSongChange = (e) => {
+    // Stop any currently playing audio before swapping songs
+    stopAllRef.current?.();
+    setSelectedSong(e.target.value);
+  };
+
   if (loading && !songData) {
     return (
       <div className="app-container">
         <header className="header">
-          <select
-            value={selectedSong}
-            onChange={(e) => setSelectedSong(e.target.value)}
-          >
+          <select value={selectedSong} onChange={handleSongChange}>
             <option value="93Til">93 Til Infinity - Souls of Mischief</option>
             <option value="Amen">Amen - Nappy Nina</option>
             <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
@@ -79,10 +97,7 @@ export default function App() {
     return (
       <div className="app-container">
         <header className="header">
-          <select
-            value={selectedSong}
-            onChange={(e) => setSelectedSong(e.target.value)}
-          >
+          <select value={selectedSong} onChange={handleSongChange}>
             <option value="93Til">93 Til Infinity - Souls of Mischief</option>
             <option value="Amen">Amen - Nappy Nina</option>
             <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
@@ -98,7 +113,7 @@ export default function App() {
     );
   }
 
-  if (!songData) return null; // defensive (shouldn’t hit unless both null and not loading)
+  if (!songData) return null;
 
   const {
     lyricTranscription,
@@ -113,6 +128,9 @@ export default function App() {
     <ParamsProvider>
       {/* key={selectedSong} ensures a clean re-mount of the audio graph per song */}
       <AudioProvider key={selectedSong} audioFiles={audio}>
+        {/* Bind stopAll from the current provider instance */}
+        <StopAllBinder bindRef={stopAllRef} />
+
         <SyllableSelectionProvider transcriptionData={lyricTranscription}>
           {/* re-mount rhyme/line/word contexts on song change */}
           <LineSelectionProvider
@@ -125,10 +143,7 @@ export default function App() {
             >
               <div className="app-container">
                 <header className="header">
-                  <select
-                    value={selectedSong}
-                    onChange={(e) => setSelectedSong(e.target.value)}
-                  >
+                  <select value={selectedSong} onChange={handleSongChange}>
                     <option value="93Til">
                       93 Til Infinity - Souls of Mischief
                     </option>

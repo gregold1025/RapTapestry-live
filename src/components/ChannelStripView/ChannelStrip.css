@@ -41,7 +41,7 @@
   box-sizing: border-box;
 }
 
-/* Your chosen, fixed button style */
+/* fixed button style */
 .button-grid button {
   width: 100%;
   height: 100%;
@@ -72,9 +72,9 @@
 /* ============ 2x2 panel holding four strips ============ */
 .channel-strips-panel {
   display: grid;
-  grid-template-columns: repeat(2, 50%);
-  grid-template-rows: repeat(2, 50%);
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
   padding: 0px;
   background: #fff;
   color: #000;
