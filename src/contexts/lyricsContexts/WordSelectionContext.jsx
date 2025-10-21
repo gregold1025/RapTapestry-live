@@ -111,7 +111,7 @@ export function WordSelectionProvider({ transcriptionData, children }) {
   // NEW: Alliteration — matching the *first phone*
   // (You can later replace the hard-coded option with a param flag.)
   const alliterationMatchedWordIds = useMemo(() => {
-    if (!selectedWordId || !showAlliteration) return new Set();
+    if (!selectedWordId) return new Set();
     const selPhones = wordPhonesMap.get(selectedWordId) || "";
     // Example option: only match on consonants (common alliteration notion)
     const list = extractAlliterativeWords(selPhones, wordPhonesMap, {
