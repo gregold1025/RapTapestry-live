@@ -15,6 +15,7 @@ import AudioControlsView from "./components/AudioControlsView";
 import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
+import LyricPresets from "./components/LyricPresets/LyricPresets";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -154,7 +155,6 @@ export default function App() {
                       Rhymes Like Dimes - MF DOOM
                     </option>
                     <option value="Unemployed">
-                      {" "}
                       Unemployed - Tierra Whack
                     </option>
                   </select>
@@ -188,6 +188,9 @@ export default function App() {
                         height="100%"
                       />
                     </div>
+                    <div className="right-pane-section presets">
+                      <LyricPresets />
+                    </div>
                     <div className="right-pane-section channel">
                       <ChannelStripsPanel />
                     </div>
@@ -197,7 +200,7 @@ export default function App() {
                   </div>
                 </main>
 
-                <footer className="footer">Footer</footer>
+                <footer className="footer">Rap Tapestry Project</footer>
               </div>
             </WordSelectionProvider>
           </LineSelectionProvider>

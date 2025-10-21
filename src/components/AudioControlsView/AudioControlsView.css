@@ -5,7 +5,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   padding: 8px;
 
   /* sizing tokens */
@@ -29,7 +29,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
 }
 /* Add margin below transport row to separate from scrub slider */
 .ac-transport {

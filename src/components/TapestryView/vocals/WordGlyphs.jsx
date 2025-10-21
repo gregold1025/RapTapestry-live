@@ -1,5 +1,5 @@
 // src/components/TapestryView/vocals/WordGlyphs.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -14,8 +14,9 @@ export default function WordGlyphs({
   const {
     matchedWordIds, // rhyme/exact matches (existing)
     selectedWordIds,
-    alliterationMatchedWordIds, // NEW: words sharing first phone
+    alliterationMatchedWordIds, // words sharing first phone
   } = useWordSelection();
+
   const {
     showWords,
     wordActiveColor,
@@ -24,7 +25,11 @@ export default function WordGlyphs({
     showRhymes,
     showAlliteration,
   } = useParams();
+
   const { seekAll } = useAudioEngine();
+
+  // 🔹 Track hovered word id (e.g., "li-wi")
+  const [hoveredWordId, setHoveredWordId] = useState(null);
 
   if (!layout || !showWords) return null;
 
@@ -50,13 +55,15 @@ export default function WordGlyphs({
       const isSelected = selectedWordIds.includes(id);
       const isMatch = matchedWordIds.has(id);
       const isAllit = alliterationMatchedWordIds.has(id);
+      const isHovered = hoveredWordId === id;
 
+      // Base fill: active color when selected OR (matched and showRhymes), else inactive
       const fill =
         isSelected || (isMatch && showRhymes)
           ? wordActiveColor
           : wordInactiveColor;
 
-      // Base filled bar
+      // Base filled bar (click/hover handlers live here)
       glyphs.push(
         <rect
           key={`${id}-base`}
@@ -69,20 +76,24 @@ export default function WordGlyphs({
           stroke="none"
           style={{ cursor: "pointer" }}
           onClick={() => seekAll(word.start)}
-          onMouseEnter={(e) =>
+          onMouseEnter={(e) => {
+            setHoveredWordId(id);
             onGlyphHoverEnter?.(e, {
               type: "word",
               wordText: word.text,
               phones: Array.isArray(word.phones)
                 ? word.phones.join(" ")
                 : String(word.phones || ""),
-            })
-          }
-          onMouseLeave={onGlyphHoverLeave}
+            });
+          }}
+          onMouseLeave={(e) => {
+            setHoveredWordId(null);
+            onGlyphHoverLeave?.(e);
+          }}
         />
       );
 
-      // Alliteration outline (5px, wordActiveColor)
+      // Alliteration outline (5px, wordActiveColor) — optional layer
       if (showAlliteration && isAllit && !isSelected) {
         glyphs.push(
           <rect
@@ -95,12 +106,31 @@ export default function WordGlyphs({
             stroke={wordActiveColor}
             strokeWidth={5}
             opacity={1}
-            pointerEvents="none" // outline shouldn't swallow clicks
+            pointerEvents="none" // outline shouldn't swallow pointer events
           />
         );
       }
 
-      // Selected outline (3px, red) — drawn on top
+      // 🔹 Hover outline (active color). Renders above base (and alliteration),
+      // but below the selected outline so selection stays visually dominant.
+      if (isHovered && !isSelected) {
+        glyphs.push(
+          <rect
+            key={`${id}-hover`}
+            x={startX}
+            y={rectY}
+            width={widthPx}
+            height={barHeight}
+            fill="none"
+            stroke={wordActiveColor}
+            strokeWidth={3}
+            opacity={1}
+            pointerEvents="none"
+          />
+        );
+      }
+
+      // Selected outline (7px, red) — always on top
       if (isSelected) {
         glyphs.push(
           <rect

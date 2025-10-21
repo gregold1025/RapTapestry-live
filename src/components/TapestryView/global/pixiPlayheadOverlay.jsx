@@ -24,7 +24,7 @@ export function PlayheadLine() {
     const { x: currentX, y: currentY } = timeToPixels(playheadTime);
 
     g.clear();
-    g.setStrokeStyle({ width: 5, color: 0xff0000, alpha: 1 });
+    g.setStrokeStyle({ width: 3, color: 0xff0000, alpha: 1 });
     g.moveTo(currentX, currentY);
     g.lineTo(currentX, currentY + rowHeight);
     g.stroke();

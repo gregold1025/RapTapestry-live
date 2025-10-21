@@ -27,6 +27,7 @@ export default function TapestrySVG({
       viewBox={`0 0 ${width} ${rowHeight * numberOfRows}`}
       preserveAspectRatio="none"
     >
+      <BassGlyphs bassTranscriptionData={bassTranscriptionData} />
       <VocalsGlyphs
         lyricTranscriptionData={lyricTranscriptionData}
         onGlyphHoverEnter={onGlyphHoverEnter}
@@ -34,7 +35,7 @@ export default function TapestrySVG({
       />
       <DrumsGlyphs drumTranscriptionData={drumTranscriptionData}></DrumsGlyphs>
       <DrumGrid drumTranscriptionData={drumTranscriptionData} />
-      <BassGlyphs bassTranscriptionData={bassTranscriptionData} />
+
       <HorizontalGrid />
     </svg>
   );

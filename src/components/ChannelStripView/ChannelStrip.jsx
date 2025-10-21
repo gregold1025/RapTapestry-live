@@ -12,7 +12,7 @@ export function ChannelStrip({
   onVisualToggle,
   isSolo = false,
   forcedMute, // boolean when another strip is soloed
-  effectiveMuted, // <- NEW: source of truth for UI & audio
+  effectiveMuted, // <- source of truth for UI & audio
   initialVolume = 1,
   initialMuted = false,
   initialVisible = true,
@@ -22,6 +22,9 @@ export function ChannelStrip({
   const [visible, setVisible] = useState(initialVisible);
 
   const { setShowVocals, setShowBass, setShowDrums } = useParams();
+
+  // Disable Visual/Edit for the "other" stem
+  const otherLocked = stemKey === "other";
 
   // Volume → element
   useEffect(() => {
@@ -47,6 +50,7 @@ export function ChannelStrip({
   };
 
   const handleVisualClick = () => {
+    if (otherLocked) return; // guard: no-op for "other"
     const next = !visible;
     setVisible(next);
     onVisualToggle?.(stemKey, next);
@@ -69,11 +73,28 @@ export function ChannelStrip({
           SOLO
         </button>
 
-        <button className={visible ? "active" : ""} onClick={handleVisualClick}>
+        <button
+          className={visible ? "active" : ""}
+          onClick={handleVisualClick}
+          disabled={otherLocked}
+          aria-disabled={otherLocked}
+          title={
+            otherLocked ? "Not available for this stem" : "Toggle visibility"
+          }
+        >
           VISIBLE
         </button>
 
-        <button onClick={() => onEditClick?.(stemKey)}>EDIT</button>
+        <button
+          onClick={otherLocked ? undefined : () => onEditClick?.(stemKey)}
+          disabled={otherLocked}
+          aria-disabled={otherLocked}
+          title={
+            otherLocked ? "Not available for this stem" : "Edit parameters"
+          }
+        >
+          EDIT
+        </button>
       </div>
     </div>
   );

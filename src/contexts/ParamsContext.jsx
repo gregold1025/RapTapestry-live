@@ -43,9 +43,10 @@ export function ParamsProvider({ children }) {
   const [wordOpacity, setWordOpacity] = useState(0.6);
   // logical / selection-display
   const [exactMatches, setExactMatches] = useState(false);
-  const [ignorePlurals, setIgnorePlurals] = useState(false);
+  const [ignorePlurals, setIgnorePlurals] = useState(true);
   const [showRhymes, setShowRhymes] = useState(true); // NEW: show matchedWordIds on other views
   const [showAlliteration, setShowAlliteration] = useState(true); // NEW: show alliterationMatchedWordIds
+  const [assonance, setAssonance] = useState(true);
 
   // — LINES —
   const [showLines, setShowLines] = useState(true);
@@ -60,7 +61,7 @@ export function ParamsProvider({ children }) {
     rectHeight: 10,
     fillColor: "#aaccff",
     opacity: 0.7,
-    blur: 0,
+    blur: 2,
   });
 
   // — DRUMS —
@@ -123,6 +124,8 @@ export function ParamsProvider({ children }) {
         setShowRhymes,
         showAlliteration,
         setShowAlliteration,
+        assonance,
+        setAssonance,
 
         // lines
         showLines,

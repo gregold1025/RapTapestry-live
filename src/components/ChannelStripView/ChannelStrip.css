@@ -92,3 +92,23 @@
   min-width: 0;
   min-height: 0;
 }
+
+/* ===== Disabled state (matches preset buttons' disabled style) ===== */
+.button-grid button:disabled,
+.button-grid button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Prevent hover/active effects on disabled buttons */
+.button-grid button:disabled:hover,
+.button-grid button[aria-disabled="true"]:hover {
+  background: #fafafa; /* keep base */
+}
+
+/* Disabled buttons must never render as active */
+.button-grid button:disabled.active,
+.button-grid button[aria-disabled="true"].active {
+  background: #fafafa; /* base bg */
+  border-color: #d0d0d0; /* base border */
+}

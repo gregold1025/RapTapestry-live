@@ -179,7 +179,7 @@ export default function SyllableGlyphs({
 
   return (
     <>
-      {connectors}
+      {/* {connectors} */}
       {syllables}
     </>
   );

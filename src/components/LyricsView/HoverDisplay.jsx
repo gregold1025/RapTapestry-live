@@ -16,8 +16,7 @@ export function HoverDisplay({ hoverData }) {
       {hoverData.type === "syllable" && (
         <>
           Vowel: <strong>{hoverData.vowel}</strong> | Syllable:{" "}
-          {hoverData.syllableIndex + 1} of {hoverData.totalSyllables} | Phones:{" "}
-          {hoverData.phones}
+          {hoverData.syllableIndex + 1} of {hoverData.totalSyllables}
         </>
       )}
     </div>

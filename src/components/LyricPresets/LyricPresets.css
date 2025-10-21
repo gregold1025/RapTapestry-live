@@ -1,0 +1,60 @@
+/* Container: keeps subrow close to the main row */
+.preset-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding: 8px 10px; /* slight breathing room inside the presets section */
+}
+
+/* Four buttons in one row, equal widths */
+.preset-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px; /* slight gap between buttons */
+  width: 100%;
+}
+
+/* Base button styling */
+.preset-btn {
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #111827;
+  border-radius: 8px;
+  padding: 12px 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.preset-btn:active:not(.is-disabled) {
+  transform: translateY(1px);
+}
+.preset-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Active visual (uses CSS variable set inline from context) */
+.preset-btn.is-active {
+  /* --active-color is injected via inline style */
+  border-color: var(--active-color, #2563eb);
+  background: color-mix(in srgb, var(--active-color, #2563eb) 14%, #ffffff 86%);
+  color: #0f172a;
+}
+
+/* Disabled Multi-syllable */
+.preset-btn.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.preset-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0px;
+  font-weight: 600;
+  color: #111827;
+}
