@@ -58,7 +58,7 @@ export function BassParamsOverlay({ onClose }) {
                 <input
                   type="range"
                   min={1}
-                  max={100}
+                  max={20}
                   step={1}
                   value={rectHeight}
                   onChange={handleHeightChange}

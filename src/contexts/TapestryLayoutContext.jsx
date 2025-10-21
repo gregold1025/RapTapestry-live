@@ -16,14 +16,36 @@ export function TapestryLayoutProvider({
   duration,
   estimated_bpm,
   downbeats = [],
-  beats = [], // <— NEW prop (already passed from App.jsx)
+  beats = [],
   barsPerRow = 8,
 }) {
   const containerRef = useRef(null);
   const [layout, setLayout] = useState(null);
 
+  // Track the measured size of the tapestry container (updates on resize)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+  // Observe container size changes
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Initialize immediately
+    setContainerSize({ width: el.clientWidth, height: el.clientHeight });
+
+    const ro = new ResizeObserver(() => {
+      // clientWidth/Height are sufficient and cheap here
+      setContainerSize({ width: el.clientWidth, height: el.clientHeight });
+    });
+
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Recompute layout whenever inputs or container size change
   useEffect(() => {
     const container = containerRef.current;
+
     if (
       !container ||
       !duration ||
@@ -31,26 +53,23 @@ export function TapestryLayoutProvider({
       !Array.isArray(beats) ||
       beats.length === 0
     ) {
-      console.warn("❌ Cannot compute layout yet", {
-        container,
-        duration,
-        estimated_bpm,
-        beatsCount: beats?.length ?? 0,
-      });
+      // Early exit until we have the minimum data
+      // console.warn("❌ Cannot compute layout yet", { container, duration, estimated_bpm, beatsCount: beats?.length ?? 0 });
       return;
     }
 
-    const { clientWidth, clientHeight } = container;
+    const { width: clientWidth, height: clientHeight } = containerSize;
+    if (!clientWidth || !clientHeight) return; // wait for measurement
 
     const newLayout = computeLayout({
       duration,
       width: clientWidth,
       height: clientHeight,
       beats, // use beats as the primary grid
-      downbeats, // kept for reference if you still want to show them somewhere
+      downbeats, // optional reference
       barsPerRow,
       estimated_bpm,
-      // timeSig optional; defaults to 4/4 inside computeLayout
+      // timeSig optional; defaults within computeLayout
     });
 
     if (!newLayout) return;
@@ -61,16 +80,23 @@ export function TapestryLayoutProvider({
         timeToPixels(
           t,
           newLayout.rowBoundaries,
-          newLayout.gridTimes, // <— use inferred beats grid
+          newLayout.gridTimes,
           newLayout.width,
           newLayout.rowHeight,
-          newLayout.beatsPerRow // <— segments per row = beats per row
+          newLayout.beatsPerRow
         ),
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
     };
 
     setLayout(mappedLayout);
-  }, [duration, estimated_bpm, beats, downbeats, barsPerRow]);
+  }, [
+    duration,
+    estimated_bpm,
+    beats,
+    downbeats,
+    barsPerRow,
+    containerSize, // <- key: recompute when container resizes
+  ]);
 
   return (
     <TapestryLayoutContext.Provider value={{ layout, containerRef }}>

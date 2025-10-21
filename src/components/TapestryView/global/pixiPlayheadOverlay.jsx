@@ -20,7 +20,7 @@ export function PlayheadLine() {
     const g = graphicsRef.current;
     const { rowHeight, timeToPixels } = layout;
 
-    // Map playheadTime to locked grid coordinates
+    // Map playheadTime to current grid coordinates with latest layout
     const { x: currentX, y: currentY } = timeToPixels(playheadTime);
 
     g.clear();
@@ -28,7 +28,14 @@ export function PlayheadLine() {
     g.moveTo(currentX, currentY);
     g.lineTo(currentX, currentY + rowHeight);
     g.stroke();
-  }, [playheadTime, layout]);
+    // Re-draw on time, on row height change, or whenever layout size changes
+  }, [
+    playheadTime,
+    layout?.rowHeight,
+    layout?.width,
+    layout?.height,
+    layout?.timeToPixels, // function identity changes when layout recomputes
+  ]);
 
   return <pixiGraphics ref={graphicsRef} />;
 }
@@ -53,12 +60,14 @@ export default function PixiPlayheadOverlay() {
       }}
     >
       <Application
+        // 🔑 Force a clean Pixi remount whenever layout size changes
+        key={`${width}x${height}`}
         width={width}
         height={height}
         backgroundAlpha={0}
         autoDensity={true}
         antialias={true}
-        resolution={window.devicePixelRatio}
+        resolution={Math.min(window.devicePixelRatio || 1, 2)}
       >
         <pixiContainer>
           <PlayheadLine />

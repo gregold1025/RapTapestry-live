@@ -59,8 +59,8 @@ export function ParamsProvider({ children }) {
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
     rectHeight: 10,
-    fillColor: "#aaccff",
-    opacity: 0.7,
+    fillColor: "#670079",
+    opacity: 0.4,
     blur: 2,
   });
 
