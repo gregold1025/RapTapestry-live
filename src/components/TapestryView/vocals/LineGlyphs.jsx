@@ -11,8 +11,13 @@ export default function LineGlyphs({
 }) {
   const { layout } = useTapestryLayout();
   const { selectedLineIdx, matchedLineIdxs } = useLineSelection();
-  const { showLines, lineActiveColor, lineInactiveColor, lineOpacity } =
-    useParams();
+  const {
+    showLines,
+    showEndRhymes, // ⬅️ gate rendering here
+    lineActiveColor,
+    lineInactiveColor,
+    lineOpacity,
+  } = useParams();
   const { seekAll } = useAudioEngine();
 
   // Track hover
@@ -27,11 +32,15 @@ export default function LineGlyphs({
       return [];
 
     const isSelected = selectedLineIdx === lineIdx;
-    const isMatched = matchedLineIdxs?.has?.(lineIdx);
+    // Only treat a line as "matched" if the toggle is on.
+    const isMatched = showEndRhymes && matchedLineIdxs?.has?.(lineIdx);
     const isHovered = hoveredLineIdx === lineIdx;
 
-    // fill color: active color for both selected & matched
-    const fill = isSelected || isMatched ? lineActiveColor : lineInactiveColor;
+    // fill color: active for selected or (matched & toggle on)
+    const fill =
+      isSelected || (isMatched && showEndRhymes)
+        ? lineActiveColor
+        : lineInactiveColor;
 
     // outline logic: selected gets red, hovered gets active color
     const stroke = isSelected
@@ -65,14 +74,7 @@ export default function LineGlyphs({
           onClick={() => seekAll(line.start)}
           onMouseEnter={(e) => {
             setHoveredLineIdx(lineIdx);
-            // optional hover callback
-            // onGlyphHoverEnter?.(e, {
-            //   type: "line",
-            //   lineIdx,
-            //   text: line.text,
-            //   start: line.start,
-            //   end: line.end,
-            // });
+            // onGlyphHoverEnter?.(e, { type: "line", lineIdx, text: line.text, start: line.start, end: line.end });
           }}
           onMouseLeave={(e) => {
             setHoveredLineIdx(null);

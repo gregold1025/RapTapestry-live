@@ -16,7 +16,7 @@ export function WordLine({
   dataLineIdx,
 }) {
   const { selectedLineIdx, toggleLine, matchedLineIdxs } = useLineSelection();
-  const { lineActiveColor, lineOpacity } = useParams();
+  const { lineActiveColor, lineOpacity, showEndRhymes } = useParams();
   const { seekAll } = useAudioEngine();
 
   const [hovered, setHovered] = useState(false);
@@ -34,7 +34,7 @@ export function WordLine({
   };
 
   const bgRgba =
-    isSelected || isMatched
+    isSelected || (isMatched && showEndRhymes)
       ? hexToRgba(lineActiveColor, lineOpacity)
       : "transparent";
 

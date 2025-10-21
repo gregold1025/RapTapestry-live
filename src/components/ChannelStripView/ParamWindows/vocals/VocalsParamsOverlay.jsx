@@ -298,7 +298,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 Min Match Length <span className="meta">{minMatch}</span>
                 <input
                   type="range"
-                  min={0}
+                  min={1}
                   max={3}
                   step={1}
                   value={minMatch}

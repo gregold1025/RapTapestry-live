@@ -1,4 +1,3 @@
-// src/contexts/lyricsContexts/LineSelectionContext.jsx
 import React, { createContext, useContext, useMemo, useState } from "react";
 import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
@@ -9,16 +8,17 @@ export function LineSelectionProvider({ transcriptionData, children }) {
   const [selectedLineIdx, setSelectedLineIdx] = useState(null);
 
   // Visual / logical params that influence matching
-  const { exactMatches, ignorePlurals, showEndRhymes } = useParams();
+  const { exactMatches, ignorePlurals } = useParams();
 
   // Precompute line endings, rhyme keys, and indices
   const extracted = useMemo(() => {
     return extractLines(transcriptionData, { ignorePlurals });
   }, [transcriptionData, ignorePlurals]);
 
-  // Lines matching the selected one (by exact phones or rhyme key)
+  // Always compute matches for the currently selected line.
+  // Rendering layers will decide whether to display them.
   const matchedLineIdxs = useMemo(() => {
-    if (selectedLineIdx == null || !showEndRhymes) return new Set();
+    if (selectedLineIdx == null) return new Set();
     return getMatchingLinesFor(extracted, selectedLineIdx, { exactMatches });
   }, [extracted, selectedLineIdx, exactMatches]);
 
@@ -30,9 +30,8 @@ export function LineSelectionProvider({ transcriptionData, children }) {
       value={{
         selectedLineIdx,
         toggleLine,
-        matchedLineIdxs,
-        // optional exposers for debugging / features:
-        // extracted, // { lines, rhymeIndex, exactIndex }
+        matchedLineIdxs, // always computed
+        // extracted, // expose for debugging if useful
       }}
     >
       {children}
