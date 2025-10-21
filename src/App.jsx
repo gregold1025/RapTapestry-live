@@ -90,7 +90,7 @@ export default function App() {
         >
           <div>Loading song data…</div>
         </main>
-        <footer className="footer">Footer</footer>
+        <footer className="footer"> </footer>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function App() {
             Failed to load <strong>{selectedSong}</strong>: {loadError}
           </p>
         </main>
-        <footer className="footer">Footer</footer>
+        <footer className="footer"> </footer>
       </div>
     );
   }
@@ -200,7 +200,7 @@ export default function App() {
                   </div>
                 </main>
 
-                <footer className="footer">Rap Tapestry Project</footer>
+                <footer className="footer"> </footer>
               </div>
             </WordSelectionProvider>
           </LineSelectionProvider>

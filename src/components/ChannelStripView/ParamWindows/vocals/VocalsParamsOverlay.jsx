@@ -269,7 +269,7 @@ export function VocalsParamsOverlay({ onClose }) {
                 />
               </label>
 
-              <label className="control">
+              {/* <label className="control">
                 Arc Curvature{" "}
                 <span className="meta">{syllableArcCurve.toFixed(2)}</span>
                 <input
@@ -280,7 +280,7 @@ export function VocalsParamsOverlay({ onClose }) {
                   value={syllableArcCurve}
                   onChange={pickRange(setSyllableArcCurve)}
                 />
-              </label>
+              </label> */}
 
               <label className="control">
                 Max Wildcard Skips <span className="meta">{wildcard}</span>
