@@ -80,6 +80,7 @@ export default function App() {
             <option value="93Til">93 Til Infinity - Souls of Mischief</option>
             <option value="Amen">Amen - Nappy Nina</option>
             <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
+            <option value="Unemployed"> Unemployed - Tierra Whack</option>
           </select>
         </header>
         <main
@@ -101,6 +102,7 @@ export default function App() {
             <option value="93Til">93 Til Infinity - Souls of Mischief</option>
             <option value="Amen">Amen - Nappy Nina</option>
             <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
+            <option value="Unemployed"> Unemployed - Tierra Whack</option>
           </select>
         </header>
         <main className="main-content" style={{ padding: 16 }}>
@@ -150,6 +152,10 @@ export default function App() {
                     <option value="Amen">Amen - Nappy Nina</option>
                     <option value="RhymesLikeDimes">
                       Rhymes Like Dimes - MF DOOM
+                    </option>
+                    <option value="Unemployed">
+                      {" "}
+                      Unemployed - Tierra Whack
                     </option>
                   </select>
                 </header>
