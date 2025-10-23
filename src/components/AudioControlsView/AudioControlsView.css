@@ -1,14 +1,57 @@
-/* ===== AudioControlsView.css ===== */
+/* ===== Floating wrapper ===== */
+.audio-controls-float {
+  position: fixed;
+  z-index: 9999;
+  width: 360px;
+  max-width: 42vw;
+  user-select: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  background: #101521;
+  color: #fff;
+  border: 1px solid #2a3344;
+}
 
-/* Panel layout becomes a column; volume floats on the right */
+/* During drag */
+.audio-controls-float.is-drag {
+  cursor: grabbing;
+}
+
+/* Header (drag handle in full mode) */
+.ac-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #0b0f1a;
+  border-bottom: 1px solid #232a39;
+  cursor: grab;
+}
+.ac-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
+}
+.ac-min-btn {
+  border: 1px solid #3a4256;
+  background: #151c2b;
+  color: #e6ebf5;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Base full panel layout */
 .audio-controls {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 8px;
+  gap: 6px;
+  padding: 10px;
 
-  /* sizing tokens */
   --scrub-track-h: 0.5em;
   --scrub-thumb-d: 1em;
   --scrub-fill: #d93030;
@@ -17,25 +60,23 @@
   --vol-thumb-d: 1em;
 }
 
-/* Volume lives at top-right corner of the panel */
+/* Volume popover in full mode */
 .ac-volume {
   position: absolute;
   top: 8px;
   right: 8px;
 }
 
-/* Transport row centered */
+/* Transport row (full) */
 .ac-transport {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  margin: 2px 0 6px 0;
 }
-/* Add margin below transport row to separate from scrub slider */
-.ac-transport {
-  margin: 1;
-}
-/* Buttons — icons at 3rem */
+
+/* Generic skin (for any plain buttons you render here) */
 .ac-btn {
   border-radius: 6px;
   border: 1px solid #d0d0d0;
@@ -43,30 +84,26 @@
   color: #000;
   padding: 4px 8px;
   cursor: pointer;
-
   font-size: 1em;
   line-height: 1;
 }
 
-/* Scrub row */
+/* Scrub */
 .ac-scrub-row {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-/* Scrub slider expands full width */
 .scrub-slider {
   flex: 1 1 auto;
   min-width: 0;
-  width: 85%;
+  width: 88%;
   height: var(--scrub-track-h);
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   cursor: pointer;
 }
-
 /* WebKit/Blink track */
 .scrub-slider::-webkit-slider-runnable-track {
   height: var(--scrub-track-h);
@@ -86,7 +123,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   margin-top: calc((var(--scrub-track-h) - var(--scrub-thumb-d)) / 2);
 }
-
 /* Firefox */
 .scrub-slider::-moz-range-track {
   height: var(--scrub-track-h);
@@ -104,19 +140,91 @@
   cursor: pointer;
 }
 
-/* Time row — left/right aligned under the scrub */
+/* Time row (full only) */
 .ac-time-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: #fff;
-
   padding: 0 2px;
-  margin-top: -2px; /* snugs it closer to slider */
+  margin-top: -2px;
+}
+.ac-time {
+  min-width: 3.5ch;
+  letter-spacing: 0.3px;
+  font-size: 0.95rem;
 }
 
-.ac-time {
-  min-width: 3.5ch; /* enough for m:ss */
-  letter-spacing: 0.3px;
-  font-size: 1em;
+/* ===================== Minimized mode ===================== */
+/* Thin bar */
+.audio-controls-float.is-min {
+  width: auto; /* shrink-wrap content */
+  max-width: none;
+  border-radius: 10px;
+  padding: 0;
+}
+
+/* One-row horizontal layout; entire row is drag handle */
+.ac-min-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  gap: 8px;
+  cursor: grab;
+}
+
+/* Grouped items in a line */
+.ac-min-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tiny buttons for minimized mode */
+.ac-min-btn {
+  background: #1a2133;
+  color: #e6ebf5;
+  border: 1px solid #3a4256;
+  border-radius: 6px;
+  padding: 2px 6px;
+  line-height: 1;
+  font-size: 0.9rem; /* smaller */
+  cursor: pointer;
+}
+
+/* Smaller scrub in minimized mode; no labels */
+.scrub-mini {
+  width: 140px; /* compact slider */
+  max-width: 32vw;
+  --scrub-track-h: 0.35em;
+  --scrub-thumb-d: 0.75em;
+}
+
+/* Hide full-mode elements when minimized */
+.audio-controls-float.is-min .ac-header,
+.audio-controls-float.is-min .audio-controls,
+.audio-controls-float.is-min .ac-time-row,
+.audio-controls-float.is-min .ac-volume {
+  display: none !important;
+}
+
+/* Optional: slightly stronger shadow when minimized to hint it's floating */
+.audio-controls-float.is-min {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Make any buttons inside the transport smaller in minimized mode too */
+.audio-controls-float.is-min .ac-transport button,
+.audio-controls-float.is-min .ac-transport .ac-btn {
+  font-size: 0.9rem;
+  padding: 2px 6px;
+}
+
+/* Mini slider variant */
+.scrub-slider--mini {
+  width: 140px; /* compact slider */
+  max-width: 32vw;
+  --scrub-track-h: 0.35em;
+  --scrub-thumb-d: 0.75em;
 }

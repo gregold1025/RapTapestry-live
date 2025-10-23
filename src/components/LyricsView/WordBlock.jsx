@@ -1,10 +1,19 @@
 // src/components/LyricsView/WordBlock.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import { extractVowels } from "../../utils/extractVowels";
 import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
 import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 import "./LyricsView.css";
+
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(0,0,0,${alpha})`;
+  const m = hex.replace("#", "");
+  const [r, g, b] = [m.slice(0, 2), m.slice(2, 4), m.slice(4, 6)].map((h) =>
+    parseInt(h || "00", 16)
+  );
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 export function WordBlock({
   word,
@@ -21,55 +30,48 @@ export function WordBlock({
 
   const wordId = `${lineIdx}-${wordIdx}`;
   const isCurrent = playheadTime >= word.start && playheadTime < word.end;
-  const isHovered = hoverData?.type === "word" && hoverData.text === word.text;
 
-  const {
-    selectedWordId,
-    matchedWordIds, // rhyme/exact matches
-    alliterationMatchedWordIds, // ← alliteration matches (Set)
-    toggleWord,
-  } = useWordSelection();
+  const { getVisualForWord, selections, anchorOrAdopt, removeSelection } =
+    useWordSelection();
 
-  const {
-    wordActiveColor,
-    wordInactiveColor,
-    wordOpacity,
-    showAlliteration, // ← toggle from ParamsContext
-  } = useParams();
+  const { wordActiveColor, wordOpacity, showAlliteration, showRhymes } =
+    useParams();
 
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
     useSyllableSelection();
 
-  const isWordSelected = selectedWordId === wordId;
-  const isWordMatched = selectedWordId !== null && matchedWordIds.has(wordId);
+  // latest anchor (if multiple anchors ever pointed to this word)
+  const anchorForThisWord = useMemo(() => {
+    const candidates = (selections || []).filter((s) => s.wordId === wordId);
+    if (!candidates.length) return null;
+    return candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
+  }, [selections, wordId]);
 
-  // Alliteration match (gated by toggle)
-  const isAlliterationMatch =
-    showAlliteration &&
-    selectedWordId !== null &&
-    alliterationMatchedWordIds?.has?.(wordId);
+  const vis = getVisualForWord(wordId); // null | {role,color}
+  const isAnchor = vis?.role === "anchor";
+  const isMatch = vis?.role === "match";
+  const isAllit = vis?.role === "alliteration";
 
-  // "#rrggbb" -> rgba(...)
-  const hexToRgba = (hex, alpha = 1) => {
-    const [r, g, b] = hex
-      .replace(/^#/, "")
-      .match(/.{2}/g)
-      .map((h) => parseInt(h, 16));
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-
-  // Background for selected/rhyme matches
+  // background tint for selected/rhyme matches
   const bgRgba =
-    isWordSelected || isWordMatched
-      ? hexToRgba(wordActiveColor, wordOpacity)
+    isAnchor || (isMatch && showRhymes)
+      ? hexToRgba(vis?.color || wordActiveColor, wordOpacity ?? 0.6)
       : "transparent";
 
-  // 5px outline for alliteration matches
-  const outlineStyle = isWordSelected
-    ? "5px solid red"
-    : isAlliterationMatch
-    ? `5px solid ${wordActiveColor}`
+  // outline for anchor (strong) or alliteration (if toggle on)
+  const outlineStyle = isAnchor
+    ? `3px solid ${vis?.color || wordActiveColor}`
+    : showAlliteration && isAllit
+    ? `3px solid ${vis?.color || wordActiveColor}`
     : "none";
+
+  function onToggleAnchor() {
+    if (anchorForThisWord) {
+      removeSelection(anchorForThisWord.id);
+    } else {
+      anchorOrAdopt(wordId);
+    }
+  }
 
   return (
     <div
@@ -118,16 +120,23 @@ export function WordBlock({
         })}
       </div>
 
+      {/* Word text toggles anchor adopt/remove */}
       <span
         className={`word ${isCurrent ? "current" : ""}`}
-        onClick={() => toggleWord(wordId)}
+        onClick={onToggleAnchor}
         onMouseEnter={() => onWordHover?.(word)}
         onMouseLeave={onHoverEnd}
         style={{
           backgroundColor: bgRgba,
           outline: outlineStyle,
-          outlineOffset: "0px", // small gap so the outline doesn't touch glyph
+          outlineOffset: "0px",
+          cursor: "pointer",
         }}
+        title={
+          anchorForThisWord
+            ? "Click to remove word anchor"
+            : "Click to add/adopt word anchor"
+        }
       >
         {word.text}
       </span>

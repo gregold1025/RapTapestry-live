@@ -17,6 +17,7 @@ import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
 import LyricPresets from "./components/LyricPresets/LyricPresets";
 import LineAnchorsPanel from "./components/SelectionAnchors/LineAnchorsPanel";
+import WordAnchorsPanel from "./components/SelectionAnchors/WordAnchorsPanel";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -160,6 +161,8 @@ export default function App() {
                     </option>
                   </select>
                 </header>
+                {/* Render the floating controls anywhere inside; it'll position itself fixed */}
+                <AudioControlsView boundsRef={tapestryContainerRef} />
 
                 <main className="main-content">
                   <div className="left-pane">
@@ -179,6 +182,7 @@ export default function App() {
                         bassTranscription={bassTranscription}
                       />
                     </TapestryLayoutProvider>
+                    <div className="bottom-pane" />
                   </div>
 
                   <div className="right-pane">
@@ -189,27 +193,31 @@ export default function App() {
                         height="100%"
                       />
                     </div>
+
                     <div className="right-pane-section presets">
                       <LyricPresets />
                     </div>
-                    <aside className="right-pane-section anchors">
-                      <LineAnchorsPanel
-                        transcriptionData={lyricTranscription}
-                      />
-
-                      {/* Future: WordAnchorsPanel, SyllableAnchorsPanel */}
-                    </aside>
+                    {/* NEW: wrap both anchors together */}
+                    <div className="right-pane-section anchors-stack">
+                      <aside className="anchors">
+                        <LineAnchorsPanel
+                          transcriptionData={lyricTranscription}
+                        />
+                      </aside>
+                      <aside className="anchors">
+                        <WordAnchorsPanel
+                          transcriptionData={lyricTranscription}
+                        />
+                      </aside>
+                    </div>
 
                     <div className="right-pane-section channel">
                       <ChannelStripsPanel />
                     </div>
-                    <div className="right-pane-section audio">
-                      <AudioControlsView />
-                    </div>
                   </div>
                 </main>
 
-                <footer className="footer"> </footer>
+                <footer className="footer"></footer>
               </div>
             </WordSelectionProvider>
           </LineSelectionProvider>

@@ -1,36 +1,72 @@
-/* ---- Collapsible section scaffold ---- */
+/* ================================
+   Selection Anchors (concise CSS)
+   Nesting:
+   1) Top level: .lap-section  → header + collapsible body
+   2) Second level: .lap-rows  → list of user anchors (rows)
+   3) Third level: .lap-row-drop → per-anchor matches dropdown
+   ================================ */
+
+/* ---------- Tokens ---------- */
+:root {
+  --lap-row-h: 42px;
+  --lap-row-gap: 8px;
+
+  /* Theme */
+  --bg: #0d0f12;
+  --panel: #151922;
+  --text: #e9eef5;
+  --muted: #a9b2c3;
+  --border: #252b39;
+
+  /* Second level (blue list area) */
+  --rows-bg: #193b84;
+
+  /* Third level (submenu look) */
+  --submenu-bg: #e7ebf2;
+  --submenu-item-bg: #f6f8fb;
+  --submenu-border: #c9d1de;
+}
+
+/* ============================
+   1) TOP LEVEL (Line/Word Anchors)
+   ============================ */
+
+/* Container: keep top padding, remove bottom; no left/right padding */
 .lap-section {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%; /* fill the anchors section given by App.css */
-  gap: 8px;
+  height: 100%;
+  gap: 0px;
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-bottom: 0;
+  padding-left: 8px;
 }
 
-/* Section header (caret + title + add button) */
+/* Section header row */
 .lap-sec-header {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid var(--border, #252b39);
-  background: var(--panel, #151922);
-  color: var(--text, #e9eef5);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
   border-radius: 8px;
   cursor: pointer;
 }
 
-.lap-sec-header .lap-sec-title {
+.lap-sec-title {
   font-weight: 600;
 }
 .lap-sec-spacer {
   flex: 1 1 auto;
 }
-
 .lap-caret {
-  transition: transform 120ms ease;
   display: inline-block;
+  transition: transform 120ms ease;
 }
 .lap-caret.open {
   transform: rotate(180deg);
@@ -38,9 +74,9 @@
 
 .lap-btn.lap-add-btn {
   padding: 6px 10px;
-  border: 1px solid var(--border, #333);
-  background: var(--bg, #0d0f12);
-  color: var(--text, #e9eef5);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   border-radius: 8px;
 }
 .lap-btn.lap-add-btn:disabled {
@@ -48,56 +84,70 @@
   cursor: not-allowed;
 }
 
-/* ---- Collapsible body ---- */
+/* Collapsible body */
 .lap-collapse {
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0px;
 }
 .lap-collapse.is-open {
   max-height: 9999px;
   transition: max-height 180ms ease;
+  padding: 0 8px;
 }
 .lap-collapse.is-closed {
   max-height: 0;
   transition: max-height 180ms ease;
+  padding: 0 8px;
 }
 
-/* Rows container with fixed viewport height (4 rows visible) */
-:root {
-  --lap-row-h: 42px;
-  --lap-row-gap: 8px;
-}
+/* ============================
+   2) SECOND LEVEL (User anchors list)
+   ============================ */
+
 .lap-rows {
   display: flex;
   flex-direction: column;
   gap: var(--lap-row-gap);
-  padding: 8px;
-  background: var(--bg, #0d0f12);
-  border: 1px solid var(--border, #252b39);
-  border-radius: 8px;
+  background: var(--rows-bg);
+  border: 1px solid var(--border);
+  border-radius: 0px;
 
-  /* show exactly 4 rows before scrolling */
+  /* padding: top + sides only, so content touches parent bottom */
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-bottom: 8px;
+  padding-left: 8px;
+
+  /* visible rows before scrolling */
   max-height: calc((var(--lap-row-h) * 4) + (var(--lap-row-gap) * 3) + 16px);
   overflow: auto;
 }
 
-/* Thin, full-width row */
+/* Row + wrap (row + its dropdown) */
+.lap-row-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+/* Row */
 .lap-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: var(--lap-row-h);
   padding: 0 8px;
-  border-radius: 10px;
   background: #0f141f;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--border, #252b39);
 }
 .lap-row.is-inactive {
   opacity: 0.6;
 }
 
-/* Left cluster: dot + name */
+/* Left cluster (color + name) */
 .lap-left {
   display: flex;
   align-items: center;
@@ -117,13 +167,13 @@
   width: 100%;
   padding: 6px 8px;
   border-radius: 8px;
-  border: 1px solid var(--border, #252b39);
-  background: var(--panel, #151922);
-  color: var(--text, #e9eef5);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
   font-size: 0.95rem;
 }
 
-/* Right cluster: controls aligned right */
+/* Right cluster (icons) */
 .lap-right {
   display: flex;
   align-items: center;
@@ -132,16 +182,35 @@
 .lap-icon {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
-  border: 1px solid var(--border, #252b39);
-  background: var(--bg, #0d0f12);
-  color: #e9eef5;
   display: grid;
   place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   cursor: pointer;
 }
 .lap-icon.danger {
   border-color: #5a2a2a;
+}
+
+/* Count badge (opens third level) */
+.lap-count {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #a6b5cb;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.lap-count.open {
+  filter: brightness(1.1);
 }
 
 /* Empty state */
@@ -151,32 +220,29 @@
   padding: 8px;
 }
 
-/* wrapper to allow a row + its dropdown */
-.lap-row-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* ============================
+   3) THIRD LEVEL (Matches dropdown)
+   (keep look as-is: light grey, rectangular items)
+   ============================ */
 
-/* keep your existing .lap-rows, .lap-row, .lap-left, .lap-right, etc. */
-
-/* per-row dropdown */
 .lap-row-drop {
   overflow: hidden;
-  border: 1px solid var(--border, #252b39);
-  border-radius: 8px;
-  background: #0c111b;
+  background: var(--submenu-bg);
+  border: 1px solid var(--submenu-border);
+  border-radius: 0;
+  margin: 0 8px;
 }
 .lap-row-drop.is-open {
   max-height: 280px;
   transition: max-height 180ms ease;
+  padding: 0 0px;
 }
 .lap-row-drop.is-closed {
   max-height: 0;
   transition: max-height 180ms ease;
+  padding: 0 8px;
 }
 
-/* list area (scrolls if tall) */
 .lap-drop-list {
   list-style: none;
   margin: 0;
@@ -184,17 +250,15 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 220px; /* feels right under the 280px container cap */
+  max-height: 220px;
   overflow: auto;
 }
-
 .lap-drop-empty {
   padding: 8px;
-  color: var(--muted, #a9b2c3);
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
-/* item = “…lastWord” + time */
 .lap-drop-item {
   width: 100%;
   display: flex;
@@ -202,14 +266,14 @@
   justify-content: space-between;
   gap: 8px;
   padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--border, #252b39);
-  background: var(--panel, #151922);
-  color: var(--text, #e9eef5);
+  background: var(--submenu-item-bg);
+  color: #0d1117;
+  border: 1px solid var(--submenu-border);
+  border-radius: 0;
   cursor: pointer;
 }
 .lap-drop-item:hover {
-  filter: brightness(1.05);
+  background: #eef2f7;
 }
 
 .lap-drop-text {
@@ -217,33 +281,5 @@
 }
 .lap-drop-time {
   font-size: 0.85rem;
-  color: var(--muted, #a9b2c3);
+  color: #6c7b93;
 }
-
-/* Row wrapper keeps dropdown attached */
-.lap-row-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Count badge (replaces caret on each row) */
-.lap-count {
-  min-width: 28px;
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 14px;
-  border: 1px solid var(--border, #252b39);
-  background: var(--bg, #0d0f12);
-  color: var(--text, #e9eef5);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  cursor: pointer;
-}
-.lap-count.open {
-  filter: brightness(1.1);
-}
-
-/* (You already have .lap-row-drop, .lap-drop-list, .lap-drop-item from earlier step) */

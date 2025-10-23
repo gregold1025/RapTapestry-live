@@ -1,4 +1,4 @@
-// src/components/TapestryView/vocals/WordGlyphs.jsx
+// src/components/Tapestry/Vocals/WordGlyphs.jsx
 import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
@@ -11,11 +11,8 @@ export default function WordGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const {
-    matchedWordIds, // rhyme/exact matches (existing)
-    selectedWordIds,
-    alliterationMatchedWordIds, // words sharing first phone
-  } = useWordSelection();
+  const { getVisualForWord, anchorOrAdopt, selections, removeSelection } =
+    useWordSelection();
 
   const {
     showWords,
@@ -27,8 +24,6 @@ export default function WordGlyphs({
   } = useParams();
 
   const { seekAll } = useAudioEngine();
-
-  // 🔹 Track hovered word id (e.g., "li-wi")
   const [hoveredWordId, setHoveredWordId] = useState(null);
 
   if (!layout || !showWords) return null;
@@ -36,6 +31,15 @@ export default function WordGlyphs({
   const { rowHeight, timeToPixels } = layout;
   const barHeight = rowHeight * 0.3;
   const vPad = (rowHeight - barHeight) / 2 - 4;
+
+  function removeMostRecentAnchorFor(wordId) {
+    const candidates = selections.filter((s) => s.wordId === wordId);
+    if (!candidates.length) return;
+    const mostRecent = candidates.reduce((a, b) =>
+      a.createdAt > b.createdAt ? a : b
+    );
+    removeSelection(mostRecent.id);
+  }
 
   const glyphs = [];
 
@@ -47,23 +51,24 @@ export default function WordGlyphs({
         return;
 
       const id = `${lineIdx}-${wordIdx}`;
-      const { x: startX, y, row } = timeToPixels(word.start);
+      const vis = getVisualForWord(id); // null | {role,color,selectionId}
+
+      const { x: startX, row } = timeToPixels(word.start);
       const { x: endX } = timeToPixels(word.end);
       const widthPx = Math.max(1, endX - startX);
       const rectY = row * rowHeight + vPad;
 
-      const isSelected = selectedWordIds.includes(id);
-      const isMatch = matchedWordIds.has(id);
-      const isAllit = alliterationMatchedWordIds.has(id);
+      // Base fill:
+      // - anchors always colorize;
+      // - rhyme/exact matches colorize only if showRhymes;
+      // - alliteration does NOT fill (it outlines), unless you want it to—here we keep outline only.
+      const isAnchor = vis?.role === "anchor";
+      const isMatch = vis?.role === "match";
+      const fill =
+        isAnchor || (isMatch && showRhymes) ? vis.color : wordInactiveColor;
+
       const isHovered = hoveredWordId === id;
 
-      // Base fill: active color when selected OR (matched and showRhymes), else inactive
-      const fill =
-        isSelected || (isMatch && showRhymes)
-          ? wordActiveColor
-          : wordInactiveColor;
-
-      // Base filled bar (click/hover handlers live here)
       glyphs.push(
         <rect
           key={`${id}-base`}
@@ -73,9 +78,25 @@ export default function WordGlyphs({
           height={barHeight}
           fill={fill}
           opacity={wordOpacity}
-          stroke="none"
+          stroke={isAnchor ? vis.color : "none"}
+          strokeWidth={isAnchor ? 5 : 0}
           style={{ cursor: "pointer" }}
-          onClick={() => seekAll(word.start)}
+          onClick={(e) => {
+            // Cmd/Ctrl + click => adopt-or-create anchor
+            if (e.metaKey || e.ctrlKey) {
+              e.stopPropagation();
+              anchorOrAdopt(id);
+              return;
+            }
+            // Alt + click => remove most recent anchor for this word
+            if (e.altKey) {
+              e.stopPropagation();
+              removeMostRecentAnchorFor(id);
+              return;
+            }
+            // default: seek
+            seekAll(word.start);
+          }}
           onMouseEnter={(e) => {
             setHoveredWordId(id);
             onGlyphHoverEnter?.(e, {
@@ -90,11 +111,14 @@ export default function WordGlyphs({
             setHoveredWordId(null);
             onGlyphHoverLeave?.(e);
           }}
+          title={
+            "Click: seek • Cmd/Ctrl+Click: adopt/create anchor • Alt+Click: remove anchor"
+          }
         />
       );
 
-      // Alliteration outline (5px, wordActiveColor) — optional layer
-      if (showAlliteration && isAllit && !isSelected) {
+      // Optional alliteration outline (only if toggle on & this word is alliteration vis)
+      if (showAlliteration && vis?.role === "alliteration") {
         glyphs.push(
           <rect
             key={`${id}-allit`}
@@ -103,17 +127,16 @@ export default function WordGlyphs({
             width={widthPx}
             height={barHeight}
             fill="none"
-            stroke={wordActiveColor}
-            strokeWidth={5}
+            stroke={vis.color}
+            strokeWidth={4}
             opacity={1}
-            pointerEvents="none" // outline shouldn't swallow pointer events
+            pointerEvents="none"
           />
         );
       }
 
-      // 🔹 Hover outline (active color). Renders above base (and alliteration),
-      // but below the selected outline so selection stays visually dominant.
-      if (isHovered && !isSelected) {
+      // Hover outline
+      if (isHovered && !isAnchor) {
         glyphs.push(
           <rect
             key={`${id}-hover`}
@@ -124,24 +147,6 @@ export default function WordGlyphs({
             fill="none"
             stroke={wordActiveColor}
             strokeWidth={3}
-            opacity={1}
-            pointerEvents="none"
-          />
-        );
-      }
-
-      // Selected outline (7px, red) — always on top
-      if (isSelected) {
-        glyphs.push(
-          <rect
-            key={`${id}-selected`}
-            x={startX}
-            y={rectY}
-            width={widthPx}
-            height={barHeight}
-            fill="none"
-            stroke="#aa0000"
-            strokeWidth={7}
             opacity={1}
             pointerEvents="none"
           />

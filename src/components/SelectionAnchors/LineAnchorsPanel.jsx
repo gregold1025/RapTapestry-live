@@ -4,8 +4,9 @@ import { useAudioEngine } from "../../contexts/AudioContext";
 import "./SelectionAnchors.css";
 
 /**
- * Props:
- *  - transcriptionData: { lines: Array<{ text?: string, words?: {text?: string}[], start?: number }> }
+ * LineAnchorsPanel
+ * Displays and manages user-defined line anchors with auto-naming
+ * based on the last 10 characters of each line in the transcription.
  */
 export default function LineAnchorsPanel({ transcriptionData }) {
   const {
@@ -14,56 +15,50 @@ export default function LineAnchorsPanel({ transcriptionData }) {
     toggleSelectionActive,
     setSelectionColor,
     updateSelection,
-    matchesBySelectionId, // selectionId -> Set(lineIdx) | number[] | object
+    matchesBySelectionId,
   } = useLineSelection();
 
-  const lines = transcriptionData?.lines ?? [];
   const { seekAll } = useAudioEngine();
+  const lines = transcriptionData?.lines ?? [];
 
   const [expanded, setExpanded] = useState(true);
   const [openRows, setOpenRows] = useState({}); // { [selectionId]: boolean }
 
-  const toggleRowOpen = useCallback((id) => {
-    setOpenRows((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
+  const toggleRowOpen = useCallback(
+    (id) => setOpenRows((prev) => ({ ...prev, [id]: !prev[id] })),
+    []
+  );
 
+  /** Build display data for all anchors */
   const anchorsUi = useMemo(() => {
     return (selections ?? []).map((s) => {
-      const idx = toIndex(s.lineIdx);
-      const line = lines?.[idx]?.text ?? ""; // ← `line` is now the text string
-      const truncLine = line.slice(-10);
-      //   console.log("LINE", truncLine);
+      const lineIdx = toNumber(s.lineIdx);
+      const lineObj = lines[lineIdx];
+      const lineText = lineObj?.text ?? "";
+      const autoLabel = `…${getLineTail(lineText, 10)}`;
 
-      // Auto label: last 10 chars of line text
-      const tail = getLineEndTail(line, 10);
-      const autoLabel = "…" + truncLine;
+      const label = s.label?.trim()?.length > 0 ? s.label : autoLabel;
 
-      // Fallback to auto label when label empty/whitespace
-      const label =
-        typeof s.label === "string" && s.label.trim().length > 0
-          ? s.label
-          : autoLabel;
-
-      // Build matches for this selection (each also shows …tail)
-      const ids = toMatchIdxArray((matchesBySelectionId ?? {})[s.id]);
-      const matches = ids
-        .map((mIdx) => {
-          const mLine = lines[toIndex(mIdx)];
-          if (!mLine) return null;
+      const matchIds = normalizeToArray(matchesBySelectionId?.[s.id]);
+      const matches = matchIds
+        .map((i) => {
+          const m = lines[toNumber(i)];
+          if (!m) return null;
           return {
-            lineIdx: toIndex(mIdx),
-            tail: getLineEndTail(mLine, 10) || "—",
-            time: Number.isFinite(mLine.start) ? mLine.start : null,
+            idx: i,
+            tail: getLineTail(m.text, 10) || "—",
+            time: Number.isFinite(m.start) ? m.start : null,
           };
         })
         .filter(Boolean);
 
-      return { sel: s, autoLabel, label, matches, matchCount: matches.length };
+      return { sel: s, label, autoLabel, matches, matchCount: matches.length };
     });
   }, [selections, matchesBySelectionId, lines]);
 
   return (
     <div className="line-anchors-panel lap-section">
+      {/* Section header */}
       <button
         className="lap-sec-header"
         onClick={() => setExpanded((v) => !v)}
@@ -78,16 +73,16 @@ export default function LineAnchorsPanel({ transcriptionData }) {
         </span>
       </button>
 
+      {/* Collapsible body */}
       <div className={`lap-collapse ${expanded ? "is-open" : "is-closed"}`}>
-        {(anchorsUi?.length ?? 0) === 0 ? (
+        {!anchorsUi.length ? (
           <p className="lap-empty">
             No line anchors yet. Tip: <kbd>Cmd/Ctrl</kbd>+click a line in the
-            tapestry.
+            tapestry or use the □ beside a line.
           </p>
         ) : (
           <div className="lap-rows">
             {anchorsUi.map(({ sel, label, autoLabel, matches, matchCount }) => {
-              const nameValue = label || autoLabel;
               const isOpen = !!openRows[sel.id];
 
               return (
@@ -109,7 +104,7 @@ export default function LineAnchorsPanel({ transcriptionData }) {
                       />
                       <input
                         className="lap-name"
-                        value={nameValue}
+                        value={label}
                         placeholder={autoLabel}
                         onChange={(e) =>
                           updateSelection(sel.id, { label: e.target.value })
@@ -118,7 +113,7 @@ export default function LineAnchorsPanel({ transcriptionData }) {
                       />
                     </div>
 
-                    {/* Right: eye, COUNT badge (toggles dropdown), delete */}
+                    {/* Right: eye, count, delete */}
                     <div className="lap-right">
                       <button
                         className="lap-icon"
@@ -151,18 +146,18 @@ export default function LineAnchorsPanel({ transcriptionData }) {
                     </div>
                   </div>
 
-                  {/* Per-row dropdown: list “…tail” for each match; clicking seeks */}
+                  {/* Dropdown matches */}
                   <div
                     className={`lap-row-drop ${
                       isOpen ? "is-open" : "is-closed"
                     }`}
                   >
-                    {matches.length === 0 ? (
+                    {!matches.length ? (
                       <div className="lap-drop-empty">No matches yet.</div>
                     ) : (
                       <ul className="lap-drop-list">
                         {matches.map((m) => (
-                          <li key={`${sel.id}-${m.lineIdx}`}>
+                          <li key={`${sel.id}-${m.idx}`}>
                             <button
                               className="lap-drop-item"
                               onClick={() => m.time != null && seekAll(m.time)}
@@ -190,43 +185,26 @@ export default function LineAnchorsPanel({ transcriptionData }) {
   );
 }
 
-/* ----------------- helpers ----------------- */
+/* ---------------- Helpers ---------------- */
 
-// Accept numbers or numeric strings; return number or null
-function toIndex(v) {
-  const n = typeof v === "string" ? Number(v) : v;
-  return Number.isFinite(n) ? n : null;
-}
+const toNumber = (v) => (Number.isFinite(+v) ? +v : null);
 
-// Auto-label helper: last n chars of line.text; robust fallbacks.
-function getLineEndTail(line, n = 10) {
-  // Prefer line.text; fallback to joined words[].text
-  let raw = (line?.text ?? "").replace(/\s+$/u, ""); // strip trailing WS/newlines
-  console.log(raw);
-  if (!raw && Array.isArray(line?.words)) {
-    raw = line.words
-      .map((w) => w?.text ?? "")
-      .join("")
-      .replace(/\s+$/u, "");
-  }
-  if (!raw) return "";
-  const stripped = raw.replace(/[.,!?;:'"”’…)\]]+$/u, ""); // strip trailing punctuation
-  return stripped.slice(-n);
-}
+const getLineTail = (text = "", n = 10) =>
+  text
+    .trim()
+    .replace(/[.,!?;:'"”’…)\]]+$/u, "")
+    .slice(-n);
 
-// Normalize various set-like structures into an array of numeric indices
-function toMatchIdxArray(matchSetLike) {
-  if (!matchSetLike) return [];
-  if (matchSetLike instanceof Set) return Array.from(matchSetLike);
-  if (Array.isArray(matchSetLike)) return matchSetLike;
-  return Object.keys(matchSetLike)
-    .map((k) => Number(k))
-    .filter((x) => Number.isFinite(x));
-}
+const normalizeToArray = (v) => {
+  if (!v) return [];
+  if (v instanceof Set) return [...v];
+  if (Array.isArray(v)) return v;
+  return Object.keys(v).map(Number).filter(Number.isFinite);
+};
 
-function formatSeconds(t) {
+const formatSeconds = (t) => {
   const s = Math.max(0, Math.floor(t));
   const m = Math.floor(s / 60);
   const r = s % 60;
   return m ? `${m}:${r.toString().padStart(2, "0")}` : `${r}s`;
-}
+};

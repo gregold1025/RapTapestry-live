@@ -2,66 +2,40 @@
    0) Global scale & base type
    =========================== */
 :root {
-  /* 1.0 = 16px base; 1.125 ≈ 18px; bump to taste */
-  --ui-scale: 1.125;
+  --ui-scale: 1.125; /* 1.0 = 16px base; 1.125 ≈ 18px */
 }
 
 /* Reset + font rendering */
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-}
+*::after { box-sizing: border-box; }
 
-html,
-body,
-#root {
+html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
 
-  /* Base typography (scaled) */
   font-size: calc(16px * var(--ui-scale));
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji");
   line-height: 1.25;
 
-  /* Prevent platform text auto-boosting */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 
-  /* Smoothing */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Help Safari compositing a bit */
-html {
-  backface-visibility: hidden;
-}
+html { backface-visibility: hidden; }
 
 /* Headings & general text sizes (rem so they follow --ui-scale) */
-h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-} /* ~22px @ 16px base */
-h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-} /* ~20px */
-h3,
-.label {
-  font-size: 1.125rem;
-  font-weight: 600;
-} /* ~18px */
-p,
-span,
-button,
-input,
-select {
-  font-size: 1rem;
-} /* ~16px */
+h1 { font-size: 1.375rem; font-weight: 700; }  /* ~22px @ 16px base */
+h2 { font-size: 1.25rem;  font-weight: 600; }  /* ~20px */
+h3, .label { font-size: 1.125rem; font-weight: 600; } /* ~18px */
+p, span, button, input, select { font-size: 1rem; } /* ~16px */
 
 /* ===========================
    1) App frame
@@ -76,8 +50,7 @@ select {
 }
 
 /* Header/Footer */
-.header,
-.footer {
+.header, .footer {
   background: #929292;
   display: flex;
   align-items: center;
@@ -85,15 +58,14 @@ select {
   border-bottom: 1px solid #252b39;
 }
 
-/* Header-specific font sizing for controls */
 .header {
-  --header-font-size: 1.5rem; /* tweak to scale the select */
+  --header-font-size: 1.5rem;
   font-size: var(--header-font-size);
 }
 
 /* Header <select>: inherit size/family cleanly across browsers */
 .header select {
-  font: inherit; /* font-size, line-height, family */
+  font: inherit;
   line-height: 1.1;
   padding: 1.25rem 1.5rem;
   color: #e9eef5;
@@ -115,61 +87,54 @@ select {
   flex: 1;
   display: flex;
   width: 100%;
-  /* CRUCIAL for Safari: allow flex children to shrink/scroll */
-  min-height: 0;
+  min-height: 0; /* allow flex children to shrink/scroll */
   min-width: 0;
+}
+
+.bottom-pane {
+  display:grid;
+  grid-template-columns: auto;
 }
 
 /* Left (2/3) */
 .left-pane {
-  flex: 2 1 0;
+  flex: 3 1 0;
   position: relative;
+  display:grid;
+  grid-template-rows: 3fr 1fr;
   overflow: hidden;
-  min-width: 0; /* Safari: avoid width growth */
-  min-height: 0; /* Safari: allow child to shrink */
+  min-width: 0;
+  min-height: 0;
   border-right: 1px solid #252b39; /* subtle divider */
   background: #ffffff;
   color: #000000;
 }
 
-/* Right (1/3) vertical stack */
+/* Right (1/3) uses Grid with exact ordering & sizes (no gaps) */
 .right-pane {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
+  flex: 1 1 0;           /* column width vs. left pane */
   min-width: 0;
   min-height: 0;
   background: #ffffff;
   color: #000000;
+
+  display: grid;
+  grid-template-rows:
+    auto           /* presets (auto height) */
+    minmax(0, 50%) /* lyrics: exactly half of right pane height */
+    auto           /* anchors-stack: auto; expands/collapses */
+    minmax(0, 1fr) /* channel: remainder; shrinks if needed */
+  ;
+  gap: 0;
 }
 
-/* Three sections inside right pane: 1/9, 3/9, 5/9 */
-.right-pane .audio {
-  flex: 1 1 0;
-  min-height: 0;
-}
-.right-pane .channel {
-  flex: 3 1 0;
-  min-height: 0;
-}
-.right-pane .lyrics {
-  flex: 5 1 0;
-  min-height: 0;
-}
+/* Map sections to rows (DOM order doesn't matter now) */
+.right-pane .lyrics        { grid-row: 2; }
+/* .right-pane .presets       { grid-row: 1; }
+.right-pane .anchors-stack { grid-row: 3; }
+.right-pane .channel       { grid-row: 4; } */
 
-/* NEW: presets row (1/10 height) */
-.right-pane .presets {
-  flex: 0.7 1 0;
-  min-height: 0;
-}
-
-/* .right-pane .anchors {
-  flex: 1 1 0; /* tweak the 2 to taste vs. presets/channel/audio */
-  min-height: 0; /* allow child to shrink */
-  overflow: auto; /* scroll inside this section */
-} */
-
-/* Make each right-pane section a flex container so its child can fill */
+/* Each right-pane section should fill its grid area and not add spacing */
 .right-pane .right-pane-section {
   display: flex;
   flex-direction: column;
@@ -177,41 +142,44 @@ select {
   height: 100%;
   min-width: 0;
   min-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
-/* Ensure the immediate child fills its slot (no more, no less) */
+/* The immediate child fills its slot; no extra margins that look like gaps */
 .right-pane .right-pane-section > * {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  margin: 0;
 }
 
-/* Allow internal scrolling inside the three sections */
+/* Scrollable sections inside fixed grid rows */
 .right-pane .lyrics,
-.right-pane .channel,
-.right-pane .audio {
+.right-pane .channel {
   overflow: auto;
 }
 
-/* (Optional) legacy color blocks; comment out to keep pure white */
-.audio {
-  background: #1a2030;
-  color: #ffffff;
+.right-pane .presets {
+max-height: 50px; /* avoid overgrowing */
 }
-.channel {
-  background: #111624;
-  color: #ffffff;
-}
-.lyrics {
-  background: #0b0f1a;
-  color: #ffffff;
+
+/* Anchors stack: vertical, no internal gaps; children stretch full width */
+.anchors-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
 }
 
 /* ===========================
-   3) Utilities / text layout
+   3) Optional color blocks
    =========================== */
-/* Word spans render as boxes so highlights look consistent */
-.word {
-  display: inline-block;
-  line-height: 1.15;
-}
+.audio   { background: #1a2030; color: #ffffff; }
+.channel { background: #111624; color: #ffffff; }
+.lyrics  { background: #0b0f1a; color: #ffffff; }
+
+/* ===========================
+   4) Utilities / text layout
+   =========================== */
+.word { display: inline-block; line-height: 1.15; }
