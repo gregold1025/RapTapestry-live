@@ -16,6 +16,7 @@ import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
 import LyricPresets from "./components/LyricPresets/LyricPresets";
+import LineAnchorsPanel from "./components/SelectionAnchors/LineAnchorsPanel";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -191,6 +192,14 @@ export default function App() {
                     <div className="right-pane-section presets">
                       <LyricPresets />
                     </div>
+                    <aside className="right-pane-section anchors">
+                      <LineAnchorsPanel
+                        transcriptionData={lyricTranscription}
+                      />
+
+                      {/* Future: WordAnchorsPanel, SyllableAnchorsPanel */}
+                    </aside>
+
                     <div className="right-pane-section channel">
                       <ChannelStripsPanel />
                     </div>

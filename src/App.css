@@ -162,6 +162,13 @@ select {
   flex: 0.7 1 0;
   min-height: 0;
 }
+
+/* .right-pane .anchors {
+  flex: 1 1 0; /* tweak the 2 to taste vs. presets/channel/audio */
+  min-height: 0; /* allow child to shrink */
+  overflow: auto; /* scroll inside this section */
+} */
+
 /* Make each right-pane section a flex container so its child can fill */
 .right-pane .right-pane-section {
   display: flex;

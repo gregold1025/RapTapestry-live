@@ -1,3 +1,4 @@
+// src/components/Tapestry/Vocals/LineGlyphs.jsx
 import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useLineSelection } from "../../../contexts/lyricsContexts/LineSelectionContext";
@@ -10,45 +11,36 @@ export default function LineGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { selectedLineIdx, matchedLineIdxs } = useLineSelection();
-  const {
-    showLines,
-    showEndRhymes, // ⬅️ gate rendering here
-    lineActiveColor,
-    lineInactiveColor,
-    lineOpacity,
-  } = useParams();
+  const { getVisualForLine, anchorOrAdopt, selections, removeSelection } =
+    useLineSelection();
+  const { showLines, lineInactiveColor, lineOpacity } = useParams();
   const { seekAll } = useAudioEngine();
 
-  // Track hover
   const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
-
   if (!layout || !showLines) return null;
 
   const { rowHeight, width, timeToPixels } = layout;
+
+  function removeMostRecentAnchorFor(lineIdx) {
+    const candidates = selections.filter((s) => s.lineIdx === lineIdx);
+    if (!candidates.length) return;
+    const mostRecent = candidates.reduce((a, b) =>
+      a.createdAt > b.createdAt ? a : b
+    );
+    removeSelection(mostRecent.id);
+  }
 
   return transcriptionData.lines.flatMap((line, lineIdx) => {
     if (typeof line.start !== "number" || typeof line.end !== "number")
       return [];
 
-    const isSelected = selectedLineIdx === lineIdx;
-    // Only treat a line as "matched" if the toggle is on.
-    const isMatched = showEndRhymes && matchedLineIdxs?.has?.(lineIdx);
+    const vis = getVisualForLine(lineIdx);
     const isHovered = hoveredLineIdx === lineIdx;
 
-    // fill color: active for selected or (matched & toggle on)
-    const fill =
-      isSelected || (isMatched && showEndRhymes)
-        ? lineActiveColor
-        : lineInactiveColor;
-
-    // outline logic: selected gets red, hovered gets active color
-    const stroke = isSelected
-      ? lineActiveColor
-      : isHovered
-      ? lineActiveColor
-      : "none";
-    const strokeWidth = isSelected || isHovered ? 3 : 0;
+    const fill = vis ? vis.color : lineInactiveColor;
+    const stroke =
+      vis?.role === "anchor" ? vis.color : isHovered ? fill : "none";
+    const strokeWidth = vis?.role === "anchor" ? 6 : isHovered ? 3 : 0;
 
     const rects = [];
     const { x: startX, row: startRow } = timeToPixels(line.start);
@@ -68,22 +60,45 @@ export default function LineGlyphs({
           height={rowHeight}
           fill={fill}
           opacity={lineOpacity}
-          stroke={isSelected ? "red" : stroke}
-          strokeWidth={isSelected ? 8 : strokeWidth}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
           style={{ cursor: "pointer" }}
-          onClick={() => seekAll(line.start)}
+          onClick={(e) => {
+            // Cmd/Ctrl + Click => adopt-or-create (collision-aware)
+            if (e.metaKey || e.ctrlKey) {
+              e.stopPropagation();
+              anchorOrAdopt(lineIdx);
+              return;
+            }
+            // Alt + Click => remove most recent anchor for this line
+            if (e.altKey) {
+              e.stopPropagation();
+              removeMostRecentAnchorFor(lineIdx);
+              return;
+            }
+            // Default: seek
+            seekAll(line.start);
+          }}
           onMouseEnter={(e) => {
             setHoveredLineIdx(lineIdx);
-            // onGlyphHoverEnter?.(e, { type: "line", lineIdx, text: line.text, start: line.start, end: line.end });
+            onGlyphHoverEnter?.(e, {
+              type: "line",
+              lineIdx,
+              text: line.text,
+              start: line.start,
+              end: line.end,
+            });
           }}
           onMouseLeave={(e) => {
             setHoveredLineIdx(null);
             onGlyphHoverLeave?.(e);
           }}
+          title={
+            "Click: seek • Cmd/Ctrl+Click: adopt/create anchor • Alt+Click: remove anchor"
+          }
         />
       );
     }
-
     return rects;
   });
 }
