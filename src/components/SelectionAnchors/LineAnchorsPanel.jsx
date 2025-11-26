@@ -65,7 +65,7 @@ export default function LineAnchorsPanel({ transcriptionData }) {
         aria-expanded={expanded}
         title={expanded ? "Collapse" : "Expand"}
       >
-        <span className="lap-sec-title">Line Anchors</span>
+        <span className="lap-sec-title">Line Selections</span>
         <span className="lap-sec-spacer" />
         <span className={`lap-caret ${expanded ? "open" : ""}`}>▾</span>
         <span className="lap-count" style={{ marginLeft: 6 }}>

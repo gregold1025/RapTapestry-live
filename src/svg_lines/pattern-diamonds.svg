@@ -1,0 +1,1 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 100'><pattern id='a27' width='200' height='100' patternUnits='userSpaceOnUse'><path fill='#404' d='m0 100 50-50L0 0l-10 50 10 50zM50 50l50-50 50 50-50 50zM150 50l50 50 10-50-10-50-50 50z'></path></pattern><rect fill='url(#a27)' width='100%' height='100%'></rect></svg>

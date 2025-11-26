@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { extractVowels } from "../../../utils/extractVowels";
 import { useAudioEngine } from "../../../contexts/AudioContext";
+import "../TapestryView.css";
+
+// ------------------------------------
+//  LOAD ALL SVG GLYPH URLS (ONCE)
+// ------------------------------------
+const glyphUrlModules = import.meta.glob("/src/svg_shapes/*.svg", {
+  eager: true,
+  import: "default",
+});
+const GLYPH_URLS = Object.values(glyphUrlModules);
 
 export default function SyllableGlyphs({
   transcriptionData,
@@ -23,10 +33,36 @@ export default function SyllableGlyphs({
 
   const { seekAll } = useAudioEngine();
 
+  // -------------------------------
+  //  GLYPH SELECTION STATE
+  // -------------------------------
+  const [glyphUrl, setGlyphUrl] = useState(null);
+
+  const pickRandomGlyph = useCallback(() => {
+    if (!GLYPH_URLS.length) return;
+    const idx = Math.floor(Math.random() * GLYPH_URLS.length);
+    setGlyphUrl(GLYPH_URLS[idx]);
+  }, []);
+
+  // Pressing "R" picks a new random glyph for all syllables
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "r" || e.key === "R") {
+        pickRandomGlyph();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pickRandomGlyph]);
+
+  // -------------------------------
+
   if (!layout || !showSyllables) return null;
 
   const { rowHeight, timeToPixels } = layout;
   const radius = syllableRadius ?? 8;
+  const diameter = radius * 2;
 
   // build a flat-ordered list of all syllable IDs
   const flatOrderedIds = [];
@@ -73,32 +109,91 @@ export default function SyllableGlyphs({
           ? vowelColors[vowels[si] ?? "AH"]
           : inactiveSyllableColor;
 
-        syllables.push(
-          <circle
-            key={id}
-            cx={x + radius}
-            cy={finalY}
-            r={radius}
-            fill={fill}
-            opacity={syllableOpacity}
-            stroke={isSelected ? "red" : "none"}
-            strokeWidth={isSelected ? 2 : 0}
-            style={{ cursor: "pointer" }}
-            onClick={() => seekAll(start)}
-            onMouseEnter={(e) =>
-              onGlyphHoverEnter(e, {
-                wordText: word.text,
-                phones: Array.isArray(word.phones)
-                  ? word.phones.join(" ")
-                  : String(word.phones),
-                vowel: vowels[si] ?? "AH",
-                syllableIndex: si,
-                totalSyllables: nSyllables,
-              })
-            }
-            onMouseLeave={onGlyphHoverLeave}
-          />
-        );
+        // -------------------------------
+        //  RENDER GLYPH OR CIRCLE
+        // -------------------------------
+        const commonHandlers = {
+          onClick: () => seekAll(start),
+          onMouseEnter: (e) =>
+            onGlyphHoverEnter(e, {
+              wordText: word.text,
+              phones: Array.isArray(word.phones)
+                ? word.phones.join(" ")
+                : String(word.phones),
+              vowel: vowels[si] ?? "AH",
+              syllableIndex: si,
+              totalSyllables: nSyllables,
+            }),
+          onMouseLeave: onGlyphHoverLeave,
+          style: { cursor: "pointer" },
+        };
+
+        if (!glyphUrl) {
+          // Fallback: original circle
+          syllables.push(
+            <circle
+              key={id}
+              cx={x + radius}
+              cy={finalY}
+              r={radius}
+              fill={fill}
+              opacity={syllableOpacity}
+              stroke={isSelected ? "red" : "none"}
+              strokeWidth={isSelected ? 2 : 0}
+              {...commonHandlers}
+            />
+          );
+        } else {
+          const groupX = x;
+          const groupY = finalY - radius;
+          const maskId = `syllable-mask-${id}`;
+
+          syllables.push(
+            <g
+              key={id}
+              transform={`translate(${groupX}, ${groupY})`}
+              {...commonHandlers}
+            >
+              {/* Define a mask that uses the SVG glyph image */}
+              <defs>
+                <mask id={maskId}>
+                  <image
+                    href={glyphUrl}
+                    x={0}
+                    y={0}
+                    width={diameter}
+                    height={diameter}
+                    preserveAspectRatio="xMidYMid meet"
+                    style={{ filter: "brightness(0) invert(1)" }}
+                  />
+                </mask>
+              </defs>
+
+              {/* Colored shape, clipped to the glyph silhouette */}
+              <rect
+                x={0}
+                y={0}
+                width={diameter}
+                height={diameter}
+                fill={fill}
+                opacity={syllableOpacity}
+                mask={`url(#${maskId})`}
+              />
+
+              {/* Selection outline */}
+              {isSelected && (
+                <circle
+                  cx={radius}
+                  cy={radius}
+                  r={radius + 1.5}
+                  fill="none"
+                  stroke="red"
+                  strokeWidth={2}
+                />
+              )}
+            </g>
+          );
+        }
       }
     });
   });

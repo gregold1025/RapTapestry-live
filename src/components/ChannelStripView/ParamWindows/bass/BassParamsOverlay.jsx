@@ -57,8 +57,8 @@ export function BassParamsOverlay({ onClose }) {
                 Rectangle Height <span className="meta">{rectHeight}px</span>
                 <input
                   type="range"
-                  min={1}
-                  max={20}
+                  min={0}
+                  max={10}
                   step={1}
                   value={rectHeight}
                   onChange={handleHeightChange}
@@ -82,8 +82,8 @@ export function BassParamsOverlay({ onClose }) {
                 <input
                   type="range"
                   min={0}
-                  max={30}
-                  step={0.5}
+                  max={5}
+                  step={0.2}
                   value={blur}
                   onChange={handleBlurChange}
                 />

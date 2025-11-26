@@ -110,7 +110,7 @@
   gap: var(--lap-row-gap);
   background: var(--rows-bg);
   border: 1px solid var(--border);
-  border-radius: 0px;
+  border-radius: 0px 0px 8px 8px;
 
   /* padding: top + sides only, so content touches parent bottom */
   padding-top: 8px;

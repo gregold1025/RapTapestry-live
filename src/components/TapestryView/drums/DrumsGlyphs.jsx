@@ -1,10 +1,18 @@
-// src/components/TapestryView/drums/DrumsGlyphs.jsx
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
-// Y offset for category
+// --------------------------------------
+// LOAD ALL SVG DRUM LINE GLYPH URLS
+// --------------------------------------
+const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
+  eager: true,
+  import: "default",
+});
+const DRUM_GLYPH_URLS = Object.values(lineGlyphModules);
+
+// category → vertical placement
 function hitYOffset(category, rowHeight) {
   switch (category) {
     case "high":
@@ -17,7 +25,6 @@ function hitYOffset(category, rowHeight) {
   }
 }
 
-// clamp helper
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs({ drumTranscriptionData }) {
@@ -31,7 +38,6 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { rowHeight, timeToPixels } = layout;
   const { drum_hits } = drumTranscriptionData;
 
-  // Use ONLY drum_hits (no merging, no downbeats/beats)
   const hits = useMemo(() => {
     if (!Array.isArray(drum_hits)) return [];
     return drum_hits
@@ -39,44 +45,87 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
       .sort((a, b) => a.time - b.time);
   }, [drum_hits]);
 
-  const tolerance = 0.08; // ~80ms window if you ever want to highlight
   const {
-    strokeWeight = 2,
     fillColor = "#bbbbbb",
     tilt = 10,
     opacity = 0.8,
+    size = 36, // visual size of the glyph
   } = drumParams || {};
 
-  // enforce tilt range and convert to radians
-  const tiltDeg = clamp(tilt, -60, 60);
-  const tiltRad = (tiltDeg * Math.PI) / 180;
+  const tiltDeg = clamp(tilt, -90, 90);
 
+  // -------------------------------
+  // DRUM GLYPH SELECTION STATE
+  // -------------------------------
+  const [glyphUrl, setGlyphUrl] = useState(null);
+
+  const pickRandomGlyph = useCallback(() => {
+    if (!DRUM_GLYPH_URLS.length) return;
+    const idx = Math.floor(Math.random() * DRUM_GLYPH_URLS.length);
+    setGlyphUrl(DRUM_GLYPH_URLS[idx]);
+  }, []);
+
+  // 🔥 Pick a random glyph ON MOUNT
+  useEffect(() => {
+    pickRandomGlyph();
+  }, [pickRandomGlyph]);
+
+  // Press "D" or "d" to randomize glyphs
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "d" || e.key === "D") pickRandomGlyph();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [pickRandomGlyph]);
+
+  // -------------------------------
+  // RENDER GLYPHS
+  // -------------------------------
   const glyphs = hits.map((hit, idx) => {
     const { x, y } = timeToPixels(hit.time);
-    const lineHeight = rowHeight * 0.25;
-    const y1 = y + hitYOffset(hit.category, rowHeight);
-    const y2 = y1 + lineHeight;
 
-    // keep the line centered at x; skew is Δx across full height
-    const halfDx = (Math.tan(tiltRad) * lineHeight) / 2;
+    const glyphSize = size;
+    const cx = x;
+    const cy = y + hitYOffset(hit.category, rowHeight) + glyphSize / 2;
 
-    // Highlight if playhead is "on" this hit (kept but off by default)
-    const isActive = false; // Math.abs(hit.time - playheadTime) <= tolerance;
-    const stroke = isActive ? "red" : fillColor;
+    const maskId = `drum-mask-${idx}`;
+    const maskBox = glyphSize * 3; // generous safe area
+    const glyphBox = glyphSize; // actual glyph drawn inside
 
     return (
-      <line
+      <g
+        key={`drumglyph-${idx}`}
+        transform={`translate(${cx}, ${cy}) rotate(${tiltDeg})`}
         pointerEvents="none"
-        key={`glyph-${idx}`}
-        x1={x + halfDx}
-        y1={y1}
-        x2={x - halfDx}
-        y2={y2}
-        stroke={stroke}
-        strokeWidth={strokeWeight}
-        opacity={opacity}
-        vectorEffect="non-scaling-stroke"
-      />
+      >
+        <g transform={`translate(${-maskBox / 2}, ${-maskBox / 2})`}>
+          <defs>
+            <mask id={maskId}>
+              <rect x={0} y={0} width={maskBox} height={maskBox} fill="black" />
+              <image
+                href={glyphUrl}
+                x={(maskBox - glyphBox) / 2}
+                y={(maskBox - glyphBox) / 2}
+                width={glyphBox}
+                height={glyphBox}
+                preserveAspectRatio="xMidYMid meet"
+                style={{ filter: "brightness(0) invert(1)" }}
+              />
+            </mask>
+          </defs>
+
+          <rect
+            x={0}
+            y={0}
+            width={maskBox}
+            height={maskBox}
+            fill={fillColor}
+            opacity={opacity}
+            mask={`url(#${maskId})`}
+          />
+        </g>
+      </g>
     );
   });
 

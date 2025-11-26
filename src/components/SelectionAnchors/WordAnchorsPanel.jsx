@@ -105,7 +105,7 @@ export default function WordAnchorsPanel({ transcriptionData }) {
         aria-expanded={expanded}
         title={expanded ? "Collapse" : "Expand"}
       >
-        <span className="lap-sec-title">Word Anchors</span>
+        <span className="lap-sec-title">Word Selections</span>
         <span className="lap-sec-spacer" />
         <span className={`lap-caret ${expanded ? "open" : ""}`}>▾</span>
         <span className="lap-count" style={{ marginLeft: 6 }}>

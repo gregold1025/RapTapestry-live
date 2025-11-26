@@ -27,7 +27,8 @@ export function ParamsProvider({ children }) {
   // — SYLLABLES —
   // visual
   const [showSyllables, setShowSyllables] = useState(true);
-  const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#bbbbbb");
+  const [inactiveSyllableColor, setInactiveSyllableColor] =
+    useState("transparent");
   const [syllableOpacity, setSyllableOpacity] = useState(0.8);
   const [syllableRadius, setSyllableRadius] = useState(7);
   const [syllableArcCurve, setSyllableArcCurve] = useState(1);
@@ -58,10 +59,10 @@ export function ParamsProvider({ children }) {
   // — BASS —
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
-    rectHeight: 10,
+    rectHeight: 0,
     fillColor: "#670079",
     opacity: 0.4,
-    blur: 2,
+    blur: 0.2,
   });
 
   // — DRUMS —
@@ -69,7 +70,7 @@ export function ParamsProvider({ children }) {
   const [showDrumGlyphs, setShowDrumGlyphs] = useState(true);
   const [drumParams, setDrumParams] = useState({
     strokeWeight: 5,
-    tilt: -20,
+    tilt: -80,
     fillColor: "#0011bb",
     opacity: 0.5,
   });
