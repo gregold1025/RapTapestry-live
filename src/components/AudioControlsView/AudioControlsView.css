@@ -2,24 +2,31 @@
    Static / docked audio controls panel (no floating, no drag, no collapse)
 */
 
-/* ===== Wrapper (static, responsive) ===== */
+/* ===== Wrapper (static, docked) ===== */
 .audio-controls-panel {
-  position: relative; /* normal flow */
+  position: relative;
   z-index: 2;
   user-select: none;
 
-  /* responsive but still interactable */
-  width: clamp(340px, 34vw, 560px);
-  max-width: 100%;
+  /* Let the parent (bottom-pane) control sizing */
+  width: 100%;
+  height: 100%;
 
-  /* square bottom corners, rounded top corners */
-  border-radius: 12px 12px 0 0;
+  /* Keep it usable at small sizes */
+  min-width: 320px;
+  min-height: 72px;
+
+  /* No rounding at all (shared bounding box) */
+  border-radius: 0;
 
   overflow: hidden;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
   background: #101521;
   color: #fff;
   border: 1px solid #2a3344;
+
+  /* Make internal absolute elements (volume) behave predictably */
+  box-sizing: border-box;
 }
 
 /* Header (purely informational) */
@@ -30,7 +37,6 @@
   gap: 8px;
   padding: 8px 10px;
   background: #0b0f1a;
-  /* border-bottom: 1px solid #232a39; */
 }
 
 .ac-title {
@@ -46,6 +52,9 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
+
+  /* Ensure content can shrink inside a constrained bottom pane */
+  min-height: 0;
 
   --scrub-track-h: 0.5em;
   --scrub-thumb-d: 1em;

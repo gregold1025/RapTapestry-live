@@ -28,12 +28,11 @@ export function PlayheadLine() {
     g.moveTo(currentX, currentY);
     g.lineTo(currentX, currentY + rowHeight);
     g.stroke();
-    // Re-draw on time, on row height change, or whenever layout size changes
   }, [
     playheadTime,
     layout?.rowHeight,
     layout?.width,
-    layout?.height,
+    layout?.contentHeight, // <-- key: redraw when scrollable height changes
     layout?.timeToPixels, // function identity changes when layout recomputes
   ]);
 
@@ -44,7 +43,12 @@ export default function PixiPlayheadOverlay() {
   const { layout } = useTapestryLayout();
   if (!layout) return null;
 
-  const { width, height } = layout;
+  const width = layout.width;
+
+  // IMPORTANT:
+  // layout.height = viewport/container height
+  // layout.contentHeight = total scrollable content height (rowHeight * numberOfRows)
+  const height = layout.contentHeight ?? layout.height;
 
   return (
     <div
@@ -54,13 +58,13 @@ export default function PixiPlayheadOverlay() {
         top: 0,
         left: 0,
         pointerEvents: "none",
-        width,
-        height,
+        width: `${width}px`,
+        height: `${height}px`,
         zIndex: 10,
       }}
     >
       <Application
-        // 🔑 Force a clean Pixi remount whenever layout size changes
+        // Force a clean Pixi remount whenever drawable size changes
         key={`${width}x${height}`}
         width={width}
         height={height}

@@ -12,9 +12,11 @@ export default function TapestryView({
   drumTranscription,
   bassTranscription,
 }) {
-  const { containerRef } = useTapestryLayout();
+  const { containerRef, layout } = useTapestryLayout();
   const { hoverInfo, onHoverEnter, onHoverMove, onHoverLeave } =
     useCanvasHoverInfo();
+
+  const contentHeight = layout?.contentHeight ?? 0;
 
   return (
     <div
@@ -23,15 +25,21 @@ export default function TapestryView({
       onMouseMove={onHoverMove}
       onMouseLeave={onHoverLeave}
     >
-      <TapestrySVG
-        lyricTranscriptionData={lyricTranscription}
-        drumTranscriptionData={drumTranscription}
-        bassTranscriptionData={bassTranscription}
-        onGlyphHoverEnter={onHoverEnter}
-        onGlyphHoverLeave={onHoverLeave}
-      />
-      <PixiPlayheadOverlay />
-      <CanvasHoverTooltip hoverInfo={hoverInfo} />
+      {/* This wrapper is what enables fixed-row-height vertical scrolling */}
+      <div
+        className="tapestry-content"
+        style={{ height: contentHeight ? `${contentHeight}px` : "100%" }}
+      >
+        <TapestrySVG
+          lyricTranscriptionData={lyricTranscription}
+          drumTranscriptionData={drumTranscription}
+          bassTranscriptionData={bassTranscription}
+          onGlyphHoverEnter={onHoverEnter}
+          onGlyphHoverLeave={onHoverLeave}
+        />
+        <PixiPlayheadOverlay />
+        <CanvasHoverTooltip hoverInfo={hoverInfo} />
+      </div>
     </div>
   );
 }

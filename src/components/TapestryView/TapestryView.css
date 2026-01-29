@@ -2,11 +2,17 @@
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: scroll;
+  overflow: auto; /* scroll when content exceeds container */
+}
+
+/* NEW: content wrapper defines total scrollable content height */
+.tapestry-content {
+  position: relative;
+  width: 100%;
 }
 
 /* SVG underneath */
-.tapestry-container svg {
+.tapestry-content svg {
   position: absolute;
   top: 0;
   left: 0;
@@ -18,7 +24,7 @@
 }
 
 /* Pixi canvas on top */
-.tapestry-container canvas {
+.tapestry-content canvas {
   position: absolute !important;
   top: 0;
   left: 0;
@@ -29,7 +35,7 @@
   pointer-events: none;
 }
 
-/* App.css or TapestryView.css */
+/* overlay (tooltip / hover layers etc.) */
 .canvas-overlay {
   position: absolute;
   top: 0;

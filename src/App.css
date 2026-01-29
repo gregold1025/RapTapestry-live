@@ -93,11 +93,11 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
 
 .bottom-pane {
   display: grid;
-  grid-template-columns: 1fr;
-  align-items: end;
-  justify-items: end;
-  padding: 10px 12px 0 10px; /* right padding creates the gap from the divider */
-  min-height: 0;
+  grid-template-columns: 1fr 1fr; /* left half / right half */
+  align-items: stretch;
+  justify-items: stretch;
+  padding: 0;
+  gap: 0px;
 }
 
 
@@ -107,7 +107,7 @@ p, span, button, input, select { font-size: 1rem; } /* ~16px */
   flex: 5 1 0;
   position: relative;
   display:grid;
-  grid-template-rows: 4fr 1fr;
+  grid-template-rows: 5fr 1fr;
   overflow: hidden;
   min-width: 0;
   min-height: 0;

@@ -4,7 +4,7 @@ function secondsPerBeatFrom(bpm, timeSig) {
   // bpm = quarter-note BPM; convert to the "beat" unit implied by timeSig.den
   // If your beats[] are quarter notes, this reduces to 60 / bpm.
   const quarterSec = 60 / bpm;
-  const beatUnitFactor = 4 / (timeSig?.den ?? 4); // e.g., 4/4 -> 1, 6/8 -> 0.5 (dotted-quarters vs quarters: adjust if needed)
+  const beatUnitFactor = 4 / (timeSig?.den ?? 4); // e.g., 4/4 -> 1, 6/8 -> 0.5 (adjust if needed)
   return quarterSec * beatUnitFactor;
 }
 
@@ -12,13 +12,27 @@ export function computeLayout({
   duration,
   width,
   height,
-  // NEW: prefer beats as the primary grid
+
+  // prefer beats as the primary grid
   beats = [],
-  // Kept for reference (you may still display them later if you want)
+  // kept for reference (you may still display them later)
   downbeats = [],
+
   barsPerRow = 8,
   estimated_bpm,
   timeSig = { num: 4, den: 4 },
+
+  // NEW: row height sizing mode
+  // - "fit": rows fill the available container height (current behavior)
+  // - "fixed": rows are a constant pixel height; total tapestry may scroll vertically
+  rowHeightMode = "fit",
+  fixedRowHeightPx = 140,
+
+  // Optional clamps (safe defaults)
+  minFitRowHeight = 60,
+  maxFitRowHeight = 220,
+  minFixedRowHeight = 40,
+  maxFixedRowHeight = 400,
 }) {
   // Minimal validation
   const haveBeats = Array.isArray(beats) && beats.length > 0;
@@ -48,6 +62,7 @@ export function computeLayout({
       t += spBeat;
     }
   }
+
   // Include all detected beats, bridging large gaps with inferred beats
   gridTimes.push(first);
   beatInferred.push(false);
@@ -102,33 +117,50 @@ export function computeLayout({
   }
 
   const numberOfRows = Math.max(1, rowBoundaries.length - 1);
-  const rowHeight = height / numberOfRows;
-  // const rowHeight = 50;
+
+  // ---- NEW: Row height selection logic ----
+  const fitRowHeightRaw = height / numberOfRows;
+  const fitRowHeight = Math.min(
+    maxFitRowHeight,
+    Math.max(minFitRowHeight, fitRowHeightRaw)
+  );
+
+  const fixedRowHeight = Math.min(
+    maxFixedRowHeight,
+    Math.max(minFixedRowHeight, fixedRowHeightPx)
+  );
+
+  const rowHeight = rowHeightMode === "fixed" ? fixedRowHeight : fitRowHeight;
+
   const columnWidth = width / beatsPerRow;
 
   return {
     // layout
     width,
-    height,
+    height, // container height (viewport height), NOT total content height
     numberOfRows,
     rowHeight,
     columnWidth,
 
     // grouping
     barsPerRow,
-    beatsPerRow, // <— key for render math
-    beatsPerBar, // derived from timeSig
+    beatsPerRow,
+    beatsPerBar,
 
     // timing
-    rowBoundaries, // row start times (length = numberOfRows + 1)
-    rowBoundaryInferred, // parallel flags
-    gridTimes, // beat grid used for segmenting within each row
-    beatInferred, // parallel flags
+    rowBoundaries,
+    rowBoundaryInferred,
+    gridTimes,
+    beatInferred,
     secondsPerBeat: spBeat,
     timeSig,
     estimated_bpm,
 
-    // for reference / UI legends if you still want them
+    // mode metadata (useful for UI later)
+    rowHeightMode,
+    fixedRowHeightPx: fixedRowHeight,
+
+    // reference
     detectedBeats: beats,
     detectedDownbeats: downbeats,
   };

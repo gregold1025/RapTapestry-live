@@ -12,6 +12,7 @@ import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionCo
 import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
 
 import AudioControlsView from "./components/AudioControlsView";
+import GlyphControlsView from "./components/GlyphControlsView";
 import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
@@ -172,6 +173,8 @@ export default function App() {
                       downbeats={drumTranscription.downbeats}
                       beats={drumTranscription.beats}
                       barsPerRow={8}
+                      rowHeightMode="fixed"
+                      fixedRowHeightPx={100}
                     >
                       <TapestryView
                         key={`tapestry-${selectedSong}`}
@@ -181,6 +184,7 @@ export default function App() {
                       />
                     </TapestryLayoutProvider>
                     <div className="bottom-pane">
+                      <GlyphControlsView />
                       <AudioControlsView />
                     </div>
                   </div>

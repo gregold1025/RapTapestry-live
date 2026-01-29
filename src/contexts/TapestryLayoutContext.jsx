@@ -18,6 +18,10 @@ export function TapestryLayoutProvider({
   downbeats = [],
   beats = [],
   barsPerRow = 8,
+
+  // NEW (optional): allow parent to set these later via settings UI
+  rowHeightMode = "fit", // "fit" | "fixed"
+  fixedRowHeightPx = 140,
 }) {
   const containerRef = useRef(null);
   const [layout, setLayout] = useState(null);
@@ -34,7 +38,6 @@ export function TapestryLayoutProvider({
     setContainerSize({ width: el.clientWidth, height: el.clientHeight });
 
     const ro = new ResizeObserver(() => {
-      // clientWidth/Height are sufficient and cheap here
       setContainerSize({ width: el.clientWidth, height: el.clientHeight });
     });
 
@@ -53,29 +56,32 @@ export function TapestryLayoutProvider({
       !Array.isArray(beats) ||
       beats.length === 0
     ) {
-      // Early exit until we have the minimum data
-      // console.warn("❌ Cannot compute layout yet", { container, duration, estimated_bpm, beatsCount: beats?.length ?? 0 });
       return;
     }
 
     const { width: clientWidth, height: clientHeight } = containerSize;
-    if (!clientWidth || !clientHeight) return; // wait for measurement
+    if (!clientWidth || !clientHeight) return;
 
     const newLayout = computeLayout({
       duration,
       width: clientWidth,
       height: clientHeight,
-      beats, // use beats as the primary grid
-      downbeats, // optional reference
+      beats,
+      downbeats,
       barsPerRow,
       estimated_bpm,
-      // timeSig optional; defaults within computeLayout
+
+      // NEW: sizing mode controls
+      rowHeightMode,
+      fixedRowHeightPx,
     });
 
     if (!newLayout) return;
 
     const mappedLayout = {
       ...newLayout,
+
+      // helpers derived from layout
       timeToPixels: (t) =>
         timeToPixels(
           t,
@@ -86,6 +92,9 @@ export function TapestryLayoutProvider({
           newLayout.beatsPerRow
         ),
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
+
+      // convenience: total content height in px for scrollable wrapper sizing
+      contentHeight: newLayout.rowHeight * newLayout.numberOfRows,
     };
 
     setLayout(mappedLayout);
@@ -95,7 +104,11 @@ export function TapestryLayoutProvider({
     beats,
     downbeats,
     barsPerRow,
-    containerSize, // <- key: recompute when container resizes
+    containerSize,
+
+    // NEW: if these change later, recompute layout
+    rowHeightMode,
+    fixedRowHeightPx,
   ]);
 
   return (

@@ -1,0 +1,97 @@
+/* GlyphControlsView.css
+   Skeleton panel for glyph-based shortcut controls
+*/
+
+/* ===== Wrapper ===== */
+.glyph-controls-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  background: #0f1422;
+  color: #ffffff;
+
+  border: 1px solid #2a3344;
+  border-radius: 0;
+
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+.gc-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background: #0b0f1a;
+}
+
+.gc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* ===== Grid ===== */
+.gc-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* ===== Cells ===== */
+.gc-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #151c2b;
+  color: #e6ebf5;
+
+  border: 1px solid #3a4256;
+  border-radius: 0;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.gc-cell:hover {
+  background: #1a2236;
+  border-color: #4a5470;
+}
+
+.gc-cell:active {
+  background: #0e1322;
+}
+
+/* Label inside each cell */
+.gc-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Semantic hooks for later styling */
+.gc-syllables {
+}
+.gc-drums {
+}
+.gc-bass {
+}
+
+/* Empty placeholder cell */
+.gc-empty {
+  background: transparent;
+  border: 1px dashed #2a3344;
+  cursor: default;
+}
