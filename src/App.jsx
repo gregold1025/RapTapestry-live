@@ -161,8 +161,6 @@ export default function App() {
                     </option>
                   </select>
                 </header>
-                {/* Render the floating controls anywhere inside; it'll position itself fixed */}
-                <AudioControlsView boundsRef={tapestryContainerRef} />
 
                 <main className="main-content">
                   <div className="left-pane">
@@ -182,7 +180,9 @@ export default function App() {
                         bassTranscription={bassTranscription}
                       />
                     </TapestryLayoutProvider>
-                    <div className="bottom-pane" />
+                    <div className="bottom-pane">
+                      <AudioControlsView />
+                    </div>
                   </div>
 
                   <div className="right-pane">
@@ -217,7 +217,12 @@ export default function App() {
                   </div>
                 </main>
 
-                <footer className="footer"></footer>
+                <footer className="footer">
+                  {" "}
+                  <a href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/">
+                    SVG Elements by SVGBackgrounds.com
+                  </a>
+                </footer>
               </div>
             </WordSelectionProvider>
           </LineSelectionProvider>

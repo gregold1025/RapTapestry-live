@@ -45,3 +45,8 @@
   fill: currentColor !important;
   stroke: currentColor !important;
 }
+
+.drum-glyph * {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}

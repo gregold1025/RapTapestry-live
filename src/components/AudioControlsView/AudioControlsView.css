@@ -1,24 +1,28 @@
-/* ===== Floating wrapper ===== */
-.audio-controls-float {
-  position: fixed;
-  z-index: 9999;
-  width: 360px;
-  max-width: 42vw;
+/* AudioControlsView.css
+   Static / docked audio controls panel (no floating, no drag, no collapse)
+*/
+
+/* ===== Wrapper (static, responsive) ===== */
+.audio-controls-panel {
+  position: relative; /* normal flow */
+  z-index: 2;
   user-select: none;
-  border-radius: 12px;
+
+  /* responsive but still interactable */
+  width: clamp(340px, 34vw, 560px);
+  max-width: 100%;
+
+  /* square bottom corners, rounded top corners */
+  border-radius: 12px 12px 0 0;
+
   overflow: hidden;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
   background: #101521;
   color: #fff;
   border: 1px solid #2a3344;
 }
 
-/* During drag */
-.audio-controls-float.is-drag {
-  cursor: grabbing;
-}
-
-/* Header (drag handle in full mode) */
+/* Header (purely informational) */
 .ac-header {
   display: flex;
   align-items: center;
@@ -26,25 +30,16 @@
   gap: 8px;
   padding: 8px 10px;
   background: #0b0f1a;
-  border-bottom: 1px solid #232a39;
-  cursor: grab;
+  /* border-bottom: 1px solid #232a39; */
 }
+
 .ac-title {
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.2px;
 }
-.ac-min-btn {
-  border: 1px solid #3a4256;
-  background: #151c2b;
-  color: #e6ebf5;
-  padding: 2px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  line-height: 1;
-}
 
-/* Base full panel layout */
+/* ===== Base panel layout ===== */
 .audio-controls {
   position: relative;
   display: flex;
@@ -60,14 +55,14 @@
   --vol-thumb-d: 1em;
 }
 
-/* Volume popover in full mode */
+/* Volume popover */
 .ac-volume {
   position: absolute;
   top: 8px;
   right: 8px;
 }
 
-/* Transport row (full) */
+/* Transport row */
 .ac-transport {
   display: flex;
   justify-content: center;
@@ -88,12 +83,13 @@
   line-height: 1;
 }
 
-/* Scrub */
+/* ===== Scrub ===== */
 .ac-scrub-row {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .scrub-slider {
   flex: 1 1 auto;
   min-width: 0;
@@ -104,6 +100,7 @@
   background: transparent;
   cursor: pointer;
 }
+
 /* WebKit/Blink track */
 .scrub-slider::-webkit-slider-runnable-track {
   height: var(--scrub-track-h);
@@ -111,6 +108,7 @@
   border: 1px solid #a32222;
   border-radius: 999px;
 }
+
 /* WebKit/Blink thumb */
 .scrub-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -123,13 +121,16 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   margin-top: calc((var(--scrub-track-h) - var(--scrub-thumb-d)) / 2);
 }
-/* Firefox */
+
+/* Firefox track */
 .scrub-slider::-moz-range-track {
   height: var(--scrub-track-h);
   background: var(--scrub-fill);
   border: 1px solid #a32222;
   border-radius: 999px;
 }
+
+/* Firefox thumb */
 .scrub-slider::-moz-range-thumb {
   width: var(--scrub-thumb-d);
   height: var(--scrub-thumb-d);
@@ -140,7 +141,7 @@
   cursor: pointer;
 }
 
-/* Time row (full only) */
+/* ===== Time row ===== */
 .ac-time-row {
   display: flex;
   align-items: center;
@@ -149,82 +150,9 @@
   padding: 0 2px;
   margin-top: -2px;
 }
+
 .ac-time {
   min-width: 3.5ch;
   letter-spacing: 0.3px;
   font-size: 0.95rem;
-}
-
-/* ===================== Minimized mode ===================== */
-/* Thin bar */
-.audio-controls-float.is-min {
-  width: auto; /* shrink-wrap content */
-  max-width: none;
-  border-radius: 10px;
-  padding: 0;
-}
-
-/* One-row horizontal layout; entire row is drag handle */
-.ac-min-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 8px;
-  gap: 8px;
-  cursor: grab;
-}
-
-/* Grouped items in a line */
-.ac-min-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Tiny buttons for minimized mode */
-.ac-min-btn {
-  background: #1a2133;
-  color: #e6ebf5;
-  border: 1px solid #3a4256;
-  border-radius: 6px;
-  padding: 2px 6px;
-  line-height: 1;
-  font-size: 0.9rem; /* smaller */
-  cursor: pointer;
-}
-
-/* Smaller scrub in minimized mode; no labels */
-.scrub-mini {
-  width: 140px; /* compact slider */
-  max-width: 32vw;
-  --scrub-track-h: 0.35em;
-  --scrub-thumb-d: 0.75em;
-}
-
-/* Hide full-mode elements when minimized */
-.audio-controls-float.is-min .ac-header,
-.audio-controls-float.is-min .audio-controls,
-.audio-controls-float.is-min .ac-time-row,
-.audio-controls-float.is-min .ac-volume {
-  display: none !important;
-}
-
-/* Optional: slightly stronger shadow when minimized to hint it's floating */
-.audio-controls-float.is-min {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-}
-
-/* Make any buttons inside the transport smaller in minimized mode too */
-.audio-controls-float.is-min .ac-transport button,
-.audio-controls-float.is-min .ac-transport .ac-btn {
-  font-size: 0.9rem;
-  padding: 2px 6px;
-}
-
-/* Mini slider variant */
-.scrub-slider--mini {
-  width: 140px; /* compact slider */
-  max-width: 32vw;
-  --scrub-track-h: 0.35em;
-  --scrub-thumb-d: 0.75em;
 }
