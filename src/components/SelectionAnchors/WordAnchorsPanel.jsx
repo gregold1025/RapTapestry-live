@@ -117,9 +117,9 @@ export default function WordAnchorsPanel({ transcriptionData }) {
       <div className={`lap-collapse ${expanded ? "is-open" : "is-closed"}`}>
         {!anchorsUi.length ? (
           <p className="lap-empty">
-            No word selections yet. Tip: <kbd>Cmd/Ctrl</kbd>+click a word in the
-            tapestry or click a word above to see rhyming and alliteration
-            matches here.
+            No word selections yet. Click on words above or <kbd>Cmd/Ctrl</kbd>
+            +click a word rectangle in the tapestry to reveal rhyming and
+            alliteration matches here.
           </p>
         ) : (
           <div className="lap-rows">

@@ -78,8 +78,9 @@ export default function LineAnchorsPanel({ transcriptionData }) {
       <div className={`lap-collapse ${expanded ? "is-open" : "is-closed"}`}>
         {!anchorsUi.length ? (
           <p className="lap-empty">
-            No line selections yet. Tip: <kbd>Cmd/Ctrl</kbd>+click a line in the
-            tapestry or use the □ beside a line to see its rhymes here.
+            No line selections yet. Use the □ beside each line above to make
+            selections, or <kbd>Cmd/Ctrl</kbd>+click a line in the tapestry to
+            reveal all end-rhyme matches here.
           </p>
         ) : (
           <div className="lap-rows">
