@@ -29,32 +29,12 @@ export default function SyllableGlyphs({
     syllableOpacity,
     syllableRadius,
     syllableArcCurve,
+    glyphStyle,
   } = useParams();
 
+  const glyphUrl = glyphStyle?.syllableGlyphUrl ?? null;
+
   const { seekAll } = useAudioEngine();
-
-  // -------------------------------
-  //  GLYPH SELECTION STATE
-  // -------------------------------
-  const [glyphUrl, setGlyphUrl] = useState(null);
-
-  const pickRandomGlyph = useCallback(() => {
-    if (!GLYPH_URLS.length) return;
-    const idx = Math.floor(Math.random() * GLYPH_URLS.length);
-    setGlyphUrl(GLYPH_URLS[idx]);
-  }, []);
-
-  // Pressing "R" picks a new random glyph for all syllables
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "r" || e.key === "R") {
-        pickRandomGlyph();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [pickRandomGlyph]);
 
   // -------------------------------
 

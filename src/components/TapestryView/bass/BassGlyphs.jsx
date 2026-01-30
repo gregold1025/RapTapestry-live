@@ -25,7 +25,9 @@ const BASS_DIVIDER_URLS = Object.values(dividerModules);
 export default function BassGlyphs({ bassTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
-  const { showBass, bassParams } = useParams();
+  const { showBass, bassParams, glyphStyle } = useParams();
+
+  const dividerUrl = glyphStyle?.bassDividerUrl ?? null;
 
   if (!layout || !bassTranscriptionData || !showBass) return null;
 
@@ -44,28 +46,6 @@ export default function BassGlyphs({ bassTranscriptionData }) {
   );
 
   const tolerance = 0.08; // ~80ms visual playhead window
-
-  // -------------------------------
-  // DIVIDER GLYPH SELECTION STATE
-  // -------------------------------
-  const [dividerUrl, setDividerUrl] = useState(null);
-
-  const pickRandomDivider = useCallback(() => {
-    if (!BASS_DIVIDER_URLS.length) return;
-    const idx = Math.floor(Math.random() * BASS_DIVIDER_URLS.length);
-    setDividerUrl(BASS_DIVIDER_URLS[idx]);
-  }, []);
-
-  // Pressing "b" / "B" picks a new random divider glyph
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "b" || e.key === "B") {
-        pickRandomDivider();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [pickRandomDivider]);
 
   const glyphs = useMemo(() => {
     return bassTranscriptionData.flatMap((note, idx) => {

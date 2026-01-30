@@ -1,7 +1,41 @@
 // src/contexts/ParamsContext.jsx
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const ParamsContext = createContext();
+
+/* ============================================================
+   Glyph assets (loaded once)
+   ============================================================ */
+const glyphUrlModules = import.meta.glob("/src/svg_shapes/*.svg", {
+  eager: true,
+  import: "default",
+});
+const GLYPH_URLS = Object.values(glyphUrlModules);
+
+const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
+  eager: true,
+  import: "default",
+});
+const DRUM_GLYPH_URLS = Object.values(lineGlyphModules);
+
+const dividerModules = import.meta.glob("/src/svg_dividers/*.svg", {
+  eager: true,
+  import: "default",
+});
+const BASS_DIVIDER_URLS = Object.values(dividerModules);
+
+// Safe picker helper
+function pickRandomFrom(list) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const idx = Math.floor(Math.random() * list.length);
+  return list[idx] ?? null;
+}
 
 export function ParamsProvider({ children }) {
   // — VOCALS —
@@ -45,8 +79,8 @@ export function ParamsProvider({ children }) {
   // logical / selection-display
   const [exactMatches, setExactMatches] = useState(false);
   const [ignorePlurals, setIgnorePlurals] = useState(true);
-  const [showRhymes, setShowRhymes] = useState(true); // NEW: show matchedWordIds on other views
-  const [showAlliteration, setShowAlliteration] = useState(true); // NEW: show alliterationMatchedWordIds
+  const [showRhymes, setShowRhymes] = useState(true);
+  const [showAlliteration, setShowAlliteration] = useState(true);
   const [assonance, setAssonance] = useState(true);
 
   // — LINES —
@@ -54,7 +88,7 @@ export function ParamsProvider({ children }) {
   const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
   const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
-  const [showEndRhymes, setShowEndRhymes] = useState(true); // NEW: line-level rhyme highlights
+  const [showEndRhymes, setShowEndRhymes] = useState(true);
 
   // — BASS —
   const [showBass, setShowBass] = useState(true);
@@ -78,10 +112,65 @@ export function ParamsProvider({ children }) {
   const [showBeatsLines, setShowBeatLines] = useState(true);
 
   // — GLOBAL TAPESTRY (grids/background) —
-  const [showHorizontalGrid, setShowHorizontalGrid] = useState(true); // rows
-  const [showVerticalGrid, setShowVerticalGrid] = useState(true); // beats
+  const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
+  const [showVerticalGrid, setShowVerticalGrid] = useState(true);
   const [tapestryBackgroundColor, setTapestryBackgroundColor] =
     useState("#ffffff");
+
+  /* ============================================================
+     GlyphStyle (NEW)
+     - "stateful outcome" params that are set by randomize actions
+     ============================================================ */
+  const [glyphStyle, setGlyphStyle] = useState(() => ({
+    syllableGlyphUrl: null, // null => fallback circles in SyllableGlyphs
+    drumGlyphUrl: pickRandomFrom(DRUM_GLYPH_URLS), // start with something
+    bassDividerUrl: null,
+  }));
+
+  const setSyllableGlyphUrl = (url) =>
+    setGlyphStyle((prev) => ({ ...prev, syllableGlyphUrl: url }));
+
+  const setDrumGlyphUrl = (url) =>
+    setGlyphStyle((prev) => ({ ...prev, drumGlyphUrl: url }));
+
+  const setBassDividerUrl = (url) =>
+    setGlyphStyle((prev) => ({ ...prev, bassDividerUrl: url }));
+
+  const randomizeSyllableGlyph = () =>
+    setSyllableGlyphUrl(pickRandomFrom(GLYPH_URLS));
+  const randomizeDrumGlyph = () =>
+    setDrumGlyphUrl(pickRandomFrom(DRUM_GLYPH_URLS));
+  const randomizeBassDivider = () =>
+    setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS));
+
+  // Optional: central key bindings for glyph randomizers (R/D/B).
+  // This replaces the three per-component listeners.
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = (e.target?.tagName || "").toLowerCase();
+      const isTyping =
+        tag === "input" || tag === "textarea" || e.target?.isContentEditable;
+      if (isTyping) return;
+
+      if (e.key === "r" || e.key === "R") randomizeSyllableGlyph();
+      if (e.key === "d" || e.key === "D") randomizeDrumGlyph();
+      if (e.key === "b" || e.key === "B") randomizeBassDivider();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Expose the glyph asset arrays too (optional but useful for debugging / future UI)
+  const glyphAssets = useMemo(
+    () => ({
+      syllableGlyphUrls: GLYPH_URLS,
+      drumGlyphUrls: DRUM_GLYPH_URLS,
+      bassDividerUrls: BASS_DIVIDER_URLS,
+    }),
+    []
+  );
 
   return (
     <ParamsContext.Provider
@@ -165,6 +254,17 @@ export function ParamsProvider({ children }) {
         setShowVerticalGrid,
         tapestryBackgroundColor,
         setTapestryBackgroundColor,
+
+        // glyph style (NEW)
+        glyphStyle,
+        setGlyphStyle,
+        setSyllableGlyphUrl,
+        setDrumGlyphUrl,
+        setBassDividerUrl,
+        randomizeSyllableGlyph,
+        randomizeDrumGlyph,
+        randomizeBassDivider,
+        glyphAssets,
       }}
     >
       {children}

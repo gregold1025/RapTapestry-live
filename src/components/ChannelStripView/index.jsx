@@ -1,4 +1,4 @@
-// File: src/components/ChannelStrips/ChannelStripsPanel.jsx
+// src/components/ChannelStripView/index.jsx
 import React, { useMemo, useState } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { useParams } from "../../contexts/ParamsContext";
@@ -20,6 +20,9 @@ export default function ChannelStripsPanel({ onEditClick }) {
     setMinMatchLen,
     setVowelColors,
   } = useParams();
+
+  // ✅ Header collapse state (mirrors GlyphControls)
+  const [collapsed, setCollapsed] = useState(false);
 
   const [showVisual, setShowVisual] = useState({
     vocals: true,
@@ -111,7 +114,6 @@ export default function ChannelStripsPanel({ onEditClick }) {
       setSoloedStem(stemKey);
       applyAudioMuteStates(stemKey, mutedMap);
     }
-    // Ignore other cases
   };
 
   const handleVisual = (stemKey, visible) => {
@@ -155,42 +157,96 @@ export default function ChannelStripsPanel({ onEditClick }) {
   const stems = ["vocals", "bass", "drums", "other"];
 
   return (
-    <div className="channel-strips-panel">
-      {stems.map((stem) => (
-        <ChannelStrip
-          key={stem}
-          stemKey={stem}
-          audio={audioRefs.current[stem]}
-          // Solo (controlled)
-          isSolo={soloedStem === stem}
-          onSoloToggle={handleSolo}
-          // Mute (controlled visual + audio sync)
-          initialMuted={mutedMap[stem]} // baseline preference
-          forcedMute={forcedMuteMap[stem]} // when solo is active
-          effectiveMuted={effectiveMutedMap[stem]} // <- NEW: drives UI sync
-          onMuteToggle={handleMute}
-          // Visual toggle in tapestry
-          initialVisible={showVisual[stem]}
-          onVisualToggle={handleVisual}
-          onEditClick={handleEdit}
-        />
-      ))}
+    <div
+      className={`track-controls-shell ${collapsed ? "is-collapsed" : ""}`}
+      role="region"
+      aria-label="Track controls"
+    >
+      {/* ✅ Header mirrors GlyphControls anatomy */}
+      <div
+        className="tc-header"
+        onClick={() => setCollapsed((v) => !v)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setCollapsed((v) => !v);
+          }
+        }}
+        aria-expanded={!collapsed}
+      >
+        <div className="tc-header-left">
+          <span className="tc-title">Track Controls</span>
+          <span className="tc-chev" aria-hidden="true">
+            {collapsed ? "▸" : "▾"}
+          </span>
+        </div>
 
-      {editingStem === "vocals" && (
-        <ParamsPortal>
-          <VocalsParamsOverlay onClose={handleCloseOverlay} />
-        </ParamsPortal>
-      )}
-      {editingStem === "bass" && (
-        <ParamsPortal>
-          <BassParamsOverlay onClose={handleCloseOverlay} />
-        </ParamsPortal>
-      )}
-      {editingStem === "drums" && (
-        <ParamsPortal>
-          <DrumsParamsOverlay onClose={handleCloseOverlay} />
-        </ParamsPortal>
-      )}
+        {/* Info icon w/ tooltip (same behavior as GlyphControls) */}
+        <span
+          className="tc-info"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <span className="tc-info-icon" aria-hidden="true">
+            i
+          </span>
+
+          <div className="tc-tooltip" role="tooltip">
+            <p className="tc-tooltip-text">
+              Use these controls to solo/mute stems, toggle their visibility on
+              the tapestry, and open per-stem parameter panels.
+            </p>
+            <p className="tc-tooltip-credit">
+              <a href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/">
+                SVG Elements by SVGBackgrounds.com
+              </a>
+            </p>
+          </div>
+        </span>
+      </div>
+
+      {/* Body (existing grid), collapsible */}
+      <div className="tc-body">
+        <div className="channel-strips-panel">
+          {stems.map((stem) => (
+            <ChannelStrip
+              key={stem}
+              stemKey={stem}
+              audio={audioRefs.current[stem]}
+              // Solo (controlled)
+              isSolo={soloedStem === stem}
+              onSoloToggle={handleSolo}
+              // Mute (controlled visual + audio sync)
+              initialMuted={mutedMap[stem]}
+              forcedMute={forcedMuteMap[stem]}
+              effectiveMuted={effectiveMutedMap[stem]}
+              onMuteToggle={handleMute}
+              // Visual toggle in tapestry
+              initialVisible={showVisual[stem]}
+              onVisualToggle={handleVisual}
+              onEditClick={handleEdit}
+            />
+          ))}
+
+          {editingStem === "vocals" && (
+            <ParamsPortal>
+              <VocalsParamsOverlay onClose={handleCloseOverlay} />
+            </ParamsPortal>
+          )}
+          {editingStem === "bass" && (
+            <ParamsPortal>
+              <BassParamsOverlay onClose={handleCloseOverlay} />
+            </ParamsPortal>
+          )}
+          {editingStem === "drums" && (
+            <ParamsPortal>
+              <DrumsParamsOverlay onClose={handleCloseOverlay} />
+            </ParamsPortal>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

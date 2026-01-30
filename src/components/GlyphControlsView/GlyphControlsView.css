@@ -1,97 +1,277 @@
-/* GlyphControlsView.css
-   Skeleton panel for glyph-based shortcut controls
-*/
+/* GlyphControlsView.css */
+/* src/components/GlyphControlsView/GlyphControlsView.css */
 
-/* ===== Wrapper ===== */
-.glyph-controls-panel {
-  position: relative;
-  width: 100%;
-  height: 100%;
+:root {
+  --panel-cream: #f3efe6;
+  --panel-border: #2a3344;
+  --header-pad-y: 8px;
+  --header-pad-x: 10px;
+  --header-font: 0.95rem;
+  --header-border: rgba(0, 0, 0, 0.12);
 
-  background: #0f1422;
-  color: #ffffff;
+  --info-d: 18px;
+  --info-font: 0.75rem;
 
-  border: 1px solid #2a3344;
-  border-radius: 0;
-
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-
-  display: flex;
-  flex-direction: column;
+  --tile-bg: #0f1420;
+  --tile-border: #2a3344;
+  --tile-text: #e6ebf5;
 }
 
-/* ===== Header ===== */
+.glyph-controls-panel {
+  width: 100%;
+  user-select: none;
+
+  background: var(--panel-cream);
+  color: #0b0f1a;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  border-radius: 0;
+
+  /* CHANGED: fill its grid cell to match TrackControls */
+  height: 100%;
+  min-height: 0;
+
+  /* CHANGED: remove bottom-pin behavior */
+  margin-top: 0;
+
+  /* NEW: header + body layout */
+  display: flex;
+  flex-direction: column;
+
+  /* allow tooltip to escape */
+  overflow: visible;
+}
+
+/* Header */
 .gc-header {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 8px 10px;
-  background: #0b0f1a;
+  justify-content: space-between;
+
+  padding: var(--header-pad-y) var(--header-pad-x);
+  background: transparent;
+  border-bottom: 1px solid var(--header-border);
+  cursor: pointer;
+}
+
+.gc-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .gc-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: var(--header-font);
   letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ===== Grid ===== */
-.gc-grid {
+.gc-chev {
+  font-size: var(--header-font);
+  opacity: 0.8;
+}
+
+/* Info icon + tooltip (hover) */
+.gc-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.gc-info-icon {
+  width: var(--info-d);
+  height: var(--info-d);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+
+  font-size: var(--info-font);
+  font-weight: 700;
+  line-height: 1;
+
+  background: var(--tile-bg);
+  color: #fff;
+  border: 1px solid var(--tile-border);
+}
+
+.gc-tooltip {
+  position: absolute;
+  right: 0;
+
+  width: 260px;
+  max-width: min(60vw, 320px);
+  max-height: min(240px, 40vh);
+  overflow: auto;
+
+  background: #0b0f1a;
+  color: #e6ebf5;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  line-height: 1.25;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition: opacity 120ms ease, transform 120ms ease,
+    visibility 0s linear 120ms;
+  z-index: 200;
+}
+
+/* Default: opens DOWN */
+.glyph-controls-panel:not(.is-collapsed) .gc-tooltip {
+  top: calc(100% + 8px);
+  transform: translateY(-4px);
+}
+
+/* Collapsed: opens UP */
+.glyph-controls-panel.is-collapsed .gc-tooltip {
+  bottom: calc(100% + 8px);
+  transform: translateY(4px);
+}
+
+.gc-info:hover .gc-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 0s;
+}
+
+.gc-tooltip-text {
+  margin: 0 0 6px 0;
+}
+
+.gc-tooltip-credit {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.gc-tooltip-credit a {
+  color: #a9c7ff;
+  text-decoration: none;
+}
+.gc-tooltip-credit a:hover {
+  text-decoration: underline;
+}
+
+/* Collapse body
+   CHANGED: body fills remaining height and scrolls if needed */
+.gc-body {
   flex: 1;
+  min-height: 0;
+  overflow: auto;
+
+  max-height: none;
+  transition: max-height 220ms ease, opacity 180ms ease;
+  opacity: 1;
+}
+
+.glyph-controls-panel.is-collapsed .gc-body {
+  flex: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* Grid */
+.gc-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
   gap: 8px;
-
-  padding: 10px;
+  padding: 8px;
   box-sizing: border-box;
 }
 
-/* ===== Cells ===== */
 .gc-cell {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 8px;
 
-  background: #151c2b;
-  color: #e6ebf5;
-
-  border: 1px solid #3a4256;
-  border-radius: 0;
-
+  background: var(--tile-bg);
+  border: 1px solid var(--tile-border);
   cursor: pointer;
-  user-select: none;
-
-  transition: background 120ms ease, border-color 120ms ease;
-}
-
-.gc-cell:hover {
-  background: #1a2236;
-  border-color: #4a5470;
 }
 
 .gc-cell:active {
-  background: #0e1322;
+  transform: translateY(1px);
 }
 
-/* Label inside each cell */
-.gc-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-}
-
-/* Semantic hooks for later styling */
-.gc-syllables {
-}
-.gc-drums {
-}
-.gc-bass {
-}
-
-/* Empty placeholder cell */
 .gc-empty {
   background: transparent;
-  border: 1px dashed #2a3344;
+  border: 1px dashed rgba(42, 51, 68, 0.6);
   cursor: default;
+}
+
+.gc-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--tile-text);
+}
+
+/* Preview */
+.gc-preview {
+  position: relative;
+  width: 100%;
+  height: 44px;
+
+  background: transparent;
+  border: 1px solid rgba(230, 235, 245, 0.18);
+
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.gc-preview-img {
+  width: auto;
+  height: 20px;
+  max-width: 70%;
+  max-height: 70%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  filter: invert(1) brightness(1.1) contrast(1.2);
+}
+
+.gc-preview-fallback {
+  font-weight: 800;
+  color: #fff;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Bass archetype */
+.gc-preview--bass {
+  position: relative;
+}
+
+.gc-bass-base {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.gc-preview-img--bass {
+  height: 18px;
+  transform: scaleY(-1);
+  transform-origin: center;
+  filter: invert(1) brightness(1.1) contrast(1.25);
 }

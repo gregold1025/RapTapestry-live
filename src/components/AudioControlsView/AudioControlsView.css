@@ -3,29 +3,29 @@
 */
 
 /* ===== Wrapper (static, docked) ===== */
+/* AudioControlsView.css */
+
+/* Wrapper (static, docked) */
 .audio-controls-panel {
   position: relative;
   z-index: 2;
   user-select: none;
 
-  /* Let the parent (bottom-pane) control sizing */
   width: 100%;
-  height: 100%;
 
-  /* Keep it usable at small sizes */
+  /* ✅ fixed-ish height */
+  height: 180px; /* tweak */
+  max-height: 120px;
+
   min-width: 320px;
-  min-height: 72px;
-
-  /* No rounding at all (shared bounding box) */
-  border-radius: 0;
-
+  border-radius: 10px; /* slight rounding here is fine in right-pane */
   overflow: hidden;
+
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
   background: #101521;
   color: #fff;
   border: 1px solid #2a3344;
 
-  /* Make internal absolute elements (volume) behave predictably */
   box-sizing: border-box;
 }
 
@@ -34,8 +34,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 5px;
+  padding: 0;
   background: #0b0f1a;
 }
 

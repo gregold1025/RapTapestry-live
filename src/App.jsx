@@ -185,48 +185,47 @@ export default function App() {
                     </TapestryLayoutProvider>
                     <div className="bottom-pane">
                       <GlyphControlsView />
-                      <AudioControlsView />
+                      <ChannelStripsPanel />
                     </div>
                   </div>
 
                   <div className="right-pane">
-                    <div className="right-pane-section lyrics">
-                      <LyricsView
-                        key={`lyrics-${selectedSong}`}
-                        transcriptionData={lyricTranscription}
-                        height="100%"
-                      />
+                    <div className="right-pane-scroll">
+                      <div className="right-pane-section presets">
+                        <LyricPresets />
+                      </div>
+
+                      <div className="right-pane-section lyrics">
+                        <div className="lyrics-inner">
+                          <LyricsView
+                            key={`lyrics-${selectedSong}`}
+                            transcriptionData={lyricTranscription}
+                            height="100%"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="right-pane-section anchors-stack">
+                        <aside className="anchors">
+                          <LineAnchorsPanel
+                            transcriptionData={lyricTranscription}
+                          />
+                        </aside>
+                        <aside className="anchors">
+                          <WordAnchorsPanel
+                            transcriptionData={lyricTranscription}
+                          />
+                        </aside>
+                      </div>
                     </div>
 
-                    <div className="right-pane-section presets">
-                      <LyricPresets />
-                    </div>
-                    {/* NEW: wrap both anchors together */}
-                    <div className="right-pane-section anchors-stack">
-                      <aside className="anchors">
-                        <LineAnchorsPanel
-                          transcriptionData={lyricTranscription}
-                        />
-                      </aside>
-                      <aside className="anchors">
-                        <WordAnchorsPanel
-                          transcriptionData={lyricTranscription}
-                        />
-                      </aside>
-                    </div>
-
-                    <div className="right-pane-section channel">
-                      <ChannelStripsPanel />
+                    <div className="right-pane-audioDock">
+                      <AudioControlsView />
                     </div>
                   </div>
                 </main>
 
-                <footer className="footer">
-                  {" "}
-                  <a href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/">
-                    SVG Elements by SVGBackgrounds.com
-                  </a>
-                </footer>
+                <footer className="footer"></footer>
               </div>
             </WordSelectionProvider>
           </LineSelectionProvider>

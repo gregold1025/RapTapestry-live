@@ -30,7 +30,9 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
-  const { showDrums, showDrumGlyphs, drumParams } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, glyphStyle } = useParams();
+
+  const glyphUrl = glyphStyle?.drumGlyphUrl ?? null;
 
   if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs)
     return null;
@@ -53,31 +55,6 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
   } = drumParams || {};
 
   const tiltDeg = clamp(tilt, -90, 90);
-
-  // -------------------------------
-  // DRUM GLYPH SELECTION STATE
-  // -------------------------------
-  const [glyphUrl, setGlyphUrl] = useState(null);
-
-  const pickRandomGlyph = useCallback(() => {
-    if (!DRUM_GLYPH_URLS.length) return;
-    const idx = Math.floor(Math.random() * DRUM_GLYPH_URLS.length);
-    setGlyphUrl(DRUM_GLYPH_URLS[idx]);
-  }, []);
-
-  // 🔥 Pick a random glyph ON MOUNT
-  useEffect(() => {
-    pickRandomGlyph();
-  }, [pickRandomGlyph]);
-
-  // Press "D" or "d" to randomize glyphs
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "d" || e.key === "D") pickRandomGlyph();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [pickRandomGlyph]);
 
   // -------------------------------
   // RENDER GLYPHS
