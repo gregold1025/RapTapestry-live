@@ -183,8 +183,13 @@ export default function App() {
                         bassTranscription={bassTranscription}
                       />
                     </TapestryLayoutProvider>
-                    <div className="bottom-pane">
+
+                    {/* Independent bottom overlays (no shared container) */}
+                    <div className="left-controls left-controls--left">
                       <GlyphControlsView />
+                    </div>
+
+                    <div className="left-controls left-controls--right">
                       <ChannelStripsPanel />
                     </div>
                   </div>

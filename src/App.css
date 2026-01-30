@@ -15,9 +15,9 @@
   --right-lyrics-min: 180px;        /* safety */
   --right-lyrics-max: 520px;        /* safety */
 
-  /* Left-pane bottom controls sizing */
-  --controls-collapsed-h: 56px;  /* header-only height (tweak) */
-  --controls-open-h: 320px;      /* open height (tweak) */
+  /* Left-pane bottom overlay gutters */
+  --left-controls-gap: 0px;     /* keep 0 for “no seam”; set to 8px if you want spacing */
+  --left-controls-pad: 0px;     /* wrapper padding (usually 0 because panels have their own) */
 }
 
 /* Reset + font rendering */
@@ -106,16 +106,11 @@ p, span, button, input, select { font-size: 1rem; }
 }
 
 /* ===========================
-   3) Left pane: tapestry + bottom controls
+   3) Left pane: tapestry with independent bottom overlays
    =========================== */
 .left-pane {
   flex: 5 1 0;
   position: relative;
-
-  /* Tapestry fills, controls dock at bottom */
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 0;
 
   min-width: 0;
   min-height: 0;
@@ -124,53 +119,62 @@ p, span, button, input, select { font-size: 1rem; }
   background: #ffffff;
   color: #000000;
 
-  /* Keep bottom-pane from visually spilling beneath footer */
-  overflow: hidden;
+  /* IMPORTANT:
+     - no grid rows
+     - tapestry renders normally
+     - controls are absolutely positioned overlays
+  */
+  overflow: hidden; /* prevents overlays from spilling under footer */
 }
 
-/* Ensure the tapestry area stays contained (row 1) */
+/* If your TapestryView uses 100% height, this keeps it stable in a flex layout */
 .left-pane > :first-child {
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
 }
 
-/* Bottom-pane: two equal-width menus, docked at bottom (row 2)
-   IMPORTANT: no visible container background, no padding, no gaps.
-   Visibility should come ONLY from the menus themselves. */
-.bottom-pane {
-  grid-row: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: stretch;
-  justify-items: stretch;
+/* Shared wrapper for both bottom controls */
+.left-controls {
+  position: absolute;
+  bottom: 0;
+  top: auto;
 
-  gap: 0;
-  padding: 0;
+  width: calc(50% - (var(--left-controls-gap) / 2));
+  padding: var(--left-controls-pad);
+  box-sizing: border-box;
 
-  background: transparent; /* no container visibility */
-  border: 0;
-  box-shadow: none;
-
-  overflow: visible; /* allow tooltips */
-  min-width: 0;
-
-  /* open-state height baseline (panels decide whether to fill it) */
-  height: var(--controls-open-h);
-  min-height: 0;
+  z-index: 40;          /* above tapestry */
+  pointer-events: auto; /* clickable */
 }
 
-/* Do NOT force children to 100% height;
-   children decide: collapsed = fixed height, expanded = 100% */
-.bottom-pane > * {
+/* Left half */
+.left-controls--left {
+  left: 0;
+}
+
+/* Right half */
+.left-controls--right {
+  right: 0;
+}
+
+/* Optional: if you later introduce a visible seam/gap */
+.left-controls--left {
+  margin-right: calc(var(--left-controls-gap) / 2);
+}
+.left-controls--right {
+  margin-left: calc(var(--left-controls-gap) / 2);
+}
+
+/* Ensure the embedded panels can size naturally */
+.left-controls > * {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
-  min-height: 0;
-  align-self: end;   /* sit on bottom edge of the bottom-pane */
-  justify-self: stretch;
 }
 
 /* ===========================
    4) Right pane: outer scroll + nested lyrics scroll + fixed audio dock
+   (preserved as-is)
    =========================== */
 .right-pane {
   position: relative;

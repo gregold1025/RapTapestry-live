@@ -179,7 +179,7 @@ export default function ChannelStripsPanel({ onEditClick }) {
         <div className="tc-header-left">
           <span className="tc-title">Track Controls</span>
           <span className="tc-chev" aria-hidden="true">
-            {collapsed ? "▸" : "▾"}
+            {collapsed ? "▴" : "▾"}
           </span>
         </div>
 
@@ -197,11 +197,6 @@ export default function ChannelStripsPanel({ onEditClick }) {
             <p className="tc-tooltip-text">
               Use these controls to solo/mute stems, toggle their visibility on
               the tapestry, and open per-stem parameter panels.
-            </p>
-            <p className="tc-tooltip-credit">
-              <a href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/">
-                SVG Elements by SVGBackgrounds.com
-              </a>
             </p>
           </div>
         </span>

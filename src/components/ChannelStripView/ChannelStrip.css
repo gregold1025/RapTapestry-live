@@ -67,7 +67,8 @@
 }
 
 .button-grid button.active {
-  background: #c8c8c8;
+  border-color: var(--active-color, #2563eb);
+  background: color-mix(in srgb, var(--active-color, #2563eb) 14%, #ffffff 86%);
 }
 
 /* ===== Disabled state (matches preset buttons' disabled style) ===== */
