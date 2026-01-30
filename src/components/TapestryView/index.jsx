@@ -5,6 +5,7 @@ import PixiPlayheadOverlay from "./global/pixiPlayheadOverlay";
 import { useCanvasHoverInfo } from "./hooks/useCanvasHoverInfo";
 import { CanvasHoverTooltip } from "./global/CanvasHoverToolTip";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
+import { useParams } from "../../contexts/ParamsContext";
 import "./TapestryView.css";
 
 export default function TapestryView({
@@ -18,12 +19,15 @@ export default function TapestryView({
 
   const contentHeight = layout?.contentHeight ?? 0;
 
+  const { tapestryBackgroundColor } = useParams();
+
   return (
     <div
       className="tapestry-container"
       ref={containerRef}
       onMouseMove={onHoverMove}
       onMouseLeave={onHoverLeave}
+      style={{ backgroundColor: tapestryBackgroundColor }}
     >
       {/* This wrapper is what enables fixed-row-height vertical scrolling */}
       <div

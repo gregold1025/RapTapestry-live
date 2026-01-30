@@ -5,11 +5,14 @@ import React, {
   useRef,
   useEffect,
   useState,
+  useMemo,
 } from "react";
+
 import { computeLayout } from "../utils/computeLayout";
 import { timeToPixels, getRowIndex } from "../utils/timeUtils";
+import { useParams } from "./ParamsContext";
 
-const TapestryLayoutContext = createContext();
+const TapestryLayoutContext = createContext(null);
 
 export function TapestryLayoutProvider({
   children,
@@ -19,14 +22,26 @@ export function TapestryLayoutProvider({
   beats = [],
   barsPerRow = 8,
 
-  // NEW (optional): allow parent to set these later via settings UI
-  rowHeightMode = "fit", // "fit" | "fixed"
-  fixedRowHeightPx = 140,
+  // Optional overrides (if you pass these explicitly, they win)
+  rowHeightMode: rowHeightModeOverride,
+  fixedRowHeightPx: fixedRowHeightPxOverride,
 }) {
   const containerRef = useRef(null);
   const [layout, setLayout] = useState(null);
 
-  // Track the measured size of the tapestry container (updates on resize)
+  // Read from ParamsContext (global settings)
+  const {
+    rowHeightMode: rowHeightModeFromParams,
+    fixedRowHeightPx: fixedRowHeightPxFromParams,
+  } = useParams();
+
+  // Decide final values: override props > params > defaults
+  const rowHeightMode =
+    rowHeightModeOverride ?? rowHeightModeFromParams ?? "fit";
+  const fixedRowHeightPx =
+    fixedRowHeightPxOverride ?? fixedRowHeightPxFromParams ?? 140;
+
+  // Track measured size of the tapestry container (updates on resize)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   // Observe container size changes
@@ -34,14 +49,15 @@ export function TapestryLayoutProvider({
     const el = containerRef.current;
     if (!el) return;
 
-    // Initialize immediately
-    setContainerSize({ width: el.clientWidth, height: el.clientHeight });
-
-    const ro = new ResizeObserver(() => {
+    const read = () =>
       setContainerSize({ width: el.clientWidth, height: el.clientHeight });
-    });
 
+    // Initialize immediately
+    read();
+
+    const ro = new ResizeObserver(() => read());
     ro.observe(el);
+
     return () => ro.disconnect();
   }, []);
 
@@ -71,7 +87,7 @@ export function TapestryLayoutProvider({
       barsPerRow,
       estimated_bpm,
 
-      // NEW: sizing mode controls
+      // sizing mode controls
       rowHeightMode,
       fixedRowHeightPx,
     });
@@ -105,19 +121,25 @@ export function TapestryLayoutProvider({
     downbeats,
     barsPerRow,
     containerSize,
-
-    // NEW: if these change later, recompute layout
     rowHeightMode,
     fixedRowHeightPx,
   ]);
 
+  const value = useMemo(() => ({ layout, containerRef }), [layout]);
+
   return (
-    <TapestryLayoutContext.Provider value={{ layout, containerRef }}>
+    <TapestryLayoutContext.Provider value={value}>
       {children}
     </TapestryLayoutContext.Provider>
   );
 }
 
 export function useTapestryLayout() {
-  return useContext(TapestryLayoutContext);
+  const ctx = useContext(TapestryLayoutContext);
+  if (!ctx) {
+    throw new Error(
+      "useTapestryLayout must be used within a TapestryLayoutProvider"
+    );
+  }
+  return ctx;
 }

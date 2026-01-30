@@ -11,6 +11,7 @@ import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSel
 import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionContext";
 import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
 
+import HeaderSettingsMenu from "./components/HeaderSettingsMenu";
 import AudioControlsView from "./components/AudioControlsView";
 import GlyphControlsView from "./components/GlyphControlsView";
 import LyricsView from "./components/LyricsView";
@@ -108,6 +109,7 @@ export default function App() {
             <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
             <option value="Unemployed"> Unemployed - Tierra Whack</option>
           </select>
+          <HeaderSettingsMenu />
         </header>
         <main className="main-content" style={{ padding: 16 }}>
           <p style={{ color: "crimson" }}>
@@ -161,6 +163,7 @@ export default function App() {
                       Unemployed - Tierra Whack
                     </option>
                   </select>
+                  <HeaderSettingsMenu />
                 </header>
 
                 <main className="main-content">
@@ -173,8 +176,6 @@ export default function App() {
                       downbeats={drumTranscription.downbeats}
                       beats={drumTranscription.beats}
                       barsPerRow={8}
-                      rowHeightMode="fixed"
-                      fixedRowHeightPx={100}
                     >
                       <TapestryView
                         key={`tapestry-${selectedSong}`}

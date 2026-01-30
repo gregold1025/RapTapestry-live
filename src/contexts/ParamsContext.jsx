@@ -38,6 +38,12 @@ function pickRandomFrom(list) {
 }
 
 export function ParamsProvider({ children }) {
+  // — GLOBAL TAPESTRY (layout/background) —
+  const [rowHeightMode, setRowHeightMode] = useState("auto"); // "fixed" | "auto" | ...
+  const [fixedRowHeightPx, setFixedRowHeightPx] = useState(100);
+  const [tapestryBackgroundColor, setTapestryBackgroundColor] =
+    useState("#ffffff");
+
   // — VOCALS —
   const [showVocals, setShowVocals] = useState(true);
   const [vowelColors, setVowelColors] = useState({
@@ -114,8 +120,6 @@ export function ParamsProvider({ children }) {
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
   const [showVerticalGrid, setShowVerticalGrid] = useState(true);
-  const [tapestryBackgroundColor, setTapestryBackgroundColor] =
-    useState("#ffffff");
 
   /* ============================================================
      GlyphStyle (NEW)
@@ -175,6 +179,14 @@ export function ParamsProvider({ children }) {
   return (
     <ParamsContext.Provider
       value={{
+        // tapestry/layout
+        rowHeightMode,
+        setRowHeightMode,
+        fixedRowHeightPx,
+        setFixedRowHeightPx,
+        tapestryBackgroundColor,
+        setTapestryBackgroundColor,
+
         // vocals
         showVocals,
         setShowVocals,
@@ -247,13 +259,10 @@ export function ParamsProvider({ children }) {
         drumParams,
         setDrumParams,
 
-        // tapestry/global
         showHorizontalGrid,
         setShowHorizontalGrid,
         showVerticalGrid,
         setShowVerticalGrid,
-        tapestryBackgroundColor,
-        setTapestryBackgroundColor,
 
         // glyph style (NEW)
         glyphStyle,

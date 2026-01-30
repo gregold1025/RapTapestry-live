@@ -85,7 +85,7 @@ export function DrumsParamsOverlay({ onClose }) {
               </label>
 
               {/* Stroke Weight */}
-              <label className="control">
+              {/* <label className="control">
                 Stroke Weight <span className="meta">{strokeWeight}px</span>
                 <input
                   type="range"
@@ -95,7 +95,7 @@ export function DrumsParamsOverlay({ onClose }) {
                   value={strokeWeight}
                   onChange={handleStrokeChange}
                 />
-              </label>
+              </label> */}
 
               {/* Tilt */}
               <label className="control">

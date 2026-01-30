@@ -96,8 +96,7 @@ export default function GlyphControlsView() {
           <span className="gc-tooltip" role="tooltip">
             <p className="gc-tooltip-text">
               Click any button below to randomly reassign the glyph used for
-              that layer. Keyboard shortcuts are listed on each button. Menu is
-              Collapsible.
+              that encoding. Keyboard shortcuts are listed on each button.
             </p>
 
             <p className="gc-tooltip-credit">
@@ -124,7 +123,7 @@ export default function GlyphControlsView() {
             onClick={randomizeSyllableGlyph}
           >
             <IconPreview url={syllUrl} label="Syllables" />
-            <span className="gc-label">Syllables</span>
+            <span className="gc-label">Syllables [r]</span>
           </button>
 
           <button
@@ -135,7 +134,7 @@ export default function GlyphControlsView() {
             onClick={randomizeDrumGlyph}
           >
             <IconPreview url={drumUrl} label="Drums" />
-            <span className="gc-label">Drums</span>
+            <span className="gc-label">Drums [d]</span>
           </button>
 
           <button
@@ -146,7 +145,7 @@ export default function GlyphControlsView() {
             onClick={randomizeBassDivider}
           >
             <BassPreview url={bassUrl} />
-            <span className="gc-label">Bass</span>
+            <span className="gc-label">Bass [b]</span>
           </button>
 
           <div className="gc-cell gc-empty" aria-hidden="true" />

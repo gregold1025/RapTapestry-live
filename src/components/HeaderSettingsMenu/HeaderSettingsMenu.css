@@ -1,0 +1,36 @@
+/* HeaderSettingsMenu.css */
+
+/* Put the button on the right side of the header */
+.header-settings-btn {
+  margin-left: auto; /* pushes to far right of header flex row */
+
+  font: inherit;
+  line-height: 1.1;
+
+  padding: 1.25rem 1.2rem;
+  color: #e9eef5;
+  background: #0d0f12;
+
+  border: 1px solid #252b39;
+  border-radius: 6px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.header-settings-btn:hover {
+  background: #121621;
+}
+
+.hs-icon {
+  font-size: 1.05rem;
+  opacity: 0.9;
+}
+
+.hs-text {
+  white-space: nowrap;
+}
