@@ -126,9 +126,9 @@ export function ParamsProvider({ children }) {
      - "stateful outcome" params that are set by randomize actions
      ============================================================ */
   const [glyphStyle, setGlyphStyle] = useState(() => ({
-    syllableGlyphUrl: null, // null => fallback circles in SyllableGlyphs
+    syllableGlyphUrl: pickRandomFrom(GLYPH_URLS), // null => fallback circles in SyllableGlyphs
     drumGlyphUrl: pickRandomFrom(DRUM_GLYPH_URLS), // start with something
-    bassDividerUrl: null,
+    bassDividerUrl: pickRandomFrom(BASS_DIVIDER_URLS), // start with something
   }));
 
   const setSyllableGlyphUrl = (url) =>
@@ -156,7 +156,7 @@ export function ParamsProvider({ children }) {
         tag === "input" || tag === "textarea" || e.target?.isContentEditable;
       if (isTyping) return;
 
-      if (e.key === "r" || e.key === "R") randomizeSyllableGlyph();
+      if (e.key === "s" || e.key === "S") randomizeSyllableGlyph();
       if (e.key === "d" || e.key === "D") randomizeDrumGlyph();
       if (e.key === "b" || e.key === "B") randomizeBassDivider();
     };

@@ -66,8 +66,9 @@ export default function LineAnchorsPanel({ transcriptionData }) {
         title={expanded ? "Collapse" : "Expand"}
       >
         <span className="lap-sec-title">Line Selections</span>
-        <span className="lap-sec-spacer" />
+
         <span className={`lap-caret ${expanded ? "open" : ""}`}>▾</span>
+        <span className="lap-sec-spacer" />
         <span className="lap-count" style={{ marginLeft: 6 }}>
           {selections?.length ?? 0}
         </span>
@@ -77,8 +78,8 @@ export default function LineAnchorsPanel({ transcriptionData }) {
       <div className={`lap-collapse ${expanded ? "is-open" : "is-closed"}`}>
         {!anchorsUi.length ? (
           <p className="lap-empty">
-            No line anchors yet. Tip: <kbd>Cmd/Ctrl</kbd>+click a line in the
-            tapestry or use the □ beside a line.
+            No line selections yet. Tip: <kbd>Cmd/Ctrl</kbd>+click a line in the
+            tapestry or use the □ beside a line to see its rhymes here.
           </p>
         ) : (
           <div className="lap-rows">

@@ -178,28 +178,27 @@ export default function ChannelStripsPanel({ onEditClick }) {
       >
         <div className="tc-header-left">
           <span className="tc-title">Track Controls</span>
+          {/* Info icon w/ tooltip (same behavior as GlyphControls) */}
+          <span
+            className="tc-info"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <span className="tc-info-icon" aria-hidden="true">
+              i
+            </span>
+
+            <div className="tc-tooltip" role="tooltip">
+              <p className="tc-tooltip-text">
+                Use these controls to solo/mute stems, toggle their visibility
+                on the tapestry, and open per-stem parameter edit windows.
+              </p>
+            </div>
+          </span>
           <span className="tc-chev" aria-hidden="true">
             {collapsed ? "▴" : "▾"}
           </span>
         </div>
-
-        {/* Info icon w/ tooltip (same behavior as GlyphControls) */}
-        <span
-          className="tc-info"
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <span className="tc-info-icon" aria-hidden="true">
-            i
-          </span>
-
-          <div className="tc-tooltip" role="tooltip">
-            <p className="tc-tooltip-text">
-              Use these controls to solo/mute stems, toggle their visibility on
-              the tapestry, and open per-stem parameter panels.
-            </p>
-          </div>
-        </span>
       </div>
 
       {/* Body (existing grid), collapsible */}

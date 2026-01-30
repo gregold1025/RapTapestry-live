@@ -66,7 +66,6 @@
 }
 .lap-caret {
   display: inline-block;
-  transition: transform 120ms ease;
 }
 .lap-caret.open {
   transform: rotate(180deg);

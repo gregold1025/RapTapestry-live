@@ -77,39 +77,38 @@ export default function GlyphControlsView() {
       >
         <div className="gc-header-left">
           <span className="gc-title">Glyph Controls</span>
+          {/* Info button: does NOT toggle collapse */}
+          <button
+            type="button"
+            className="gc-info"
+            aria-label="About glyph controls"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="gc-info-icon" aria-hidden="true">
+              i
+            </span>
+
+            <span className="gc-tooltip" role="tooltip">
+              <p className="gc-tooltip-text">
+                Click any button below to randomly reassign the glyph used for
+                that encoding. Keyboard shortcuts are listed on each button.
+              </p>
+
+              <p className="gc-tooltip-credit">
+                <a
+                  href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  SVG Elements by SVGBackgrounds.com
+                </a>
+              </p>
+            </span>
+          </button>
           <span className="gc-chev" aria-hidden="true">
             {collapsed ? "▴" : "▾"}
           </span>
         </div>
-
-        {/* Info button: does NOT toggle collapse */}
-        <button
-          type="button"
-          className="gc-info"
-          aria-label="About glyph controls"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span className="gc-info-icon" aria-hidden="true">
-            i
-          </span>
-
-          <span className="gc-tooltip" role="tooltip">
-            <p className="gc-tooltip-text">
-              Click any button below to randomly reassign the glyph used for
-              that encoding. Keyboard shortcuts are listed on each button.
-            </p>
-
-            <p className="gc-tooltip-credit">
-              <a
-                href="https://www.svgbackgrounds.com/elements/svg-shape-dividers/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                SVG Elements by SVGBackgrounds.com
-              </a>
-            </p>
-          </span>
-        </button>
       </div>
 
       {/* Collapsible body */}
@@ -123,7 +122,7 @@ export default function GlyphControlsView() {
             onClick={randomizeSyllableGlyph}
           >
             <IconPreview url={syllUrl} label="Syllables" />
-            <span className="gc-label">Syllables [r]</span>
+            <span className="gc-label">Syllables [s]</span>
           </button>
 
           <button
