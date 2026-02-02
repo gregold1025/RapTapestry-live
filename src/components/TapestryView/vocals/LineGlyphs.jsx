@@ -10,6 +10,8 @@ export default function LineGlyphs({
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
+  const HOVER_STROKE = "#00ff3b"; // solid green
+
   const { layout } = useTapestryLayout();
   const { getVisualForLine, anchorOrAdopt, selections, removeSelection } =
     useLineSelection();
@@ -38,9 +40,13 @@ export default function LineGlyphs({
     const isHovered = hoveredLineIdx === lineIdx;
 
     const fill = vis ? vis.color : lineInactiveColor;
-    const stroke =
-      vis?.role === "anchor" ? vis.color : isHovered ? fill : "none";
-    const strokeWidth = vis?.role === "anchor" ? 6 : isHovered ? 3 : 0;
+    const stroke = isHovered
+      ? HOVER_STROKE
+      : vis?.role === "anchor"
+      ? vis.color
+      : "none";
+
+    const strokeWidth = isHovered ? 4 : vis?.role === "anchor" ? 3 : 0;
 
     const rects = [];
     const { x: startX, row: startRow } = timeToPixels(line.start);
@@ -81,17 +87,17 @@ export default function LineGlyphs({
           }}
           onMouseEnter={(e) => {
             setHoveredLineIdx(lineIdx);
-            onGlyphHoverEnter?.(e, {
-              type: "line",
-              lineIdx,
-              text: line.text,
-              start: line.start,
-              end: line.end,
-            });
+            // onGlyphHoverEnter?.(e, {
+            //   type: "line",
+            //   lineIdx,
+            //   text: line.text,
+            //   start: line.start,
+            //   end: line.end,
+            // });
           }}
           onMouseLeave={(e) => {
             setHoveredLineIdx(null);
-            onGlyphHoverLeave?.(e);
+            // onGlyphHoverLeave?.(e);
           }}
           title={
             "Click: seek • Cmd/Ctrl+Click: adopt/create anchor • Alt+Click: remove anchor"
