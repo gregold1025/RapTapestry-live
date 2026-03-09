@@ -150,6 +150,61 @@
   cursor: pointer;
 }
 
+/* ===== Compact inline mode (used in header) ===== */
+
+.header-transport .audio-controls-panel {
+  height: auto;
+  max-height: none;
+  min-width: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.header-transport .ac-header { display: none; }
+
+.header-transport .audio-controls {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  --scrub-track-h: 3px;
+  --scrub-thumb-d: 11px;
+}
+
+.header-transport .ac-transport {
+  margin: 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.header-transport .ac-scrub-row {
+  flex: 1;
+  min-width: 60px;
+}
+
+.header-transport .scrub-slider { width: 100%; }
+
+.header-transport .ac-time-row {
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 0;
+  margin-top: 0;
+}
+
+.header-transport .ac-time {
+  font-size: 0.7rem;
+  min-width: 2.8ch;
+  color: #c0cad8;
+}
+
+.header-transport .ac-volume {
+  position: static;
+  flex-shrink: 0;
+}
+
 /* ===== Time row ===== */
 .ac-time-row {
   display: flex;

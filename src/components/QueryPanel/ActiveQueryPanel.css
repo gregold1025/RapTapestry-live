@@ -492,3 +492,42 @@
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Syllable card header ─────────────────────────────────────────────────── */
+
+.aqp-syl-header {
+  display: flex;
+  justify-content: center;
+  padding: 10px 12px 4px;
+  background: #111827;
+}
+
+.aqp-syl-circles-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.aqp-syl-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.aqp-syl-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.aqp-syl-name {
+  font-size: 0.62rem;
+  font-family: monospace;
+  color: #8ab0c8;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}

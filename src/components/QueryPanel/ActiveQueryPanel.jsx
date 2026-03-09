@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
 import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
+import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 import { useAudioEngine } from "../../contexts/AudioContext";
 import {
@@ -480,6 +481,112 @@ function LineQueryCard({ sel, transcriptionData }) {
   );
 }
 
+// ── Syllable query card ───────────────────────────────────────────────────────
+
+function SyllableQueryCard({ sel }) {
+  const {
+    flat,
+    matchesBySelectionId,
+    removeSelection,
+    toggleSelectionActive,
+    setSelectionColor,
+    vowelColors,
+  } = useSyllableSelection();
+
+  const { wildcardSkips, setWildcardSkips, minMatchLen, setMinMatchLen } = useParams();
+  const { seekAll } = useAudioEngine();
+
+  const matchSet = matchesBySelectionId?.[sel.id] ?? new Set();
+
+  // Group matched syllable ids by word (li-wi), take the earliest start per word
+  const wordHits = new Map(); // "li-wi" → start time
+  [...matchSet].forEach((id) => {
+    const syl = flat.find((s) => s.id === id);
+    if (!syl) return;
+    const key = `${syl.li}-${syl.wi}`;
+    const prev = wordHits.get(key);
+    if (prev === undefined || (Number.isFinite(syl.start) && syl.start < prev)) {
+      wordHits.set(key, Number.isFinite(syl.start) ? syl.start : null);
+    }
+  });
+  const matchItems = [...wordHits.entries()].map(([key, time]) => ({ id: key, text: key, time }))
+    .sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
+
+  const syllableIds = sel.syllableIds ?? [];
+  const chosenVowels = syllableIds.map((id) => sel.chosenById?.[id] ?? "AH");
+
+  return (
+    <div className="aqp-card">
+      <div className="aqp-title-row">
+        <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
+        <div className="aqp-title-actions" style={{ marginLeft: "auto" }}>
+          <button className="aqp-action-btn" onClick={() => toggleSelectionActive(sel.id)}
+            title={sel.active ? "Hide matches" : "Show matches"}>
+            {sel.active ? "\uD83D\uDC41\uFE0E" : "\uD83D\uDE48"}
+          </button>
+          <button className="aqp-action-btn danger" onClick={() => removeSelection(sel.id)} title="Remove">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <div className="aqp-syl-header">
+        <div className="aqp-syl-circles-row">
+          {chosenVowels.map((v, i) => (
+            <div key={i} className="aqp-syl-col">
+              <div
+                className="aqp-syl-circle"
+                style={{ background: vowelColors?.[v] ?? "#334", border: `2px solid ${sel.color}` }}
+              />
+              <span className="aqp-syl-name">{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="aqp-tab-body" style={{ borderTop: "1px solid #1e2d42" }}>
+        <div className="aqp-full-slider-group">
+          <div className="aqp-slider-label-row">
+            <span className="aqp-slider-name">Max Skips</span>
+            <span className="aqp-dist-val">{wildcardSkips}</span>
+          </div>
+          <input
+            type="range"
+            className="aqp-full-slider"
+            min={0} max={4} step={1}
+            value={wildcardSkips}
+            onChange={(e) => setWildcardSkips(+e.target.value)}
+          />
+          <div className="aqp-slider-endpoints">
+            <span>0</span>
+            <span>4</span>
+          </div>
+        </div>
+
+        <div className="aqp-full-slider-group">
+          <div className="aqp-slider-label-row">
+            <span className="aqp-slider-name">Min Length</span>
+            <span className="aqp-dist-val">{minMatchLen}</span>
+          </div>
+          <input
+            type="range"
+            className="aqp-full-slider"
+            min={1} max={syllableIds.length || 4} step={1}
+            value={minMatchLen}
+            onChange={(e) => setMinMatchLen(+e.target.value)}
+          />
+          <div className="aqp-slider-endpoints">
+            <span>1</span>
+            <span>{syllableIds.length || 4}</span>
+          </div>
+        </div>
+
+        <SectionMatchList items={matchItems} onSeek={seekAll} />
+      </div>
+    </div>
+  );
+}
+
 // ── Empty state ───────────────────────────────────────────────────────────────
 
 function EmptyState() {
@@ -495,22 +602,24 @@ function EmptyState() {
 export default function ActiveQueryPanel({ transcriptionData }) {
   const { selections: wordSels, focusedWordSelId, wordInteractionStamp } = useWordSelection();
   const { selections: lineSels, focusedLineSelId, lineInteractionStamp } = useLineSelection();
+  const { selections: sylSels, focusedSyllableSelId, syllableInteractionStamp } = useSyllableSelection();
 
   const focusedWordSel = wordSels.find((s) => s.id === focusedWordSelId) ?? null;
   const focusedLineSel = lineSels.find((s) => s.id === focusedLineSelId) ?? null;
+  const focusedSylSel  = sylSels.find((s) => s.id === focusedSyllableSelId) ?? null;
 
-  // Compare interaction timestamps to determine which type was most recently used.
-  // This correctly handles the adoption case where focusedWordSelId stays the same.
+  // 3-way stamp comparison — most recently interacted type wins
   const focused = useMemo(() => {
-    if (!focusedWordSel && !focusedLineSel) return null;
-    if (!focusedWordSel) return { type: "line", sel: focusedLineSel };
-    if (!focusedLineSel) return { type: "word", sel: focusedWordSel };
-    return wordInteractionStamp >= lineInteractionStamp
-      ? { type: "word", sel: focusedWordSel }
-      : { type: "line", sel: focusedLineSel };
-  }, [focusedWordSel, focusedLineSel, wordInteractionStamp, lineInteractionStamp]);
+    const candidates = [
+      focusedWordSel ? { type: "word",     sel: focusedWordSel, stamp: wordInteractionStamp }     : null,
+      focusedLineSel ? { type: "line",     sel: focusedLineSel, stamp: lineInteractionStamp }     : null,
+      focusedSylSel  ? { type: "syllable", sel: focusedSylSel,  stamp: syllableInteractionStamp } : null,
+    ].filter(Boolean);
+    if (!candidates.length) return null;
+    return candidates.reduce((a, b) => (b.stamp >= a.stamp ? b : a));
+  }, [focusedWordSel, focusedLineSel, focusedSylSel, wordInteractionStamp, lineInteractionStamp, syllableInteractionStamp]);
 
-  const hasSelections = wordSels.length > 0 || lineSels.length > 0;
+  const hasSelections = wordSels.length > 0 || lineSels.length > 0 || sylSels.length > 0;
 
   return (
     <div className="aqp-root">
@@ -526,6 +635,9 @@ export default function ActiveQueryPanel({ transcriptionData }) {
         )}
         {focused?.type === "line" && (
           <LineQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />
+        )}
+        {focused?.type === "syllable" && (
+          <SyllableQueryCard key={focused.sel.id} sel={focused.sel} />
         )}
       </div>
     </div>

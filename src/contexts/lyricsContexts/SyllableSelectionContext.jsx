@@ -184,6 +184,10 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
 
   const [selections, setSelections] = useState([]);
 
+  // Focus / interaction stamp
+  const [manualFocusSylId, setManualFocusSylId] = useState(null);
+  const [syllableInteractionStamp, setSyllableInteractionStamp] = useState(0);
+
   // Two-click draft state: first click sets anchor, second click commits
   const [draft, setDraft] = useState({ anchorId: null });
 
@@ -233,20 +237,25 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
         chosenById[sid] = cands[0];
       });
 
+      const newId = makeId();
+
       setSelections((prev) => {
         const color = generateDistinctColor(prev.map((s) => s.color));
         const newSel = {
-          id: makeId(),
+          id: newId,
           active: true,
           color,
           label: "",
           syllableIds: rangeIds,
           candidatesById,
           chosenById,
+          createdAt: Date.now(),
         };
         return [newSel, ...prev];
       });
 
+      setManualFocusSylId(newId);
+      setSyllableInteractionStamp(Date.now());
       setDraft({ anchorId: null });
     },
     [draft.anchorId, flat, flatById]
@@ -318,11 +327,17 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
     return out;
   }, [matchesBySelectionId]);
 
+  const focusedSyllableSelId = useMemo(() => {
+    if (manualFocusSylId && selections.some((s) => s.id === manualFocusSylId))
+      return manualFocusSylId;
+    return selections.find((s) => s.active)?.id ?? null;
+  }, [manualFocusSylId, selections]);
 
   return (
     <SyllableSelectionContext.Provider
       value={{
         selections,
+        flat,
         matchedIds,
         selectedIds,
         vowelColors,
@@ -335,6 +350,13 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
         updateSelection,
         setSelectionColor,
         matchesBySelectionId,
+        focusedSyllableSelId,
+        setFocusedSyllableSelId: (id) => {
+          setManualFocusSylId(id);
+          if (id) setSyllableInteractionStamp(Date.now());
+        },
+        syllableInteractionStamp,
+        markSyllableInteraction: () => setSyllableInteractionStamp(Date.now()),
       }}
     >
       {children}

@@ -5,18 +5,13 @@
 :root {
   --ui-scale: 1.125; /* 1.0 = 16px base; 1.125 ≈ 18px */
 
-  /* Right-pane audio dock sizing */
-  --right-audioDock-h: 150px;   /* fixed height of audio controls area */
-  --right-audioDock-pad: 10px;  /* outer padding around the audio panel */
-  --right-audioDock-radius: 12px;
-
   /* Right-pane lyrics sizing */
   --right-lyrics-frac: 0.5;         /* 0.5 = 50% */
   --right-lyrics-min: 180px;        /* safety */
   --right-lyrics-max: 520px;        /* safety */
 
   /* Left-pane bottom overlay gutters */
-  --left-controls-gap: 0px;     /* keep 0 for “no seam”; set to 8px if you want spacing */
+  --left-controls-gap: 0px;     /* keep 0 for "no seam"; set to 8px if you want spacing */
   --left-controls-pad: 0px;     /* wrapper padding (usually 0 because panels have their own) */
 }
 
@@ -74,7 +69,8 @@ p, span, button, input, select { font-size: 1rem; }
 }
 
 .header {
-  gap: 12px;
+  gap: 8px;
+  padding: 0 8px;
   --header-font-size: 1.5rem;
   font-size: var(--header-font-size);
 }
@@ -88,6 +84,13 @@ p, span, button, input, select { font-size: 1rem; }
   background: #0d0f12;
   border: 1px solid #252b39;
   border-radius: 6px;
+}
+
+.header-transport {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
 }
 
 .footer {
@@ -175,141 +178,39 @@ p, span, button, input, select { font-size: 1rem; }
 }
 
 /* ===========================
-   4) Right pane: outer scroll + nested lyrics scroll + fixed audio dock
-   (preserved as-is)
+   4) Right pane: fixed zones (no single outer scroll)
    =========================== */
 .right-pane {
   position: relative;
   flex: 3 1 0;
   min-width: 0;
   min-height: 0;
-  background: #ffffff;
-  color: #000000;
-
-  overflow: hidden; /* keeps dock overlay tidy */
-}
-
-/* Outer scroll container (prevents anchors expansion from breaking layout) */
-.right-pane-scroll {
-  height: 100%;
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /* ensures content isn't hidden underneath the dock */
-  padding-bottom: calc(var(--right-audioDock-h) + var(--right-audioDock-pad));
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-}
-
-/* Base section */
-.right-pane-section {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-/* Optional spacing between blocks */
-.right-pane-section + .right-pane-section {
-  margin-top: 10px;
-}
-
-/* Presets: give buttons enough room */
-.right-pane-section.presets {
-  max-height: none;
-  min-height: 65px;
-  padding: 6px 10px;
-  box-sizing: border-box;
-  flex: 0 0 auto;
-}
-
-/* Lyrics: fixed-ish size + nested scroll */
-.right-pane-section.lyrics {
-  flex: 0 0 auto;
-  height: clamp(
-    var(--right-lyrics-min),
-    calc((100% - 0px) * var(--right-lyrics-frac)),
-    var(--right-lyrics-max)
-  );
-  min-height: 0;
-}
-
-/* Lyrics inner becomes the nested scroller */
-.lyrics-inner {
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-/* Anchors: allowed to grow; if too big, outer scroller takes over */
-.right-pane-section.anchors-stack {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0;
-  min-width: 0;
-  min-height: 0;
-}
-
-/* Fixed audio dock overlay */
-.right-pane-audioDock {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  height: var(--right-audioDock-h);
-  padding: var(--right-audioDock-pad);
-  box-sizing: border-box;
-
-  z-index: 50;
-  pointer-events: auto;
-
-  /* backplate so scroller doesn't show through gutters */
-  background: #ffffff;
-  border-top: 10px solid #ffffff;
-}
-
-.right-pane-audioDock > * {
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-
-  border-radius: var(--right-audioDock-radius);
+  background: #0d1017;
+  color: #e9eef5;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.right-pane-audioDock .audio-controls-panel {
-  width: 100%;
-  height: 100%;
-  border-radius: var(--right-audioDock-radius);
-  box-shadow:
-    0 -6px 18px rgba(0, 0, 0, 0.25),
-    0 -2px 6px rgba(0, 0, 0, 0.15);
+/* Lyrics — fills all available space above the query panel */
+.rp-lyrics {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  border-bottom: 1px solid #1e2a3a;
 }
 
-.right-pane-audioDock::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -20px;
-  height: 20px;
-  pointer-events: none;
+/* Query panel — fixed height at bottom, never collapses */
+.rp-query {
+  flex: 0 0 310px;
+  min-height: 0;
+  overflow: hidden;
+  border-bottom: 1px solid #1e2a3a;
+}
 
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 1)
-  );
+/* Master strip — thin bar at very bottom */
+.rp-master-strip {
+  flex: 0 0 auto;
 }
 
 /* ===========================
