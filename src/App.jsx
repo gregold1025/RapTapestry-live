@@ -17,9 +17,8 @@ import GlyphControlsView from "./components/GlyphControlsView";
 import LyricsView from "./components/LyricsView";
 import TapestryView from "./components/TapestryView";
 import ChannelStripsPanel from "./components/ChannelStripView";
-import LyricPresets from "./components/LyricPresets/LyricPresets";
-import LineAnchorsPanel from "./components/SelectionAnchors/LineAnchorsPanel";
-import WordAnchorsPanel from "./components/SelectionAnchors/WordAnchorsPanel";
+import ActiveQueryPanel from "./components/QueryPanel/ActiveQueryPanel";
+import GlobalMasterStrip from "./components/QueryPanel/GlobalMasterStrip";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -163,6 +162,9 @@ export default function App() {
                       Unemployed - Tierra Whack
                     </option>
                   </select>
+                  <div className="header-transport">
+                    <AudioControlsView />
+                  </div>
                   <HeaderSettingsMenu />
                 </header>
 
@@ -196,37 +198,20 @@ export default function App() {
                   </div>
 
                   <div className="right-pane">
-                    <div className="right-pane-scroll">
-                      <div className="right-pane-section presets">
-                        <LyricPresets />
-                      </div>
-
-                      <div className="right-pane-section lyrics">
-                        <div className="lyrics-inner">
-                          <LyricsView
-                            key={`lyrics-${selectedSong}`}
-                            transcriptionData={lyricTranscription}
-                            height="100%"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="right-pane-section anchors-stack">
-                        <aside className="anchors">
-                          <LineAnchorsPanel
-                            transcriptionData={lyricTranscription}
-                          />
-                        </aside>
-                        <aside className="anchors">
-                          <WordAnchorsPanel
-                            transcriptionData={lyricTranscription}
-                          />
-                        </aside>
-                      </div>
+                    <div className="rp-lyrics">
+                      <LyricsView
+                        key={`lyrics-${selectedSong}`}
+                        transcriptionData={lyricTranscription}
+                        height="100%"
+                      />
                     </div>
 
-                    <div className="right-pane-audioDock">
-                      <AudioControlsView />
+                    <div className="rp-query">
+                      <ActiveQueryPanel transcriptionData={lyricTranscription} />
+                    </div>
+
+                    <div className="rp-master-strip">
+                      <GlobalMasterStrip />
                     </div>
                   </div>
                 </main>
