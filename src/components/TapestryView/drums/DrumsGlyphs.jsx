@@ -1,38 +1,79 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
 import { useParams } from "../../../contexts/ParamsContext";
+import { hitYOffset, velocityToOpacity } from "../../../utils/drumUtils";
 
-// --------------------------------------
-// LOAD ALL SVG DRUM LINE GLYPH URLS
-// --------------------------------------
-const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
-  eager: true,
-  import: "default",
-});
-const DRUM_GLYPH_URLS = Object.values(lineGlyphModules);
+// Inline SVG shape per drum category, centered at (0,0)
+function DrumGlyph({ category, size, color, opacity }) {
+  const r = size * 0.4;
+  const style = { stroke: color, fill: "none", strokeWidth: 2, opacity };
 
-// category → vertical placement
-function hitYOffset(category, rowHeight) {
   switch (category) {
-    case "high":
-      return rowHeight * 0.3;
-    case "mid":
-      return rowHeight * 0.425;
-    case "low":
+    case "kick":
+      return (
+        <rect
+          x={-r}
+          y={-r * 0.4}
+          width={r * 2}
+          height={r * 0.8}
+          fill={color}
+          opacity={opacity}
+          stroke="none"
+        />
+      );
+    case "snare":
+      return (
+        <g opacity={opacity}>
+          <circle cx={0} cy={0} r={r} style={{ ...style, opacity: 1 }} />
+          <circle cx={0} cy={0} r={r * 0.3} fill={color} stroke="none" />
+        </g>
+      );
+    case "hihat_closed":
+      return (
+        <g style={style}>
+          <line x1={-r} y1={-r} x2={r} y2={r} />
+          <line x1={r} y1={-r} x2={-r} y2={r} />
+        </g>
+      );
+    case "hihat_open":
+      return (
+        <g style={style}>
+          <line x1={-r} y1={r * 0.5} x2={0} y2={-r * 0.5} />
+          <line x1={0} y1={-r * 0.5} x2={r} y2={r * 0.5} />
+        </g>
+      );
+    case "tom":
+      return (
+        <polygon
+          points={`0,${-r} ${r},0 0,${r} ${-r},0`}
+          fill={color}
+          opacity={opacity}
+          stroke="none"
+        />
+      );
+    case "crash":
+      return (
+        <g style={style}>
+          <line x1={-r} y1={0} x2={r} y2={0} />
+          <line x1={-r * 0.5} y1={-r * 0.866} x2={r * 0.5} y2={r * 0.866} />
+          <line x1={r * 0.5} y1={-r * 0.866} x2={-r * 0.5} y2={r * 0.866} />
+        </g>
+      );
+    case "ride":
+      return (
+        <circle cx={0} cy={0} r={r} style={style} />
+      );
     default:
-      return rowHeight * 0.55;
+      // legacy high/mid/low + unknown → vertical tick
+      return (
+        <line x1={0} y1={-r * 0.5} x2={0} y2={r * 0.5} style={style} />
+      );
   }
 }
 
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
-  const { playheadTime } = useAudioEngine();
-  const { showDrums, showDrumGlyphs, drumParams, glyphStyle } = useParams();
-
-  const glyphUrl = glyphStyle?.drumGlyphUrl ?? null;
+  const { showDrums, showDrumGlyphs, drumParams, drumCategoryColors } = useParams();
 
   if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs)
     return null;
@@ -47,64 +88,27 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
       .sort((a, b) => a.time - b.time);
   }, [drum_hits]);
 
-  const {
-    fillColor = "#bbbbbb",
-    tilt = 10,
-    opacity = 0.8,
-    size = 36, // visual size of the glyph
-  } = drumParams || {};
+  const { tilt = -80, opacity = 0.5, size = 36 } = drumParams || {};
 
-  const tiltDeg = clamp(tilt, -90, 90);
-
-  // -------------------------------
-  // RENDER GLYPHS
-  // -------------------------------
-  const glyphs = hits.map((hit, idx) => {
+  return hits.map((hit, idx) => {
     const { x, y } = timeToPixels(hit.time);
-
-    const glyphSize = size;
-    const cx = x;
-    const cy = y + hitYOffset(hit.category, rowHeight) + glyphSize / 2;
-
-    const maskId = `drum-mask-${idx}`;
-    const maskBox = glyphSize * 3; // generous safe area
-    const glyphBox = glyphSize; // actual glyph drawn inside
+    const cy = y + hitYOffset(hit.category, rowHeight);
+    const color = drumCategoryColors?.[hit.category] ?? "#dddddd";
+    const hitOpacity = velocityToOpacity(hit.velocity, opacity);
 
     return (
       <g
         key={`drumglyph-${idx}`}
-        transform={`translate(${cx}, ${cy}) rotate(${tiltDeg})`}
+        transform={`translate(${x}, ${cy}) rotate(${tilt})`}
         pointerEvents="none"
       >
-        <g transform={`translate(${-maskBox / 2}, ${-maskBox / 2})`}>
-          <defs>
-            <mask id={maskId}>
-              <rect x={0} y={0} width={maskBox} height={maskBox} fill="black" />
-              <image
-                href={glyphUrl}
-                x={(maskBox - glyphBox) / 2}
-                y={(maskBox - glyphBox) / 2}
-                width={glyphBox}
-                height={glyphBox}
-                preserveAspectRatio="xMidYMid meet"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
-            </mask>
-          </defs>
-
-          <rect
-            x={0}
-            y={0}
-            width={maskBox}
-            height={maskBox}
-            fill={fillColor}
-            opacity={opacity}
-            mask={`url(#${maskId})`}
-          />
-        </g>
+        <DrumGlyph
+          category={hit.category}
+          size={size}
+          color={color}
+          opacity={hitOpacity}
+        />
       </g>
     );
   });
-
-  return <>{glyphs}</>;
 }

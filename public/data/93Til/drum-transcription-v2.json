@@ -1,0 +1,7351 @@
+{
+  "estimated_bpm": 103.45,
+  "schema_version": 2,
+  "categories": [
+    "kick",
+    "snare",
+    "hihat_closed",
+    "hihat_open",
+    "tom",
+    "crash",
+    "ride"
+  ],
+  "beats": [
+    0.28,
+    0.87,
+    1.47,
+    2.05,
+    2.64,
+    3.22,
+    3.81,
+    4.4,
+    4.96,
+    5.54,
+    6.13,
+    6.72,
+    7.32,
+    7.89,
+    8.49,
+    9.06,
+    9.59,
+    10.18,
+    10.78,
+    11.36,
+    11.94,
+    12.53,
+    13.12,
+    13.71,
+    14.27,
+    14.87,
+    15.46,
+    16.04,
+    16.63,
+    17.21,
+    17.78,
+    18.37,
+    18.94,
+    19.51,
+    20.1,
+    20.67,
+    21.26,
+    21.84,
+    22.43,
+    23.0,
+    23.59,
+    24.16,
+    24.76,
+    25.33,
+    25.92,
+    26.49,
+    27.09,
+    27.65,
+    28.25,
+    28.82,
+    29.41,
+    29.98,
+    30.57,
+    31.15,
+    31.74,
+    32.31,
+    32.9,
+    33.48,
+    34.07,
+    34.64,
+    35.23,
+    35.81,
+    36.4,
+    36.97,
+    37.57,
+    38.13,
+    38.73,
+    39.3,
+    39.89,
+    40.46,
+    41.05,
+    41.63,
+    42.22,
+    42.79,
+    43.38,
+    43.95,
+    44.54,
+    45.12,
+    45.71,
+    46.28,
+    46.88,
+    47.45,
+    48.04,
+    48.61,
+    49.2,
+    49.78,
+    50.37,
+    50.94,
+    51.53,
+    52.1,
+    52.7,
+    53.27,
+    53.86,
+    54.43,
+    55.03,
+    55.6,
+    56.19,
+    56.76,
+    57.35,
+    57.93,
+    58.52,
+    59.09,
+    59.68,
+    60.25,
+    60.85,
+    61.42,
+    62.01,
+    62.58,
+    63.17,
+    63.75,
+    64.34,
+    64.91,
+    65.5,
+    66.08,
+    66.67,
+    67.24,
+    67.83,
+    68.4,
+    69.0,
+    69.57,
+    70.16,
+    70.73,
+    71.32,
+    71.9,
+    72.49,
+    73.06,
+    73.65,
+    74.23,
+    74.83,
+    75.39,
+    75.98,
+    76.55,
+    77.14,
+    77.72,
+    78.31,
+    78.88,
+    79.47,
+    80.05,
+    80.64,
+    81.21,
+    81.8,
+    82.37,
+    82.97,
+    83.54,
+    84.14,
+    84.7,
+    85.29,
+    85.87,
+    86.46,
+    87.03,
+    87.63,
+    88.19,
+    88.79,
+    89.36,
+    89.95,
+    90.52,
+    91.11,
+    91.69,
+    92.28,
+    92.85,
+    93.45,
+    94.02,
+    94.61,
+    95.18,
+    95.78,
+    96.35,
+    96.94,
+    97.51,
+    98.11,
+    98.68,
+    99.27,
+    99.84,
+    100.43,
+    101.0,
+    101.6,
+    102.17,
+    102.77,
+    103.33,
+    103.93,
+    104.5,
+    105.09,
+    105.66,
+    106.25,
+    106.83,
+    107.42,
+    107.99,
+    108.58,
+    109.15,
+    109.75,
+    110.32,
+    110.91,
+    111.48,
+    112.08,
+    112.65,
+    113.24,
+    113.81,
+    114.4,
+    114.98,
+    115.57,
+    116.14,
+    116.73,
+    117.3,
+    117.9,
+    118.47,
+    119.06,
+    119.63,
+    120.23,
+    120.8,
+    121.4,
+    121.96,
+    122.55,
+    123.13,
+    123.72,
+    124.29,
+    124.88,
+    125.45,
+    126.04,
+    126.62,
+    127.21,
+    127.78,
+    128.37,
+    128.95,
+    129.54,
+    130.11,
+    130.71,
+    131.28,
+    131.87,
+    132.44,
+    133.03,
+    133.6,
+    134.2,
+    134.77,
+    135.36,
+    135.94,
+    136.53,
+    137.1,
+    137.69,
+    138.26,
+    138.86,
+    139.43,
+    140.03,
+    140.59,
+    141.18,
+    141.76,
+    142.34,
+    142.92,
+    143.51,
+    144.09,
+    144.67,
+    145.25,
+    145.84,
+    146.42,
+    147.0,
+    147.58,
+    148.17,
+    148.74,
+    149.35,
+    149.91,
+    150.5,
+    151.07,
+    151.66,
+    152.24,
+    152.83,
+    153.4,
+    153.99,
+    154.57,
+    155.16,
+    155.73,
+    156.32,
+    156.89,
+    157.49,
+    158.06,
+    158.65,
+    159.22,
+    159.81,
+    160.39,
+    160.98,
+    161.55,
+    162.14,
+    162.71,
+    163.3,
+    163.88,
+    164.47,
+    165.04,
+    165.63,
+    166.21,
+    166.8,
+    167.37,
+    167.97,
+    168.54,
+    169.13,
+    169.7,
+    170.29,
+    170.87,
+    171.46,
+    172.03,
+    172.62,
+    173.19,
+    173.78,
+    174.36,
+    174.95,
+    175.52,
+    176.11,
+    176.69,
+    177.29,
+    177.85,
+    178.44,
+    179.02,
+    179.6,
+    180.18,
+    180.77,
+    181.34,
+    181.94,
+    182.51,
+    183.1,
+    183.67,
+    184.26,
+    184.84,
+    185.43,
+    186.0,
+    186.6,
+    187.17,
+    187.76,
+    188.33,
+    188.92,
+    189.49,
+    190.09,
+    190.66,
+    191.25,
+    191.82,
+    192.41,
+    192.99,
+    193.58,
+    194.15,
+    194.74,
+    195.32,
+    195.92,
+    196.48,
+    197.07,
+    197.64,
+    198.23,
+    198.81,
+    199.4,
+    199.97,
+    200.56,
+    201.14,
+    201.73,
+    202.3,
+    202.89,
+    203.47,
+    204.06,
+    204.63,
+    205.22,
+    205.8,
+    206.39,
+    206.96,
+    207.55,
+    208.12,
+    208.72,
+    209.29,
+    209.88,
+    210.45,
+    211.04,
+    211.62,
+    212.2,
+    212.78,
+    213.37,
+    213.95,
+    214.54,
+    215.11,
+    215.7,
+    216.27,
+    216.86,
+    217.44,
+    218.03,
+    218.6,
+    219.19,
+    219.77,
+    220.36,
+    220.93,
+    221.52,
+    222.09,
+    222.69,
+    223.26,
+    223.86,
+    224.42,
+    225.02,
+    225.59,
+    226.18,
+    226.75,
+    227.35,
+    227.92,
+    228.51,
+    229.08,
+    229.67,
+    230.25,
+    230.84,
+    231.41,
+    232.0,
+    232.58,
+    233.18,
+    233.74,
+    234.33,
+    234.91,
+    235.49,
+    236.07,
+    236.66,
+    237.23,
+    237.83,
+    238.4,
+    238.99,
+    239.56,
+    240.15,
+    240.72,
+    241.32,
+    241.89,
+    242.48,
+    243.05,
+    243.65,
+    244.22,
+    244.81,
+    245.38,
+    245.98,
+    246.55,
+    247.14,
+    247.71,
+    248.3,
+    248.87,
+    249.46,
+    250.04,
+    250.63,
+    251.2,
+    251.8,
+    252.37,
+    252.96,
+    253.53,
+    254.12,
+    254.7,
+    255.29,
+    255.86,
+    256.45,
+    257.02,
+    257.62,
+    258.19,
+    258.78,
+    259.35,
+    259.95,
+    260.52,
+    261.12,
+    261.68,
+    262.27,
+    262.85,
+    263.44,
+    264.01,
+    264.6,
+    265.17,
+    265.77,
+    266.34,
+    266.93,
+    267.5,
+    268.09,
+    268.67,
+    269.26,
+    269.83,
+    270.44,
+    271.0,
+    271.59,
+    272.16,
+    272.75,
+    273.33,
+    273.92,
+    274.49,
+    275.08,
+    275.66,
+    276.25,
+    276.82,
+    277.41,
+    277.99,
+    278.58,
+    279.15,
+    279.72,
+    280.32,
+    280.9,
+    281.48,
+    282.07,
+    282.65,
+    283.24,
+    283.81,
+    284.4,
+    284.98,
+    285.57,
+    286.15
+  ],
+  "downbeats": [
+    0.27,
+    2.64,
+    4.95,
+    7.31,
+    9.59,
+    11.93,
+    14.27,
+    16.62,
+    18.93,
+    21.25,
+    23.58,
+    25.91,
+    28.25,
+    30.57,
+    32.9,
+    35.22,
+    37.56,
+    39.88,
+    42.21,
+    44.53,
+    46.87,
+    49.2,
+    51.53,
+    53.85,
+    56.18,
+    58.51,
+    60.84,
+    63.16,
+    65.49,
+    67.82,
+    70.15,
+    72.48,
+    74.82,
+    77.14,
+    79.46,
+    81.79,
+    84.13,
+    86.45,
+    88.78,
+    91.11,
+    93.44,
+    95.77,
+    98.1,
+    100.42,
+    102.76,
+    105.08,
+    107.41,
+    109.74,
+    112.07,
+    114.4,
+    116.72,
+    119.05,
+    121.39,
+    123.71,
+    126.04,
+    128.37,
+    130.7,
+    133.02,
+    135.35,
+    137.68,
+    140.02,
+    142.33,
+    144.66,
+    146.99,
+    149.34,
+    151.66,
+    153.99,
+    156.31,
+    158.64,
+    160.97,
+    163.29,
+    165.62,
+    167.96,
+    170.28,
+    172.61,
+    174.94,
+    177.28,
+    179.59,
+    181.93,
+    184.25,
+    186.59,
+    188.91,
+    191.24,
+    193.55,
+    195.91,
+    198.22,
+    200.56,
+    202.87,
+    205.22,
+    207.54,
+    209.87,
+    212.19,
+    214.53,
+    216.86,
+    219.18,
+    221.51,
+    223.85,
+    226.17,
+    228.5,
+    230.83,
+    233.17,
+    235.49,
+    237.82,
+    240.14,
+    242.47,
+    244.8,
+    247.12,
+    249.45,
+    251.79,
+    254.11,
+    256.45,
+    258.77,
+    261.11,
+    263.43,
+    265.76,
+    268.09,
+    270.43,
+    272.74,
+    275.08,
+    277.4,
+    279.71,
+    282.06,
+    284.39
+  ],
+  "drum_hits": [
+    {
+      "time": 5.8282,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 6.4087,
+      "category": "kick",
+      "velocity": 31
+    },
+    {
+      "time": 7.1517,
+      "category": "kick",
+      "velocity": 17
+    },
+    {
+      "time": 8.1734,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 9.497,
+      "category": "kick",
+      "velocity": 19
+    },
+    {
+      "time": 10.1703,
+      "category": "tom",
+      "velocity": 14
+    },
+    {
+      "time": 10.449,
+      "category": "kick",
+      "velocity": 27
+    },
+    {
+      "time": 11.0527,
+      "category": "kick",
+      "velocity": 26
+    },
+    {
+      "time": 13.3979,
+      "category": "kick",
+      "velocity": 29
+    },
+    {
+      "time": 14.2571,
+      "category": "kick",
+      "velocity": 34
+    },
+    {
+      "time": 15.1394,
+      "category": "kick",
+      "velocity": 35
+    },
+    {
+      "time": 15.7199,
+      "category": "kick",
+      "velocity": 27
+    },
+    {
+      "time": 16.4629,
+      "category": "kick",
+      "velocity": 21
+    },
+    {
+      "time": 18.9243,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 19.0636,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 19.2029,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 19.3422,
+      "category": "kick",
+      "velocity": 48
+    },
+    {
+      "time": 19.4815,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 19.9692,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 20.0853,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 20.2246,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 20.3639,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 20.5032,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 20.6193,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 20.9212,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 21.1302,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 21.5249,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 21.6642,
+      "category": "kick",
+      "velocity": 48
+    },
+    {
+      "time": 21.8035,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 22.1054,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 22.2447,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 22.4073,
+      "category": "snare",
+      "velocity": 34,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 22.8484,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 22.9878,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 23.1503,
+      "category": "snare",
+      "velocity": 28,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 23.2664,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 23.4522,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 23.5683,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 23.8237,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 24.0094,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 24.1488,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 24.4506,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 24.6364,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 24.7293,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 25.0311,
+      "category": "snare",
+      "velocity": 79
+    },
+    {
+      "time": 25.2865,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 25.5884,
+      "category": "hihat_closed",
+      "velocity": 23
+    },
+    {
+      "time": 25.7741,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 25.9135,
+      "category": "snare",
+      "velocity": 90
+    },
+    {
+      "time": 26.0528,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 26.1457,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 26.3082,
+      "category": "snare",
+      "velocity": 34,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 26.4475,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 26.6101,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 26.7726,
+      "category": "hihat_closed",
+      "velocity": 66
+    },
+    {
+      "time": 26.9351,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 27.3531,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 27.5156,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 27.6085,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 27.7943,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 27.9336,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 28.2355,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 28.3748,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 28.5141,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 28.6302,
+      "category": "kick",
+      "velocity": 24
+    },
+    {
+      "time": 28.7927,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 29.0946,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 29.2804,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 29.3965,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 29.5358,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 29.6519,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 29.8144,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 29.9305,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 30.2556,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 30.3717,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 30.5575,
+      "category": "snare",
+      "velocity": 71
+    },
+    {
+      "time": 30.8129,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 30.9754,
+      "category": "kick",
+      "velocity": 44
+    },
+    {
+      "time": 31.1147,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 31.4166,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 31.5559,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 31.7185,
+      "category": "hihat_closed",
+      "velocity": 31
+    },
+    {
+      "time": 32.1596,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 32.2525,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 32.5544,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 32.7634,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 32.8795,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 33.1581,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 33.3206,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 33.4367,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 33.6225,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 33.7618,
+      "category": "snare",
+      "velocity": 79
+    },
+    {
+      "time": 33.9476,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 34.0405,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 34.203,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 34.3191,
+      "category": "hihat_closed",
+      "velocity": 28
+    },
+    {
+      "time": 34.5745,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 34.7603,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 34.9228,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 35.0854,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 35.2015,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 35.5033,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 35.6426,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 35.782,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 35.9445,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 36.0838,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 36.1999,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 36.6643,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 36.8036,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 36.9429,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 37.2448,
+      "category": "hihat_closed",
+      "velocity": 16
+    },
+    {
+      "time": 37.5467,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 37.8253,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 37.9414,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 38.1039,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 38.4058,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 38.5451,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 38.6844,
+      "category": "hihat_closed",
+      "velocity": 37
+    },
+    {
+      "time": 38.847,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 38.9863,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 39.1488,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 39.2417,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 39.5668,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 39.7526,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 39.8454,
+      "category": "hihat_closed",
+      "velocity": 26
+    },
+    {
+      "time": 40.0312,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 40.1241,
+      "category": "kick",
+      "velocity": 36
+    },
+    {
+      "time": 40.3098,
+      "category": "snare",
+      "velocity": 75
+    },
+    {
+      "time": 40.4259,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 40.751,
+      "category": "snare",
+      "velocity": 73
+    },
+    {
+      "time": 40.9136,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 41.0297,
+      "category": "hihat_closed",
+      "velocity": 28
+    },
+    {
+      "time": 41.4708,
+      "category": "kick",
+      "velocity": 64
+    },
+    {
+      "time": 41.5869,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 41.9352,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 42.1907,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 42.3532,
+      "category": "kick",
+      "velocity": 55
+    },
+    {
+      "time": 42.4693,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 42.6318,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 42.7712,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 43.2356,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 43.3517,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 43.6303,
+      "category": "hihat_closed",
+      "velocity": 29
+    },
+    {
+      "time": 43.7928,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 43.9089,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 44.0947,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 44.2108,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 44.3501,
+      "category": "kick",
+      "velocity": 11
+    },
+    {
+      "time": 44.5127,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 44.7913,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 44.9538,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 45.0932,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 45.5576,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 45.9755,
+      "category": "hihat_closed",
+      "velocity": 53
+    },
+    {
+      "time": 46.138,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 46.2541,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 46.556,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 46.7418,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 46.8579,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 47.0204,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 47.1365,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 47.2758,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 47.4151,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 47.8795,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 48.0189,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 48.1814,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 48.2743,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 48.5761,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 48.878,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 49.0173,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 49.1799,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 49.3192,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 49.4585,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 49.5978,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 49.7604,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 50.1783,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 50.782,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 50.8981,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 51.2232,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 51.5019,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 51.6644,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 51.8037,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 51.943,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 52.0824,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 52.2681,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 52.3842,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 52.5468,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 52.6861,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 52.8022,
+      "category": "kick",
+      "velocity": 26
+    },
+    {
+      "time": 52.9647,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 53.104,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 53.2434,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 53.5684,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 53.6613,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 53.9864,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 54.1025,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 54.2883,
+      "category": "snare",
+      "velocity": 84
+    },
+    {
+      "time": 54.4044,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 54.7062,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 54.8455,
+      "category": "kick",
+      "velocity": 21
+    },
+    {
+      "time": 55.2867,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 55.5886,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 55.8672,
+      "category": "snare",
+      "velocity": 16,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 56.053,
+      "category": "hihat_closed",
+      "velocity": 17
+    },
+    {
+      "time": 56.1691,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 56.4245,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 56.587,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 56.7263,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 56.8889,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 57.214,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 57.3301,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 57.4926,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 57.6087,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 57.7712,
+      "category": "kick",
+      "velocity": 64
+    },
+    {
+      "time": 57.8873,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 58.0963,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 58.1892,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 58.3517,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 58.4911,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 58.6304,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 58.7697,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 58.9322,
+      "category": "snare",
+      "velocity": 64
+    },
+    {
+      "time": 59.0716,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 59.536,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 60.0932,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 60.2093,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 60.3719,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 60.5344,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 60.8131,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 61.0917,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 61.2542,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 61.3936,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 61.5793,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 61.6954,
+      "category": "hihat_closed",
+      "velocity": 61
+    },
+    {
+      "time": 61.8347,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 61.9741,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 62.2759,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 62.4152,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 62.5313,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 62.8332,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 63.1583,
+      "category": "snare",
+      "velocity": 75
+    },
+    {
+      "time": 63.4137,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 63.5762,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 63.7156,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 64.0174,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 64.1567,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 64.7605,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 64.8533,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 65.2016,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 65.4803,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 65.6428,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 65.7589,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 65.9215,
+      "category": "snare",
+      "velocity": 70
+    },
+    {
+      "time": 66.0376,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 66.2233,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 66.5252,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 66.6413,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 66.8038,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 66.9199,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 67.2218,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 67.5236,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 67.6862,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 67.8023,
+      "category": "hihat_closed",
+      "velocity": 35
+    },
+    {
+      "time": 67.9416,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 68.0809,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 68.2434,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 68.3828,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 68.5685,
+      "category": "hihat_closed",
+      "velocity": 13
+    },
+    {
+      "time": 68.6846,
+      "category": "hihat_closed",
+      "velocity": 57
+    },
+    {
+      "time": 68.8007,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 69.3812,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 69.5438,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 69.7295,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 69.8224,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 69.9849,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 70.1475,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 70.4261,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 70.5654,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 70.7048,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 70.8673,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 71.1924,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 71.2853,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 71.4478,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 71.5871,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 71.7497,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 71.889,
+      "category": "snare",
+      "velocity": 65
+    },
+    {
+      "time": 72.1676,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 72.3534,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 72.4695,
+      "category": "snare",
+      "velocity": 70
+    },
+    {
+      "time": 72.7249,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 72.9107,
+      "category": "snare",
+      "velocity": 78
+    },
+    {
+      "time": 73.05,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 73.3286,
+      "category": "hihat_closed",
+      "velocity": 37
+    },
+    {
+      "time": 73.4679,
+      "category": "kick",
+      "velocity": 20
+    },
+    {
+      "time": 73.6305,
+      "category": "hihat_closed",
+      "velocity": 31
+    },
+    {
+      "time": 73.7466,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 74.0717,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 74.211,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 74.3503,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 74.4896,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 74.6754,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 75.0701,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 75.2327,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 75.372,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 75.6738,
+      "category": "snare",
+      "velocity": 73
+    },
+    {
+      "time": 75.8132,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 75.9525,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 76.0918,
+      "category": "kick",
+      "velocity": 26
+    },
+    {
+      "time": 76.2079,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 76.533,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 76.6955,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 76.8348,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 76.9509,
+      "category": "snare",
+      "velocity": 11,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 77.1135,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 77.3921,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 77.5546,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 77.694,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 78.1351,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 78.7389,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 78.855,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 79.1336,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 79.4587,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 79.7373,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 79.8766,
+      "category": "kick",
+      "velocity": 46
+    },
+    {
+      "time": 80.016,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 80.3178,
+      "category": "hihat_closed",
+      "velocity": 57
+    },
+    {
+      "time": 80.4571,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 80.5965,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 80.8751,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 81.0376,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 81.2002,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 81.4788,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 81.6646,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 81.7807,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 81.92,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 82.0593,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 82.2219,
+      "category": "snare",
+      "velocity": 71
+    },
+    {
+      "time": 82.338,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 82.6398,
+      "category": "hihat_closed",
+      "velocity": 35
+    },
+    {
+      "time": 82.8256,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 82.9417,
+      "category": "hihat_closed",
+      "velocity": 27
+    },
+    {
+      "time": 83.3596,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 83.499,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 83.8008,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 84.1259,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 84.4045,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 84.5439,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 84.6832,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 84.985,
+      "category": "snare",
+      "velocity": 67
+    },
+    {
+      "time": 85.1244,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 85.2637,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 85.403,
+      "category": "kick",
+      "velocity": 27
+    },
+    {
+      "time": 85.5655,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 85.7049,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 85.8442,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 86.1228,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 86.4479,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 86.7265,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 86.8426,
+      "category": "kick",
+      "velocity": 32
+    },
+    {
+      "time": 87.0052,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 87.4463,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 87.8875,
+      "category": "hihat_closed",
+      "velocity": 51
+    },
+    {
+      "time": 88.0501,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 88.1662,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 88.468,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 88.6538,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 88.7699,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 89.0253,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 89.1878,
+      "category": "kick",
+      "velocity": 45
+    },
+    {
+      "time": 89.3504,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 89.629,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 89.7683,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 89.9309,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 90.1863,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 90.4649,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 90.79,
+      "category": "hihat_closed",
+      "velocity": 23
+    },
+    {
+      "time": 90.9061,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 91.0919,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 91.2312,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 91.3473,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 91.5331,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 91.6492,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 92.0903,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 92.8334,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 93.1352,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 93.6925,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 93.8783,
+      "category": "kick",
+      "velocity": 89
+    },
+    {
+      "time": 93.9944,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 94.2962,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 94.4123,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 94.5749,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 94.8535,
+      "category": "hihat_closed",
+      "velocity": 27
+    },
+    {
+      "time": 95.0161,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 95.1554,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 95.4572,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 96.0377,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 96.1771,
+      "category": "kick",
+      "velocity": 51
+    },
+    {
+      "time": 96.3164,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 96.6182,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 96.7576,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 96.9201,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 97.3613,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 97.5006,
+      "category": "snare",
+      "velocity": 64
+    },
+    {
+      "time": 98.0811,
+      "category": "hihat_closed",
+      "velocity": 34
+    },
+    {
+      "time": 98.2436,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 98.3365,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 98.499,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 98.6384,
+      "category": "snare",
+      "velocity": 31,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 99.0795,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 99.2421,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 99.3582,
+      "category": "kick",
+      "velocity": 31
+    },
+    {
+      "time": 99.5207,
+      "category": "hihat_closed",
+      "velocity": 30
+    },
+    {
+      "time": 99.7994,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 100.1244,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 100.4031,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 100.6817,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 100.8443,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 100.9604,
+      "category": "kick",
+      "velocity": 30
+    },
+    {
+      "time": 101.4015,
+      "category": "kick",
+      "velocity": 21
+    },
+    {
+      "time": 102.0285,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 102.1446,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 102.3303,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 102.4464,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 102.7483,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 102.8876,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 103.0269,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 103.1663,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 103.3056,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 103.6074,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 103.7932,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 103.8861,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 104.0486,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 104.1879,
+      "category": "hihat_closed",
+      "velocity": 59
+    },
+    {
+      "time": 104.3737,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 104.4898,
+      "category": "snare",
+      "velocity": 65
+    },
+    {
+      "time": 104.7452,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 104.9078,
+      "category": "kick",
+      "velocity": 31
+    },
+    {
+      "time": 105.0471,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 105.2096,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 105.3489,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 105.5115,
+      "category": "snare",
+      "velocity": 78
+    },
+    {
+      "time": 105.6276,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 105.9294,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 106.0688,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 106.2313,
+      "category": "hihat_closed",
+      "velocity": 31
+    },
+    {
+      "time": 106.5099,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 106.6493,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 106.8118,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 107.0904,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 107.2298,
+      "category": "snare",
+      "velocity": 11,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 107.3923,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 107.5084,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 107.6941,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 107.8102,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 107.9496,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 108.2746,
+      "category": "snare",
+      "velocity": 76
+    },
+    {
+      "time": 108.3907,
+      "category": "kick",
+      "velocity": 51
+    },
+    {
+      "time": 108.5301,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 108.7158,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 108.8319,
+      "category": "hihat_closed",
+      "velocity": 30
+    },
+    {
+      "time": 108.9945,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 109.1106,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 109.4124,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 109.5982,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 109.7143,
+      "category": "hihat_closed",
+      "velocity": 36
+    },
+    {
+      "time": 109.8768,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 109.9929,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 110.1555,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 110.2948,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 110.4573,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 110.5966,
+      "category": "hihat_closed",
+      "velocity": 52
+    },
+    {
+      "time": 110.7824,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 111.1771,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 111.3165,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 111.4558,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 111.7576,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 111.9434,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 112.0595,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 112.222,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 112.3381,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 112.4775,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 112.6168,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 112.9186,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 113.1044,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 113.2205,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 113.3598,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 113.4759,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 113.6617,
+      "category": "snare",
+      "velocity": 65
+    },
+    {
+      "time": 113.801,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 113.9868,
+      "category": "hihat_closed",
+      "velocity": 25
+    },
+    {
+      "time": 114.0796,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 114.2422,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 114.3583,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 114.544,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 114.6834,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 114.7995,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 114.962,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 115.38,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 116.0069,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 116.123,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 116.2855,
+      "category": "snare",
+      "velocity": 28,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 116.4249,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 116.5642,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 116.7035,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 116.9821,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 117.1447,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 117.284,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 117.5859,
+      "category": "snare",
+      "velocity": 73
+    },
+    {
+      "time": 117.8645,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 118.027,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 118.1663,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 118.3057,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 118.4218,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 118.7236,
+      "category": "hihat_closed",
+      "velocity": 23
+    },
+    {
+      "time": 118.9094,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 119.188,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 119.3041,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 119.4667,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 119.606,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 119.7685,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 120.0704,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 120.4883,
+      "category": "hihat_closed",
+      "velocity": 50
+    },
+    {
+      "time": 120.6509,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 120.7902,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 121.0688,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 121.2546,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 121.3707,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 121.5332,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 121.6493,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 121.7654,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 121.928,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 122.3692,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 122.5549,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 122.671,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 122.8103,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 122.9729,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 123.1122,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 123.298,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 123.3908,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 123.5302,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 123.6927,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 123.8552,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 123.9713,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 124.1107,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 124.2732,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 124.7376,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 125.4342,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 125.7128,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 125.9218,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 126.0147,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 126.2933,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 126.4559,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 126.572,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 126.8971,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 127.0364,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 127.1757,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 127.3382,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 127.4776,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 127.6633,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 127.733,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 128.0348,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 128.3599,
+      "category": "snare",
+      "velocity": 71
+    },
+    {
+      "time": 128.6385,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 128.8011,
+      "category": "snare",
+      "velocity": 81
+    },
+    {
+      "time": 128.9172,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 129.3584,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 129.5209,
+      "category": "hihat_closed",
+      "velocity": 33
+    },
+    {
+      "time": 129.7995,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 129.9621,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 130.1014,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 130.38,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 130.5658,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 130.6819,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 130.9373,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 131.1231,
+      "category": "snare",
+      "velocity": 65
+    },
+    {
+      "time": 131.2392,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 131.541,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 131.6804,
+      "category": "kick",
+      "velocity": 54
+    },
+    {
+      "time": 131.8429,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 131.959,
+      "category": "kick",
+      "velocity": 30
+    },
+    {
+      "time": 132.1215,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 132.4002,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 132.7253,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 132.8646,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 132.9807,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 133.3058,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 133.4451,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 133.5844,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 134.072,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 134.6061,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 134.7454,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 134.9079,
+      "category": "snare",
+      "velocity": 28,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 135.0473,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 135.3491,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 135.6278,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 135.7671,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 135.9064,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 136.3476,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 136.4869,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 136.6494,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 136.7655,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 136.9281,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 137.0442,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 137.2299,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 137.3693,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 137.6711,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 137.8337,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 137.9498,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 138.0891,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 138.2516,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 138.5302,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 138.6696,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 138.8321,
+      "category": "hihat_closed",
+      "velocity": 29
+    },
+    {
+      "time": 139.3894,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 139.6912,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 139.877,
+      "category": "snare",
+      "velocity": 16,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 140.1556,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 140.2717,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 140.4111,
+      "category": "kick",
+      "velocity": 29
+    },
+    {
+      "time": 140.5736,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 141.038,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 141.1541,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 141.4095,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 141.5953,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 141.7346,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 142.0365,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 142.199,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 142.3151,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 142.5937,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 142.7563,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 142.8956,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 143.1975,
+      "category": "hihat_closed",
+      "velocity": 50
+    },
+    {
+      "time": 143.3832,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 144.0334,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 144.2191,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 144.3585,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 144.5442,
+      "category": "hihat_closed",
+      "velocity": 15
+    },
+    {
+      "time": 144.6603,
+      "category": "snare",
+      "velocity": 81
+    },
+    {
+      "time": 144.939,
+      "category": "hihat_closed",
+      "velocity": 49
+    },
+    {
+      "time": 145.0551,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 145.2176,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 145.4266,
+      "category": "hihat_closed",
+      "velocity": 11
+    },
+    {
+      "time": 145.5195,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 145.7052,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 145.8213,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 146.1,
+      "category": "hihat_closed",
+      "velocity": 49
+    },
+    {
+      "time": 146.2625,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 146.3786,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 146.6805,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 146.8662,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 146.9823,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 147.1216,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 147.261,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 147.4235,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 147.5396,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 147.8647,
+      "category": "snare",
+      "velocity": 72
+    },
+    {
+      "time": 147.9808,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 148.5845,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 148.7238,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 149.0024,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 149.6062,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 149.7455,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 149.8848,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 150.1867,
+      "category": "hihat_closed",
+      "velocity": 56
+    },
+    {
+      "time": 150.326,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 150.4653,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 150.6278,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 150.7672,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 150.9065,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 151.0458,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 151.2316,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 151.3244,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 151.4638,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 151.6495,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 151.9049,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 152.0675,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 152.2068,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 152.5087,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 152.6944,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 153.0892,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 153.2517,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 153.3678,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 153.6697,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 153.8554,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 153.9715,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 154.2269,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 154.3895,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 154.5288,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 154.8539,
+      "category": "snare",
+      "velocity": 88
+    },
+    {
+      "time": 154.97,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 155.1325,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 155.2951,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 155.4112,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 155.6666,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 155.8756,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 155.9917,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 156.1774,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 156.2935,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 156.5954,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 156.7347,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 156.8508,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 157.1759,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 157.292,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 157.9189,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 158.035,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 158.3369,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 158.6387,
+      "category": "snare",
+      "velocity": 69
+    },
+    {
+      "time": 158.9174,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 159.0335,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 159.196,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 159.4979,
+      "category": "hihat_closed",
+      "velocity": 63
+    },
+    {
+      "time": 159.6836,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 159.7765,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 159.9623,
+      "category": "hihat_closed",
+      "velocity": 23
+    },
+    {
+      "time": 160.0784,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 160.2641,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 160.357,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 160.5428,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 160.6589,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 160.8446,
+      "category": "hihat_closed",
+      "velocity": 15
+    },
+    {
+      "time": 160.9607,
+      "category": "snare",
+      "velocity": 71
+    },
+    {
+      "time": 161.1,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 161.2394,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 161.3787,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 161.4948,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 161.8199,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 161.9592,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 162.1217,
+      "category": "hihat_closed",
+      "velocity": 36
+    },
+    {
+      "time": 162.4004,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 162.679,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 162.9809,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 163.1666,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 163.2827,
+      "category": "snare",
+      "velocity": 64
+    },
+    {
+      "time": 163.5381,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 163.7239,
+      "category": "snare",
+      "velocity": 71
+    },
+    {
+      "time": 163.84,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 164.1419,
+      "category": "hihat_closed",
+      "velocity": 37
+    },
+    {
+      "time": 164.2812,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 164.4437,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 164.7224,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 165.0242,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 165.3029,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 165.6047,
+      "category": "hihat_closed",
+      "velocity": 50
+    },
+    {
+      "time": 165.9066,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 165.9995,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 166.162,
+      "category": "kick",
+      "velocity": 31
+    },
+    {
+      "time": 166.4871,
+      "category": "hihat_closed",
+      "velocity": 57
+    },
+    {
+      "time": 166.6032,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 167.2301,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 167.3462,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 167.6481,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 167.8338,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 168.0893,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 168.2286,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 168.3911,
+      "category": "snare",
+      "velocity": 88
+    },
+    {
+      "time": 168.5072,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 168.8091,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 168.9484,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 169.1109,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 169.227,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 169.3896,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 169.5289,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 169.6682,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 169.9701,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 170.0862,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 170.2719,
+      "category": "snare",
+      "velocity": 77
+    },
+    {
+      "time": 170.4345,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 170.5506,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 170.7131,
+      "category": "snare",
+      "velocity": 74
+    },
+    {
+      "time": 170.8292,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 171.1311,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 171.2704,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 171.7116,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 171.967,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 172.2921,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 172.5939,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 172.7565,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 172.8726,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 173.0351,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 173.1744,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 173.5924,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 173.7549,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 173.871,
+      "category": "kick",
+      "velocity": 33
+    },
+    {
+      "time": 174.0568,
+      "category": "snare",
+      "velocity": 72
+    },
+    {
+      "time": 174.1961,
+      "category": "kick",
+      "velocity": 49
+    },
+    {
+      "time": 174.3354,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 174.6373,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 174.823,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 174.9159,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 175.0785,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 175.1946,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 175.3803,
+      "category": "snare",
+      "velocity": 84
+    },
+    {
+      "time": 175.4964,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 175.7983,
+      "category": "hihat_closed",
+      "velocity": 54
+    },
+    {
+      "time": 175.9608,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 176.3788,
+      "category": "hihat_closed",
+      "velocity": 51
+    },
+    {
+      "time": 176.5181,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 176.6574,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 176.9593,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 177.2611,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 177.5398,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 177.7023,
+      "category": "snare",
+      "velocity": 76
+    },
+    {
+      "time": 177.8184,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 178.1203,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 178.2596,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 178.3989,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 178.7008,
+      "category": "hihat_closed",
+      "velocity": 50
+    },
+    {
+      "time": 179.0026,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 179.2813,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 179.467,
+      "category": "hihat_closed",
+      "velocity": 13
+    },
+    {
+      "time": 179.5831,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 179.7457,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 179.8618,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 180.0243,
+      "category": "snare",
+      "velocity": 72
+    },
+    {
+      "time": 180.1636,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 180.628,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 181.046,
+      "category": "snare",
+      "velocity": 73
+    },
+    {
+      "time": 181.3014,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 181.6033,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 181.9051,
+      "category": "hihat_closed",
+      "velocity": 30
+    },
+    {
+      "time": 182.207,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 182.3463,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 182.4856,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 182.6482,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 182.7875,
+      "category": "snare",
+      "velocity": 72
+    },
+    {
+      "time": 182.9268,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 183.0661,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 183.1822,
+      "category": "kick",
+      "velocity": 34
+    },
+    {
+      "time": 183.3448,
+      "category": "hihat_closed",
+      "velocity": 26
+    },
+    {
+      "time": 183.5073,
+      "category": "kick",
+      "velocity": 54
+    },
+    {
+      "time": 183.6234,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 183.9485,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 184.1342,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 184.2271,
+      "category": "hihat_closed",
+      "velocity": 35
+    },
+    {
+      "time": 184.5058,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 184.6683,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 184.8076,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 185.1095,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 185.2256,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 185.4113,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 185.8525,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 185.9686,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 186.2705,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 186.8742,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 186.9903,
+      "category": "kick",
+      "velocity": 39
+    },
+    {
+      "time": 187.1528,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 187.3154,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 187.4547,
+      "category": "snare",
+      "velocity": 81
+    },
+    {
+      "time": 187.594,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 187.7333,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 187.8727,
+      "category": "kick",
+      "velocity": 25
+    },
+    {
+      "time": 188.012,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 188.1745,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 188.3138,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 188.4996,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 188.5925,
+      "category": "kick",
+      "velocity": 18
+    },
+    {
+      "time": 188.755,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 188.8943,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 189.0569,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 189.1962,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 189.3355,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 189.4748,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 189.6374,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 189.9392,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 190.4965,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 190.6358,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 190.7984,
+      "category": "snare",
+      "velocity": 28,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 190.9377,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 191.2163,
+      "category": "hihat_closed",
+      "velocity": 27
+    },
+    {
+      "time": 191.495,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 191.6575,
+      "category": "kick",
+      "velocity": 54
+    },
+    {
+      "time": 191.7968,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 191.9826,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 192.0987,
+      "category": "hihat_closed",
+      "velocity": 60
+    },
+    {
+      "time": 192.238,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 192.3773,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 192.6792,
+      "category": "hihat_closed",
+      "velocity": 59
+    },
+    {
+      "time": 192.8185,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 192.981,
+      "category": "snare",
+      "velocity": 67
+    },
+    {
+      "time": 193.1436,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 193.2365,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 193.5383,
+      "category": "snare",
+      "velocity": 31,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 193.7009,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 193.8402,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 193.9795,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 194.1188,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 194.4207,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 194.6064,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 194.7225,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 194.8386,
+      "category": "kick",
+      "velocity": 13
+    },
+    {
+      "time": 195.1869,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 195.2798,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 195.5817,
+      "category": "hihat_closed",
+      "velocity": 17
+    },
+    {
+      "time": 196.1854,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 196.3247,
+      "category": "kick",
+      "velocity": 67
+    },
+    {
+      "time": 196.4408,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 196.7659,
+      "category": "snare",
+      "velocity": 93
+    },
+    {
+      "time": 196.882,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 197.0445,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 197.2071,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 197.3232,
+      "category": "hihat_closed",
+      "velocity": 36
+    },
+    {
+      "time": 197.4857,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 197.625,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 197.9037,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 198.1127,
+      "category": "hihat_closed",
+      "velocity": 13
+    },
+    {
+      "time": 198.2055,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 198.3449,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 198.4842,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 198.6235,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 198.786,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 198.9486,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 199.2272,
+      "category": "snare",
+      "velocity": 22,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 199.6684,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 199.8077,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 199.9238,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 200.2489,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 200.5275,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 200.6901,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 200.8294,
+      "category": "hihat_closed",
+      "velocity": 50
+    },
+    {
+      "time": 200.9687,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 201.108,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 201.4099,
+      "category": "hihat_closed",
+      "velocity": 54
+    },
+    {
+      "time": 201.5492,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 201.6885,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 201.9672,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 202.1529,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 202.2458,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 202.5709,
+      "category": "hihat_closed",
+      "velocity": 23
+    },
+    {
+      "time": 202.7566,
+      "category": "snare",
+      "velocity": 28,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 202.8727,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 203.0121,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 203.1282,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 203.3139,
+      "category": "snare",
+      "velocity": 76
+    },
+    {
+      "time": 203.43,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 203.7319,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 203.8712,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 204.4749,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 204.6142,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 204.8929,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 205.3573,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 205.4966,
+      "category": "hihat_closed",
+      "velocity": 52
+    },
+    {
+      "time": 205.6127,
+      "category": "kick",
+      "velocity": 28
+    },
+    {
+      "time": 205.7752,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 205.961,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 206.0771,
+      "category": "hihat_closed",
+      "velocity": 65
+    },
+    {
+      "time": 206.2629,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 206.3557,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 206.5183,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 206.6344,
+      "category": "hihat_closed",
+      "velocity": 34
+    },
+    {
+      "time": 206.7969,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 206.9595,
+      "category": "snare",
+      "velocity": 67
+    },
+    {
+      "time": 207.2149,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 207.3542,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 207.5167,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 207.6793,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 207.7954,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 207.9579,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 208.074,
+      "category": "kick",
+      "velocity": 30
+    },
+    {
+      "time": 208.5849,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 208.9796,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 209.1189,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 209.2815,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 209.5601,
+      "category": "hihat_closed",
+      "velocity": 18
+    },
+    {
+      "time": 209.6994,
+      "category": "kick",
+      "velocity": 11
+    },
+    {
+      "time": 209.862,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 210.0013,
+      "category": "kick",
+      "velocity": 50
+    },
+    {
+      "time": 210.1174,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 210.2799,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 210.4192,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 210.7211,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 210.8836,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 211.0229,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 211.1855,
+      "category": "hihat_closed",
+      "velocity": 25
+    },
+    {
+      "time": 211.3016,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 211.4641,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 211.6034,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 211.8821,
+      "category": "hihat_closed",
+      "velocity": 24
+    },
+    {
+      "time": 212.0678,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 212.1839,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 212.3465,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 212.4626,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 212.6019,
+      "category": "kick",
+      "velocity": 36
+    },
+    {
+      "time": 212.7412,
+      "category": "snare",
+      "velocity": 31,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 213.0663,
+      "category": "snare",
+      "velocity": 74
+    },
+    {
+      "time": 213.2288,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 213.9254,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 214.2041,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 214.3898,
+      "category": "snare",
+      "velocity": 16,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 214.5292,
+      "category": "snare",
+      "velocity": 80
+    },
+    {
+      "time": 214.7846,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 214.9471,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 215.0864,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 215.249,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 215.3651,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 215.5044,
+      "category": "kick",
+      "velocity": 56
+    },
+    {
+      "time": 215.6669,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 215.8295,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 215.9688,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 216.1081,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 216.2474,
+      "category": "snare",
+      "velocity": 48
+    },
+    {
+      "time": 216.41,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 216.5493,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 216.7351,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 217.1298,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 217.2691,
+      "category": "kick",
+      "velocity": 50
+    },
+    {
+      "time": 217.4084,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 217.7103,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 217.8961,
+      "category": "snare",
+      "velocity": 19,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 218.2908,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 218.4533,
+      "category": "snare",
+      "velocity": 62
+    },
+    {
+      "time": 218.5927,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 218.8481,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 219.0571,
+      "category": "snare",
+      "velocity": 16,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 219.1499,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 219.3125,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 219.4518,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 219.5911,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 219.7537,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 220.1716,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 220.3341,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 220.4967,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 220.5896,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 220.9146,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 221.2165,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 221.4951,
+      "category": "hihat_closed",
+      "velocity": 53
+    },
+    {
+      "time": 221.6345,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 221.7506,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 221.8899,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 222.0524,
+      "category": "kick",
+      "velocity": 30
+    },
+    {
+      "time": 222.2614,
+      "category": "hihat_closed",
+      "velocity": 12
+    },
+    {
+      "time": 222.3775,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 223.1205,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 223.2134,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 223.8404,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 223.9797,
+      "category": "kick",
+      "velocity": 55
+    },
+    {
+      "time": 224.119,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 224.2351,
+      "category": "kick",
+      "velocity": 29
+    },
+    {
+      "time": 224.3976,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 224.6995,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 224.8388,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 224.9781,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 225.1407,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 225.28,
+      "category": "hihat_closed",
+      "velocity": 56
+    },
+    {
+      "time": 225.4193,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 225.5586,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 225.8605,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 226.0463,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 226.1624,
+      "category": "snare",
+      "velocity": 70
+    },
+    {
+      "time": 226.3249,
+      "category": "kick",
+      "velocity": 55
+    },
+    {
+      "time": 226.441,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 226.5803,
+      "category": "kick",
+      "velocity": 45
+    },
+    {
+      "time": 226.7196,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 227.0215,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 227.1608,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 227.3234,
+      "category": "hihat_closed",
+      "velocity": 31
+    },
+    {
+      "time": 227.7645,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 227.9039,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 228.1825,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 228.4844,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 228.6237,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 228.763,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 228.9023,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 229.0649,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 229.3667,
+      "category": "snare",
+      "velocity": 83
+    },
+    {
+      "time": 229.506,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 229.6454,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 229.8079,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 229.924,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 230.0865,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 230.2259,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 230.4116,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 230.5277,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 230.6438,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 230.8063,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 231.0618,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 231.2475,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 231.3636,
+      "category": "kick",
+      "velocity": 29
+    },
+    {
+      "time": 231.8745,
+      "category": "hihat_closed",
+      "velocity": 17
+    },
+    {
+      "time": 232.4317,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 232.5246,
+      "category": "kick",
+      "velocity": 38
+    },
+    {
+      "time": 232.7336,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 232.8497,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 233.1516,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 233.4302,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 233.5927,
+      "category": "snare",
+      "velocity": 77
+    },
+    {
+      "time": 233.7321,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 234.0107,
+      "category": "snare",
+      "velocity": 65
+    },
+    {
+      "time": 234.1965,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 234.2893,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 234.4287,
+      "category": "kick",
+      "velocity": 26
+    },
+    {
+      "time": 234.568,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 234.7537,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 234.8931,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 235.1717,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 235.3342,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 235.4736,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 235.6129,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 235.7522,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 235.8915,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 236.0541,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 236.472,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 237.1918,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 237.5169,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 237.7956,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 238.051,
+      "category": "kick",
+      "velocity": 40
+    },
+    {
+      "time": 238.2135,
+      "category": "kick",
+      "velocity": 33
+    },
+    {
+      "time": 238.3761,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 238.5386,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 238.6779,
+      "category": "snare",
+      "velocity": 73
+    },
+    {
+      "time": 238.8405,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 238.9566,
+      "category": "snare",
+      "velocity": 43
+    },
+    {
+      "time": 239.0727,
+      "category": "kick",
+      "velocity": 32
+    },
+    {
+      "time": 239.212,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 239.3977,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 239.5371,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 239.8389,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 240.0247,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 240.3962,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 240.5587,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 240.698,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 240.9999,
+      "category": "hihat_closed",
+      "velocity": 49
+    },
+    {
+      "time": 241.1392,
+      "category": "snare",
+      "velocity": 23,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 241.5572,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 241.7197,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 241.8823,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 242.1609,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 242.4628,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 242.7182,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 242.9039,
+      "category": "snare",
+      "velocity": 78
+    },
+    {
+      "time": 243.0433,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 243.3219,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 243.4612,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 243.6005,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 243.7631,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 243.9024,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 244.2043,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 244.39,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 244.4829,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 244.6687,
+      "category": "snare",
+      "velocity": 15,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 244.7848,
+      "category": "snare",
+      "velocity": 55
+    },
+    {
+      "time": 245.0634,
+      "category": "hihat_closed",
+      "velocity": 43
+    },
+    {
+      "time": 245.2027,
+      "category": "snare",
+      "velocity": 37
+    },
+    {
+      "time": 245.342,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 245.7832,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 246.3869,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 246.5263,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 246.6888,
+      "category": "snare",
+      "velocity": 25,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 246.8281,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 247.1068,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 247.3854,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 247.5247,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 247.664,
+      "category": "snare",
+      "velocity": 29,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 247.873,
+      "category": "hihat_closed",
+      "velocity": 13
+    },
+    {
+      "time": 248.1052,
+      "category": "snare",
+      "velocity": 58
+    },
+    {
+      "time": 248.2678,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 248.5696,
+      "category": "snare",
+      "velocity": 74
+    },
+    {
+      "time": 248.6857,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 248.8483,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 249.1269,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 249.4288,
+      "category": "hihat_closed",
+      "velocity": 37
+    },
+    {
+      "time": 249.7306,
+      "category": "hihat_closed",
+      "velocity": 48
+    },
+    {
+      "time": 249.8699,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 250.0093,
+      "category": "snare",
+      "velocity": 36
+    },
+    {
+      "time": 250.3111,
+      "category": "hihat_closed",
+      "velocity": 45
+    },
+    {
+      "time": 250.4969,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 250.8916,
+      "category": "hihat_closed",
+      "velocity": 51
+    },
+    {
+      "time": 251.0541,
+      "category": "snare",
+      "velocity": 59
+    },
+    {
+      "time": 251.1935,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 251.4721,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 251.6579,
+      "category": "hihat_closed",
+      "velocity": 14
+    },
+    {
+      "time": 251.774,
+      "category": "snare",
+      "velocity": 49
+    },
+    {
+      "time": 252.0526,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 252.1919,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 252.3312,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 252.5402,
+      "category": "hihat_closed",
+      "velocity": 14
+    },
+    {
+      "time": 252.6331,
+      "category": "hihat_closed",
+      "velocity": 32
+    },
+    {
+      "time": 252.8189,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 252.935,
+      "category": "snare",
+      "velocity": 44
+    },
+    {
+      "time": 253.0975,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 253.2136,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 253.3761,
+      "category": "kick",
+      "velocity": 57
+    },
+    {
+      "time": 253.4922,
+      "category": "snare",
+      "velocity": 46
+    },
+    {
+      "time": 253.7941,
+      "category": "hihat_closed",
+      "velocity": 21
+    },
+    {
+      "time": 253.9334,
+      "category": "snare",
+      "velocity": 12,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 254.096,
+      "category": "hihat_closed",
+      "velocity": 46
+    },
+    {
+      "time": 254.2585,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 254.3746,
+      "category": "hihat_closed",
+      "velocity": 39
+    },
+    {
+      "time": 254.5371,
+      "category": "snare",
+      "velocity": 64
+    },
+    {
+      "time": 254.6765,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 255.1176,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 255.6981,
+      "category": "kick",
+      "velocity": 62
+    },
+    {
+      "time": 255.8142,
+      "category": "kick",
+      "velocity": 41
+    },
+    {
+      "time": 256.1393,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 256.4412,
+      "category": "snare",
+      "velocity": 54
+    },
+    {
+      "time": 256.6966,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 256.8591,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 256.9985,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 257.3003,
+      "category": "hihat_closed",
+      "velocity": 58
+    },
+    {
+      "time": 257.4629,
+      "category": "kick",
+      "velocity": 58
+    },
+    {
+      "time": 257.579,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 257.8576,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 258.0434,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 258.1595,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 258.4381,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 258.7632,
+      "category": "snare",
+      "velocity": 66
+    },
+    {
+      "time": 258.9025,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 259.0418,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 259.2044,
+      "category": "snare",
+      "velocity": 74
+    },
+    {
+      "time": 259.3437,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 259.6223,
+      "category": "hihat_closed",
+      "velocity": 41
+    },
+    {
+      "time": 259.8081,
+      "category": "snare",
+      "velocity": 18,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 259.9242,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 260.2028,
+      "category": "hihat_closed",
+      "velocity": 38
+    },
+    {
+      "time": 260.4815,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 260.7833,
+      "category": "hihat_closed",
+      "velocity": 19
+    },
+    {
+      "time": 261.1084,
+      "category": "snare",
+      "velocity": 81
+    },
+    {
+      "time": 261.2477,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 261.3638,
+      "category": "hihat_closed",
+      "velocity": 44
+    },
+    {
+      "time": 261.5031,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 261.6657,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 261.9675,
+      "category": "snare",
+      "velocity": 68
+    },
+    {
+      "time": 262.1533,
+      "category": "snare",
+      "velocity": 51
+    },
+    {
+      "time": 262.2462,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 262.4087,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 262.5248,
+      "category": "hihat_closed",
+      "velocity": 42
+    },
+    {
+      "time": 262.8267,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 263.1053,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 263.2678,
+      "category": "kick",
+      "velocity": 12
+    },
+    {
+      "time": 263.4072,
+      "category": "hihat_closed",
+      "velocity": 35
+    },
+    {
+      "time": 263.6858,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 263.8483,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 263.9877,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 264.4288,
+      "category": "kick",
+      "velocity": 22
+    },
+    {
+      "time": 264.87,
+      "category": "snare",
+      "velocity": 63
+    },
+    {
+      "time": 265.0093,
+      "category": "kick",
+      "velocity": 63
+    },
+    {
+      "time": 265.1487,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 265.3112,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 265.4505,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 265.7292,
+      "category": "hihat_closed",
+      "velocity": 29
+    },
+    {
+      "time": 266.0078,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 266.1703,
+      "category": "snare",
+      "velocity": 47
+    },
+    {
+      "time": 266.3097,
+      "category": "snare",
+      "velocity": 35
+    },
+    {
+      "time": 266.6115,
+      "category": "hihat_closed",
+      "velocity": 52
+    },
+    {
+      "time": 266.7508,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 266.8902,
+      "category": "snare",
+      "velocity": 41
+    },
+    {
+      "time": 267.1688,
+      "category": "hihat_closed",
+      "velocity": 17
+    },
+    {
+      "time": 267.3546,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 267.4707,
+      "category": "snare",
+      "velocity": 42
+    },
+    {
+      "time": 267.7725,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 267.9583,
+      "category": "snare",
+      "velocity": 24,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 268.0744,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 268.2369,
+      "category": "snare",
+      "velocity": 57
+    },
+    {
+      "time": 268.353,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 268.4923,
+      "category": "kick",
+      "velocity": 37
+    },
+    {
+      "time": 268.6317,
+      "category": "snare",
+      "velocity": 33,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 268.9335,
+      "category": "hihat_closed",
+      "velocity": 34
+    },
+    {
+      "time": 269.0728,
+      "category": "snare",
+      "velocity": 20,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 269.2354,
+      "category": "hihat_closed",
+      "velocity": 30
+    },
+    {
+      "time": 269.6998,
+      "category": "snare",
+      "velocity": 56
+    },
+    {
+      "time": 269.7927,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 270.0945,
+      "category": "hihat_closed",
+      "velocity": 20
+    },
+    {
+      "time": 270.4196,
+      "category": "snare",
+      "velocity": 60
+    },
+    {
+      "time": 270.6982,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 270.8376,
+      "category": "snare",
+      "velocity": 61
+    },
+    {
+      "time": 270.9769,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 271.2787,
+      "category": "snare",
+      "velocity": 64
+    },
+    {
+      "time": 271.418,
+      "category": "kick",
+      "velocity": 59
+    },
+    {
+      "time": 271.5574,
+      "category": "hihat_closed",
+      "velocity": 40
+    },
+    {
+      "time": 271.7199,
+      "category": "snare",
+      "velocity": 26,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 271.8592,
+      "category": "snare",
+      "velocity": 70
+    },
+    {
+      "time": 271.9985,
+      "category": "kick",
+      "velocity": 61
+    },
+    {
+      "time": 272.1379,
+      "category": "snare",
+      "velocity": 50
+    },
+    {
+      "time": 272.4397,
+      "category": "hihat_closed",
+      "velocity": 22
+    },
+    {
+      "time": 272.5558,
+      "category": "snare",
+      "velocity": 14,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 272.8809,
+      "category": "kick",
+      "velocity": 60
+    },
+    {
+      "time": 272.997,
+      "category": "snare",
+      "velocity": 39
+    },
+    {
+      "time": 273.1595,
+      "category": "snare",
+      "velocity": 53
+    },
+    {
+      "time": 273.2989,
+      "category": "snare",
+      "velocity": 45
+    },
+    {
+      "time": 273.7865,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 273.9026,
+      "category": "snare",
+      "velocity": 38
+    },
+    {
+      "time": 274.1812,
+      "category": "hihat_closed",
+      "velocity": 47
+    },
+    {
+      "time": 274.3438,
+      "category": "snare",
+      "velocity": 52
+    },
+    {
+      "time": 274.4599,
+      "category": "snare",
+      "velocity": 40
+    },
+    {
+      "time": 274.7617,
+      "category": "hihat_closed",
+      "velocity": 17
+    },
+    {
+      "time": 275.0636,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 275.2261,
+      "category": "snare",
+      "velocity": 30,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 275.3422,
+      "category": "hihat_closed",
+      "velocity": 31
+    },
+    {
+      "time": 275.4815,
+      "category": "kick",
+      "velocity": 24
+    },
+    {
+      "time": 275.6209,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 276.1085,
+      "category": "snare",
+      "velocity": 32,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 276.2246,
+      "category": "snare",
+      "velocity": 27,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 276.3871,
+      "category": "snare",
+      "velocity": 13,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 276.7819,
+      "category": "snare",
+      "velocity": 17,
+      "sub_type": "ghost"
+    },
+    {
+      "time": 277.8268,
+      "category": "snare",
+      "velocity": 21,
+      "sub_type": "ghost"
+    }
+  ]
+}

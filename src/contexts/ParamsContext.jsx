@@ -132,6 +132,7 @@ export function ParamsProvider({ children }) {
     tilt: -80,
     fillColor: "#0011bb",
     opacity: 0.5,
+    size: 36,
   });
   const [showDownbeats, setShowDownbeats] = useState(true);
   const [showBeatsLines, setShowBeatLines] = useState(true);
@@ -139,6 +140,22 @@ export function ParamsProvider({ children }) {
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
   const [showVerticalGrid, setShowVerticalGrid] = useState(true);
+
+  /* ============================================================
+     Drum category colors (constant — no user editing needed)
+     ============================================================ */
+  const DRUM_CATEGORY_COLORS = {
+    kick:         "#dddddd",
+    snare:        "#dddddd",
+    hihat_closed: "#aaccff",
+    hihat_open:   "#88aaee",
+    tom:          "#ddaa88",
+    crash:        "#ffdd88",
+    ride:         "#eedd99",
+    high:         "#aaccff",
+    mid:          "#ddaa88",
+    low:          "#dddddd",
+  };
 
   /* ============================================================
      GlyphStyle (NEW)
@@ -295,6 +312,7 @@ export function ParamsProvider({ children }) {
         setShowDrumGlyphs,
         drumParams,
         setDrumParams,
+        drumCategoryColors: DRUM_CATEGORY_COLORS,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

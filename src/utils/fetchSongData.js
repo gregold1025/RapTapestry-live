@@ -55,8 +55,12 @@ export async function fetchSongData(songName) {
 
   let drumTranscription = null;
   try {
-    const res = await fetch(drumTranscriptionPath);
-    if (res.ok) drumTranscription = await res.json();
+    const v2Path = `${basePath}/drum-transcription-v2.json`;
+    const isJson = (res) =>
+      res.ok && (res.headers.get("content-type") || "").includes("json");
+    let res = await fetch(v2Path);
+    if (!isJson(res)) res = await fetch(drumTranscriptionPath);
+    if (isJson(res)) drumTranscription = await res.json();
     else console.warn(`No drum transcription found for ${songName}`);
   } catch (err) {
     console.warn(`Error loading drum transcription for ${songName}:`, err);
