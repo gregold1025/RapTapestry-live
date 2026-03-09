@@ -1,0 +1,107 @@
+/* GlobalMasterStrip — bottom visibility toggles + defaults */
+
+.gms-root {
+  display: flex;
+  flex-direction: column;
+  background: #080c12;
+  border-top: 1px solid #1a2232;
+}
+
+.gms-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  flex-wrap: wrap;
+}
+
+.gms-toggle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 10px;
+  border: 1px solid #1e2a3a;
+  background: transparent;
+  color: #3a4a5e;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.gms-toggle:hover { color: #6a7a90; border-color: #2a3a50; }
+.gms-toggle.is-active {
+  color: #7ab0cc;
+  border-color: #3a6a8a;
+  background: rgba(58,106,138,0.15);
+}
+
+.gms-spacer { flex: 1; }
+
+.gms-defaults-btn {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #3a4a5e;
+  background: transparent;
+  border: 1px solid #1e2a3a;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+.gms-defaults-btn:hover { color: #6a7a90; border-color: #2a3a50; }
+.gms-defaults-btn.is-open { color: #7ab0cc; border-color: #3a6a8a; }
+
+/* Defaults panel (slides up from strip) */
+.gms-defaults-panel {
+  padding: 10px 12px;
+  border-top: 1px solid #1a2232;
+  background: #0a0e16;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gms-defaults-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gms-default-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.68rem;
+  color: #4a5a70;
+}
+
+.gms-default-slider span:first-child {
+  width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.gms-default-val {
+  width: 28px;
+  flex-shrink: 0;
+  color: #3a4a5e;
+}
+
+.gms-default-slider input[type="range"] {
+  flex: 1;
+  accent-color: #3a6a8a;
+  height: 14px;
+}
+
+.gms-defaults-toggles {
+  display: flex;
+  gap: 16px;
+}
+
+.gms-small-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  color: #4a5a70;
+  cursor: pointer;
+}

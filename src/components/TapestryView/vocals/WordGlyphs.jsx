@@ -30,7 +30,7 @@ export default function WordGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { getVisualForWord, anchorOrAdopt, selections, removeSelection } =
+  const { getVisualForWord, anchorOrAdopt, selections, removeSelection, markWordInteraction } =
     useWordSelection();
 
   const {
@@ -88,7 +88,7 @@ export default function WordGlyphs({
         style:       { cursor: "pointer" },
         onClick:     (e) => {
           if (e.metaKey || e.ctrlKey) { e.stopPropagation(); anchorOrAdopt(id); return; }
-          if (e.altKey)               { e.stopPropagation(); removeMostRecentAnchorFor(id); return; }
+          if (e.altKey)               { e.stopPropagation(); markWordInteraction(); removeMostRecentAnchorFor(id); return; }
           seekAll(word.start);
         },
         onMouseEnter: (e) => {

@@ -31,7 +31,7 @@ export function WordBlock({
   const wordId = `${lineIdx}-${wordIdx}`;
   const isCurrent = playheadTime >= word.start && playheadTime < word.end;
 
-  const { getVisualForWord, selections, anchorOrAdopt, removeSelection } =
+  const { getVisualForWord, selections, anchorOrAdopt, removeSelection, markWordInteraction } =
     useWordSelection();
 
   const { wordActiveColor, wordOpacity, alliterationTier, showRhymes } =
@@ -53,27 +53,31 @@ export function WordBlock({
   const isAllit     = vis?.roles?.isAlliteration ?? false;
   const isAssonance = vis?.roles?.isAssonance    ?? false;
 
-  // background tint for anchor and rhyme matches
+  const baseOpacity = wordOpacity ?? 0.6;
+  const score = vis?.score ?? 1;
+
+  // background tint — opacity scales with match score (same as tapestry)
   const bgRgba =
     isAnchor || (isRhyme && showRhymes)
-      ? hexToRgba(vis?.color || wordActiveColor, wordOpacity ?? 0.6)
+      ? hexToRgba(vis?.color || wordActiveColor, isAnchor ? baseOpacity : baseOpacity * score)
       : "transparent";
 
-  // outline for anchor (strong) or alliteration (decorative)
+  // outline — anchor full, alliteration score-scaled
   const outlineStyle = isAnchor
-    ? `3px solid ${vis?.color || wordActiveColor}`
+    ? `3px solid ${hexToRgba(vis?.color || wordActiveColor, 1)}`
     : alliterationTier !== "off" && isAllit
-    ? `2px solid ${vis?.color || wordActiveColor}`
+    ? `2px solid ${hexToRgba(vis?.color || wordActiveColor, score)}`
     : "none";
 
-  // underline: assonance = dotted
+  // underline: assonance = dotted, score-scaled opacity
   const textDecorationLine  = isAssonance ? "underline" : "none";
   const textDecorationStyle = "dotted";
   const textDecorationColor = isAssonance
-    ? hexToRgba(vis.color, wordOpacity ?? 0.6)
+    ? hexToRgba(vis.color, baseOpacity * score)
     : undefined;
 
   function onToggleAnchor() {
+    markWordInteraction();
     if (anchorForThisWord) {
       removeSelection(anchorForThisWord.id);
     } else {

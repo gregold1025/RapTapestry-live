@@ -307,6 +307,15 @@ export function WordSelectionProvider({
     [selections]
   );
 
+  const [manualFocusWordId, setManualFocusWordId] = useState<string | null>(null);
+  const [wordInteractionStamp, setWordInteractionStamp] = useState<number>(0);
+
+  const focusedWordSelId: string | null = useMemo(() => {
+    if (manualFocusWordId && selections.some((s) => s.id === manualFocusWordId))
+      return manualFocusWordId;
+    return activeInZOrder.length ? activeInZOrder[activeInZOrder.length - 1].id : null;
+  }, [manualFocusWordId, selections, activeInZOrder]);
+
   // ---- Visual map (pre-computed, O(1) at render time) -----------------------
 
   const visualByWordId: Map<string, VisualForWord> = useMemo(() => {
@@ -400,7 +409,13 @@ export function WordSelectionProvider({
     setSelections((prev) => prev.map((s) => (s.id === id ? { ...s, params: {} } : s)));
   }
 
+  function markWordInteraction() {
+    setWordInteractionStamp(Date.now());
+  }
+
   function anchorOrAdopt(wordId: string) {
+    setManualFocusWordId(null);
+    setWordInteractionStamp(Date.now());
     setSelections((prev) => {
       let adopt: WordSelection | null = null;
       for (const s of prev) {
@@ -454,7 +469,14 @@ export function WordSelectionProvider({
         addSelection, anchorOrAdopt, removeSelection, clearSelections,
         toggleSelectionActive, setSelectionColor, updateSelection,
         setSelectionParams, clearSelectionParams,
+        markWordInteraction,
         selectedWordId,
+        focusedWordSelId,
+        setFocusedWordSelId: (id: string | null) => {
+          setManualFocusWordId(id);
+          if (id) setWordInteractionStamp(Date.now());
+        },
+        wordInteractionStamp,
       }}
     >
       {children}

@@ -91,16 +91,16 @@ export function ParamsProvider({ children }) {
 
   // Rhyme (nucleus + coda) — continuous strictness [0–1], search distance in lines
   const [showRhymes, setShowRhymes] = useState(true);
-  const [rhymeStrictness, setRhymeStrictness] = useState(0.7);
+  const [rhymeStrictness, setRhymeStrictness] = useState(1.0);
   const [rhymeSearchDistance, setRhymeSearchDistance] = useState(999);
 
   // Alliteration (onset) — discrete tier: 'off' | 'exact' | 'near', search distance in lines
-  const [alliterationTier, setAlliterationTier] = useState('near');
+  const [alliterationTier, setAlliterationTier] = useState('exact');
   const [alliterationSearchDistance, setAlliterationSearchDistance] = useState(999);
 
   // Assonance (nucleus only) — continuous strictness [0–1], search distance in lines
   const [showAssonance, setShowAssonance] = useState(false);
-  const [assonanceStrictness, setAssonanceStrictness] = useState(0.7);
+  const [assonanceStrictness, setAssonanceStrictness] = useState(1.0);
   const [assonanceSearchDistance, setAssonanceSearchDistance] = useState(999);
 
   // Consonance (coda only) — continuous strictness [0–1], search distance in lines

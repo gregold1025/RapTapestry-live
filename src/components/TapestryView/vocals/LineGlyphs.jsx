@@ -15,7 +15,7 @@ export default function LineGlyphs({
   const { layout } = useTapestryLayout();
   const { getVisualForLine, anchorOrAdopt, selections, removeSelection } =
     useLineSelection();
-  const { showLines, lineInactiveColor, lineOpacity } = useParams();
+  const { showLines, lineInactiveColor, lineOpacity, showEndRhymes } = useParams();
   const { seekAll } = useAudioEngine();
 
   const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
@@ -39,14 +39,17 @@ export default function LineGlyphs({
     const vis = getVisualForLine(lineIdx);
     const isHovered = hoveredLineIdx === lineIdx;
 
-    const fill = vis ? vis.color : lineInactiveColor;
+    // Gate match coloring on showEndRhymes (anchors always show)
+    const effectiveVis = vis && (vis.role === "anchor" || showEndRhymes) ? vis : null;
+
+    const fill = effectiveVis ? effectiveVis.color : lineInactiveColor;
     const stroke = isHovered
       ? HOVER_STROKE
-      : vis?.role === "anchor"
-      ? vis.color
+      : effectiveVis?.role === "anchor"
+      ? effectiveVis.color
       : "none";
 
-    const strokeWidth = isHovered ? 4 : vis?.role === "anchor" ? 3 : 0;
+    const strokeWidth = isHovered ? 4 : effectiveVis?.role === "anchor" ? 3 : 0;
 
     const rects = [];
     const { x: startX, row: startRow } = timeToPixels(line.start);

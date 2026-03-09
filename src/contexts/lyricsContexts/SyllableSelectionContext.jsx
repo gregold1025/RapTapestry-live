@@ -4,7 +4,6 @@ import React, {
   useContext,
   useState,
   useMemo,
-  useEffect,
   useCallback,
 } from "react";
 
@@ -319,11 +318,6 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
     return out;
   }, [matchesBySelectionId]);
 
-  useEffect(() => {
-    if (matchedIds.size > 0) {
-      console.log("syllable matchedIds recomputed:", matchedIds.size);
-    }
-  }, [matchedIds]);
 
   return (
     <SyllableSelectionContext.Provider

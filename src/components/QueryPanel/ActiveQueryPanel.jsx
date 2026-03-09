@@ -1,0 +1,533 @@
+// src/components/QueryPanel/ActiveQueryPanel.jsx
+import React, { useState, useMemo, useRef } from "react";
+import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
+import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
+import { useParams } from "../../contexts/ParamsContext";
+import { useAudioEngine } from "../../contexts/AudioContext";
+import {
+  ALLITERATION_TIERS,
+  VOWEL_SIM,
+  CONSONANT_SIM,
+  getThreshold,
+  primaryVowel,
+  decomposeSyllable,
+} from "../../utils/phonemeSimilarity.js";
+import { RhymeStrictnessModal, VowelSpaceModal, ConsonantSpaceModal } from "../PhonemeMatchList/PhonemeSpaceModal.jsx";
+import SelectionList from "./SelectionList.jsx";
+import "./ActiveQueryPanel.css";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const DIST_MAX = 20;
+function distToSlider(d) { return d >= 999 ? DIST_MAX : Math.min(d, DIST_MAX); }
+function sliderToDist(v) { return v >= DIST_MAX ? 999 : v; }
+function distLabel(v) { return v >= DIST_MAX ? "All" : `\u00b1${v} lines`; }
+
+function fmtTime(t) {
+  const s = Math.max(0, Math.floor(t));
+  const m = Math.floor(s / 60);
+  return m ? `${m}:${String(s % 60).padStart(2, "0")}` : `${s}s`;
+}
+
+// ── Phoneme inline: [matches... lowest→highest] | [anchor] ────────────────────
+
+function PhonemeInline({ anchorPhoneme, simMatrix, threshold }) {
+  if (!anchorPhoneme || !simMatrix) return null;
+  const simRow = simMatrix[anchorPhoneme];
+  if (!simRow) return null;
+
+  // Sorted ascending so lowest sim is leftmost, highest sim is closest to anchor
+  const matches = Object.entries(simRow)
+    .filter(([p]) => p !== anchorPhoneme && simRow[p] >= threshold)
+    .sort(([, a], [, b]) => a - b)
+    .slice(-6);
+
+  return (
+    <div className="aqp-phoneme-inline">
+      {matches.map(([p, sim]) => (
+        <span key={p} className="aqp-phoneme-match">
+          <span className="aqp-phoneme-pct">{Math.round(sim * 100)}%</span>
+          {"\u00a0"}{p}
+        </span>
+      ))}
+      {matches.length > 0 && <span className="aqp-phoneme-sep" aria-hidden="true" />}
+      <span className="aqp-phoneme-anchor">{anchorPhoneme}</span>
+    </div>
+  );
+}
+
+// ── Coda inline: similar to PhonemeInline but for coda consonants ─────────────
+
+function CodaInline({ anchorCoda, threshold }) {
+  // threshold here is the combined rhyme threshold; derive min coda sim
+  // assuming perfect nucleus: codaSim >= (threshold - 0.6) / 0.4
+  const minCodaSim = Math.max(0, (threshold - 0.6) / 0.4);
+
+  if (!anchorCoda) {
+    // open syllable: just show "—"
+    return (
+      <div className="aqp-phoneme-inline">
+        <span className="aqp-phoneme-anchor">—</span>
+      </div>
+    );
+  }
+
+  const simRow = CONSONANT_SIM[anchorCoda];
+  const matches = simRow
+    ? Object.entries(simRow)
+        .filter(([p]) => p !== anchorCoda && simRow[p] >= minCodaSim)
+        .sort(([, a], [, b]) => a - b)
+        .slice(-6)
+    : [];
+
+  return (
+    <div className="aqp-phoneme-inline">
+      {matches.map(([p, sim]) => (
+        <span key={p} className="aqp-phoneme-match">
+          <span className="aqp-phoneme-pct">{Math.round(sim * 100)}%</span>
+          {"\u00a0"}{p}
+        </span>
+      ))}
+      {matches.length > 0 && <span className="aqp-phoneme-sep" aria-hidden="true" />}
+      <span className="aqp-phoneme-anchor">{anchorCoda}</span>
+    </div>
+  );
+}
+
+// ── Strictness slider with label + ⓘ + phoneme display + endpoints ────────────
+
+function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, showCodaRow, value, onChange, ModalComponent }) {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  return (
+    <div className="aqp-full-slider-group">
+      <div className="aqp-slider-label-row">
+        <span className="aqp-slider-name">Strictness</span>
+        {ModalComponent && (
+          <button className="aqp-info-btn" onClick={() => setModalOpen(true)} title="Phoneme space reference">
+            &#x2139;&#xFE0E;
+          </button>
+        )}
+        <div className="aqp-slider-label-spacer" />
+        <PhonemeInline anchorPhoneme={anchorPhoneme} simMatrix={simMatrix} threshold={threshold} />
+      </div>
+      {showCodaRow && (
+        <div className="aqp-slider-label-row">
+          <div className="aqp-slider-label-spacer" />
+          <CodaInline anchorCoda={anchorCoda} threshold={threshold} />
+        </div>
+      )}
+      <input
+        type="range"
+        className="aqp-full-slider"
+        min={0} max={1} step={0.05}
+        value={value}
+        onChange={(e) => onChange(+e.target.value)}
+      />
+      <div className="aqp-slider-endpoints">
+        <span>Loose</span>
+        <span>Strict</span>
+      </div>
+      {modalOpen && ModalComponent && <ModalComponent onClose={() => setModalOpen(false)} />}
+    </div>
+  );
+}
+
+// ── Distance slider with endpoints ────────────────────────────────────────────
+
+function DistSlider({ value, onChange }) {
+  const sv = distToSlider(value);
+  return (
+    <div className="aqp-full-slider-group">
+      <div className="aqp-slider-label-row">
+        <span className="aqp-slider-name">Distance</span>
+        <span className="aqp-dist-val">{distLabel(sv)}</span>
+      </div>
+      <input
+        type="range"
+        className="aqp-full-slider"
+        min={1} max={DIST_MAX} step={1}
+        value={sv}
+        onChange={(e) => onChange(sliderToDist(+e.target.value))}
+      />
+      <div className="aqp-slider-endpoints">
+        <span>1 line</span>
+        <span>All</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Match list — collapsible dropdown ────────────────────────────────────────
+
+function SectionMatchList({ items, onSeek }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="aqp-matches-section">
+      <button className="aqp-matches-hd" onClick={() => setOpen((v) => !v)}>
+        <span className="aqp-matches-label">Matches</span>
+        <span className="aqp-matches-count">{items.length}</span>
+        <span className="aqp-matches-caret">{open ? "\u25b4" : "\u25be"}</span>
+      </button>
+      {open && (
+        items.length === 0 ? (
+          <div className="aqp-match-empty">No matches</div>
+        ) : (
+          <ul className="aqp-match-list">
+            {items.map((m) => (
+              <li key={m.id}>
+                <button
+                  className="aqp-match-item"
+                  onClick={() => m.time != null && onSeek(m.time)}
+                  title="Jump to word"
+                >
+                  <span className="aqp-match-text">{m.text}</span>
+                  {m.time != null && <span className="aqp-match-time">{fmtTime(m.time)}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )
+      )}
+    </div>
+  );
+}
+
+// ── Color swatch — small rectangle, click opens native picker ─────────────────
+
+function ColorSwatch({ color, onChange }) {
+  const ref = useRef(null);
+  return (
+    <div className="aqp-color-swatch" onClick={() => ref.current?.click()} title="Change color">
+      <div className="aqp-color-swatch-fill" style={{ background: color }} />
+      <input
+        ref={ref}
+        type="color"
+        value={color}
+        onChange={(e) => onChange(e.target.value)}
+        className="aqp-color-input-hidden"
+      />
+    </div>
+  );
+}
+
+// ── Word query card ───────────────────────────────────────────────────────────
+
+function WordQueryCard({ sel, transcriptionData }) {
+  const {
+    matchesBySelectionId,
+    alliterationBySelectionId,
+    assonanceBySelectionId,
+    setSelectionParams,
+    clearSelectionParams,
+    removeSelection,
+    toggleSelectionActive,
+    setSelectionColor,
+  } = useWordSelection();
+
+  const globalParams = useParams();
+  const { seekAll } = useAudioEngine();
+  const lines = transcriptionData?.lines ?? [];
+
+  const r = (key) => sel.params?.[key] !== undefined ? sel.params[key] : globalParams[key];
+
+  const [li, wi] = String(sel.wordId).split("-").map(Number);
+  const word = lines[li]?.words?.[wi];
+  const anchorText = word?.text ?? sel.wordId;
+  const anchorPhones = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
+
+  const decomposed   = anchorPhones ? decomposeSyllable(anchorPhones) : null;
+  const anchorRhymeVowel = decomposed?.nucleus ?? null;          // last vowel — matches rhymeScore()
+  const anchorAssonVowel = anchorPhones ? primaryVowel(anchorPhones) : null; // stressed vowel — matches assonanceScore()
+  const anchorOnset  = decomposed?.onset[0] ?? null;
+  const anchorCodaPhone = decomposed?.coda.at(-1) ?? null;
+
+  const rhymeSet = matchesBySelectionId?.[sel.id] ?? new Set();
+  const allitSet = alliterationBySelectionId?.[sel.id] ?? new Set();
+  const asonSet  = assonanceBySelectionId?.[sel.id] ?? new Set();
+
+  const rhymeActive = r("showRhymes");
+  const allitTier   = r("alliterationTier");
+  const allitActive = allitTier !== "off";
+  const asonActive  = r("showAssonance");
+
+  function resolveMatchItems(wordIds) {
+    return [...wordIds].map((id) => {
+      const [l, w] = String(id).split("-").map(Number);
+      const wObj = lines[l]?.words?.[w];
+      if (!wObj) return null;
+      return { id, text: wObj.text || "\u2014", time: Number.isFinite(wObj.start) ? wObj.start : null };
+    }).filter(Boolean);
+  }
+
+  const rhymeItems = resolveMatchItems(rhymeSet);
+  const allitItems = resolveMatchItems(allitSet);
+  const asonItems  = resolveMatchItems(asonSet);
+
+  const overrideCount = Object.keys(sel.params ?? {}).length;
+  const [activeTab, setActiveTab] = useState("rhyme");
+
+  return (
+    <div className="aqp-card">
+      <div className="aqp-title-row">
+        <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
+        <span className="aqp-anchor-word">{anchorText}</span>
+        <div className="aqp-title-actions">
+          {overrideCount > 0 && (
+            <button className="aqp-action-btn" onClick={() => clearSelectionParams(sel.id)} title="Reset overrides">
+              Reset
+            </button>
+          )}
+          <button className="aqp-action-btn" onClick={() => toggleSelectionActive(sel.id)}
+            title={sel.active ? "Hide matches" : "Show matches"}>
+            {sel.active ? "\uD83D\uDC41\uFE0E" : "\uD83D\uDE48"}
+          </button>
+          <button className="aqp-action-btn danger" onClick={() => removeSelection(sel.id)} title="Remove selection">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <div className="aqp-tab-bar">
+        <div
+          className={`aqp-tab ${activeTab === "rhyme" ? "is-open" : ""} ${rhymeActive ? "is-active" : ""}`}
+          onClick={() => setActiveTab((t) => t === "rhyme" ? null : "rhyme")}
+        >
+          <button
+            className={`aqp-tab-dot ${rhymeActive ? "is-on" : ""}`}
+            style={rhymeActive ? { background: sel.color, borderColor: sel.color } : {}}
+            onClick={(e) => { e.stopPropagation(); setSelectionParams(sel.id, { showRhymes: !rhymeActive }); }}
+            title={rhymeActive ? "Hide rhymes" : "Show rhymes"}
+          />
+          <span className="aqp-tab-label">Rhyme</span>
+        </div>
+
+        <div
+          className={`aqp-tab ${activeTab === "allit" ? "is-open" : ""} ${allitActive ? "is-active" : ""}`}
+          onClick={() => setActiveTab((t) => t === "allit" ? null : "allit")}
+        >
+          <button
+            className={`aqp-tab-dot ${allitActive ? "is-on" : ""}`}
+            style={allitActive ? { background: sel.color, borderColor: sel.color } : {}}
+            onClick={(e) => {
+              e.stopPropagation();
+              const tiers = ["off", "near", "exact"];
+              const next = tiers[(tiers.indexOf(allitTier) + 1) % tiers.length];
+              setSelectionParams(sel.id, { alliterationTier: next });
+            }}
+            title={allitActive ? `Allit. (${allitTier}) — click to cycle` : "Enable alliteration"}
+          />
+          <span className="aqp-tab-label">Allit.</span>
+        </div>
+
+        <div
+          className={`aqp-tab ${activeTab === "ason" ? "is-open" : ""} ${asonActive ? "is-active" : ""}`}
+          onClick={() => setActiveTab((t) => t === "ason" ? null : "ason")}
+        >
+          <button
+            className={`aqp-tab-dot ${asonActive ? "is-on" : ""}`}
+            style={asonActive ? { background: sel.color, borderColor: sel.color } : {}}
+            onClick={(e) => { e.stopPropagation(); setSelectionParams(sel.id, { showAssonance: !asonActive }); }}
+            title={asonActive ? "Hide assonance" : "Show assonance"}
+          />
+          <span className="aqp-tab-label">Ason.</span>
+        </div>
+      </div>
+
+      {activeTab === "rhyme" && (
+        <div className="aqp-tab-body">
+          <StrictnessSlider
+            anchorPhoneme={anchorRhymeVowel}
+            simMatrix={VOWEL_SIM}
+            threshold={getThreshold(r("rhymeStrictness"), "rhyme")}
+            anchorCoda={anchorCodaPhone}
+            showCodaRow
+            value={r("rhymeStrictness")}
+            onChange={(v) => setSelectionParams(sel.id, { rhymeStrictness: v })}
+            ModalComponent={RhymeStrictnessModal}
+          />
+          <DistSlider
+            value={r("rhymeSearchDistance")}
+            onChange={(v) => setSelectionParams(sel.id, { rhymeSearchDistance: v })}
+          />
+          <SectionMatchList items={rhymeItems} onSeek={seekAll} />
+        </div>
+      )}
+
+      {activeTab === "allit" && (
+        <div className="aqp-tab-body">
+          <div className="aqp-tier-row">
+            {Object.entries(ALLITERATION_TIERS).map(([key, tier]) => (
+              <button
+                key={key}
+                className={`aqp-tier-btn ${allitTier === key ? "is-active" : ""}`}
+                onClick={() => setSelectionParams(sel.id, { alliterationTier: key })}
+                style={allitTier === key ? { borderColor: sel.color, color: sel.color } : {}}
+                title={tier.description}
+              >
+                {tier.label}
+              </button>
+            ))}
+          </div>
+          <div className="aqp-full-slider-group">
+            <div className="aqp-slider-label-row">
+              <span className="aqp-slider-name">Onset</span>
+              <div className="aqp-slider-label-spacer" />
+              <PhonemeInline
+                anchorPhoneme={anchorOnset}
+                simMatrix={CONSONANT_SIM}
+                threshold={ALLITERATION_TIERS[allitTier]?.threshold ?? 1}
+              />
+            </div>
+          </div>
+          <DistSlider
+            value={r("alliterationSearchDistance")}
+            onChange={(v) => setSelectionParams(sel.id, { alliterationSearchDistance: v })}
+          />
+          <SectionMatchList items={allitItems} onSeek={seekAll} />
+        </div>
+      )}
+
+      {activeTab === "ason" && (
+        <div className="aqp-tab-body">
+          <StrictnessSlider
+            anchorPhoneme={anchorAssonVowel}
+            simMatrix={VOWEL_SIM}
+            threshold={getThreshold(r("assonanceStrictness"), "assonance")}
+            value={r("assonanceStrictness")}
+            onChange={(v) => setSelectionParams(sel.id, { assonanceStrictness: v })}
+            ModalComponent={VowelSpaceModal}
+          />
+          <DistSlider
+            value={r("assonanceSearchDistance")}
+            onChange={(v) => setSelectionParams(sel.id, { assonanceSearchDistance: v })}
+          />
+          <SectionMatchList items={asonItems} onSeek={seekAll} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Line query card ───────────────────────────────────────────────────────────
+
+function LineQueryCard({ sel, transcriptionData }) {
+  const {
+    matchesBySelectionId,
+    setSelectionParams,
+    clearSelectionParams,
+    removeSelection,
+    toggleSelectionActive,
+    setSelectionColor,
+  } = useLineSelection();
+
+  const globalParams = useParams();
+  const { seekAll } = useAudioEngine();
+  const lines = transcriptionData?.lines ?? [];
+
+  const r = (key) => sel.params?.[key] !== undefined ? sel.params[key] : globalParams[key];
+
+  const lineText = lines[sel.lineIdx]?.text ?? `Line ${sel.lineIdx}`;
+  const tail = lineText.trim().replace(/[.,!?;:'""\u2019\u2026)\]]+$/u, "").slice(-28);
+
+  const matchSet = matchesBySelectionId?.[sel.id] ?? new Set();
+  const matchItems = [...matchSet].map((lineIdx) => {
+    const l = lines[lineIdx];
+    if (!l) return null;
+    const time = l.words?.[0]?.start;
+    const text = (l.text ?? "").trim().replace(/[.,!?;:'""\u2019\u2026)\]]+$/u, "").slice(-22) || "\u2014";
+    return { id: lineIdx, text, time: Number.isFinite(time) ? time : null };
+  }).filter(Boolean);
+
+  const overrideCount = Object.keys(sel.params ?? {}).length;
+
+  return (
+    <div className="aqp-card">
+      <div className="aqp-title-row">
+        <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
+        <span className="aqp-anchor-word aqp-anchor-line">&hellip;{tail}</span>
+        <div className="aqp-title-actions">
+          {overrideCount > 0 && (
+            <button className="aqp-action-btn" onClick={() => clearSelectionParams(sel.id)} title="Reset overrides">
+              Reset
+            </button>
+          )}
+          <button className="aqp-action-btn" onClick={() => toggleSelectionActive(sel.id)}
+            title={sel.active ? "Hide matches" : "Show matches"}>
+            {sel.active ? "\uD83D\uDC41\uFE0E" : "\uD83D\uDE48"}
+          </button>
+          <button className="aqp-action-btn danger" onClick={() => removeSelection(sel.id)} title="Remove">
+            &times;
+          </button>
+        </div>
+      </div>
+      <div className="aqp-tab-body" style={{ borderTop: "1px solid #1e2d42" }}>
+        <StrictnessSlider
+          anchorPhoneme={null}
+          simMatrix={null}
+          threshold={0}
+          value={r("rhymeStrictness")}
+          onChange={(v) => setSelectionParams(sel.id, { rhymeStrictness: v })}
+          ModalComponent={RhymeStrictnessModal}
+        />
+        <DistSlider
+          value={r("rhymeSearchDistance") ?? 999}
+          onChange={(v) => setSelectionParams(sel.id, { rhymeSearchDistance: v })}
+        />
+        <SectionMatchList items={matchItems} onSeek={seekAll} />
+      </div>
+    </div>
+  );
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+function EmptyState() {
+  return (
+    <div className="aqp-empty">
+      <span>Click any word in the lyrics to analyze it</span>
+    </div>
+  );
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
+
+export default function ActiveQueryPanel({ transcriptionData }) {
+  const { selections: wordSels, focusedWordSelId, wordInteractionStamp } = useWordSelection();
+  const { selections: lineSels, focusedLineSelId, lineInteractionStamp } = useLineSelection();
+
+  const focusedWordSel = wordSels.find((s) => s.id === focusedWordSelId) ?? null;
+  const focusedLineSel = lineSels.find((s) => s.id === focusedLineSelId) ?? null;
+
+  // Compare interaction timestamps to determine which type was most recently used.
+  // This correctly handles the adoption case where focusedWordSelId stays the same.
+  const focused = useMemo(() => {
+    if (!focusedWordSel && !focusedLineSel) return null;
+    if (!focusedWordSel) return { type: "line", sel: focusedLineSel };
+    if (!focusedLineSel) return { type: "word", sel: focusedWordSel };
+    return wordInteractionStamp >= lineInteractionStamp
+      ? { type: "word", sel: focusedWordSel }
+      : { type: "line", sel: focusedLineSel };
+  }, [focusedWordSel, focusedLineSel, wordInteractionStamp, lineInteractionStamp]);
+
+  const hasSelections = wordSels.length > 0 || lineSels.length > 0;
+
+  return (
+    <div className="aqp-root">
+      {hasSelections && (
+        <div className="aqp-sel-strip">
+          <SelectionList transcriptionData={transcriptionData} />
+        </div>
+      )}
+      <div className="aqp-body">
+        {!focused && <EmptyState />}
+        {focused?.type === "word" && (
+          <WordQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />
+        )}
+        {focused?.type === "line" && (
+          <LineQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />
+        )}
+      </div>
+    </div>
+  );
+}

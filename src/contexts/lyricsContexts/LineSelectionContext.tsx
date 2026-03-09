@@ -130,6 +130,15 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     [selections]
   );
 
+  const [manualFocusLineId, setManualFocusLineId] = useState<string | null>(null);
+  const [lineInteractionStamp, setLineInteractionStamp] = useState<number>(0);
+
+  const focusedLineSelId: string | null = useMemo(() => {
+    if (manualFocusLineId && selections.some((s) => s.id === manualFocusLineId))
+      return manualFocusLineId;
+    return activeInZOrder.length ? activeInZOrder[activeInZOrder.length - 1].id : null;
+  }, [manualFocusLineId, selections, activeInZOrder]);
+
   function getVisualForLine(lineIdx: number): VisualForLine {
     for (let i = activeInZOrder.length - 1; i >= 0; i--) {
       const s = activeInZOrder[i];
@@ -194,6 +203,8 @@ export function LineSelectionProvider({ transcriptionData, children }) {
   }
 
   function anchorOrAdopt(lineIdx: number) {
+    setManualFocusLineId(null);
+    setLineInteractionStamp(Date.now());
     setSelections((prev) => {
       let adopt: LineSelection | null = null;
       for (const s of prev) {
@@ -251,6 +262,12 @@ export function LineSelectionProvider({ transcriptionData, children }) {
         setSelectionParams,
         clearSelectionParams,
         selectedLineIdx,
+        focusedLineSelId,
+        setFocusedLineSelId: (id: string | null) => {
+          setManualFocusLineId(id);
+          if (id) setLineInteractionStamp(Date.now());
+        },
+        lineInteractionStamp,
       }}
     >
       {children}
