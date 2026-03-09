@@ -1,113 +1,212 @@
-/* ===== Lyric Presets: dynamic, grid-filled buttons (like Channel Strip) ===== */
+/* ===== Lyric Presets panel ===== */
 
-/* Panel fills its slot; no fixed heights here */
 .preset-panel {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%; /* fill the right-pane slice it was given */
-  min-width: 0; /* allow shrinking within flex/grid parents */
-  min-height: 0;
-  padding: 8px 10px; /* optional breathing room */
+  min-width: 0;
+  padding: 8px 10px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
-/* One row, 4 equal columns, stretch to fill available height */
-.preset-row {
+/* ── Button row ── */
+
+.preset-btn-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 1fr; /* ensure row itself stretches evenly */
-  gap: 10px;
+  gap: 6px;
   width: 100%;
-  height: 100%; /* <- key: consume the panel's height */
   min-width: 0;
-  min-height: 0;
-  box-sizing: border-box;
 }
 
-/* Buttons behave like Channel Strip buttons: fully fill their grid cell */
-.preset-btn {
-  width: 100%;
-  height: 100%;
+/* Each item: main button + expand chevron side-by-side */
+.preset-item {
+  display: flex;
+  flex-direction: row;
+  min-width: 0;
+  height: 36px;
+}
+
+.preset-main-btn {
+  flex: 1;
+  min-width: 0;
   appearance: none;
   border: 1px solid #d0d0d0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
   background: #f9fafb;
   color: #111827;
-  border-radius: 8px;
-
-  /* Remove intrinsic padding so size is purely grid-driven */
-  padding: 0;
-
-  /* Typography similar to strips */
-  font-size: 1rem;
+  padding: 0 6px;
+  font-size: 0.78rem;
   font-weight: 600;
   line-height: 1;
-
   cursor: pointer;
-
-  /* Center label and keep it tidy */
-  display: flex;
-  align-items: center;
-  justify-content: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  /* Prevent layout conflicts in nested flex/grids (Safari, etc.) */
-  min-width: 0;
-  min-height: 0;
   box-sizing: border-box;
+  transition: background 0.1s, border-color 0.1s;
 }
 
-/* Active visual (uses CSS var injected inline: --active-color) */
-.preset-btn.is-active {
+.preset-main-btn.is-active {
   border-color: var(--active-color, #2563eb);
   background: color-mix(in srgb, var(--active-color, #2563eb) 14%, #ffffff 86%);
   color: #0f172a;
 }
 
-/* Interaction states */
-.preset-btn:active:not(.is-disabled) {
+.preset-main-btn:active {
   transform: translateY(1px);
 }
-.preset-btn:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
+
+.preset-expand-btn {
+  width: 20px;
+  flex-shrink: 0;
+  appearance: none;
+  border: 1px solid #d0d0d0;
+  border-radius: 0 8px 8px 0;
+  background: #f0f1f3;
+  color: #6b7280;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background 0.1s, color 0.1s;
 }
 
-/* Disabled (match Channel Strip disabled look/feel) */
-.preset-btn.is-disabled,
-.preset-btn:disabled,
-.preset-btn[aria-disabled="true"] {
-  opacity: 0.5;
-  cursor: not-allowed;
+.preset-expand-btn.is-open {
+  background: #e5e7eb;
+  color: #111827;
 }
 
-/* Keep disabled style neutral on hover/active */
-.preset-btn.is-disabled:hover,
-.preset-btn:disabled:hover,
-.preset-btn[aria-disabled="true"]:hover {
+.preset-expand-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ── Sub-panel ── */
+
+.preset-submenu {
+  margin-top: 6px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
   background: #f9fafb;
-}
-.preset-btn.is-disabled:active,
-.preset-btn:disabled:active,
-.preset-btn[aria-disabled="true"]:active {
-  transform: none;
+  overflow: hidden;
 }
 
-/* If a disabled button somehow carries .is-active, neutralize it */
-.preset-btn.is-disabled.is-active,
-.preset-btn:disabled.is-active,
-.preset-btn[aria-disabled="true"].is-active {
-  background: #f9fafb;
-  border-color: #d0d0d0;
+.lp-submenu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
 }
 
-/* Optional inline toggle text next to a button (kept compact) */
-.preset-toggle {
+/* ── Controls ── */
+
+.lp-control {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.lp-control input[type="range"] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.lp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.lp-value {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #2563eb;
+}
+
+.lp-hints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: #9ca3af;
+  margin-top: -2px;
+}
+
+/* ── Toggles row ── */
+
+.lp-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lp-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0px;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Tier selector ── */
+
+.lp-tier-row {
+  display: flex;
+  gap: 6px;
+}
+
+.lp-tier-btn {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.lp-tier-btn.is-active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
   font-weight: 600;
-  color: #111827;
+}
+
+.lp-tier-desc {
+  font-size: 0.73rem;
+  color: #4b5563;
+  line-height: 1.5;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.lp-tier-examples {
+  margin-top: 4px;
+  color: #2563eb;
+  font-family: monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Description text ── */
+
+.lp-desc {
+  margin: 0;
+  font-size: 0.73rem;
+  color: #6b7280;
+  line-height: 1.5;
 }

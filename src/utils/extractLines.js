@@ -1,5 +1,6 @@
 // src/utils/extractLines.js
 import { extractRhymingKey } from "./extractRhymingWords";
+import { rhymeScore } from "./phonemeSimilarity.js";
 
 /**
  * Safely get the phones string from a word object:
@@ -65,7 +66,7 @@ export function extractLines(
     const normPhones = ignorePlurals
       ? stripPluralPhoneSuffix(rawPhones)
       : rawPhones;
-    const rhymeKey = extractRhymingKey(normPhones); // e.g. "ayndr" from "N AY1 N D ER0"
+    const rhymeKey = extractRhymingKey(normPhones);
 
     meta.push({
       lastWordIdx,
@@ -82,23 +83,39 @@ export function extractLines(
 
 /**
  * Given the output of extractLines and a line index, return the set of
- * matching line indices based on either:
- *  - exact phones (if exactMatches === true)
- *  - rhymeKey (else)
+ * matching line indices based on:
+ *  - exactMatches=true  → exact phone string match
+ *  - threshold provided → pairwise rhymeScore comparison (scored mode)
+ *  - neither            → legacy rhymeKey-based lookup
+ *
+ * @param {object}  extracted
+ * @param {number}  lineIdx
+ * @param {object}  [opts]
+ * @param {boolean} [opts.exactMatches=false]
+ * @param {number}  [opts.threshold=null]  - if provided, use scored pairwise comparison
  */
 export function getMatchingLinesFor(
   extracted,
   lineIdx,
-  { exactMatches = false } = {}
+  { exactMatches = false, threshold = null } = {}
 ) {
   const info = extracted?.lines?.[lineIdx];
   if (!info) return new Set();
 
   if (exactMatches) {
-    const set = extracted.exactIndex.get(info.lastWordPhones);
-    return new Set(set ?? []);
-  } else {
-    const set = extracted.rhymeIndex.get(info.rhymeKey);
-    return new Set(set ?? []);
+    return new Set(extracted.exactIndex.get(info.lastWordPhones) ?? []);
   }
+
+  if (threshold !== null) {
+    const matches = new Set();
+    extracted.lines.forEach((other, i) => {
+      if (other && rhymeScore(info.lastWordPhones, other.lastWordPhones) >= threshold) {
+        matches.add(i);
+      }
+    });
+    return matches;
+  }
+
+  // legacy key-based
+  return new Set(extracted.rhymeIndex.get(info.rhymeKey) ?? []);
 }

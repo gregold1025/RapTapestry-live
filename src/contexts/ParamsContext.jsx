@@ -65,6 +65,8 @@ export function ParamsProvider({ children }) {
   });
 
   // — SYLLABLES —
+  // Syllable sequence matching — continuous strictness [0–1]
+  const [syllableStrictness, setSyllableStrictness] = useState(0.7);
   // visual
   const [showSyllables, setShowSyllables] = useState(true);
   const [inactiveSyllableColor, setInactiveSyllableColor] =
@@ -82,12 +84,29 @@ export function ParamsProvider({ children }) {
   const [wordActiveColor, setWordActiveColor] = useState("#00aaff");
   const [wordInactiveColor, setWordInactiveColor] = useState("transparent");
   const [wordOpacity, setWordOpacity] = useState(0.6);
-  // logical / selection-display
+
+  // logical / per-type phonetic matching
   const [exactMatches, setExactMatches] = useState(false);
   const [ignorePlurals, setIgnorePlurals] = useState(true);
+
+  // Rhyme (nucleus + coda) — continuous strictness [0–1], search distance in lines
   const [showRhymes, setShowRhymes] = useState(true);
-  const [showAlliteration, setShowAlliteration] = useState(true);
-  const [assonance, setAssonance] = useState(true);
+  const [rhymeStrictness, setRhymeStrictness] = useState(0.7);
+  const [rhymeSearchDistance, setRhymeSearchDistance] = useState(999);
+
+  // Alliteration (onset) — discrete tier: 'off' | 'exact' | 'near', search distance in lines
+  const [alliterationTier, setAlliterationTier] = useState('near');
+  const [alliterationSearchDistance, setAlliterationSearchDistance] = useState(999);
+
+  // Assonance (nucleus only) — continuous strictness [0–1], search distance in lines
+  const [showAssonance, setShowAssonance] = useState(false);
+  const [assonanceStrictness, setAssonanceStrictness] = useState(0.7);
+  const [assonanceSearchDistance, setAssonanceSearchDistance] = useState(999);
+
+  // Consonance (coda only) — continuous strictness [0–1], search distance in lines
+  const [showConsonance, setShowConsonance] = useState(false);
+  const [consonanceStrictness, setConsonanceStrictness] = useState(0.7);
+  const [consonanceSearchDistance, setConsonanceSearchDistance] = useState(999);
 
   // — LINES —
   const [showLines, setShowLines] = useState(true);
@@ -224,10 +243,28 @@ export function ParamsProvider({ children }) {
         setIgnorePlurals,
         showRhymes,
         setShowRhymes,
-        showAlliteration,
-        setShowAlliteration,
-        assonance,
-        setAssonance,
+        rhymeStrictness,
+        setRhymeStrictness,
+        rhymeSearchDistance,
+        setRhymeSearchDistance,
+        alliterationTier,
+        setAlliterationTier,
+        alliterationSearchDistance,
+        setAlliterationSearchDistance,
+        showAssonance,
+        setShowAssonance,
+        assonanceStrictness,
+        setAssonanceStrictness,
+        assonanceSearchDistance,
+        setAssonanceSearchDistance,
+        showConsonance,
+        setShowConsonance,
+        consonanceStrictness,
+        setConsonanceStrictness,
+        consonanceSearchDistance,
+        setConsonanceSearchDistance,
+        syllableStrictness,
+        setSyllableStrictness,
 
         // lines
         showLines,

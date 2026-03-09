@@ -3,6 +3,17 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 import { nanoid } from "nanoid";
 import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
+import { getThreshold } from "../../utils/phonemeSimilarity.js";
+
+// ---- Types ------------------------------------------------------------------
+
+export type LineSelectionParams = Partial<{
+  rhymeStrictness: number;
+  rhymeSearchDistance: number;
+  exactMatches: boolean;
+}>;
+
+type ResolvedLineParams = Required<LineSelectionParams>;
 
 type LineSelection = {
   id: string;
@@ -11,6 +22,7 @@ type LineSelection = {
   label?: string;
   active: boolean;
   createdAt: number;
+  params?: LineSelectionParams;
 };
 
 type VisualForLine =
@@ -18,40 +30,81 @@ type VisualForLine =
   | { role: "match"; color: string; selectionId: string }
   | null;
 
-const DEFAULT_PALETTE = [
-  "#FF0000",
-  "#0000FF",
-  "#00FF00",
-  "#FF8000",
-  "#8000FF",
-  "#00FFFF",
-  "#FFFF00",
-  "#FF00FF",
-  "#408000",
-  "#800000",
-  "#804000",
-  "#400080",
-];
+function colorToHue(color: string): number | null {
+  if (!color) return null;
+  const m = color.match(/hsl\(\s*(\d+)/);
+  if (m) return parseInt(m[1]);
+  if (color.startsWith("#")) {
+    const r = parseInt(color.slice(1, 3), 16) / 255;
+    const g = parseInt(color.slice(3, 5), 16) / 255;
+    const b = parseInt(color.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    if (max === min) return null;
+    const d = max - min;
+    let h: number;
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+    return Math.round(h * 360);
+  }
+  return null;
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100; l /= 100;
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const hex = (x: number) => Math.round(x * 255).toString(16).padStart(2, "0");
+  return `#${hex(f(0))}${hex(f(8))}${hex(f(4))}`;
+}
+
+function generateDistinctColor(existingColors: string[]): string {
+  const existingHues = existingColors.map(colorToHue).filter((h): h is number => h !== null);
+  const hueGap = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
+  for (let i = 0; i < 40; i++) {
+    const hue = Math.floor(Math.random() * 360);
+    if (existingHues.every((eh) => hueGap(hue, eh) >= 35)) return hslToHex(hue, 78, 52);
+  }
+  let bestHue = 0, bestMin = -1;
+  for (let h = 0; h < 360; h += 3) {
+    const minD = existingHues.length === 0 ? 180 : Math.min(...existingHues.map((eh) => hueGap(h, eh)));
+    if (minD > bestMin) { bestMin = minD; bestHue = h; }
+  }
+  return hslToHex(bestHue, 78, 52);
+}
 
 const LineSelectionContext = createContext<any>(null);
 
+// ---- Provider ---------------------------------------------------------------
+
 export function LineSelectionProvider({ transcriptionData, children }) {
   const [selections, setSelections] = useState<LineSelection[]>([]);
-  const { exactMatches, ignorePlurals } = useParams();
+  const { exactMatches, ignorePlurals, rhymeStrictness } = useParams();
 
-  // Extract once per data/param change
   const extracted = useMemo(() => {
     return extractLines(transcriptionData, { ignorePlurals });
   }, [transcriptionData, ignorePlurals]);
 
-  // Helper: compute a fresh match set for a given line index
-  function computeMatchSet(idx: number): Set<number> {
-    return (
-      getMatchingLinesFor(extracted, idx, { exactMatches }) ?? new Set<number>()
-    );
+  function resolveParams(sel: LineSelection): ResolvedLineParams {
+    const p = sel.params ?? {};
+    return {
+      rhymeStrictness:     p.rhymeStrictness     ?? rhymeStrictness,
+      rhymeSearchDistance: p.rhymeSearchDistance ?? 999,
+      exactMatches:        p.exactMatches        ?? exactMatches,
+    };
   }
 
-  // Fast lookup: which selections anchor a given line?
+  function computeMatchSet(sel: LineSelection): Set<number> {
+    const p = resolveParams(sel);
+    const threshold = p.exactMatches ? null : getThreshold(p.rhymeStrictness, "rhyme");
+    const raw =
+      getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, threshold }) ??
+      new Set<number>();
+    if (p.rhymeSearchDistance >= 999) return raw;
+    return new Set([...raw].filter((i) => Math.abs(i - sel.lineIdx) <= p.rhymeSearchDistance));
+  }
+
   const anchorsByLineIdx: Map<number, LineSelection[]> = useMemo(() => {
     const map = new Map<number, LineSelection[]>();
     for (const s of selections) {
@@ -63,34 +116,26 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     return map;
   }, [selections]);
 
-  // Compute matches per selection (active only)
   const matchesBySelectionId: Record<string, Set<number>> = useMemo(() => {
     const out: Record<string, Set<number>> = {};
     for (const s of selections) {
-      if (!s.active) continue;
-      out[s.id] = computeMatchSet(s.lineIdx);
+      if (!s.active) { out[s.id] = new Set(); continue; }
+      out[s.id] = computeMatchSet(s);
     }
     return out;
-  }, [selections, exactMatches, extracted]);
+  }, [selections, exactMatches, extracted, rhymeStrictness]);
 
-  // Last-created active selection is visually "on top"
   const activeInZOrder = useMemo(
-    () =>
-      selections
-        .filter((s) => s.active)
-        .sort((a, b) => a.createdAt - b.createdAt),
+    () => selections.filter((s) => s.active).sort((a, b) => a.createdAt - b.createdAt),
     [selections]
   );
 
-  // Decide what a given line should look like (null = no highlight)
   function getVisualForLine(lineIdx: number): VisualForLine {
-    // 1) if the line is an anchor for any active selection, show the topmost anchor color
     for (let i = activeInZOrder.length - 1; i >= 0; i--) {
       const s = activeInZOrder[i];
       if (s.lineIdx === lineIdx)
         return { role: "anchor", color: s.color, selectionId: s.id };
     }
-    // 2) else if it matches any active selection, show the topmost match color
     for (let i = activeInZOrder.length - 1; i >= 0; i--) {
       const s = activeInZOrder[i];
       const set = matchesBySelectionId[s.id];
@@ -102,21 +147,11 @@ export function LineSelectionProvider({ transcriptionData, children }) {
 
   // ---- Mutators -------------------------------------------------------------
 
-  function addSelection(
-    lineIdx: number,
-    opts?: { color?: string; label?: string }
-  ) {
-    const nextColor =
-      opts?.color ??
-      DEFAULT_PALETTE[selections.length % DEFAULT_PALETTE.length];
-
+  function addSelection(lineIdx: number, opts?: { color?: string; label?: string }) {
+    const nextColor = opts?.color ?? generateDistinctColor(selections.map((s) => s.color));
     const sel: LineSelection = {
-      id: nanoid(),
-      lineIdx,
-      color: nextColor,
-      label: opts?.label,
-      active: true,
-      createdAt: Date.now(),
+      id: nanoid(), lineIdx, color: nextColor, label: opts?.label,
+      active: true, createdAt: Date.now(),
     };
     setSelections((prev) => [...prev, sel]);
     return sel.id;
@@ -126,9 +161,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     setSelections((prev) => prev.filter((s) => s.id !== id));
   }
 
-  function clearSelections() {
-    setSelections([]);
-  }
+  function clearSelections() { setSelections([]); }
 
   function toggleSelectionActive(id: string) {
     setSelections((prev) =>
@@ -148,91 +181,75 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     );
   }
 
-  /**
-   * Anchor collision-aware action:
-   * - If the clicked line already belongs to an existing selection's match set,
-   *   adopt that selection and repoint its anchor to the clicked line.
-   * - Otherwise, create a new selection.
-   * - Afterward, dedupe: keep only one selection per match group (the adopted one).
-   */
+  function setSelectionParams(id: string, patch: LineSelectionParams) {
+    setSelections((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, params: { ...(s.params ?? {}), ...patch } } : s
+      )
+    );
+  }
+
+  function clearSelectionParams(id: string) {
+    setSelections((prev) => prev.map((s) => (s.id === id ? { ...s, params: {} } : s)));
+  }
+
   function anchorOrAdopt(lineIdx: number) {
     setSelections((prev) => {
-      // 1) find candidate to adopt (most recently created active selection whose matches include the line)
       let adopt: LineSelection | null = null;
-      const withMatches: Array<{ s: LineSelection; matches: Set<number> }> = [];
       for (const s of prev) {
         if (!s.active) continue;
-        const m = computeMatchSet(s.lineIdx);
-        withMatches.push({ s, matches: m });
+        const m = computeMatchSet(s);
         if (m.has(lineIdx) || s.lineIdx === lineIdx) {
           if (!adopt || s.createdAt > adopt.createdAt) adopt = s;
         }
       }
 
-      // 2) produce next list: update the adopted selection or create a new one
       let next = [...prev];
       if (adopt) {
         next = next.map((s) => (s.id === adopt!.id ? { ...s, lineIdx } : s));
       } else {
-        const nextColor = DEFAULT_PALETTE[next.length % DEFAULT_PALETTE.length];
+        const nextColor = generateDistinctColor(next.map((s) => s.color));
         next = [
           ...next,
-          {
-            id: nanoid(),
-            lineIdx,
-            color: nextColor,
-            active: true,
-            createdAt: Date.now(),
-          } as LineSelection,
+          { id: nanoid(), lineIdx, color: nextColor, active: true, createdAt: Date.now() } as LineSelection,
         ];
       }
 
-      // 3) Dedupe: keep only one selection per match group.
-      //    Strategy: compute matches for the adopted (or newly created) id,
-      //    and drop any other selection whose anchor is inside that set OR
-      //    whose matches contain our anchor (mutual match).
       const adoptedId = adopt ? adopt.id : next[next.length - 1].id;
       const adopted = next.find((s) => s.id === adoptedId)!;
-      const adoptedSet = computeMatchSet(adopted.lineIdx);
+      const adoptedSet = computeMatchSet(adopted);
 
       next = next.filter((s) => {
         if (s.id === adoptedId) return true;
-        const sSet = computeMatchSet(s.lineIdx);
-        const sameGroup =
-          adoptedSet.has(s.lineIdx) || sSet.has(adopted.lineIdx);
-        return !sameGroup; // remove if same group
+        const sSet = computeMatchSet(s);
+        return !(adoptedSet.has(s.lineIdx) || sSet.has(adopted.lineIdx));
       });
 
       return next;
     });
   }
 
-  // (Optional) one-at-a-time legacy compat: last active selection’s anchor
   const selectedLineIdx = activeInZOrder.length
     ? activeInZOrder[activeInZOrder.length - 1].lineIdx
     : null;
 
-  console.log(selections);
-
   return (
     <LineSelectionContext.Provider
       value={{
-        // data
         selections,
         extracted,
         matchesBySelectionId,
         anchorsByLineIdx,
-        // helpers
         getVisualForLine,
-        // mutators
-        addSelection, // still available if needed
-        anchorOrAdopt, // ← use this for clicks/gestures
+        addSelection,
+        anchorOrAdopt,
         removeSelection,
         clearSelections,
         toggleSelectionActive,
         setSelectionColor,
         updateSelection,
-        // legacy
+        setSelectionParams,
+        clearSelectionParams,
         selectedLineIdx,
       }}
     >

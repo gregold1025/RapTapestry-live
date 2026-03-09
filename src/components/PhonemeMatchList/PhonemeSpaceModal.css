@@ -1,0 +1,138 @@
+/* PhonemeSpaceModal — static reference diagram overlay */
+
+.psm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+
+.psm-panel {
+  background: #12171f;
+  border: 1px solid #2a3444;
+  border-radius: 10px;
+  padding: 20px 22px;
+  max-width: 360px;
+  width: 92vw;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+}
+
+.psm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.psm-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e9eef5;
+  letter-spacing: 0.02em;
+}
+
+.psm-close {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #2a3444;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.psm-close:hover { color: #e9eef5; border-color: #6b7280; }
+
+.psm-desc {
+  margin: 0;
+  font-size: 0.73rem;
+  color: #7c8a9e;
+  line-height: 1.55;
+}
+
+/* ── Vowel SVG ── */
+
+.psm-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.psm-axis-label {
+  font-size: 8px;
+  fill: #4a5568;
+  font-family: sans-serif;
+}
+
+.psm-corner {
+  font-size: 7.5px;
+  fill: #3a4558;
+  font-family: sans-serif;
+}
+
+.psm-vowel-circle {
+  fill: rgba(74, 127, 165, 0.18);
+  stroke: #4a7fa5;
+  stroke-width: 1;
+}
+
+.psm-vowel-label {
+  font-size: 8.5px;
+  fill: #b0c4d8;
+  font-family: monospace;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* ── Consonant Table ── */
+
+.psm-cons-table {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.psm-cons-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.psm-cons-manner {
+  font-size: 0.7rem;
+  color: #5a6478;
+  width: 68px;
+  flex-shrink: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.psm-cons-phones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.psm-cons-chip {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #b0c4d8;
+  background: rgba(74, 127, 165, 0.12);
+  border: 1px solid #2a3a50;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.psm-cons-note {
+  margin: 6px 0 0;
+  font-size: 0.68rem;
+  color: #4a5568;
+  line-height: 1.5;
+}

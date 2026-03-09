@@ -3,232 +3,101 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "../../../../contexts/ParamsContext";
 import "../Overlay.css";
 
+function SectionHeader({ label, checked, onChange }) {
+  return (
+    <label className="toggle-control" style={{ marginBottom: "0.25rem" }}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{label}</h2>
+    </label>
+  );
+}
+
 export function VocalsParamsOverlay({ onClose }) {
   const {
-    // syllable visuals + logic
-    showSyllables,
-    setShowSyllables,
-    inactiveSyllableColor,
-    setInactiveSyllableColor,
-    syllableOpacity,
-    setSyllableOpacity,
-    syllableRadius,
-    setSyllableRadius,
-    syllableArcCurve,
-    setSyllableArcCurve,
+    // Words — visual
+    showWords, setShowWords,
+    wordActiveColor, setWordActiveColor,
+    wordInactiveColor, setWordInactiveColor,
+    wordOpacity, setWordOpacity,
 
-    wildcardSkips,
-    setWildcardSkips,
-    minMatchLen,
-    setMinMatchLen,
+    // Syllables — visual
+    showSyllables, setShowSyllables,
+    inactiveSyllableColor, setInactiveSyllableColor,
+    syllableOpacity, setSyllableOpacity,
+    syllableRadius, setSyllableRadius,
+    vowelColors: contextVowelColors, setVowelColors,
 
-    // word visuals + logic
-    showWords,
-    setShowWords,
-    wordActiveColor,
-    setWordActiveColor,
-    wordInactiveColor,
-    setWordInactiveColor,
-    wordOpacity,
-    setWordOpacity,
-    exactMatches,
-    setExactMatches,
-    ignorePlurals,
-    setIgnorePlurals,
-
-    // NEW word-layer visibility toggles
-    showRhymes,
-    setShowRhymes,
-    showAlliteration,
-    setShowAlliteration,
-
-    // line visuals
-    showLines,
-    setShowLines,
-    lineActiveColor,
-    setLineActiveColor,
-    lineInactiveColor,
-    setLineInactiveColor,
-    lineOpacity,
-    setLineOpacity,
-
-    // NEW line-layer toggle
-    showEndRhymes,
-    setShowEndRhymes,
-
-    // vowel palette
-    vowelColors: contextVowelColors,
-    setVowelColors,
+    // Lines — visual
+    showLines, setShowLines,
+    lineActiveColor, setLineActiveColor,
+    lineInactiveColor, setLineInactiveColor,
+    lineOpacity, setLineOpacity,
   } = useParams();
 
-  // local mirrors for quick UI feedback
-  const [wildcard, setWildcard] = useState(wildcardSkips);
-  const [minMatch, setMinMatch] = useState(minMatchLen);
   const [colors, setColors] = useState(contextVowelColors);
-
-  // NEW: collapsed by default
   const [isVowelPaletteOpen, setIsVowelPaletteOpen] = useState(false);
 
-  useEffect(() => setWildcard(wildcardSkips), [wildcardSkips]);
-  useEffect(() => setMinMatch(minMatchLen), [minMatchLen]);
   useEffect(() => setColors(contextVowelColors), [contextVowelColors]);
 
-  const toggle = (fn) => (e) => fn(e.target.checked);
-  const pickColor = (fn) => (e) => fn(e.target.value);
   const pickRange = (fn) => (e) => fn(+e.target.value);
-
-  const handleWildcardChange = (e) => {
-    const v = Number(e.target.value);
-    setWildcard(v);
-    setWildcardSkips(v);
-  };
-  const handleMinMatchChange = (e) => {
-    const v = Number(e.target.value);
-    setMinMatch(v);
-    setMinMatchLen(v);
-  };
-  const handleVowelColorChange = (vowel, e) => {
-    const nc = { ...colors, [vowel]: e.target.value };
-    setColors(nc);
-    setVowelColors(nc);
-  };
+  const pickColor = (fn) => (e) => fn(e.target.value);
 
   return (
     <div className="params-overlay">
       <div className="params-window">
         <header>
-          <h1>Vocal Stem Parameters</h1>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
+          <h1>Vocal Appearance</h1>
+          <button className="close-btn" onClick={onClose}>x</button>
         </header>
 
         <div className="params-body">
           <div className="visuals-grid">
-            {/* ───────────── Words ───────────── */}
+
+            {/* ── COLUMN 1: WORD GLYPHS ── */}
             <div className="visual-section">
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showWords}
-                  onChange={toggle(setShowWords)}
-                />
-                <h2>Word Glyphs</h2>
-              </label>
+              <SectionHeader label="Word Glyphs" checked={showWords} onChange={setShowWords} />
 
               <label className="control inline">
                 Active Color:
-                <input
-                  type="color"
-                  value={wordActiveColor}
-                  onChange={pickColor(setWordActiveColor)}
-                />
+                <input type="color" value={wordActiveColor} onChange={pickColor(setWordActiveColor)} />
               </label>
 
               <label className="control inline">
                 Inactive Color:
-                <input
-                  type="color"
-                  value={wordInactiveColor}
-                  onChange={pickColor(setWordInactiveColor)}
-                />
+                <input type="color" value={wordInactiveColor} onChange={pickColor(setWordInactiveColor)} />
               </label>
 
               <label className="control">
                 Opacity <span className="meta">{wordOpacity.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={wordOpacity}
-                  onChange={pickRange(setWordOpacity)}
-                />
-              </label>
-
-              {/* NEW toggles */}
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showRhymes}
-                  onChange={toggle(setShowRhymes)}
-                />
-                Show Rhymes
-              </label>
-
-              {/* Existing match logic toggles */}
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={exactMatches}
-                  onChange={toggle(setExactMatches)}
-                />
-                Exact Match
-              </label>
-
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={ignorePlurals}
-                  onChange={toggle(setIgnorePlurals)}
-                />
-                Ignore Plurals
-              </label>
-
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showAlliteration}
-                  onChange={toggle(setShowAlliteration)}
-                />
-                Show Alliteration
+                <input type="range" min={0} max={1} step={0.05}
+                  value={wordOpacity} onChange={pickRange(setWordOpacity)} />
               </label>
             </div>
 
-            {/* ───────────── Syllables ───────────── */}
+            {/* ── COLUMN 2: SYLLABLE GLYPHS ── */}
             <div className="visual-section">
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showSyllables}
-                  onChange={toggle(setShowSyllables)}
-                />
-                <h2>Syllable Glyphs</h2>
-              </label>
+              <SectionHeader label="Syllable Glyphs" checked={showSyllables} onChange={setShowSyllables} />
 
-              {/* Collapsible Active Vowel Colors */}
               <div className="control">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>Active Vowel Colors</span>
-                  <button
-                    type="button"
+                  <span>Vowel Colors</span>
+                  <button type="button"
                     onClick={() => setIsVowelPaletteOpen((v) => !v)}
                     aria-expanded={isVowelPaletteOpen}
-                    aria-controls="vowel-palette"
-                    title={isVowelPaletteOpen ? "Collapse" : "Expand"}
-                    style={{
-                      marginLeft: "auto",
-                      border: "none",
-                      background: "transparent",
-                      cursor: "pointer",
-                      padding: "2px 4px",
-                      lineHeight: 1,
-                    }}
+                    style={{ marginLeft: "auto", border: "none", background: "transparent", cursor: "pointer", padding: "2px 4px", lineHeight: 1 }}
                   >
-                    {isVowelPaletteOpen ? "▲" : "▼"}
+                    {isVowelPaletteOpen ? "\u25b2" : "\u25bc"}
                   </button>
                 </div>
-
                 {isVowelPaletteOpen && (
                   <div className="palette-grid" id="vowel-palette">
                     {Object.entries(colors).map(([vowel, color]) => (
                       <label key={vowel}>
                         {vowel}
-                        <input
-                          type="color"
-                          value={color}
-                          onChange={(e) => handleVowelColorChange(vowel, e)}
-                        />
+                        <input type="color" value={color} onChange={(e) => {
+                          const nc = { ...colors, [vowel]: e.target.value };
+                          setColors(nc); setVowelColors(nc);
+                        }} />
                       </label>
                     ))}
                   </div>
@@ -237,125 +106,43 @@ export function VocalsParamsOverlay({ onClose }) {
 
               <label className="control inline">
                 Inactive Color:
-                <input
-                  type="color"
-                  value={inactiveSyllableColor}
-                  onChange={pickColor(setInactiveSyllableColor)}
-                />
+                <input type="color" value={inactiveSyllableColor} onChange={pickColor(setInactiveSyllableColor)} />
               </label>
 
               <label className="control">
-                Opacity{" "}
-                <span className="meta">{syllableOpacity.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={syllableOpacity}
-                  onChange={pickRange(setSyllableOpacity)}
-                />
+                Opacity <span className="meta">{syllableOpacity.toFixed(2)}</span>
+                <input type="range" min={0} max={1} step={0.05}
+                  value={syllableOpacity} onChange={pickRange(setSyllableOpacity)} />
               </label>
 
               <label className="control">
                 Radius <span className="meta">{syllableRadius}px</span>
-                <input
-                  type="range"
-                  min={2}
-                  max={50}
-                  step={1}
-                  value={syllableRadius}
-                  onChange={pickRange(setSyllableRadius)}
-                />
-              </label>
-
-              {/* <label className="control">
-                Arc Curvature{" "}
-                <span className="meta">{syllableArcCurve.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={syllableArcCurve}
-                  onChange={pickRange(setSyllableArcCurve)}
-                />
-              </label> */}
-
-              <label className="control">
-                Max Wildcard Skips <span className="meta">{wildcard}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={3}
-                  step={1}
-                  value={wildcard}
-                  onChange={handleWildcardChange}
-                />
-              </label>
-
-              <label className="control">
-                Min Match Length <span className="meta">{minMatch}</span>
-                <input
-                  type="range"
-                  min={1}
-                  max={3}
-                  step={1}
-                  value={minMatch}
-                  onChange={handleMinMatchChange}
-                />
+                <input type="range" min={2} max={50} step={1}
+                  value={syllableRadius} onChange={pickRange(setSyllableRadius)} />
               </label>
             </div>
 
-            {/* ───────────── Lines ───────────── */}
+            {/* ── COLUMN 3: LINE GLYPHS ── */}
             <div className="visual-section">
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showLines}
-                  onChange={toggle(setShowLines)}
-                />
-                <h2>Line Glyphs</h2>
-              </label>
+              <SectionHeader label="Line Glyphs" checked={showLines} onChange={setShowLines} />
 
               <label className="control inline">
                 Active Color:
-                <input
-                  type="color"
-                  value={lineActiveColor}
-                  onChange={pickColor(setLineActiveColor)}
-                />
+                <input type="color" value={lineActiveColor} onChange={pickColor(setLineActiveColor)} />
               </label>
 
               <label className="control inline">
                 Inactive Color:
-                <input
-                  type="color"
-                  value={lineInactiveColor}
-                  onChange={pickColor(setLineInactiveColor)}
-                />
+                <input type="color" value={lineInactiveColor} onChange={pickColor(setLineInactiveColor)} />
               </label>
 
               <label className="control">
                 Opacity <span className="meta">{lineOpacity.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={lineOpacity}
-                  onChange={pickRange(setLineOpacity)}
-                />
-              </label>
-              <label className="toggle-control">
-                <input
-                  type="checkbox"
-                  checked={showEndRhymes}
-                  onChange={toggle(setShowEndRhymes)}
-                />
-                End Rhymes
+                <input type="range" min={0} max={1} step={0.05}
+                  value={lineOpacity} onChange={pickRange(setLineOpacity)} />
               </label>
             </div>
+
           </div>
         </div>
       </div>

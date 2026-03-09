@@ -34,7 +34,7 @@ export function WordBlock({
   const { getVisualForWord, selections, anchorOrAdopt, removeSelection } =
     useWordSelection();
 
-  const { wordActiveColor, wordOpacity, showAlliteration, showRhymes } =
+  const { wordActiveColor, wordOpacity, alliterationTier, showRhymes } =
     useParams();
 
   const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
@@ -47,23 +47,31 @@ export function WordBlock({
     return candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
   }, [selections, wordId]);
 
-  const vis = getVisualForWord(wordId); // null | {role,color}
-  const isAnchor = vis?.role === "anchor";
-  const isMatch = vis?.role === "match";
-  const isAllit = vis?.role === "alliteration";
+  const vis = getVisualForWord(wordId); // null | { color, score, roles }
+  const isAnchor    = vis?.roles?.isAnchor       ?? false;
+  const isRhyme     = vis?.roles?.isRhyme        ?? false;
+  const isAllit     = vis?.roles?.isAlliteration ?? false;
+  const isAssonance = vis?.roles?.isAssonance    ?? false;
 
-  // background tint for selected/rhyme matches
+  // background tint for anchor and rhyme matches
   const bgRgba =
-    isAnchor || (isMatch && showRhymes)
+    isAnchor || (isRhyme && showRhymes)
       ? hexToRgba(vis?.color || wordActiveColor, wordOpacity ?? 0.6)
       : "transparent";
 
-  // outline for anchor (strong) or alliteration (if toggle on)
+  // outline for anchor (strong) or alliteration (decorative)
   const outlineStyle = isAnchor
     ? `3px solid ${vis?.color || wordActiveColor}`
-    : showAlliteration && isAllit
-    ? `3px solid ${vis?.color || wordActiveColor}`
+    : alliterationTier !== "off" && isAllit
+    ? `2px solid ${vis?.color || wordActiveColor}`
     : "none";
+
+  // underline: assonance = dotted
+  const textDecorationLine  = isAssonance ? "underline" : "none";
+  const textDecorationStyle = "dotted";
+  const textDecorationColor = isAssonance
+    ? hexToRgba(vis.color, wordOpacity ?? 0.6)
+    : undefined;
 
   function onToggleAnchor() {
     if (anchorForThisWord) {
@@ -130,6 +138,10 @@ export function WordBlock({
           backgroundColor: bgRgba,
           outline: outlineStyle,
           outlineOffset: "0px",
+          textDecorationLine,
+          textDecorationStyle,
+          textDecorationColor,
+          textDecorationThickness: "2px",
           cursor: "pointer",
         }}
         title={

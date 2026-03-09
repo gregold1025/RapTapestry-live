@@ -282,3 +282,146 @@
   font-size: 0.85rem;
   color: #6c7b93;
 }
+
+/* ============================
+   4) PER-SELECTION PARAMS PANEL
+   ============================ */
+
+.lap-ps-panel {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+  padding: 8px;
+  margin: 0 8px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lap-ps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.lap-ps-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lap-ps-reset {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+.lap-ps-reset:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.lap-ps-section {
+  background: #111624;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lap-ps-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lap-ps-section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Mini slider control */
+.lap-ps-control {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.lap-ps-row {
+  display: flex;
+  justify-content: space-between;
+}
+.lap-ps-value {
+  color: var(--text);
+  font-weight: 600;
+}
+.lap-ps-control input[type="range"] {
+  width: 100%;
+  height: 14px;
+  accent-color: #4a7fa5;
+}
+
+/* Toggle row */
+.lap-ps-toggles {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.lap-ps-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lap-ps-toggle:hover { color: var(--text); }
+.lap-ps-toggle input[type="checkbox"] {
+  accent-color: #4a7fa5;
+  width: 12px;
+  height: 12px;
+}
+
+/* Tier buttons inside params panel */
+.lap-ps-tier-row {
+  display: flex;
+  gap: 4px;
+}
+.lap-ps-tier-btn {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+}
+.lap-ps-tier-btn.is-active {
+  background: #4a7fa5;
+  border-color: #4a7fa5;
+  color: #fff;
+}
+.lap-ps-tier-btn:hover:not(.is-active) {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+/* Active state for gear icon when params open */
+.lap-icon.is-active {
+  background: #1a2a3a;
+  border-color: #4a7fa5;
+  color: #4a7fa5;
+}

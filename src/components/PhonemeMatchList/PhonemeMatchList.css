@@ -1,0 +1,81 @@
+/* PhonemeMatchList — compact phoneme similarity reference */
+
+.pml-root {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 0 2px;
+}
+
+/* Anchor phoneme label — white, prominent */
+.pml-anchor {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: none;
+  padding: 2px 4px;
+  border-right: 2px solid #444;
+  margin-right: 4px;
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* Match chips — muted grey */
+.pml-matches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.pml-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.pml-phoneme {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #b0b8c8;
+}
+
+.pml-pct {
+  font-size: 0.65rem;
+  color: #5a6478;
+}
+
+.pml-placeholder {
+  font-size: 0.73rem;
+  color: #4a5568;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+/* When used inside LyricPresets (light background) override colours */
+.lp-submenu-content .pml-anchor {
+  color: #111;
+  border-right-color: #ccc;
+}
+
+.lp-submenu-content .pml-phoneme {
+  color: #374151;
+}
+
+.lp-submenu-content .pml-pct {
+  color: #9ca3af;
+}
+
+.lp-submenu-content .pml-item {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.lp-submenu-content .pml-placeholder {
+  color: #9ca3af;
+}

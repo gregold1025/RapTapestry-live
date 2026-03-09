@@ -1,4 +1,5 @@
 // src/utils/extractRhymingWords.js
+import { rhymeScore } from './phonemeSimilarity.js';
 
 // ARPABET vowel nuclei (letters only, no stress digits)
 const VOWEL_NUCLEI = new Set([
@@ -24,24 +25,20 @@ const VOWEL_NUCLEI = new Set([
  * find the part from the last vowel nucleus to the end,
  * strip out all stress digits & whitespace, lowercase it,
  * and return as a compact rhyme‐key.
+ *
+ * Kept for extractLines.js compatibility (rhymeIndex precomputation).
  */
 export function extractRhymingKey(phonesStr = "") {
-  // split into tokens, e.g. ["N","AY1","N","D","ER0"]
   const tokens = phonesStr.trim().split(/\s+/);
   let lastVowelIdx = -1;
 
-  // find last index whose letters (sans digits) match a vowel nucleus
   for (let i = 0; i < tokens.length; i++) {
     const letters = tokens[i].replace(/\d/g, "");
     if (VOWEL_NUCLEI.has(letters)) lastVowelIdx = i;
   }
 
-  if (lastVowelIdx < 0) {
-    // no vowel found → no rhyme key
-    return "";
-  }
+  if (lastVowelIdx < 0) return "";
 
-  // take from that vowel to end, strip digits, join with no spaces, lowercase
   return tokens
     .slice(lastVowelIdx)
     .map((tok) => tok.replace(/\d/g, ""))
@@ -50,19 +47,17 @@ export function extractRhymingKey(phonesStr = "") {
 }
 
 /**
- * Given:
- *  - phonesStr: the selected word’s ARPABET string
- *  - phonesMap:   a Map<id,phonesStr> for *all* words (e.g. built in your context)
+ * Returns ids from phonesMap whose rhyme score with phonesStr meets the threshold.
  *
- * Returns an array of every id whose rhyme‐key matches the selected one.
+ * @param {string} phonesStr  - ARPABET phones for the anchor word
+ * @param {Map<string, string>} phonesMap - all word id → phones
+ * @param {number} threshold  - minimum rhymeScore [0–1] to count as a match (default 0.8)
  */
-export function extractRhymingWords(phonesStr, phonesMap) {
-  const key = extractRhymingKey(phonesStr);
-  if (!key) return [];
-
+export function extractRhymingWords(phonesStr, phonesMap, threshold = 0.8) {
+  if (!phonesStr) return [];
   const results = [];
-  for (let [id, otherPhones] of phonesMap.entries()) {
-    if (extractRhymingKey(otherPhones) === key) {
+  for (const [id, otherPhones] of phonesMap.entries()) {
+    if (rhymeScore(phonesStr, otherPhones) >= threshold) {
       results.push(id);
     }
   }

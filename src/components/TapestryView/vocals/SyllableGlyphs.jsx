@@ -21,7 +21,9 @@ export default function SyllableGlyphs({
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
-  const { matchedIds, selectedIds } = useSyllableSelection();
+  const { matchedIds, selectedIds, handleSyllableClick } =
+    useSyllableSelection();
+
   const {
     showSyllables,
     vowelColors,
@@ -93,7 +95,16 @@ export default function SyllableGlyphs({
         //  RENDER GLYPH OR CIRCLE
         // -------------------------------
         const commonHandlers = {
-          onClick: () => seekAll(start),
+          onClick: (e) => {
+            // Cmd/Ctrl-click: syllable range selection
+            if (e?.metaKey || e?.ctrlKey) {
+              handleSyllableClick(id);
+              return;
+            }
+            // Default: scrub audio
+            seekAll(start);
+          },
+
           onMouseEnter: (e) =>
             onGlyphHoverEnter(e, {
               wordText: word.text,
