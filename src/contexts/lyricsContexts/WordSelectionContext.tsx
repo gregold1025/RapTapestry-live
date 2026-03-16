@@ -183,7 +183,7 @@ export function WordSelectionProvider({
       ? new Map(Array.from(wordPhonesMap.entries()).map(([id, ph]) => [id, stripPluralSuffix(ph)]))
       : wordPhonesMap;
     const nucleusThreshold = getThreshold(p.rhymeStrictness, "rhyme");
-    const codaThreshold = getCodaThreshold(nucleusThreshold, p.codaTolerance);
+    const codaThreshold = getCodaThreshold(nucleusThreshold, p.codaTolerance, p.rhymeStrictness);
     for (const { id, quality } of extractRhymingWords(selPhones, rhymeMap, nucleusThreshold, codaThreshold)) {
       if (inRange(anchorId, id, p.rhymeSearchDistance)) out.set(id, quality);
     }

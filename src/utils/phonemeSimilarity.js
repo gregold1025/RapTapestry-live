@@ -409,10 +409,21 @@ export function rhymeScore(phonesA, phonesB) {
 export const DEFAULT_CODA_TOLERANCE = 0.65;
 
 /**
- * Derive the coda threshold from the nucleus threshold and a tolerance value.
+ * Derive the coda threshold from the nucleus threshold, a base tolerance,
+ * and the current strictness level.
+ *
+ * The tolerance interpolates from codaTolerance (at strictness=0) toward
+ * 1.0 (at strictness=1). This means:
+ *   - At loose strictness: coda gate is very permissive (codaTolerance effect is full)
+ *   - At max strictness ("Perfect"): coda gate converges to nucleus gate (both near-perfect)
+ *
+ * This ensures that "Perfect" truly means perfect rhyme, not just perfect vowel
+ * with loose coda.
  */
-export function getCodaThreshold(nucleusThreshold, codaTolerance = DEFAULT_CODA_TOLERANCE) {
-  return nucleusThreshold * Math.max(0, Math.min(1, codaTolerance));
+export function getCodaThreshold(nucleusThreshold, codaTolerance = DEFAULT_CODA_TOLERANCE, strictness = 1) {
+  const s = Math.max(0, Math.min(1, strictness));
+  const effectiveTolerance = codaTolerance + s * (1 - codaTolerance);
+  return nucleusThreshold * Math.max(0, Math.min(1, effectiveTolerance));
 }
 
 /**

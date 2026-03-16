@@ -121,7 +121,7 @@ function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCodaClust
       />
       <div className="aqp-slider-endpoints">
         <span>Loose</span>
-        <span>Strict</span>
+        <span>Perfect</span>
       </div>
       {modalOpen && ModalComponent && <ModalComponent onClose={() => setModalOpen(false)} />}
     </div>
@@ -266,7 +266,11 @@ function WordQueryCard({ sel, transcriptionData }) {
     <div className="aqp-card">
       <div className="aqp-title-row">
         <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
-        <span className="aqp-anchor-word">{anchorText}</span>
+        <span
+          className="aqp-anchor-word aqp-anchor-seekable"
+          onClick={() => word?.start != null && seekAll(word.start)}
+          title="Jump to word"
+        >{anchorText}</span>
         {anchorPhones && <span className="aqp-anchor-phones">{anchorPhones}</span>}
         <div className="aqp-title-actions">
           {overrideCount > 0 && (
@@ -464,7 +468,14 @@ function LineQueryCard({ sel, transcriptionData }) {
     <div className="aqp-card">
       <div className="aqp-title-row">
         <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
-        <span className="aqp-anchor-word aqp-anchor-line">&hellip;{tail}</span>
+        <span
+          className="aqp-anchor-word aqp-anchor-line aqp-anchor-seekable"
+          onClick={() => {
+            const time = lines[sel.lineIdx]?.words?.[0]?.start;
+            if (time != null) seekAll(time);
+          }}
+          title="Jump to line"
+        >&hellip;{tail}</span>
         <div className="aqp-title-actions">
           {overrideCount > 0 && (
             <button className="aqp-action-btn" onClick={() => clearSelectionParams(sel.id)} title="Reset overrides">

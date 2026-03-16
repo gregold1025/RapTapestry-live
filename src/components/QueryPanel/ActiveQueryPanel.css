@@ -92,6 +92,15 @@
   white-space: nowrap;
 }
 
+.aqp-anchor-seekable {
+  cursor: pointer;
+}
+.aqp-anchor-seekable:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
 .aqp-anchor-phones {
   font-size: 0.72rem;
   font-weight: 400;
@@ -116,6 +125,7 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .aqp-action-btn {

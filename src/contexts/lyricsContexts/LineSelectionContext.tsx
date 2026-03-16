@@ -58,7 +58,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
   function computeMatchSet(sel: LineSelection): Set<number> {
     const p = resolveParams(sel);
     const nucleusThreshold = p.exactMatches ? null : getThreshold(p.rhymeStrictness, "rhyme");
-    const codaThreshold = nucleusThreshold != null ? getCodaThreshold(nucleusThreshold, p.codaTolerance) : null;
+    const codaThreshold = nucleusThreshold != null ? getCodaThreshold(nucleusThreshold, p.codaTolerance, p.rhymeStrictness) : null;
     const raw =
       getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, nucleusThreshold, codaThreshold }) ??
       new Set<number>();
