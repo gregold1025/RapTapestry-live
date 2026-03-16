@@ -51,8 +51,13 @@ type WordSelection = {
 /**
  * All applicable match types for a word are returned simultaneously so
  * renderers can stack decorations (fill + underline + outline together).
+ * Each role carries its own color from the selection that produced it,
+ * so stacked decorations from different anchors display correctly.
  */
+type RoleInfo = { color: string; selectionId: string; score: number } | null;
+
 type VisualForWord = {
+  /** Primary color (from highest-priority role, for backward compat) */
   color: string;
   selectionId: string;
   score: number;
@@ -63,6 +68,10 @@ type VisualForWord = {
     isAssonance: boolean;
     isConsonance: boolean;
   };
+  /** Per-role color and score, sourced from the selection that produced each match */
+  rhymeInfo: RoleInfo;
+  alliterationInfo: RoleInfo;
+  assonanceInfo: RoleInfo;
 } | null;
 
 const WordSelectionContext = createContext<any>(null);
@@ -284,28 +293,41 @@ export function WordSelectionProvider({
 
       if (!isAnchor && !isRhyme && !isAlliteration && !isAssonance) continue;
 
-      let color = "", selectionId = "", score = 0;
+      // Per-role info: each role gets the color from the selection that produced it
+      let rhymeInfo: RoleInfo = null;
+      let alliterationInfo: RoleInfo = null;
+      let assonanceInfo: RoleInfo = null;
 
+      if (isRhyme) {
+        const s = rev.find((s) => matchesBySelectionId[s.id]?.has(wordId))!;
+        rhymeInfo = { color: s.color, selectionId: s.id, score: matchesBySelectionId[s.id]?.get(wordId) ?? 0 };
+      }
+      if (isAlliteration) {
+        const s = rev.find((s) => alliterationBySelectionId[s.id]?.has(wordId))!;
+        alliterationInfo = { color: s.color, selectionId: s.id, score: alliterationScore(wordPhonesMap.get(s.wordId) || "", wordPhones) };
+      }
+      if (isAssonance) {
+        const s = rev.find((s) => assonanceBySelectionId[s.id]?.has(wordId))!;
+        assonanceInfo = { color: s.color, selectionId: s.id, score: assonanceScore(wordPhonesMap.get(s.wordId) || "", wordPhones) };
+      }
+
+      // Primary color: anchor > rhyme > alliteration > assonance (backward compat)
+      let color = "", selectionId = "", score = 0;
       if (isAnchor) {
         const s = rev.find((s) => s.wordId === wordId)!;
         color = s.color; selectionId = s.id; score = 1;
-      } else if (isRhyme) {
-        const s = rev.find((s) => matchesBySelectionId[s.id]?.has(wordId))!;
-        color = s.color; selectionId = s.id;
-        score = matchesBySelectionId[s.id]?.get(wordId) ?? 0;
-      } else if (isAlliteration) {
-        const s = rev.find((s) => alliterationBySelectionId[s.id]?.has(wordId))!;
-        color = s.color; selectionId = s.id;
-        score = alliterationScore(wordPhonesMap.get(s.wordId) || "", wordPhones);
-      } else {
-        const s = rev.find((s) => assonanceBySelectionId[s.id]?.has(wordId))!;
-        color = s.color; selectionId = s.id;
-        score = assonanceScore(wordPhonesMap.get(s.wordId) || "", wordPhones);
+      } else if (rhymeInfo) {
+        ({ color, selectionId, score } = rhymeInfo);
+      } else if (alliterationInfo) {
+        ({ color, selectionId, score } = alliterationInfo);
+      } else if (assonanceInfo) {
+        ({ color, selectionId, score } = assonanceInfo);
       }
 
       map.set(wordId, {
         color, selectionId, score,
         roles: { isAnchor, isRhyme, isAlliteration, isAssonance, isConsonance: false },
+        rhymeInfo, alliterationInfo, assonanceInfo,
       });
     }
     return map;

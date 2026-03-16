@@ -127,11 +127,12 @@ export default function WordGlyphs({
 
       // ── Rhyme — solid fill, opacity ∝ score ────────────────────
       if (vis?.roles?.isRhyme && showRhymes) {
-        const mult = scoreToOpacityMult(vis.score, rhymeThresh);
+        const ri = vis.rhymeInfo;
+        const mult = scoreToOpacityMult(ri?.score ?? vis.score, rhymeThresh);
         glyphs.push(
           <rect key={`${id}-match`}
             x={startX} y={rectY} width={widthPx} height={barH}
-            fill={vis.color} opacity={wordOpacity * mult}
+            fill={ri?.color ?? vis.color} opacity={wordOpacity * mult}
             pointerEvents="none"
           />
         );
@@ -139,11 +140,12 @@ export default function WordGlyphs({
 
       // ── Alliteration — colored outline rect ────────────────────
       if (vis?.roles?.isAlliteration && alliterationTier !== "off") {
-        const mult = scoreToOpacityMult(vis.score, allitThresh);
+        const ai = vis.alliterationInfo;
+        const mult = scoreToOpacityMult(ai?.score ?? vis.score, allitThresh);
         glyphs.push(
           <rect key={`${id}-allit`}
             x={startX} y={rectY} width={widthPx} height={barH}
-            fill="none" stroke={vis.color} strokeWidth={2}
+            fill="none" stroke={ai?.color ?? vis.color} strokeWidth={2}
             opacity={wordOpacity * mult}
             pointerEvents="none"
           />
@@ -152,12 +154,13 @@ export default function WordGlyphs({
 
       // ── Assonance — dotted underline, full width ────────────────
       if (vis?.roles?.isAssonance && showAssonance) {
-        const mult = scoreToOpacityMult(vis.score, assonThresh);
+        const si = vis.assonanceInfo;
+        const mult = scoreToOpacityMult(si?.score ?? vis.score, assonThresh);
         glyphs.push(
           <line key={`${id}-ason`}
             x1={startX} y1={rectY + underY}
             x2={startX + widthPx} y2={rectY + underY}
-            stroke={vis.color} strokeWidth={underH}
+            stroke={si?.color ?? vis.color} strokeWidth={underH}
             strokeDasharray="3 3" opacity={wordOpacity * mult}
             pointerEvents="none"
           />
