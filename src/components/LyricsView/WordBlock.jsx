@@ -56,24 +56,34 @@ export function WordBlock({
   const baseOpacity = wordOpacity ?? 0.6;
   const score = vis?.score ?? 1;
 
+  // Per-role colors from the selection that produced each match
+  const rhymeColor = vis?.rhymeInfo?.color ?? vis?.color ?? wordActiveColor;
+  const allitColor = vis?.alliterationInfo?.color ?? vis?.color ?? wordActiveColor;
+  const asonColor  = vis?.assonanceInfo?.color ?? vis?.color ?? wordActiveColor;
+  const rhymeScore = vis?.rhymeInfo?.score ?? score;
+  const allitScore = vis?.alliterationInfo?.score ?? score;
+  const asonScore  = vis?.assonanceInfo?.score ?? score;
+
   // background tint — opacity scales with match score (same as tapestry)
   const bgRgba =
-    isAnchor || (isRhyme && showRhymes)
-      ? hexToRgba(vis?.color || wordActiveColor, isAnchor ? baseOpacity : baseOpacity * score)
+    isAnchor
+      ? hexToRgba(vis?.color || wordActiveColor, baseOpacity)
+      : isRhyme && showRhymes
+      ? hexToRgba(rhymeColor, baseOpacity * rhymeScore)
       : "transparent";
 
   // outline — anchor full, alliteration score-scaled
   const outlineStyle = isAnchor
     ? `3px solid ${hexToRgba(vis?.color || wordActiveColor, 1)}`
     : alliterationTier !== "off" && isAllit
-    ? `2px solid ${hexToRgba(vis?.color || wordActiveColor, score)}`
+    ? `2px solid ${hexToRgba(allitColor, allitScore)}`
     : "none";
 
   // underline: assonance = dotted, score-scaled opacity
   const textDecorationLine  = isAssonance ? "underline" : "none";
   const textDecorationStyle = "dotted";
   const textDecorationColor = isAssonance
-    ? hexToRgba(vis.color, baseOpacity * score)
+    ? hexToRgba(asonColor, baseOpacity * asonScore)
     : undefined;
 
   function onToggleAnchor() {
