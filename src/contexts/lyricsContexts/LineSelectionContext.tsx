@@ -80,7 +80,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
       out[s.id] = computeMatchSet(s);
     }
     return out;
-  }, [selections, exactMatches, extracted, rhymeStrictness]);
+  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals]);
 
   const activeInZOrder = useMemo(
     () => selections.filter((s) => s.active).sort((a, b) => a.createdAt - b.createdAt),
