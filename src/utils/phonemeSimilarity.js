@@ -291,7 +291,7 @@ function codaSim(codaA, codaB) {
   const emptyA = codaA.length === 0;
   const emptyB = codaB.length === 0;
   if (emptyA && emptyB) return 1.0;
-  if (emptyA || emptyB) return 0.3;
+  if (emptyA || emptyB) return 0.5;  // open vs closed: midpoint of controllable range
 
   // Same length: positional comparison
   if (codaA.length === codaB.length) {

@@ -241,7 +241,7 @@ describe('rhymeScore', () => {
   it('open vs closed syllable gets partial coda credit (0.3)', () => {
     // "free" (IY, no coda) vs "feet" (IY, T coda) → nucleus=1.0, codaSim=0.3
     const score = rhymeScore('F R IY1', 'F IY1 T');
-    expect(score).toBeCloseTo(0.75 * 1.0 + 0.25 * 0.3, 3);
+    expect(score).toBeCloseTo(0.75 * 1.0 + 0.25 * 0.5, 3);
   });
 });
 

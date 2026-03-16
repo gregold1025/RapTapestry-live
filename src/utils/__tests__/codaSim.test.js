@@ -160,8 +160,8 @@ describe("Category E: Empty codas", () => {
     expect(codaSimOf("F R IY", "S IY")).toBe(1.0);
   });
 
-  it("E2: one open, one closed = 0.3 partial credit", () => {
-    expect(codaSimOf("F R IY", "F IY T")).toBeCloseTo(0.3, 2);
+  it("E2: one open, one closed = 0.5 partial credit", () => {
+    expect(codaSimOf("F R IY", "F IY T")).toBeCloseTo(0.5, 2);
   });
 
   it("E3: symmetric with E2", () => {
