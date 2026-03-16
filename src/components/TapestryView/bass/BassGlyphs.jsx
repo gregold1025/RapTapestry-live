@@ -1,6 +1,5 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
 /**
@@ -24,7 +23,6 @@ const BASS_DIVIDER_URLS = Object.values(dividerModules);
 
 export default function BassGlyphs({ bassTranscriptionData }) {
   const { layout } = useTapestryLayout();
-  const { playheadTime } = useAudioEngine();
   const { showBass, bassParams, glyphStyle } = useParams();
 
   const dividerUrl = glyphStyle?.bassDividerUrl ?? null;
@@ -45,13 +43,10 @@ export default function BassGlyphs({ bassTranscriptionData }) {
     []
   );
 
-  const tolerance = 0.08; // ~80ms visual playhead window
-
-  const glyphs = useMemo(() => {
-    return bassTranscriptionData.flatMap((note, idx) => {
+  // Compute geometry once (does NOT depend on playheadTime)
+  const noteGeometry = useMemo(() => {
+    return bassTranscriptionData.map((note, idx) => {
       const { start_time, end_time, pitch_class } = note;
-      const isActive =
-        playheadTime >= start_time && playheadTime <= end_time + tolerance;
 
       const { x: startX, row: startRow } = timeToPixels(start_time);
       const { x: endX, row: endRow } = timeToPixels(end_time);
@@ -61,62 +56,61 @@ export default function BassGlyphs({ bassTranscriptionData }) {
       const binHeight = (rowHeight * 0.5) / bins;
       const binOffset = binHeight * pitchBin;
 
-      // pitch-based *top* of the energy column
       const baseY = (row) => row * rowHeight + rowHeight * 0.9 - binOffset;
 
       const segments = [];
-
       for (let row = startRow; row <= endRow; row++) {
         const x1 = row === startRow ? startX : 0;
         const x2 = row === endRow ? endX : width;
         const segWidth = Math.max(1, x2 - x1);
-
         const yTop = baseY(row);
         const rowBottom = (row + 1) * rowHeight;
-
-        // height from note height up to bottom of the row
-        let segHeight = rowBottom - yTop;
-        segHeight = Math.max(1, segHeight);
-
-        // -------------------------
-        // 1) BASE RECTANGLE COLUMN
-        // -------------------------
+        let segHeight = Math.max(1, rowBottom - yTop);
         const rectY = rowBottom - segHeight;
-        segments.push(
+
+        segments.push({ x1, rectY, segWidth, segHeight, row, idx });
+      }
+
+      return { start_time, end_time, idx, segments };
+    });
+  }, [bassTranscriptionData, rowHeight, timeToPixels, width]);
+
+  // Render: geometry is stable, only isActive changes with playheadTime
+  const tolerance = 0.08;
+  const glyphs = useMemo(() => {
+    const gap = rectHeight != null ? rectHeight : 0;
+
+    return noteGeometry.flatMap(({ start_time, end_time, idx, segments }) => {
+      const els = [];
+
+      for (const seg of segments) {
+        // Base rectangle
+        els.push(
           <rect
-            key={`bass-rect-${idx}-r${row}`}
-            x={x1}
-            y={rectY}
-            width={segWidth}
-            height={segHeight}
+            key={`bass-rect-${idx}-r${seg.row}`}
+            x={seg.x1}
+            y={seg.rectY}
+            width={seg.segWidth}
+            height={seg.segHeight}
             fill={fillColor}
             opacity={opacity}
           />
         );
 
-        // -------------------------
-        // 2) DIVIDER TOPPER GLYPH
-        // -------------------------
+        // Divider topper
         if (dividerUrl) {
-          const maskId = `bass-divider-mask-${idx}-r${row}`;
-
-          // rectHeight NOW means "gap" between column and topper
-          const gap = rectHeight != null ? rectHeight : 0;
-
-          // Height of the topper itself – purely aesthetic
+          const maskId = `bass-divider-mask-${idx}-r${seg.row}`;
           const baseTopperHeight = Math.max(4, rowHeight * 0.12);
-          const h = Math.min(segHeight, baseTopperHeight);
-
-          // Bottom of topper sits 'gap' units above top of rectangle
-          const bottomOfTopper = rectY - gap;
-          const cx = x1 + segWidth / 2;
+          const h = Math.min(seg.segHeight, baseTopperHeight);
+          const bottomOfTopper = seg.rectY - gap;
+          const cx = seg.x1 + seg.segWidth / 2;
           const cy = bottomOfTopper - h / 2;
 
-          segments.push(
+          els.push(
             <g
-              key={`bass-div-${idx}-r${row}`}
+              key={`bass-div-${idx}-r${seg.row}`}
               transform={`translate(${cx}, ${cy}) rotate(180) translate(${
-                -segWidth / 2
+                -seg.segWidth / 2
               }, ${-h / 2})`}
             >
               <defs>
@@ -125,22 +119,17 @@ export default function BassGlyphs({ bassTranscriptionData }) {
                     href={dividerUrl}
                     x={0}
                     y={0}
-                    width={segWidth}
+                    width={seg.segWidth}
                     height={h}
-                    // stretch to span full width/height of the topper
                     preserveAspectRatio="none"
-                    style={{
-                      // ensure solid white for full opacity in mask
-                      filter: "brightness(0) invert(1)",
-                    }}
+                    style={{ filter: "brightness(0) invert(1)" }}
                   />
                 </mask>
               </defs>
-
               <rect
                 x={0}
                 y={0}
-                width={segWidth}
+                width={seg.segWidth}
                 height={h}
                 fill={fillColor}
                 opacity={opacity}
@@ -150,21 +139,9 @@ export default function BassGlyphs({ bassTranscriptionData }) {
           );
         }
       }
-
-      return segments;
+      return els;
     });
-  }, [
-    bassTranscriptionData,
-    playheadTime,
-    tolerance,
-    rowHeight,
-    timeToPixels,
-    width,
-    fillColor,
-    opacity,
-    rectHeight, // now interpreted as GAP
-    dividerUrl,
-  ]);
+  }, [noteGeometry, fillColor, opacity, rectHeight, dividerUrl, rowHeight]);
 
   return (
     <>
