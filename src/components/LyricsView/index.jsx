@@ -37,15 +37,23 @@ export default function LyricsView({ transcriptionData, height = "100%" }) {
     maxPx: 64,
   });
 
-  // Current line from playhead
+  // Pre-sorted line start times (stable, recomputes only on song change)
+  const lineStarts = useMemo(() => {
+    return lines.map((l) => l?.words?.[0]?.start ?? Infinity);
+  }, [lines]);
+
+  // Binary search for current line (runs at 60fps but is O(log n) not O(n))
   const currentLineIndex = useMemo(() => {
-    for (let i = 0; i < lines.length; i++) {
-      const start = lines[i]?.words?.[0]?.start ?? Infinity;
-      const nextStart = lines[i + 1]?.words?.[0]?.start ?? Infinity;
-      if (playheadTime >= start && playheadTime < nextStart) return i;
+    if (!lineStarts.length) return -1;
+    let lo = 0, hi = lineStarts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >>> 1;
+      if (lineStarts[mid] <= playheadTime) lo = mid;
+      else hi = mid - 1;
     }
+    if (playheadTime >= lineStarts[lo]) return lo;
     return -1;
-  }, [lines, playheadTime]);
+  }, [lineStarts, playheadTime]);
 
   // Follow state: starts ON; user scroll turns it OFF; Recenter turns it ON
   const [isFollowing, setIsFollowing] = useState(true);
