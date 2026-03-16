@@ -62,25 +62,37 @@ function PhonemeInline({ anchorPhoneme, simMatrix, threshold }) {
 
 // ── Coda inline: similar to PhonemeInline but for coda consonants ─────────────
 
-function CodaInline({ anchorCoda, codaThreshold }) {
-  const minCodaSim = codaThreshold;
-
-  if (!anchorCoda) {
-    // open syllable: just show "—"
+/**
+ * Displays the full coda cluster as the anchor reference, and for the
+ * final (most perceptually salient) consonant position, shows which
+ * consonants would pass the coda threshold at that position.
+ *
+ * @param {string[]} anchorCodaCluster - full coda array, e.g. ["K", "T"]
+ * @param {number} codaThreshold - minimum codaSim to pass the gate
+ */
+function CodaInline({ anchorCodaCluster, codaThreshold }) {
+  if (!anchorCodaCluster || anchorCodaCluster.length === 0) {
     return (
       <div className="aqp-phoneme-inline">
-        <span className="aqp-phoneme-anchor">—</span>
+        <span className="aqp-phoneme-anchor">(open)</span>
       </div>
     );
   }
 
-  const simRow = CONSONANT_SIM[anchorCoda];
+  // Show acceptable consonants for the last coda position (most salient).
+  // For a multi-consonant coda, the full cluster comparison averages all
+  // positions, so individual consonant acceptability is approximate --
+  // but the last position is the strongest signal.
+  const lastPhone = anchorCodaCluster[anchorCodaCluster.length - 1];
+  const simRow = CONSONANT_SIM[lastPhone];
   const matches = simRow
     ? Object.entries(simRow)
-        .filter(([p]) => p !== anchorCoda && simRow[p] >= minCodaSim)
+        .filter(([p]) => p !== lastPhone && simRow[p] >= codaThreshold)
         .sort(([, a], [, b]) => a - b)
         .slice(-6)
     : [];
+
+  const clusterLabel = anchorCodaCluster.join(" ");
 
   return (
     <div className="aqp-phoneme-inline">
@@ -91,14 +103,14 @@ function CodaInline({ anchorCoda, codaThreshold }) {
         </span>
       ))}
       {matches.length > 0 && <span className="aqp-phoneme-sep" aria-hidden="true" />}
-      <span className="aqp-phoneme-anchor">{anchorCoda}</span>
+      <span className="aqp-phoneme-anchor">{clusterLabel}</span>
     </div>
   );
 }
 
 // ── Strictness slider with label + ⓘ + phoneme display + endpoints ────────────
 
-function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, codaThreshold, showCodaRow, value, onChange, ModalComponent }) {
+function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCodaCluster, codaThreshold, showCodaRow, value, onChange, ModalComponent }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -116,7 +128,7 @@ function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, cod
       {showCodaRow && (
         <div className="aqp-slider-label-row">
           <div className="aqp-slider-label-spacer" />
-          <CodaInline anchorCoda={anchorCoda} codaThreshold={codaThreshold ?? threshold} />
+          <CodaInline anchorCodaCluster={anchorCodaCluster} codaThreshold={codaThreshold ?? threshold} />
         </div>
       )}
       <input
@@ -242,7 +254,7 @@ function WordQueryCard({ sel, transcriptionData }) {
   const anchorRhymeVowel = decomposed?.nucleus ?? null;          // last vowel — matches rhymeScore()
   const anchorAssonVowel = anchorPhones ? primaryVowel(anchorPhones) : null; // stressed vowel — matches assonanceScore()
   const anchorOnset  = decomposed?.onset[0] ?? null;
-  const anchorCodaPhone = decomposed?.coda.at(-1) ?? null;
+  const anchorCodaCluster = decomposed?.coda ?? [];
 
   const rhymeMap = matchesBySelectionId?.[sel.id] ?? new Map();
   const allitSet = alliterationBySelectionId?.[sel.id] ?? new Set();
@@ -346,7 +358,7 @@ function WordQueryCard({ sel, transcriptionData }) {
             anchorPhoneme={anchorRhymeVowel}
             simMatrix={VOWEL_SIM}
             threshold={nucleusThreshold}
-            anchorCoda={anchorCodaPhone}
+            anchorCodaCluster={anchorCodaCluster}
             codaThreshold={codaThreshold}
             showCodaRow
             value={r("rhymeStrictness")}
