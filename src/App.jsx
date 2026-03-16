@@ -138,7 +138,7 @@ export default function App() {
         {/* Bind stopAll from the current provider instance */}
         <StopAllBinder bindRef={stopAllRef} />
 
-        <SyllableSelectionProvider transcriptionData={lyricTranscription}>
+        <SyllableSelectionProvider key={`syllables-${selectedSong}`} transcriptionData={lyricTranscription}>
           {/* re-mount rhyme/line/word contexts on song change */}
           <LineSelectionProvider
             key={`lines-${selectedSong}`}
