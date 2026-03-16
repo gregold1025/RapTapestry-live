@@ -244,7 +244,7 @@ function WordQueryCard({ sel, transcriptionData }) {
   const anchorOnset  = decomposed?.onset[0] ?? null;
   const anchorCodaPhone = decomposed?.coda.at(-1) ?? null;
 
-  const rhymeSet = matchesBySelectionId?.[sel.id] ?? new Set();
+  const rhymeMap = matchesBySelectionId?.[sel.id] ?? new Map();
   const allitSet = alliterationBySelectionId?.[sel.id] ?? new Set();
   const asonSet  = assonanceBySelectionId?.[sel.id] ?? new Set();
 
@@ -262,7 +262,7 @@ function WordQueryCard({ sel, transcriptionData }) {
     }).filter(Boolean);
   }
 
-  const rhymeItems = resolveMatchItems(rhymeSet);
+  const rhymeItems = resolveMatchItems(rhymeMap.keys());
   const allitItems = resolveMatchItems(allitSet);
   const asonItems  = resolveMatchItems(asonSet);
 
@@ -274,6 +274,7 @@ function WordQueryCard({ sel, transcriptionData }) {
       <div className="aqp-title-row">
         <ColorSwatch color={sel.color} onChange={(c) => setSelectionColor(sel.id, c)} />
         <span className="aqp-anchor-word">{anchorText}</span>
+        {anchorPhones && <span className="aqp-anchor-phones">{anchorPhones}</span>}
         <div className="aqp-title-actions">
           {overrideCount > 0 && (
             <button className="aqp-action-btn" onClick={() => clearSelectionParams(sel.id)} title="Reset overrides">

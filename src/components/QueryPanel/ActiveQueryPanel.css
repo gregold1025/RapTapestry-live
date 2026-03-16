@@ -85,6 +85,18 @@
   color: #e8f0f8;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aqp-anchor-phones {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #5a6e88;
+  letter-spacing: 0.04em;
   flex: 1;
   min-width: 0;
   overflow: hidden;
