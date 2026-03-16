@@ -1,6 +1,7 @@
 // src/contexts/ParamsContext.jsx
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -159,15 +160,17 @@ export function ParamsProvider({ children }) {
   const setBassDividerUrl = (url) =>
     setGlyphStyle((prev) => ({ ...prev, bassDividerUrl: url }));
 
-  const randomizeSyllableGlyph = () =>
-    setSyllableGlyphUrl(pickRandomFrom(GLYPH_URLS));
-  const randomizeDrumGlyph = () =>
-    setDrumGlyphUrl(pickRandomFrom(DRUM_GLYPH_URLS));
-  const randomizeBassDivider = () =>
-    setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS));
+  const randomizeSyllableGlyph = useCallback(
+    () => setSyllableGlyphUrl(pickRandomFrom(GLYPH_URLS)), []
+  );
+  const randomizeDrumGlyph = useCallback(
+    () => setDrumGlyphUrl(pickRandomFrom(DRUM_GLYPH_URLS)), []
+  );
+  const randomizeBassDivider = useCallback(
+    () => setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS)), []
+  );
 
-  // Optional: central key bindings for glyph randomizers (R/D/B).
-  // This replaces the three per-component listeners.
+  // Central key bindings for glyph randomizers (S/D/B).
   useEffect(() => {
     const onKeyDown = (e) => {
       const tag = (e.target?.tagName || "").toLowerCase();
@@ -182,8 +185,7 @@ export function ParamsProvider({ children }) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [randomizeSyllableGlyph, randomizeDrumGlyph, randomizeBassDivider]);
 
   // Expose the glyph asset arrays too (optional but useful for debugging / future UI)
   const glyphAssets = useMemo(
