@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
 import { getThreshold } from "../../utils/phonemeSimilarity.js";
+import { generateDistinctColor } from "../../utils/selectionColors.js";
 
 // ---- Types ------------------------------------------------------------------
 
@@ -29,50 +30,6 @@ type VisualForLine =
   | { role: "anchor"; color: string; selectionId: string }
   | { role: "match"; color: string; selectionId: string }
   | null;
-
-function colorToHue(color: string): number | null {
-  if (!color) return null;
-  const m = color.match(/hsl\(\s*(\d+)/);
-  if (m) return parseInt(m[1]);
-  if (color.startsWith("#")) {
-    const r = parseInt(color.slice(1, 3), 16) / 255;
-    const g = parseInt(color.slice(3, 5), 16) / 255;
-    const b = parseInt(color.slice(5, 7), 16) / 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    if (max === min) return null;
-    const d = max - min;
-    let h: number;
-    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-    else if (max === g) h = ((b - r) / d + 2) / 6;
-    else h = ((r - g) / d + 4) / 6;
-    return Math.round(h * 360);
-  }
-  return null;
-}
-
-function hslToHex(h: number, s: number, l: number): string {
-  s /= 100; l /= 100;
-  const k = (n: number) => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-  const hex = (x: number) => Math.round(x * 255).toString(16).padStart(2, "0");
-  return `#${hex(f(0))}${hex(f(8))}${hex(f(4))}`;
-}
-
-function generateDistinctColor(existingColors: string[]): string {
-  const existingHues = existingColors.map(colorToHue).filter((h): h is number => h !== null);
-  const hueGap = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
-  for (let i = 0; i < 40; i++) {
-    const hue = Math.floor(Math.random() * 360);
-    if (existingHues.every((eh) => hueGap(hue, eh) >= 35)) return hslToHex(hue, 78, 52);
-  }
-  let bestHue = 0, bestMin = -1;
-  for (let h = 0; h < 360; h += 3) {
-    const minD = existingHues.length === 0 ? 180 : Math.min(...existingHues.map((eh) => hueGap(h, eh)));
-    if (minD > bestMin) { bestMin = minD; bestHue = h; }
-  }
-  return hslToHex(bestHue, 78, 52);
-}
 
 const LineSelectionContext = createContext<any>(null);
 
