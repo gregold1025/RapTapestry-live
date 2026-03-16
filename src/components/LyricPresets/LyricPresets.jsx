@@ -64,7 +64,6 @@ export default function LyricPresets() {
     rhymeStrictness,        setRhymeStrictness,
     rhymeSearchDistance,    setRhymeSearchDistance,
     exactMatches,           setExactMatches,
-    ignorePlurals,          setIgnorePlurals,
     showEndRhymes,          setShowEndRhymes,
 
     alliterationTier,            setAlliterationTier,
@@ -139,7 +138,6 @@ export default function LyricPresets() {
         <div className="lp-toggles">
           <Toggle checked={showEndRhymes} onChange={setShowEndRhymes}>End Rhymes</Toggle>
           <Toggle checked={exactMatches} onChange={setExactMatches}>Exact Match</Toggle>
-          <Toggle checked={ignorePlurals} onChange={setIgnorePlurals}>Ignore Plurals</Toggle>
         </div>
         <VowelMatchList
           anchorPhoneme={anchorVowel}

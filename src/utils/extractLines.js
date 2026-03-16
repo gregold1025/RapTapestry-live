@@ -1,5 +1,4 @@
 // src/utils/extractLines.js
-import { extractRhymingKey } from "./extractRhymingWords";
 import { rhymeGate } from "./phonemeSimilarity.js";
 
 /**
@@ -14,88 +13,46 @@ export function getWordPhones(word) {
 }
 
 /**
- * Plural stripping for ARPAbet: removes a trailing 'S' or 'Z' phone.
- * Both are English plural/possessive suffixes (voiced sibilant Z for
- * "dogs", unvoiced S for "cats"). Consistent with WordSelectionContext.
- */
-export function stripPluralPhoneSuffix(phonesStr) {
-  const parts = String(phonesStr).trim().split(/\s+/);
-  if (parts.length) {
-    const last = parts[parts.length - 1];
-    if (last === "S" || last === "Z") parts.pop();
-  }
-  return parts.join(" ");
-}
-
-/**
- * For each line, compute:
- *  - lastWordIdx
- *  - lastWordPhones (optionally plural-stripped)
- *  - rhymeKey (from last vowel nucleus to end; stress stripped)
+ * For each line, extract the last word's phones for end-rhyme comparison.
  *
  * Returns:
  *  {
- *    lines: Array<{
- *      lastWordIdx: number | null,
- *      lastWordPhones: string,
- *      rhymeKey: string
- *    }>,
- *    rhymeIndex: Map<string, Set<number>> // rhymeKey -> all lineIdxs with that key
- *    exactIndex: Map<string, Set<number>> // phonesStr -> all lineIdxs with same phones
+ *    lines: Array<{ lastWordIdx, lastWordPhones }>,
+ *    exactIndex: Map<string, Set<number>>  // phonesStr -> all lineIdxs with same phones
  *  }
  */
-export function extractLines(
-  transcriptionData,
-  { ignorePlurals = false } = {}
-) {
+export function extractLines(transcriptionData) {
   const lines = transcriptionData?.lines ?? [];
   const meta = [];
-  const rhymeIndex = new Map();
   const exactIndex = new Map();
-
-  const addToMap = (map, key, idx) => {
-    if (!key) return;
-    if (!map.has(key)) map.set(key, new Set());
-    map.get(key).add(idx);
-  };
 
   for (let i = 0; i < lines.length; i++) {
     const words = lines[i]?.words ?? [];
     const lastWordIdx = words.length ? words.length - 1 : null;
-
     const lastWord = lastWordIdx != null ? words[lastWordIdx] : null;
-    const rawPhones = getWordPhones(lastWord);
-    const normPhones = ignorePlurals
-      ? stripPluralPhoneSuffix(rawPhones)
-      : rawPhones;
-    const rhymeKey = extractRhymingKey(normPhones);
+    const lastWordPhones = getWordPhones(lastWord);
 
-    meta.push({
-      lastWordIdx,
-      lastWordPhones: normPhones,
-      rhymeKey,
-    });
+    meta.push({ lastWordIdx, lastWordPhones });
 
-    addToMap(rhymeIndex, rhymeKey, i);
-    addToMap(exactIndex, normPhones, i);
+    if (lastWordPhones) {
+      if (!exactIndex.has(lastWordPhones)) exactIndex.set(lastWordPhones, new Set());
+      exactIndex.get(lastWordPhones).add(i);
+    }
   }
 
-  return { lines: meta, rhymeIndex, exactIndex };
+  return { lines: meta, exactIndex };
 }
 
 /**
  * Given the output of extractLines and a line index, return the set of
- * matching line indices based on:
- *  - exactMatches=true  → exact phone string match
- *  - threshold provided → pairwise rhymeScore comparison (scored mode)
- *  - neither            → legacy rhymeKey-based lookup
+ * matching line indices.
  *
  * @param {object}  extracted
  * @param {number}  lineIdx
  * @param {object}  [opts]
- * @param {boolean} [opts.exactMatches=false]
- * @param {number}  [opts.nucleusThreshold=null] - if provided, use independent gate comparison
- * @param {number}  [opts.codaThreshold=null]    - coda gate threshold
+ * @param {boolean} [opts.exactMatches=false]  - exact phone string match
+ * @param {number}  [opts.nucleusThreshold]    - nucleus gate threshold
+ * @param {number}  [opts.codaThreshold]       - coda gate threshold
  */
 export function getMatchingLinesFor(
   extracted,
@@ -120,6 +77,5 @@ export function getMatchingLinesFor(
     return matches;
   }
 
-  // legacy key-based
-  return new Set(extracted.rhymeIndex.get(info.rhymeKey) ?? []);
+  return new Set();
 }

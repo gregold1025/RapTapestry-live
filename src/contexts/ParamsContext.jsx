@@ -88,7 +88,6 @@ export function ParamsProvider({ children }) {
 
   // logical / per-type phonetic matching
   const [exactMatches, setExactMatches] = useState(false);
-  const [ignorePlurals, setIgnorePlurals] = useState(true);
 
   // Rhyme (nucleus + coda) — continuous strictness [0–1], search distance in lines
   const [showRhymes, setShowRhymes] = useState(true);
@@ -245,8 +244,6 @@ export function ParamsProvider({ children }) {
         setWordOpacity,
         exactMatches,
         setExactMatches,
-        ignorePlurals,
-        setIgnorePlurals,
         showRhymes,
         setShowRhymes,
         rhymeStrictness,

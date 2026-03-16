@@ -91,10 +91,6 @@ function SelectionParamsPanel({ sel, anchorPhones, setSelectionParams, clearSele
                 checked={r("exactMatches")}
                 onChange={(v) => setSelectionParams(sel.id, { exactMatches: v })}
               >Exact</MiniToggle>
-              <MiniToggle
-                checked={r("ignorePlurals")}
-                onChange={(v) => setSelectionParams(sel.id, { ignorePlurals: v })}
-              >Ignore Plurals</MiniToggle>
             </div>
             <VowelMatchList
               anchorPhoneme={anchorVowel}

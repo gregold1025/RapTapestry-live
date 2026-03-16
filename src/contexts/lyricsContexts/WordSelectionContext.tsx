@@ -25,7 +25,6 @@ export type SelectionParams = Partial<{
   rhymeSearchDistance: number;
   codaTolerance: number;
   exactMatches: boolean;
-  ignorePlurals: boolean;
   alliterationTier: string;
   alliterationSearchDistance: number;
   showAssonance: boolean;
@@ -88,14 +87,6 @@ function phonesOf(word: any): string {
   return String(ph || "");
 }
 
-function stripPluralSuffix(phones: string): string {
-  const parts = phones.trim().split(/\s+/g);
-  if (!parts.length) return "";
-  const last = parts[parts.length - 1];
-  if (last === "S" || last === "Z") parts.pop();
-  return parts.join(" ");
-}
-
 function inRange(anchorId: string, candidateId: string, maxLines: number): boolean {
   return Math.abs(lineIdxOf(candidateId) - lineIdxOf(anchorId)) <= maxLines;
 }
@@ -114,7 +105,6 @@ export function WordSelectionProvider({
   const {
     showRhymes,
     exactMatches,
-    ignorePlurals,
     rhymeStrictness,
     rhymeSearchDistance,
     codaTolerance,
@@ -149,7 +139,6 @@ export function WordSelectionProvider({
       rhymeSearchDistance:         p.rhymeSearchDistance     ?? rhymeSearchDistance,
       codaTolerance:               p.codaTolerance           ?? codaTolerance,
       exactMatches:                p.exactMatches            ?? exactMatches,
-      ignorePlurals:               p.ignorePlurals           ?? ignorePlurals,
       alliterationTier:            p.alliterationTier        ?? alliterationTier,
       alliterationSearchDistance:  p.alliterationSearchDistance ?? alliterationSearchDistance,
       showAssonance:               p.showAssonance           ?? showAssonance,
@@ -167,24 +156,19 @@ export function WordSelectionProvider({
   function computeRhymeOrExactSet(anchorId: string, p: ResolvedParams): Map<string, number> {
     if (!p.showRhymes) return new Map();
     const out = new Map<string, number>();
-    const rawSel = wordPhonesMap.get(anchorId) || "";
-    const selPhones = p.ignorePlurals ? stripPluralSuffix(rawSel) : rawSel;
+    const selPhones = wordPhonesMap.get(anchorId) || "";
 
     if (p.exactMatches) {
       for (const [id, raw] of wordPhonesMap.entries()) {
         if (!inRange(anchorId, id, p.rhymeSearchDistance)) continue;
-        const cand = p.ignorePlurals ? stripPluralSuffix(raw) : raw;
-        if (cand === selPhones) out.set(id, 1.0);
+        if (raw === selPhones) out.set(id, 1.0);
       }
       return out;
     }
 
-    const rhymeMap = p.ignorePlurals
-      ? new Map(Array.from(wordPhonesMap.entries()).map(([id, ph]) => [id, stripPluralSuffix(ph)]))
-      : wordPhonesMap;
     const nucleusThreshold = getThreshold(p.rhymeStrictness, "rhyme");
     const codaThreshold = getCodaThreshold(nucleusThreshold, p.codaTolerance, p.rhymeStrictness);
-    for (const { id, quality } of extractRhymingWords(selPhones, rhymeMap, nucleusThreshold, codaThreshold)) {
+    for (const { id, quality } of extractRhymingWords(selPhones, wordPhonesMap, nucleusThreshold, codaThreshold)) {
       if (inRange(anchorId, id, p.rhymeSearchDistance)) out.set(id, quality);
     }
     return out;
@@ -238,7 +222,7 @@ export function WordSelectionProvider({
       out[s.id] = computeRhymeOrExactSet(s.wordId, resolveParams(s));
     }
     return out;
-  }, [selections, wordPhonesMap, showRhymes, exactMatches, ignorePlurals, rhymeStrictness, rhymeSearchDistance, codaTolerance]);
+  }, [selections, wordPhonesMap, showRhymes, exactMatches, rhymeStrictness, rhymeSearchDistance, codaTolerance]);
 
   const alliterationBySelectionId: Record<string, Set<string>> = useMemo(() => {
     const out: Record<string, Set<string>> = {};

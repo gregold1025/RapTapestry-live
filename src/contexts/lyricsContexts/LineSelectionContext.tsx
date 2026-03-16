@@ -39,11 +39,11 @@ const LineSelectionContext = createContext<any>(null);
 
 export function LineSelectionProvider({ transcriptionData, children }) {
   const [selections, setSelections] = useState<LineSelection[]>([]);
-  const { exactMatches, ignorePlurals, rhymeStrictness, codaTolerance } = useParams();
+  const { exactMatches, rhymeStrictness, codaTolerance } = useParams();
 
   const extracted = useMemo(() => {
-    return extractLines(transcriptionData, { ignorePlurals });
-  }, [transcriptionData, ignorePlurals]);
+    return extractLines(transcriptionData);
+  }, [transcriptionData]);
 
   function resolveParams(sel: LineSelection): ResolvedLineParams {
     const p = sel.params ?? {};
@@ -84,7 +84,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
       out[s.id] = computeMatchSet(s);
     }
     return out;
-  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals, codaTolerance]);
+  }, [selections, exactMatches, extracted, rhymeStrictness, codaTolerance]);
 
   const activeInZOrder = useMemo(
     () => selections.filter((s) => s.active).sort((a, b) => a.createdAt - b.createdAt),
