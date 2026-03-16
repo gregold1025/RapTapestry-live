@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -46,17 +46,19 @@ export default function SyllableGlyphs({
   const radius = syllableRadius ?? 8;
   const diameter = radius * 2;
 
-  // build a flat-ordered list of all syllable IDs
-  const flatOrderedIds = [];
-  transcriptionData.lines.forEach((line, li) =>
-    line.words?.forEach((word, wi) => {
-      const nSyllables = word.nSyllables ?? 1;
-      for (let si = 0; si < nSyllables; si++) {
-        flatOrderedIds.push(`${li}-${wi}-${si}`);
-      }
-    })
-  );
-  const idToFlatIndex = new Map(flatOrderedIds.map((id, idx) => [id, idx]));
+  // build a flat-ordered list of all syllable IDs (stable across renders)
+  const { flatOrderedIds, idToFlatIndex } = useMemo(() => {
+    const ids = [];
+    transcriptionData.lines.forEach((line, li) =>
+      line.words?.forEach((word, wi) => {
+        const nSyllables = word.nSyllables ?? 1;
+        for (let si = 0; si < nSyllables; si++) {
+          ids.push(`${li}-${wi}-${si}`);
+        }
+      })
+    );
+    return { flatOrderedIds: ids, idToFlatIndex: new Map(ids.map((id, idx) => [id, idx])) };
+  }, [transcriptionData]);
 
   const glyphCoords = new Map();
   const syllables = [];
