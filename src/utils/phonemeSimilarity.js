@@ -269,15 +269,23 @@ export function decomposeSyllable(phonesStr = '') {
 /**
  * Similarity between two coda consonant arrays.
  *
- * Compares the full coda cluster by right-aligning (end-aligned) and averaging
- * pairwise consonant similarities. For codas of unequal length, unmatched leading
- * consonants are penalized (scored as 0). This ensures that e.g. K-T vs N-T
- * reflects both the shared T and the differing K/N, rather than collapsing to
- * just the last consonant.
+ * Uses two modes depending on whether codas are the same length:
+ *
+ * SAME LENGTH → positional comparison. Consonants are compared one-to-one
+ * in order, averaged. Position matters because consonants occupy specific
+ * articulatory slots in the syllable (e.g. [K,T] vs [N,T]: K↔N, T↔T).
+ *
+ * DIFFERENT LENGTH → order-preserving optimal alignment. Each consonant in
+ * the shorter coda is matched to a consonant in the longer coda such that
+ * left-to-right order is preserved and total similarity is maximized. Uses
+ * small DP (codas are at most 4-5 consonants). A coverage penalty
+ * (shortLen/longLen)^0.3 accounts for unmatched consonants in the longer coda.
  *
  * Special cases:
  *   - Both empty (open syllables like "free"/"see"): 1.0 (perfect coda match)
  *   - One empty, one closed: 0.3 (partial credit — assonance-like)
+ *
+ * See research/rhyme-scoring-design-decisions.md for rationale and test cases.
  */
 function codaSim(codaA, codaB) {
   const emptyA = codaA.length === 0;
@@ -285,18 +293,42 @@ function codaSim(codaA, codaB) {
   if (emptyA && emptyB) return 1.0;
   if (emptyA || emptyB) return 0.3;
 
-  // Right-align: compare from the end, pad shorter side with nulls
-  const maxLen = Math.max(codaA.length, codaB.length);
-  let total = 0;
-  for (let i = 0; i < maxLen; i++) {
-    const a = codaA[codaA.length - 1 - i];  // walk backwards
-    const b = codaB[codaB.length - 1 - i];
-    if (a && b) {
-      total += CONSONANT_SIM[a]?.[b] ?? 0;
+  // Same length: positional comparison
+  if (codaA.length === codaB.length) {
+    let total = 0;
+    for (let i = 0; i < codaA.length; i++) {
+      total += CONSONANT_SIM[codaA[i]]?.[codaB[i]] ?? 0;
     }
-    // else: one side has no consonant at this position → 0 contribution
+    return total / codaA.length;
   }
-  return total / maxLen;
+
+  // Different length: order-preserving optimal alignment
+  const short = codaA.length < codaB.length ? codaA : codaB;
+  const long  = codaA.length < codaB.length ? codaB : codaA;
+  const sLen = short.length;
+  const lLen = long.length;
+
+  // DP: dp[si][li] = best total similarity achievable by aligning
+  // short[si..] against long[li..], with order preserved.
+  // Memoize with a flat array (dimensions are tiny).
+  const dp = new Float64Array((sLen + 1) * (lLen + 1));
+  const idx = (si, li) => si * (lLen + 1) + li;
+
+  // Fill bottom-up
+  for (let si = sLen - 1; si >= 0; si--) {
+    for (let li = lLen - 1; li >= 0; li--) {
+      // Option 1: align short[si] with long[li], then solve rest
+      const matchSim = (CONSONANT_SIM[short[si]]?.[long[li]] ?? 0) + dp[idx(si + 1, li + 1)];
+      // Option 2: skip long[li], try aligning short[si] with a later position
+      const skipSim = dp[idx(si, li + 1)];
+      dp[idx(si, li)] = Math.max(matchSim, skipSim);
+    }
+  }
+
+  const bestTotal = dp[idx(0, 0)];
+  const bestAvg = bestTotal / sLen;
+  const coverage = Math.pow(sLen / lLen, 0.3);
+  return bestAvg * coverage;
 }
 
 /**
