@@ -11,6 +11,7 @@ import { useParams } from "../ParamsContext";
 import { extractVowels } from "../../utils/extractVowels";
 import { VOWEL_SIM, getThreshold } from "../../utils/phonemeSimilarity.js";
 import { generateDistinctColor } from "../../utils/selectionColors.js";
+import { nextStamp } from "../../utils/interactionCounter.js";
 
 const SyllableSelectionContext = createContext(null);
 
@@ -212,7 +213,7 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
       });
 
       setManualFocusSylId(newId);
-      setSyllableInteractionStamp(Date.now());
+      setSyllableInteractionStamp(nextStamp());
       setDraft({ anchorId: null });
     },
     [draft.anchorId, flat, flatById]
@@ -310,10 +311,10 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
         focusedSyllableSelId,
         setFocusedSyllableSelId: (id) => {
           setManualFocusSylId(id);
-          if (id) setSyllableInteractionStamp(Date.now());
+          if (id) setSyllableInteractionStamp(nextStamp());
         },
         syllableInteractionStamp,
-        markSyllableInteraction: () => setSyllableInteractionStamp(Date.now()),
+        markSyllableInteraction: () => setSyllableInteractionStamp(nextStamp()),
       }}
     >
       {children}

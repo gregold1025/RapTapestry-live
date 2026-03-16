@@ -13,6 +13,7 @@ import {
   consonanceScore,
 } from "../../utils/phonemeSimilarity.js";
 import { generateDistinctColor } from "../../utils/selectionColors.js";
+import { nextStamp } from "../../utils/interactionCounter.js";
 
 // ---- Types ------------------------------------------------------------------
 
@@ -356,12 +357,12 @@ export function WordSelectionProvider({
   }
 
   function markWordInteraction() {
-    setWordInteractionStamp(Date.now());
+    setWordInteractionStamp(nextStamp());
   }
 
   function anchorOrAdopt(wordId: string) {
     setManualFocusWordId(null);
-    setWordInteractionStamp(Date.now());
+    setWordInteractionStamp(nextStamp());
     setSelections((prev) => {
       let adopt: WordSelection | null = null;
       for (const s of prev) {
@@ -420,7 +421,7 @@ export function WordSelectionProvider({
         focusedWordSelId,
         setFocusedWordSelId: (id: string | null) => {
           setManualFocusWordId(id);
-          if (id) setWordInteractionStamp(Date.now());
+          if (id) setWordInteractionStamp(nextStamp());
         },
         wordInteractionStamp,
       }}

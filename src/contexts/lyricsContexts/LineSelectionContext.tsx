@@ -5,6 +5,7 @@ import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
 import { getThreshold } from "../../utils/phonemeSimilarity.js";
 import { generateDistinctColor } from "../../utils/selectionColors.js";
+import { nextStamp } from "../../utils/interactionCounter.js";
 
 // ---- Types ------------------------------------------------------------------
 
@@ -161,7 +162,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
 
   function anchorOrAdopt(lineIdx: number) {
     setManualFocusLineId(null);
-    setLineInteractionStamp(Date.now());
+    setLineInteractionStamp(nextStamp());
     setSelections((prev) => {
       let adopt: LineSelection | null = null;
       for (const s of prev) {
@@ -222,7 +223,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
         focusedLineSelId,
         setFocusedLineSelId: (id: string | null) => {
           setManualFocusLineId(id);
-          if (id) setLineInteractionStamp(Date.now());
+          if (id) setLineInteractionStamp(nextStamp());
         },
         lineInteractionStamp,
       }}
