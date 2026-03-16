@@ -41,63 +41,48 @@ export function TapestryLayoutProvider({
   const fixedRowHeightPx =
     fixedRowHeightPxOverride ?? fixedRowHeightPxFromParams ?? 140;
 
-  // Track measured size of the tapestry container (updates on resize)
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  // Keep layout inputs in a ref so the ResizeObserver callback always
+  // sees current values without needing to re-subscribe on every change.
+  const inputsRef = useRef({
+    duration, estimated_bpm, beats, downbeats, barsPerRow,
+    rowHeightMode, fixedRowHeightPx,
+  });
+  inputsRef.current = {
+    duration, estimated_bpm, beats, downbeats, barsPerRow,
+    rowHeightMode, fixedRowHeightPx,
+  };
 
-  // Observe container size changes
-  useEffect(() => {
+  // Single function that reads container size and computes layout in one pass
+  const recompute = React.useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-
-    const read = () =>
-      setContainerSize({ width: el.clientWidth, height: el.clientHeight });
-
-    // Initialize immediately
-    read();
-
-    const ro = new ResizeObserver(() => read());
-    ro.observe(el);
-
-    return () => ro.disconnect();
-  }, []);
-
-  // Recompute layout whenever inputs or container size change
-  useEffect(() => {
-    const container = containerRef.current;
-
-    if (
-      !container ||
-      !duration ||
-      !estimated_bpm ||
-      !Array.isArray(beats) ||
-      beats.length === 0
-    ) {
-      return;
-    }
-
-    const { width: clientWidth, height: clientHeight } = containerSize;
+    const clientWidth = el.clientWidth;
+    const clientHeight = el.clientHeight;
     if (!clientWidth || !clientHeight) return;
 
+    const {
+      duration: dur, estimated_bpm: bpm, beats: b, downbeats: db,
+      barsPerRow: bpr, rowHeightMode: rhm, fixedRowHeightPx: frhp,
+    } = inputsRef.current;
+
+    if (!dur || !bpm || !Array.isArray(b) || b.length === 0) return;
+
     const newLayout = computeLayout({
-      duration,
+      duration: dur,
       width: clientWidth,
       height: clientHeight,
-      beats,
-      downbeats,
-      barsPerRow,
-      estimated_bpm,
-
-      // sizing mode controls
-      rowHeightMode,
-      fixedRowHeightPx,
+      beats: b,
+      downbeats: db,
+      barsPerRow: bpr,
+      estimated_bpm: bpm,
+      rowHeightMode: rhm,
+      fixedRowHeightPx: frhp,
     });
 
     if (!newLayout) return;
 
     const mappedLayout = {
       ...newLayout,
-
-      // helpers derived from layout
       timeToPixels: (t) =>
         timeToPixels(
           t,
@@ -108,21 +93,30 @@ export function TapestryLayoutProvider({
           newLayout.beatsPerRow
         ),
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
-
-      // convenience: total content height in px for scrollable wrapper sizing
       contentHeight: newLayout.rowHeight * newLayout.numberOfRows,
     };
 
     setLayout(mappedLayout);
+  }, []);
+
+  // Observe container size -- computes layout directly (no intermediate state)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    recompute();
+
+    const ro = new ResizeObserver(() => recompute());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [recompute]);
+
+  // Recompute when layout inputs change (not resize -- those are handled above)
+  useEffect(() => {
+    recompute();
   }, [
-    duration,
-    estimated_bpm,
-    beats,
-    downbeats,
-    barsPerRow,
-    containerSize,
-    rowHeightMode,
-    fixedRowHeightPx,
+    duration, estimated_bpm, beats, downbeats, barsPerRow,
+    rowHeightMode, fixedRowHeightPx, recompute,
   ]);
 
   const value = useMemo(() => ({ layout, containerRef }), [layout]);
