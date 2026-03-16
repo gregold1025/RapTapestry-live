@@ -12,6 +12,7 @@ import { nextStamp } from "../../utils/interactionCounter.js";
 export type LineSelectionParams = Partial<{
   rhymeStrictness: number;
   rhymeSearchDistance: number;
+  nucleusWeight: number;
   exactMatches: boolean;
 }>;
 
@@ -38,7 +39,7 @@ const LineSelectionContext = createContext<any>(null);
 
 export function LineSelectionProvider({ transcriptionData, children }) {
   const [selections, setSelections] = useState<LineSelection[]>([]);
-  const { exactMatches, ignorePlurals, rhymeStrictness } = useParams();
+  const { exactMatches, ignorePlurals, rhymeStrictness, nucleusWeight } = useParams();
 
   const extracted = useMemo(() => {
     return extractLines(transcriptionData, { ignorePlurals });
@@ -49,6 +50,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     return {
       rhymeStrictness:     p.rhymeStrictness     ?? rhymeStrictness,
       rhymeSearchDistance: p.rhymeSearchDistance ?? 999,
+      nucleusWeight:       p.nucleusWeight       ?? nucleusWeight,
       exactMatches:        p.exactMatches        ?? exactMatches,
     };
   }
@@ -57,7 +59,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     const p = resolveParams(sel);
     const threshold = p.exactMatches ? null : getThreshold(p.rhymeStrictness, "rhyme");
     const raw =
-      getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, threshold }) ??
+      getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, threshold, nucleusWeight: p.nucleusWeight }) ??
       new Set<number>();
     if (p.rhymeSearchDistance >= 999) return raw;
     return new Set([...raw].filter((i) => Math.abs(i - sel.lineIdx) <= p.rhymeSearchDistance));
@@ -81,7 +83,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
       out[s.id] = computeMatchSet(s);
     }
     return out;
-  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals]);
+  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals, nucleusWeight]);
 
   const activeInZOrder = useMemo(
     () => selections.filter((s) => s.active).sort((a, b) => a.createdAt - b.createdAt),

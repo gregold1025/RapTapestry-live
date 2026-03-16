@@ -266,27 +266,77 @@ export function decomposeSyllable(phonesStr = '') {
 // SCORING FUNCTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Similarity between two coda arrays (uses last consonant, most salient for rhyme). */
+/**
+ * Similarity between two coda consonant arrays.
+ *
+ * Compares the full coda cluster by right-aligning (end-aligned) and averaging
+ * pairwise consonant similarities. For codas of unequal length, unmatched leading
+ * consonants are penalized (scored as 0). This ensures that e.g. K-T vs N-T
+ * reflects both the shared T and the differing K/N, rather than collapsing to
+ * just the last consonant.
+ *
+ * Special cases:
+ *   - Both empty (open syllables like "free"/"see"): 1.0 (perfect coda match)
+ *   - One empty, one closed: 0.3 (partial credit — assonance-like)
+ */
 function codaSim(codaA, codaB) {
   const emptyA = codaA.length === 0;
   const emptyB = codaB.length === 0;
-  if (emptyA && emptyB) return 1.0;   // both open syllables → perfect coda match
-  if (emptyA || emptyB) return 0.3;   // one open, one closed → partial credit
-  const lastA = codaA[codaA.length - 1];
-  const lastB = codaB[codaB.length - 1];
-  return CONSONANT_SIM[lastA]?.[lastB] ?? 0;
+  if (emptyA && emptyB) return 1.0;
+  if (emptyA || emptyB) return 0.3;
+
+  // Right-align: compare from the end, pad shorter side with nulls
+  const maxLen = Math.max(codaA.length, codaB.length);
+  let total = 0;
+  for (let i = 0; i < maxLen; i++) {
+    const a = codaA[codaA.length - 1 - i];  // walk backwards
+    const b = codaB[codaB.length - 1 - i];
+    if (a && b) {
+      total += CONSONANT_SIM[a]?.[b] ?? 0;
+    }
+    // else: one side has no consonant at this position → 0 contribution
+  }
+  return total / maxLen;
 }
 
 /**
- * End rhyme score: weighted combination of nucleus (60%) and coda (40%) similarity.
- * Perfect rhyme = 1.0; maximally unrelated = ~0.
+ * Default nucleus/coda weighting for end-rhyme scoring.
+ *
+ * The nucleus (vowel) is the perceptually dominant component of rhyme — without
+ * vowel similarity there is no rhyme, only consonance. The coda contributes to
+ * the "tightness" of the rhyme but is more tolerant of variation.
+ *
+ * This ratio is NOT prescribed by any single study. Our default of 0.75 is
+ * informed by:
+ *   - Hirjee & Brown (ISMIR 2009): empirical log-odds scoring from rap lyrics
+ *     shows rappers tolerate much more coda variation than nucleus variation
+ *   - "Rhyme, Rhythm, and Rhubarb" (UWaterloo): treats onset/nucleus/coda
+ *     weights as free parameters to be tuned per corpus
+ *   - Perceptual testing during development of this tool, where 60/40 allowed
+ *     spurious matches (e.g. "destruct"/"most" via shared final T)
+ *
+ * Exposed as a user-adjustable parameter (nucleusWeight in ParamsContext) so
+ * analysts can tune the blend to match their own perception or the style of
+ * the artist being studied.
  */
-export function rhymeScore(phonesA, phonesB) {
+export const DEFAULT_NUCLEUS_WEIGHT = 0.75;
+
+/**
+ * End rhyme score: weighted combination of nucleus and coda similarity.
+ * Perfect rhyme = 1.0; maximally unrelated = ~0.
+ *
+ * @param {string} phonesA  ARPABET phones string for word A
+ * @param {string} phonesB  ARPABET phones string for word B
+ * @param {number} [nucleusWeight=0.75]  Proportion of score from vowel nucleus (0–1).
+ *   Remainder goes to coda. Higher = vowel-dominant; lower = coda matters more.
+ */
+export function rhymeScore(phonesA, phonesB, nucleusWeight = DEFAULT_NUCLEUS_WEIGHT) {
   const a = decomposeSyllable(phonesA);
   const b = decomposeSyllable(phonesB);
   if (!a.nucleus || !b.nucleus) return 0;
   const nucleusSim = VOWEL_SIM[a.nucleus]?.[b.nucleus] ?? 0;
-  return 0.6 * nucleusSim + 0.4 * codaSim(a.coda, b.coda);
+  const nw = Math.max(0, Math.min(1, nucleusWeight));
+  return nw * nucleusSim + (1 - nw) * codaSim(a.coda, b.coda);
 }
 
 /**

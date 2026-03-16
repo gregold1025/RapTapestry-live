@@ -52,12 +52,13 @@ export function extractRhymingKey(phonesStr = "") {
  * @param {string} phonesStr  - ARPABET phones for the anchor word
  * @param {Map<string, string>} phonesMap - all word id → phones
  * @param {number} threshold  - minimum rhymeScore [0–1] to count as a match (default 0.8)
+ * @param {number} [nucleusWeight] - nucleus/coda blend ratio passed to rhymeScore
  */
-export function extractRhymingWords(phonesStr, phonesMap, threshold = 0.8) {
+export function extractRhymingWords(phonesStr, phonesMap, threshold = 0.8, nucleusWeight) {
   if (!phonesStr) return [];
   const results = [];
   for (const [id, otherPhones] of phonesMap.entries()) {
-    if (rhymeScore(phonesStr, otherPhones) >= threshold) {
+    if (rhymeScore(phonesStr, otherPhones, nucleusWeight) >= threshold) {
       results.push(id);
     }
   }

@@ -95,11 +95,12 @@ export function extractLines(
  * @param {object}  [opts]
  * @param {boolean} [opts.exactMatches=false]
  * @param {number}  [opts.threshold=null]  - if provided, use scored pairwise comparison
+ * @param {number}  [opts.nucleusWeight]   - nucleus/coda blend ratio passed to rhymeScore
  */
 export function getMatchingLinesFor(
   extracted,
   lineIdx,
-  { exactMatches = false, threshold = null } = {}
+  { exactMatches = false, threshold = null, nucleusWeight } = {}
 ) {
   const info = extracted?.lines?.[lineIdx];
   if (!info) return new Set();
@@ -111,7 +112,7 @@ export function getMatchingLinesFor(
   if (threshold !== null) {
     const matches = new Set();
     extracted.lines.forEach((other, i) => {
-      if (other && rhymeScore(info.lastWordPhones, other.lastWordPhones) >= threshold) {
+      if (other && rhymeScore(info.lastWordPhones, other.lastWordPhones, nucleusWeight) >= threshold) {
         matches.add(i);
       }
     });

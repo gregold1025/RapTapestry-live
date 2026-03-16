@@ -12,6 +12,7 @@ import {
   getThreshold,
   primaryVowel,
   decomposeSyllable,
+  DEFAULT_NUCLEUS_WEIGHT,
 } from "../../utils/phonemeSimilarity.js";
 import { RhymeStrictnessModal, VowelSpaceModal, ConsonantSpaceModal } from "../PhonemeMatchList/PhonemeSpaceModal.jsx";
 import { useSongData } from "../../contexts/SongDataContext.jsx";
@@ -348,6 +349,23 @@ function WordQueryCard({ sel, transcriptionData }) {
             onChange={(v) => setSelectionParams(sel.id, { rhymeStrictness: v })}
             ModalComponent={RhymeStrictnessModal}
           />
+          <div className="aqp-full-slider-group">
+            <div className="aqp-slider-label-row">
+              <span className="aqp-slider-name">Vowel / Coda</span>
+              <span className="aqp-dist-val">{Math.round(r("nucleusWeight") * 100)}:{Math.round((1 - r("nucleusWeight")) * 100)}</span>
+            </div>
+            <input
+              type="range"
+              className="aqp-full-slider"
+              min={0.5} max={1} step={0.05}
+              value={r("nucleusWeight")}
+              onChange={(e) => setSelectionParams(sel.id, { nucleusWeight: +e.target.value })}
+            />
+            <div className="aqp-slider-endpoints">
+              <span>Balanced</span>
+              <span>Vowel only</span>
+            </div>
+          </div>
           <DistSlider
             value={r("rhymeSearchDistance")}
             onChange={(v) => setSelectionParams(sel.id, { rhymeSearchDistance: v })}
