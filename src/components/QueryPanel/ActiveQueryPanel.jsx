@@ -10,10 +10,8 @@ import {
   VOWEL_SIM,
   CONSONANT_SIM,
   getThreshold,
-  getCodaThreshold,
   primaryVowel,
   decomposeSyllable,
-  DEFAULT_CODA_TOLERANCE,
 } from "../../utils/phonemeSimilarity.js";
 import { RhymeStrictnessModal, VowelSpaceModal, ConsonantSpaceModal } from "../PhonemeMatchList/PhonemeSpaceModal.jsx";
 import { useSongData } from "../../contexts/SongDataContext.jsx";
@@ -63,46 +61,29 @@ function PhonemeInline({ anchorPhoneme, simMatrix, threshold }) {
 // ── Coda inline: similar to PhonemeInline but for coda consonants ─────────────
 
 /**
- * Displays the full coda cluster as the anchor reference, and for the
- * final (most perceptually salient) consonant position, shows which
- * consonants would pass the coda threshold at that position.
+ * Displays the actual coda clusters present in the current match set,
+ * grouped by unique cluster with counts. Works backwards from the results
+ * rather than showing a theoretical space of acceptable consonants.
  *
- * @param {string[]} anchorCodaCluster - full coda array, e.g. ["K", "T"]
- * @param {number} codaThreshold - minimum codaSim to pass the gate
+ * @param {string[]} anchorCodaCluster - the anchor's full coda, e.g. ["K", "T"]
+ * @param {Map<string, string>} matchedCodas - Map of clusterLabel → count string
  */
-function CodaInline({ anchorCodaCluster, codaThreshold }) {
-  if (!anchorCodaCluster || anchorCodaCluster.length === 0) {
-    return (
-      <div className="aqp-phoneme-inline">
-        <span className="aqp-phoneme-anchor">(open)</span>
-      </div>
-    );
-  }
+function CodaInline({ anchorCodaCluster, matchedCodas }) {
+  const clusterLabel = anchorCodaCluster?.length
+    ? anchorCodaCluster.join(" ")
+    : "(open)";
 
-  // Show acceptable consonants for the last coda position (most salient).
-  // For a multi-consonant coda, the full cluster comparison averages all
-  // positions, so individual consonant acceptability is approximate --
-  // but the last position is the strongest signal.
-  const lastPhone = anchorCodaCluster[anchorCodaCluster.length - 1];
-  const simRow = CONSONANT_SIM[lastPhone];
-  const matches = simRow
-    ? Object.entries(simRow)
-        .filter(([p]) => p !== lastPhone && simRow[p] >= codaThreshold)
-        .sort(([, a], [, b]) => a - b)
-        .slice(-6)
-    : [];
-
-  const clusterLabel = anchorCodaCluster.join(" ");
+  const entries = matchedCodas ? [...matchedCodas.entries()] : [];
 
   return (
     <div className="aqp-phoneme-inline">
-      {matches.map(([p, sim]) => (
-        <span key={p} className="aqp-phoneme-match">
-          <span className="aqp-phoneme-pct">{Math.round(sim * 100)}%</span>
-          {"\u00a0"}{p}
+      {entries.slice(0, 6).map(([cluster, count]) => (
+        <span key={cluster} className="aqp-phoneme-match">
+          <span className="aqp-phoneme-pct">{count}</span>
+          {"\u00a0"}{cluster || "(open)"}
         </span>
       ))}
-      {matches.length > 0 && <span className="aqp-phoneme-sep" aria-hidden="true" />}
+      {entries.length > 0 && <span className="aqp-phoneme-sep" aria-hidden="true" />}
       <span className="aqp-phoneme-anchor">{clusterLabel}</span>
     </div>
   );
@@ -110,7 +91,7 @@ function CodaInline({ anchorCodaCluster, codaThreshold }) {
 
 // ── Strictness slider with label + ⓘ + phoneme display + endpoints ────────────
 
-function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCodaCluster, codaThreshold, showCodaRow, value, onChange, ModalComponent }) {
+function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCodaCluster, matchedCodas, showCodaRow, value, onChange, ModalComponent }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -128,7 +109,7 @@ function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCodaClust
       {showCodaRow && (
         <div className="aqp-slider-label-row">
           <div className="aqp-slider-label-spacer" />
-          <CodaInline anchorCodaCluster={anchorCodaCluster} codaThreshold={codaThreshold ?? threshold} />
+          <CodaInline anchorCodaCluster={anchorCodaCluster} matchedCodas={matchedCodas} />
         </div>
       )}
       <input
@@ -351,7 +332,25 @@ function WordQueryCard({ sel, transcriptionData }) {
 
       {activeTab === "rhyme" && (() => {
         const nucleusThreshold = getThreshold(r("rhymeStrictness"), "rhyme");
-        const codaThreshold = getCodaThreshold(nucleusThreshold, r("codaTolerance"));
+
+        // Compute actual coda clusters from matched words (work backwards from results)
+        const codaCounts = new Map();
+        for (const wordId of rhymeMap.keys()) {
+          const [l, w] = String(wordId).split("-").map(Number);
+          const matchWord = lines[l]?.words?.[w];
+          if (!matchWord) continue;
+          const matchPhones = Array.isArray(matchWord.phones) ? matchWord.phones[0] : String(matchWord.phones || "");
+          const matchDecomp = matchPhones ? decomposeSyllable(matchPhones) : null;
+          const codaLabel = matchDecomp?.coda?.length ? matchDecomp.coda.join(" ") : "";
+          codaCounts.set(codaLabel, (codaCounts.get(codaLabel) ?? 0) + 1);
+        }
+        // Sort by count descending, format as "×N"
+        const matchedCodas = new Map(
+          [...codaCounts.entries()]
+            .sort(([, a], [, b]) => b - a)
+            .map(([cluster, count]) => [cluster, "\u00d7" + count])
+        );
+
         return (
         <div className="aqp-tab-body">
           <StrictnessSlider
@@ -359,29 +358,12 @@ function WordQueryCard({ sel, transcriptionData }) {
             simMatrix={VOWEL_SIM}
             threshold={nucleusThreshold}
             anchorCodaCluster={anchorCodaCluster}
-            codaThreshold={codaThreshold}
+            matchedCodas={matchedCodas}
             showCodaRow
             value={r("rhymeStrictness")}
             onChange={(v) => setSelectionParams(sel.id, { rhymeStrictness: v })}
             ModalComponent={RhymeStrictnessModal}
           />
-          <div className="aqp-full-slider-group">
-            <div className="aqp-slider-label-row">
-              <span className="aqp-slider-name">Coda Tolerance</span>
-              <span className="aqp-dist-val">{Math.round(r("codaTolerance") * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              className="aqp-full-slider"
-              min={0} max={1} step={0.05}
-              value={r("codaTolerance")}
-              onChange={(e) => setSelectionParams(sel.id, { codaTolerance: +e.target.value })}
-            />
-            <div className="aqp-slider-endpoints">
-              <span>Any coda</span>
-              <span>Strict</span>
-            </div>
-          </div>
           <DistSlider
             value={r("rhymeSearchDistance")}
             onChange={(v) => setSelectionParams(sel.id, { rhymeSearchDistance: v })}
