@@ -94,9 +94,10 @@ export function ParamsProvider({ children }) {
   const [showRhymes, setShowRhymes] = useState(true);
   const [rhymeStrictness, setRhymeStrictness] = useState(1.0);
   const [rhymeSearchDistance, setRhymeSearchDistance] = useState(999);
-  // Nucleus/coda blend ratio for rhyme scoring (0–1). Higher = vowel-dominant.
-  // Default 0.75: see phonemeSimilarity.js for rationale and references.
-  const [nucleusWeight, setNucleusWeight] = useState(0.75);
+  // Coda tolerance: how strict the coda gate is relative to nucleus (0–1).
+  // codaThreshold = nucleusThreshold * codaTolerance.
+  // Default 0.65: see phonemeSimilarity.js DEFAULT_CODA_TOLERANCE for rationale.
+  const [codaTolerance, setCodaTolerance] = useState(0.65);
 
   // Alliteration (onset) — discrete tier: 'off' | 'exact' | 'near', search distance in lines
   const [alliterationTier, setAlliterationTier] = useState('exact');
@@ -252,8 +253,8 @@ export function ParamsProvider({ children }) {
         setRhymeStrictness,
         rhymeSearchDistance,
         setRhymeSearchDistance,
-        nucleusWeight,
-        setNucleusWeight,
+        codaTolerance,
+        setCodaTolerance,
         alliterationTier,
         setAlliterationTier,
         alliterationSearchDistance,

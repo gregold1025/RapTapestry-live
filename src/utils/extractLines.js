@@ -1,6 +1,6 @@
 // src/utils/extractLines.js
 import { extractRhymingKey } from "./extractRhymingWords";
-import { rhymeScore } from "./phonemeSimilarity.js";
+import { rhymeGate } from "./phonemeSimilarity.js";
 
 /**
  * Safely get the phones string from a word object:
@@ -94,13 +94,13 @@ export function extractLines(
  * @param {number}  lineIdx
  * @param {object}  [opts]
  * @param {boolean} [opts.exactMatches=false]
- * @param {number}  [opts.threshold=null]  - if provided, use scored pairwise comparison
- * @param {number}  [opts.nucleusWeight]   - nucleus/coda blend ratio passed to rhymeScore
+ * @param {number}  [opts.nucleusThreshold=null] - if provided, use independent gate comparison
+ * @param {number}  [opts.codaThreshold=null]    - coda gate threshold
  */
 export function getMatchingLinesFor(
   extracted,
   lineIdx,
-  { exactMatches = false, threshold = null, nucleusWeight } = {}
+  { exactMatches = false, nucleusThreshold = null, codaThreshold = null } = {}
 ) {
   const info = extracted?.lines?.[lineIdx];
   if (!info) return new Set();
@@ -109,11 +109,12 @@ export function getMatchingLinesFor(
     return new Set(extracted.exactIndex.get(info.lastWordPhones) ?? []);
   }
 
-  if (threshold !== null) {
+  if (nucleusThreshold !== null) {
     const matches = new Set();
     extracted.lines.forEach((other, i) => {
-      if (other && rhymeScore(info.lastWordPhones, other.lastWordPhones, nucleusWeight) >= threshold) {
-        matches.add(i);
+      if (other) {
+        const { match } = rhymeGate(info.lastWordPhones, other.lastWordPhones, nucleusThreshold, codaThreshold ?? 0);
+        if (match) matches.add(i);
       }
     });
     return matches;

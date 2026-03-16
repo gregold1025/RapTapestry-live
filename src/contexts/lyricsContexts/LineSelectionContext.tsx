@@ -3,7 +3,7 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 import { nanoid } from "nanoid";
 import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
-import { getThreshold } from "../../utils/phonemeSimilarity.js";
+import { getThreshold, getCodaThreshold } from "../../utils/phonemeSimilarity.js";
 import { generateDistinctColor } from "../../utils/selectionColors.js";
 import { nextStamp } from "../../utils/interactionCounter.js";
 
@@ -12,7 +12,7 @@ import { nextStamp } from "../../utils/interactionCounter.js";
 export type LineSelectionParams = Partial<{
   rhymeStrictness: number;
   rhymeSearchDistance: number;
-  nucleusWeight: number;
+  codaTolerance: number;
   exactMatches: boolean;
 }>;
 
@@ -39,7 +39,7 @@ const LineSelectionContext = createContext<any>(null);
 
 export function LineSelectionProvider({ transcriptionData, children }) {
   const [selections, setSelections] = useState<LineSelection[]>([]);
-  const { exactMatches, ignorePlurals, rhymeStrictness, nucleusWeight } = useParams();
+  const { exactMatches, ignorePlurals, rhymeStrictness, codaTolerance } = useParams();
 
   const extracted = useMemo(() => {
     return extractLines(transcriptionData, { ignorePlurals });
@@ -50,16 +50,17 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     return {
       rhymeStrictness:     p.rhymeStrictness     ?? rhymeStrictness,
       rhymeSearchDistance: p.rhymeSearchDistance ?? 999,
-      nucleusWeight:       p.nucleusWeight       ?? nucleusWeight,
+      codaTolerance:       p.codaTolerance       ?? codaTolerance,
       exactMatches:        p.exactMatches        ?? exactMatches,
     };
   }
 
   function computeMatchSet(sel: LineSelection): Set<number> {
     const p = resolveParams(sel);
-    const threshold = p.exactMatches ? null : getThreshold(p.rhymeStrictness, "rhyme");
+    const nucleusThreshold = p.exactMatches ? null : getThreshold(p.rhymeStrictness, "rhyme");
+    const codaThreshold = nucleusThreshold != null ? getCodaThreshold(nucleusThreshold, p.codaTolerance) : null;
     const raw =
-      getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, threshold, nucleusWeight: p.nucleusWeight }) ??
+      getMatchingLinesFor(extracted, sel.lineIdx, { exactMatches: p.exactMatches, nucleusThreshold, codaThreshold }) ??
       new Set<number>();
     if (p.rhymeSearchDistance >= 999) return raw;
     return new Set([...raw].filter((i) => Math.abs(i - sel.lineIdx) <= p.rhymeSearchDistance));
@@ -83,7 +84,7 @@ export function LineSelectionProvider({ transcriptionData, children }) {
       out[s.id] = computeMatchSet(s);
     }
     return out;
-  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals, nucleusWeight]);
+  }, [selections, exactMatches, extracted, rhymeStrictness, ignorePlurals, codaTolerance]);
 
   const activeInZOrder = useMemo(
     () => selections.filter((s) => s.active).sort((a, b) => a.createdAt - b.createdAt),

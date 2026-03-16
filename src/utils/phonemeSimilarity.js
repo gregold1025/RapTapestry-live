@@ -300,43 +300,87 @@ function codaSim(codaA, codaB) {
 }
 
 /**
- * Default nucleus/coda weighting for end-rhyme scoring.
+ * Decompose a word pair into their nucleus and coda similarity components.
+ * Returns the raw similarity values for independent gating and quality scoring.
+ */
+export function rhymeComponents(phonesA, phonesB) {
+  const a = decomposeSyllable(phonesA);
+  const b = decomposeSyllable(phonesB);
+  if (!a.nucleus || !b.nucleus) return { nucleusSim: 0, codaSim: 0 };
+  return {
+    nucleusSim: VOWEL_SIM[a.nucleus]?.[b.nucleus] ?? 0,
+    codaSim: codaSim(a.coda, b.coda),
+  };
+}
+
+/**
+ * Independent gate check for end-rhyme matching.
  *
- * The nucleus (vowel) is the perceptually dominant component of rhyme — without
- * vowel similarity there is no rhyme, only consonance. The coda contributes to
- * the "tightness" of the rhyme but is more tolerant of variation.
+ * A word matches if BOTH:
+ *   - its nucleus (vowel) similarity >= nucleusThreshold
+ *   - its coda (consonant cluster) similarity >= codaThreshold
  *
- * This ratio is NOT prescribed by any single study. Our default of 0.75 is
- * informed by:
+ * This replaces the previous weighted-blend approach. The blend produced
+ * matches where a strong coda compensated for a weak vowel (or vice versa),
+ * making the displayed acceptable phonemes misleading. With independent
+ * gates, the PhonemeInline display is the truth: any word whose last vowel
+ * appears in the vowel list AND whose coda appears in the coda list will
+ * match, and no other words will.
+ *
+ * @returns {{ match: boolean, quality: number }}
+ *   match: whether the word passes both gates
+ *   quality: 0-1 score for visual weight (opacity). Represents how far
+ *     above the nucleus threshold the vowel is. Words that barely clear
+ *     the gate are faint; perfect nucleus matches are vivid.
+ */
+export function rhymeGate(phonesA, phonesB, nucleusThreshold, codaThreshold) {
+  const { nucleusSim, codaSim: cs } = rhymeComponents(phonesA, phonesB);
+  const match = nucleusSim >= nucleusThreshold && cs >= codaThreshold;
+  // Quality: how far the nucleus sim is above its threshold, normalized to 0-1.
+  // At the threshold boundary, quality = 0. At nucleusSim = 1.0, quality = 1.0.
+  const quality = match && nucleusThreshold < 1
+    ? Math.min(1, (nucleusSim - nucleusThreshold) / (1 - nucleusThreshold))
+    : (match ? 1 : 0);
+  return { match, quality };
+}
+
+/**
+ * Legacy rhymeScore for backward compatibility (consonanceScore, etc.).
+ * Returns a single float [0-1] using the old weighted blend.
+ * New code should prefer rhymeGate() for matching and rhymeComponents() for scoring.
+ */
+export function rhymeScore(phonesA, phonesB) {
+  const { nucleusSim, codaSim: cs } = rhymeComponents(phonesA, phonesB);
+  return 0.75 * nucleusSim + 0.25 * cs;
+}
+
+/**
+ * Default coda tolerance: how strict the coda gate is relative to the nucleus gate.
+ *
+ * codaThreshold = nucleusThreshold * codaTolerance
+ *
+ * At 1.0: coda must be as strict as nucleus (no asymmetry).
+ * At 0.0: any coda passes (matching becomes pure assonance).
+ * Default 0.65: coda threshold is 65% of nucleus threshold.
+ *
+ * This asymmetry is NOT prescribed by any single study. The default is informed by:
  *   - Hirjee & Brown (ISMIR 2009): empirical log-odds scoring from rap lyrics
  *     shows rappers tolerate much more coda variation than nucleus variation
  *   - "Rhyme, Rhythm, and Rhubarb" (UWaterloo): treats onset/nucleus/coda
  *     weights as free parameters to be tuned per corpus
- *   - Perceptual testing during development of this tool, where 60/40 allowed
- *     spurious matches (e.g. "destruct"/"most" via shared final T)
+ *   - Perceptual testing during development: 60/40 blend allowed spurious
+ *     matches (e.g. "destruct"/"most" via shared final T)
  *
- * Exposed as a user-adjustable parameter (nucleusWeight in ParamsContext) so
- * analysts can tune the blend to match their own perception or the style of
- * the artist being studied.
+ * Exposed as an adjustable parameter (codaTolerance in ParamsContext) for
+ * calibration. Most users should leave it at the default.
  */
-export const DEFAULT_NUCLEUS_WEIGHT = 0.75;
+export const DEFAULT_CODA_TOLERANCE = 0.65;
 
 /**
- * End rhyme score: weighted combination of nucleus and coda similarity.
- * Perfect rhyme = 1.0; maximally unrelated = ~0.
- *
- * @param {string} phonesA  ARPABET phones string for word A
- * @param {string} phonesB  ARPABET phones string for word B
- * @param {number} [nucleusWeight=0.75]  Proportion of score from vowel nucleus (0–1).
- *   Remainder goes to coda. Higher = vowel-dominant; lower = coda matters more.
+ * Derive the coda threshold from the nucleus threshold and a tolerance value.
  */
-export function rhymeScore(phonesA, phonesB, nucleusWeight = DEFAULT_NUCLEUS_WEIGHT) {
-  const a = decomposeSyllable(phonesA);
-  const b = decomposeSyllable(phonesB);
-  if (!a.nucleus || !b.nucleus) return 0;
-  const nucleusSim = VOWEL_SIM[a.nucleus]?.[b.nucleus] ?? 0;
-  const nw = Math.max(0, Math.min(1, nucleusWeight));
-  return nw * nucleusSim + (1 - nw) * codaSim(a.coda, b.coda);
+export function getCodaThreshold(nucleusThreshold, codaTolerance = DEFAULT_CODA_TOLERANCE) {
+  return nucleusThreshold * Math.max(0, Math.min(1, codaTolerance));
 }
 
 /**

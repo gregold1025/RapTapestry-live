@@ -10,9 +10,10 @@ import {
   VOWEL_SIM,
   CONSONANT_SIM,
   getThreshold,
+  getCodaThreshold,
   primaryVowel,
   decomposeSyllable,
-  DEFAULT_NUCLEUS_WEIGHT,
+  DEFAULT_CODA_TOLERANCE,
 } from "../../utils/phonemeSimilarity.js";
 import { RhymeStrictnessModal, VowelSpaceModal, ConsonantSpaceModal } from "../PhonemeMatchList/PhonemeSpaceModal.jsx";
 import { useSongData } from "../../contexts/SongDataContext.jsx";
@@ -61,10 +62,8 @@ function PhonemeInline({ anchorPhoneme, simMatrix, threshold }) {
 
 // ── Coda inline: similar to PhonemeInline but for coda consonants ─────────────
 
-function CodaInline({ anchorCoda, threshold }) {
-  // threshold here is the combined rhyme threshold; derive min coda sim
-  // assuming perfect nucleus: codaSim >= (threshold - 0.6) / 0.4
-  const minCodaSim = Math.max(0, (threshold - 0.6) / 0.4);
+function CodaInline({ anchorCoda, codaThreshold }) {
+  const minCodaSim = codaThreshold;
 
   if (!anchorCoda) {
     // open syllable: just show "—"
@@ -99,7 +98,7 @@ function CodaInline({ anchorCoda, threshold }) {
 
 // ── Strictness slider with label + ⓘ + phoneme display + endpoints ────────────
 
-function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, showCodaRow, value, onChange, ModalComponent }) {
+function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, codaThreshold, showCodaRow, value, onChange, ModalComponent }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -117,7 +116,7 @@ function StrictnessSlider({ anchorPhoneme, simMatrix, threshold, anchorCoda, sho
       {showCodaRow && (
         <div className="aqp-slider-label-row">
           <div className="aqp-slider-label-spacer" />
-          <CodaInline anchorCoda={anchorCoda} threshold={threshold} />
+          <CodaInline anchorCoda={anchorCoda} codaThreshold={codaThreshold ?? threshold} />
         </div>
       )}
       <input
@@ -337,13 +336,17 @@ function WordQueryCard({ sel, transcriptionData }) {
         </div>
       </div>
 
-      {activeTab === "rhyme" && (
+      {activeTab === "rhyme" && (() => {
+        const nucleusThreshold = getThreshold(r("rhymeStrictness"), "rhyme");
+        const codaThreshold = getCodaThreshold(nucleusThreshold, r("codaTolerance"));
+        return (
         <div className="aqp-tab-body">
           <StrictnessSlider
             anchorPhoneme={anchorRhymeVowel}
             simMatrix={VOWEL_SIM}
-            threshold={getThreshold(r("rhymeStrictness"), "rhyme")}
+            threshold={nucleusThreshold}
             anchorCoda={anchorCodaPhone}
+            codaThreshold={codaThreshold}
             showCodaRow
             value={r("rhymeStrictness")}
             onChange={(v) => setSelectionParams(sel.id, { rhymeStrictness: v })}
@@ -351,19 +354,19 @@ function WordQueryCard({ sel, transcriptionData }) {
           />
           <div className="aqp-full-slider-group">
             <div className="aqp-slider-label-row">
-              <span className="aqp-slider-name">Vowel / Coda</span>
-              <span className="aqp-dist-val">{Math.round(r("nucleusWeight") * 100)}:{Math.round((1 - r("nucleusWeight")) * 100)}</span>
+              <span className="aqp-slider-name">Coda Tolerance</span>
+              <span className="aqp-dist-val">{Math.round(r("codaTolerance") * 100)}%</span>
             </div>
             <input
               type="range"
               className="aqp-full-slider"
-              min={0.5} max={1} step={0.05}
-              value={r("nucleusWeight")}
-              onChange={(e) => setSelectionParams(sel.id, { nucleusWeight: +e.target.value })}
+              min={0} max={1} step={0.05}
+              value={r("codaTolerance")}
+              onChange={(e) => setSelectionParams(sel.id, { codaTolerance: +e.target.value })}
             />
             <div className="aqp-slider-endpoints">
-              <span>Balanced</span>
-              <span>Vowel only</span>
+              <span>Any coda</span>
+              <span>Strict</span>
             </div>
           </div>
           <DistSlider
@@ -372,7 +375,8 @@ function WordQueryCard({ sel, transcriptionData }) {
           />
           <SectionMatchList items={rhymeItems} onSeek={seekAll} />
         </div>
-      )}
+        );
+      })()}
 
       {activeTab === "allit" && (
         <div className="aqp-tab-body">

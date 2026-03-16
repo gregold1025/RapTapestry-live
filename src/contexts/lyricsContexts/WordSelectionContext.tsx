@@ -7,7 +7,9 @@ import { extractAlliterativeWords } from "../../utils/extractAlliterations";
 import { extractConsonantWords } from "../../utils/extractConsonance";
 import {
   getThreshold,
-  rhymeScore,
+  getCodaThreshold,
+  rhymeGate,
+  rhymeComponents,
   assonanceScore,
   alliterationScore,
   consonanceScore,
@@ -21,7 +23,7 @@ export type SelectionParams = Partial<{
   showRhymes: boolean;
   rhymeStrictness: number;
   rhymeSearchDistance: number;
-  nucleusWeight: number;
+  codaTolerance: number;
   exactMatches: boolean;
   ignorePlurals: boolean;
   alliterationTier: string;
@@ -106,7 +108,7 @@ export function WordSelectionProvider({
     ignorePlurals,
     rhymeStrictness,
     rhymeSearchDistance,
-    nucleusWeight,
+    codaTolerance,
     alliterationTier,
     alliterationSearchDistance,
     showAssonance,
@@ -136,7 +138,7 @@ export function WordSelectionProvider({
       showRhymes:                  p.showRhymes              ?? showRhymes,
       rhymeStrictness:             p.rhymeStrictness         ?? rhymeStrictness,
       rhymeSearchDistance:         p.rhymeSearchDistance     ?? rhymeSearchDistance,
-      nucleusWeight:               p.nucleusWeight           ?? nucleusWeight,
+      codaTolerance:               p.codaTolerance           ?? codaTolerance,
       exactMatches:                p.exactMatches            ?? exactMatches,
       ignorePlurals:               p.ignorePlurals           ?? ignorePlurals,
       alliterationTier:            p.alliterationTier        ?? alliterationTier,
@@ -152,9 +154,10 @@ export function WordSelectionProvider({
 
   // ---- Compute functions (accept explicit resolved params) ------------------
 
-  function computeRhymeOrExactSet(anchorId: string, p: ResolvedParams): Set<string> {
-    if (!p.showRhymes) return new Set();
-    const out = new Set<string>();
+  /** Returns a Map of wordId → quality (0-1) for all rhyme matches. */
+  function computeRhymeOrExactSet(anchorId: string, p: ResolvedParams): Map<string, number> {
+    if (!p.showRhymes) return new Map();
+    const out = new Map<string, number>();
     const rawSel = wordPhonesMap.get(anchorId) || "";
     const selPhones = p.ignorePlurals ? stripPluralSuffix(rawSel) : rawSel;
 
@@ -162,7 +165,7 @@ export function WordSelectionProvider({
       for (const [id, raw] of wordPhonesMap.entries()) {
         if (!inRange(anchorId, id, p.rhymeSearchDistance)) continue;
         const cand = p.ignorePlurals ? stripPluralSuffix(raw) : raw;
-        if (cand === selPhones) out.add(id);
+        if (cand === selPhones) out.set(id, 1.0);
       }
       return out;
     }
@@ -170,9 +173,10 @@ export function WordSelectionProvider({
     const rhymeMap = p.ignorePlurals
       ? new Map(Array.from(wordPhonesMap.entries()).map(([id, ph]) => [id, stripPluralSuffix(ph)]))
       : wordPhonesMap;
-    const threshold = getThreshold(p.rhymeStrictness, "rhyme");
-    for (const id of extractRhymingWords(selPhones, rhymeMap, threshold, p.nucleusWeight)) {
-      if (inRange(anchorId, id, p.rhymeSearchDistance)) out.add(id);
+    const nucleusThreshold = getThreshold(p.rhymeStrictness, "rhyme");
+    const codaThreshold = getCodaThreshold(nucleusThreshold, p.codaTolerance);
+    for (const { id, quality } of extractRhymingWords(selPhones, rhymeMap, nucleusThreshold, codaThreshold)) {
+      if (inRange(anchorId, id, p.rhymeSearchDistance)) out.set(id, quality);
     }
     return out;
   }
@@ -225,7 +229,7 @@ export function WordSelectionProvider({
       out[s.id] = computeRhymeOrExactSet(s.wordId, resolveParams(s));
     }
     return out;
-  }, [selections, wordPhonesMap, showRhymes, exactMatches, ignorePlurals, rhymeStrictness, rhymeSearchDistance, nucleusWeight]);
+  }, [selections, wordPhonesMap, showRhymes, exactMatches, ignorePlurals, rhymeStrictness, rhymeSearchDistance, codaTolerance]);
 
   const alliterationBySelectionId: Record<string, Set<string>> = useMemo(() => {
     const out: Record<string, Set<string>> = {};
@@ -288,8 +292,7 @@ export function WordSelectionProvider({
       } else if (isRhyme) {
         const s = rev.find((s) => matchesBySelectionId[s.id]?.has(wordId))!;
         color = s.color; selectionId = s.id;
-        const rp = resolveParams(s);
-        score = rhymeScore(wordPhonesMap.get(s.wordId) || "", wordPhones, rp.nucleusWeight);
+        score = matchesBySelectionId[s.id]?.get(wordId) ?? 0;
       } else if (isAlliteration) {
         const s = rev.find((s) => alliterationBySelectionId[s.id]?.has(wordId))!;
         color = s.color; selectionId = s.id;
