@@ -14,13 +14,15 @@ export function getWordPhones(word) {
 }
 
 /**
- * Basic plural stripping for ARPAbet when desired:
- * Removes a trailing 'S' phone only.
+ * Plural stripping for ARPAbet: removes a trailing 'S' or 'Z' phone.
+ * Both are English plural/possessive suffixes (voiced sibilant Z for
+ * "dogs", unvoiced S for "cats"). Consistent with WordSelectionContext.
  */
 export function stripPluralPhoneSuffix(phonesStr) {
   const parts = String(phonesStr).trim().split(/\s+/);
-  if (parts.length && parts[parts.length - 1] === "S") {
-    parts.pop();
+  if (parts.length) {
+    const last = parts[parts.length - 1];
+    if (last === "S" || last === "Z") parts.pop();
   }
   return parts.join(" ");
 }
