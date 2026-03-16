@@ -8,11 +8,7 @@ import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import { useParams } from "../../contexts/ParamsContext";
 import "./TapestryView.css";
 
-export default function TapestryView({
-  lyricTranscription,
-  drumTranscription,
-  bassTranscription,
-}) {
+export default function TapestryView() {
   const { containerRef, layout } = useTapestryLayout();
   const { hoverInfo, onHoverEnter, onHoverMove, onHoverLeave } =
     useCanvasHoverInfo();
@@ -35,9 +31,6 @@ export default function TapestryView({
         style={{ height: contentHeight ? `${contentHeight}px` : "100%" }}
       >
         <TapestrySVG
-          lyricTranscriptionData={lyricTranscription}
-          drumTranscriptionData={drumTranscription}
-          bassTranscriptionData={bassTranscription}
           onGlyphHoverEnter={onHoverEnter}
           onGlyphHoverLeave={onHoverLeave}
         />

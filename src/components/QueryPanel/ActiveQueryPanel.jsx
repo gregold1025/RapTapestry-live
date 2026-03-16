@@ -14,6 +14,7 @@ import {
   decomposeSyllable,
 } from "../../utils/phonemeSimilarity.js";
 import { RhymeStrictnessModal, VowelSpaceModal, ConsonantSpaceModal } from "../PhonemeMatchList/PhonemeSpaceModal.jsx";
+import { useSongData } from "../../contexts/SongDataContext.jsx";
 import SelectionList from "./SelectionList.jsx";
 import "./ActiveQueryPanel.css";
 
@@ -599,7 +600,8 @@ function EmptyState() {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export default function ActiveQueryPanel({ transcriptionData }) {
+export default function ActiveQueryPanel() {
+  const { lyricTranscription: transcriptionData } = useSongData();
   const { selections: wordSels, focusedWordSelId, wordInteractionStamp } = useWordSelection();
   const { selections: lineSels, focusedLineSelId, lineInteractionStamp } = useLineSelection();
   const { selections: sylSels, focusedSyllableSelId, syllableInteractionStamp } = useSyllableSelection();
@@ -625,7 +627,7 @@ export default function ActiveQueryPanel({ transcriptionData }) {
     <div className="aqp-root">
       {hasSelections && (
         <div className="aqp-sel-strip">
-          <SelectionList transcriptionData={transcriptionData} />
+          <SelectionList />
         </div>
       )}
       <div className="aqp-body">

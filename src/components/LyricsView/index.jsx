@@ -9,10 +9,12 @@ import { WordLine } from "./WordLine";
 import { HoverDisplay } from "./HoverDisplay";
 import { useHoverInfo } from "./hooks/useHoverInfo";
 import { useAudioEngine } from "../../contexts/AudioContext";
+import { useSongData } from "../../contexts/SongDataContext";
 import { useFitTextToLines } from "./hooks/useFitTextToLines";
 import "./LyricsView.css";
 
-export default function LyricsView({ transcriptionData, height = "100%" }) {
+export default function LyricsView({ height = "100%" }) {
+  const { lyricTranscription: transcriptionData } = useSongData();
   const containerRef = useRef(null); // outer container (for sizing)
   const scrollRef = useRef(null); // scrollable div (the list of all lines)
   const suppressUntilRef = useRef(0); // timestamp (ms) to ignore scroll events until

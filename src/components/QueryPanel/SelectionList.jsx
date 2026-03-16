@@ -3,9 +3,11 @@ import React from "react";
 import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
 import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
 import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
+import { useSongData } from "../../contexts/SongDataContext";
 import "./SelectionList.css";
 
-export default function SelectionList({ transcriptionData }) {
+export default function SelectionList() {
+  const { lyricTranscription: transcriptionData } = useSongData();
   const {
     selections: wordSels,
     matchesBySelectionId: wordRhymes,

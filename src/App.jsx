@@ -7,6 +7,7 @@ import { AudioProvider, useAudioEngine } from "./contexts/AudioContext"; // â¬…ï
 import { ParamsProvider } from "./contexts/ParamsContext";
 import { TapestryLayoutProvider } from "./contexts/TapestryLayoutContext";
 
+import { SongDataProvider } from "./contexts/SongDataContext";
 import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSelectionContext";
 import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionContext";
 import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
@@ -138,6 +139,11 @@ export default function App() {
         {/* Bind stopAll from the current provider instance */}
         <StopAllBinder bindRef={stopAllRef} />
 
+        <SongDataProvider
+          lyricTranscription={lyricTranscription}
+          drumTranscription={drumTranscription}
+          bassTranscription={bassTranscription}
+        >
         <SyllableSelectionProvider key={`syllables-${selectedSong}`} transcriptionData={lyricTranscription}>
           {/* re-mount rhyme/line/word contexts on song change */}
           <LineSelectionProvider
@@ -181,9 +187,6 @@ export default function App() {
                     >
                       <TapestryView
                         key={`tapestry-${selectedSong}`}
-                        lyricTranscription={lyricTranscription}
-                        drumTranscription={drumTranscription}
-                        bassTranscription={bassTranscription}
                       />
                     </TapestryLayoutProvider>
 
@@ -201,13 +204,12 @@ export default function App() {
                     <div className="rp-lyrics">
                       <LyricsView
                         key={`lyrics-${selectedSong}`}
-                        transcriptionData={lyricTranscription}
                         height="100%"
                       />
                     </div>
 
                     <div className="rp-query">
-                      <ActiveQueryPanel transcriptionData={lyricTranscription} />
+                      <ActiveQueryPanel />
                     </div>
 
                     <div className="rp-master-strip">
@@ -221,6 +223,7 @@ export default function App() {
             </WordSelectionProvider>
           </LineSelectionProvider>
         </SyllableSelectionProvider>
+        </SongDataProvider>
       </AudioProvider>
     </ParamsProvider>
   );
