@@ -7,9 +7,20 @@ import { useParams } from "../../../contexts/ParamsContext";
 export default function DrumGrid({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { playheadTime } = useAudioEngine();
-  const { showDrums, showDownbeats, showBeatsLines } = useParams();
+  const { showDrums, showDownbeats, showBeatsLines, tapestryBackgroundColor } = useParams();
 
   if (!layout || !drumTranscriptionData) return null;
+
+  // Compute grid stroke color: white on dark backgrounds, black on light ones.
+  // Uses WCAG relative luminance to decide.
+  const gridStroke = (() => {
+    const hex = tapestryBackgroundColor || "#ffffff";
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luminance > 0.5 ? "black" : "white";
+  })();
 
   const { rowHeight, timeToPixels, gridTimes, beatsPerBar } = layout;
 
@@ -71,7 +82,7 @@ export default function DrumGrid({ drumTranscriptionData }) {
           y1={y + 0.5}
           x2={x}
           y2={y + rowHeight - 0.5}
-          stroke="black"
+          stroke={gridStroke}
           strokeWidth={3}
           opacity={0.2}
           vectorEffect="non-scaling-stroke"
@@ -113,7 +124,7 @@ export default function DrumGrid({ drumTranscriptionData }) {
           y1={y + 0.5}
           x2={x}
           y2={y + rowHeight - 0.5}
-          stroke="black"
+          stroke={gridStroke}
           strokeWidth={1}
           opacity={0.2}
           vectorEffect="non-scaling-stroke"
