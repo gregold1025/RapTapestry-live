@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
 // --------------------------------------
@@ -29,7 +28,6 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
-  const { playheadTime } = useAudioEngine();
   const { showDrums, showDrumGlyphs, drumParams, glyphStyle } = useParams();
 
   const glyphUrl = glyphStyle?.drumGlyphUrl ?? null;

@@ -1,12 +1,10 @@
 // src/components/TapestryView/drums/DrumGrid.jsx
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
 export default function DrumGrid({ drumTranscriptionData }) {
   const { layout } = useTapestryLayout();
-  const { playheadTime } = useAudioEngine();
   const { showDrums, showDownbeats, showBeatsLines, tapestryBackgroundColor } = useParams();
 
   if (!layout || !drumTranscriptionData) return null;
@@ -68,13 +66,11 @@ export default function DrumGrid({ drumTranscriptionData }) {
   // To compare: swap what's passed to the "draw downbeats" loop below.
 
   const lines = [];
-  const tolerance = 0.08;
 
   // Draw downbeats (full height) — using MODE A (derived) by default:
   if (showDownbeats && showDrums && derivedDownbeats.length) {
     derivedDownbeats.forEach((t, i) => {
       const { x, y } = timeToPixels(t);
-      const isActive = Math.abs(t - playheadTime) <= tolerance;
       lines.push(
         <line
           key={`downbeat-derived-${i}`}
@@ -116,7 +112,6 @@ export default function DrumGrid({ drumTranscriptionData }) {
   if (showBeatsLines && showDrums && beats && beats.length) {
     beats.forEach((t, i) => {
       const { x, y } = timeToPixels(t);
-      const isActive = Math.abs(t - playheadTime) <= tolerance;
       lines.push(
         <line
           key={`beat-${i}`}
