@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useMemo,
   useRef,
   useState,
   useCallback,
@@ -8,7 +7,7 @@ import React, {
 import { WordLine } from "./WordLine";
 import { HoverDisplay } from "./HoverDisplay";
 import { useHoverInfo } from "./hooks/useHoverInfo";
-import { useAudioEngine } from "../../contexts/AudioContext";
+import { useCurrentPlayheadIds } from "./hooks/useCurrentPlayheadIds";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useFitTextToLines } from "./hooks/useFitTextToLines";
 import "./LyricsView.css";
@@ -18,11 +17,12 @@ export default function LyricsView({ height = "100%" }) {
   const containerRef = useRef(null); // outer container (for sizing)
   const scrollRef = useRef(null); // scrollable div (the list of all lines)
   const suppressUntilRef = useRef(0); // timestamp (ms) to ignore scroll events until
-  const { playheadTime } = useAudioEngine();
   const { hoverData, setWordHover, setSyllableHover, clearHover } =
     useHoverInfo();
 
   const lines = transcriptionData?.lines ?? [];
+
+  const { currentLineIndex, currentWordId } = useCurrentPlayheadIds(lines);
 
   // ------- TUNING: sizing knobs -------
   const nVisibleLines = 12; // how many lines should be visible at once
@@ -38,24 +38,6 @@ export default function LyricsView({ height = "100%" }) {
     minPx: 12,
     maxPx: 64,
   });
-
-  // Pre-sorted line start times (stable, recomputes only on song change)
-  const lineStarts = useMemo(() => {
-    return lines.map((l) => l?.words?.[0]?.start ?? Infinity);
-  }, [lines]);
-
-  // Binary search for current line (runs at 60fps but is O(log n) not O(n))
-  const currentLineIndex = useMemo(() => {
-    if (!lineStarts.length) return -1;
-    let lo = 0, hi = lineStarts.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi + 1) >>> 1;
-      if (lineStarts[mid] <= playheadTime) lo = mid;
-      else hi = mid - 1;
-    }
-    if (playheadTime >= lineStarts[lo]) return lo;
-    return -1;
-  }, [lineStarts, playheadTime]);
 
   // Follow state: starts ON; user scroll turns it OFF; Recenter turns it ON
   const [isFollowing, setIsFollowing] = useState(true);
@@ -124,8 +106,8 @@ export default function LyricsView({ height = "100%" }) {
             key={idx}
             line={line}
             lineIdx={idx}
-            playheadTime={playheadTime}
             isCurrent={idx === currentLineIndex}
+            currentWordId={currentWordId}
             hoverData={hoverData}
             onWordHover={setWordHover}
             onSyllableHover={setSyllableHover}

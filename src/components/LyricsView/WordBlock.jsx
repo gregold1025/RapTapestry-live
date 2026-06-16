@@ -19,7 +19,7 @@ export function WordBlock({
   word,
   lineIdx,
   wordIdx,
-  playheadTime,
+  isCurrent,
   hoverData,
   onWordHover,
   onSyllableHover,
@@ -29,7 +29,6 @@ export function WordBlock({
   const nSyllables = word.nSyllables ?? 1;
 
   const wordId = `${lineIdx}-${wordIdx}`;
-  const isCurrent = playheadTime >= word.start && playheadTime < word.end;
 
   const { getVisualForWord, selections, anchorOrAdopt, removeSelection, markWordInteraction } =
     useWordSelection();

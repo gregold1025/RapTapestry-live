@@ -17,7 +17,8 @@ function hexToRgba(hex, alpha = 1) {
 export function WordLine({
   line,
   lineIdx,
-  playheadTime,
+  isCurrent,
+  currentWordId,
   hoverData,
   onWordHover,
   onSyllableHover,
@@ -37,8 +38,6 @@ export function WordLine({
     if (!candidates.length) return null;
     return candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
   }, [selections, lineIdx]);
-
-  const isCurrent = playheadTime >= line.start && playheadTime < line.end;
 
   // Anchors always show; matches show only if toggle is on.
   const showColor =
@@ -104,7 +103,7 @@ export function WordLine({
             word={word}
             lineIdx={lineIdx}
             wordIdx={wordIdx}
-            playheadTime={playheadTime}
+            isCurrent={`${lineIdx}-${wordIdx}` === currentWordId}
             hoverData={hoverData}
             onWordHover={onWordHover}
             onSyllableHover={onSyllableHover}
