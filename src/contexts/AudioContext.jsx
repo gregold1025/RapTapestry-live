@@ -130,12 +130,14 @@ export function useAudioEngine() {
 /**
  * Subscribe to per-frame playhead time and run an imperative callback.
  * The callback does NOT trigger React re-renders — use it to mutate refs/DOM.
- * `cb` should be stable (wrap in useCallback) or include in deps.
+ * The latest `cb` is always invoked, so inline callbacks are safe (no deps needed).
  */
-export function usePlayheadSubscription(cb, deps = []) {
+export function usePlayheadSubscription(cb) {
   const { subscribePlayhead } = useAudioEngine();
-  useEffect(() => {
-    return subscribePlayhead(cb);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscribePlayhead, ...deps]);
+  const cbRef = useRef(cb);
+  cbRef.current = cb;
+  useEffect(
+    () => subscribePlayhead((t) => cbRef.current(t)),
+    [subscribePlayhead]
+  );
 }
