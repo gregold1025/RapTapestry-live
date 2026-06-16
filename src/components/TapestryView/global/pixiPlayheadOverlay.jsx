@@ -1,5 +1,5 @@
 // src/components/TapestryView/PixiPlayheadOverlay.jsx
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { Application, extend } from "@pixi/react";
 import { Container, Graphics } from "pixi.js";
 
@@ -10,30 +10,40 @@ import "../TapestryView.css";
 extend({ Container, Graphics });
 
 export function PlayheadLine() {
-  const { playheadTime } = useAudioEngine();
+  const { subscribePlayhead, getPlayheadTime } = useAudioEngine();
   const { layout } = useTapestryLayout();
   const graphicsRef = useRef(null);
 
-  useEffect(() => {
-    if (!layout || !graphicsRef.current) return;
+  // Keep the latest layout in a ref so the subscription closure stays stable.
+  const layoutRef = useRef(layout);
+  layoutRef.current = layout;
 
+  const draw = useCallback((t) => {
+    const lay = layoutRef.current;
     const g = graphicsRef.current;
-    const { rowHeight, timeToPixels } = layout;
-
-    // Map playheadTime to current grid coordinates with latest layout
-    const { x: currentX, y: currentY } = timeToPixels(playheadTime);
-
+    if (!lay || !g) return;
+    const { rowHeight, timeToPixels } = lay;
+    const { x: currentX, y: currentY } = timeToPixels(t);
     g.clear();
     g.setStrokeStyle({ width: 3, color: 0xff0000, alpha: 1 });
     g.moveTo(currentX, currentY);
     g.lineTo(currentX, currentY + rowHeight);
     g.stroke();
+  }, []);
+
+  // Per-frame imperative redraw (no React re-render).
+  useEffect(() => subscribePlayhead(draw), [subscribePlayhead, draw]);
+
+  // Redraw at the current playhead position when layout changes (resize / row reflow).
+  useEffect(() => {
+    draw(getPlayheadTime());
   }, [
-    playheadTime,
     layout?.rowHeight,
     layout?.width,
-    layout?.contentHeight, // <-- key: redraw when scrollable height changes
-    layout?.timeToPixels, // function identity changes when layout recomputes
+    layout?.contentHeight,
+    layout?.timeToPixels,
+    draw,
+    getPlayheadTime,
   ]);
 
   return <pixiGraphics ref={graphicsRef} />;
