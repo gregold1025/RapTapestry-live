@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { fetchSongData } from "./utils/fetchSongData";
+import { perfMark } from "./utils/perfMarks";
 
 import { AudioProvider, useAudioEngine } from "./contexts/AudioContext"; // ⬅️ import useAudioEngine
 import { ParamsProvider } from "./contexts/ParamsContext";
@@ -55,8 +56,10 @@ export default function App() {
 
     (async () => {
       try {
+        perfMark(`song-fetch-start:${selectedSong}`);
         const data = await fetchSongData(selectedSong);
         if (cancelled) return;
+        perfMark(`song-data-loaded:${selectedSong}`);
         setSongData(data);
       } catch (err) {
         if (cancelled) return;

@@ -11,6 +11,7 @@ import { useCurrentPlayheadIds } from "./hooks/useCurrentPlayheadIds";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useFitTextToLines } from "./hooks/useFitTextToLines";
 import "./LyricsView.css";
+import { perfMark, perfMarkAfterPaint } from "../../utils/perfMarks";
 
 export default function LyricsView({ height = "100%" }) {
   const { lyricTranscription: transcriptionData } = useSongData();
@@ -38,6 +39,12 @@ export default function LyricsView({ height = "100%" }) {
     minPx: 12,
     maxPx: 64,
   });
+
+  // Load-time KPI: lyrics list first commit + paint.
+  useEffect(() => {
+    perfMark("lyrics-committed");
+    perfMarkAfterPaint("lyrics-painted");
+  }, []);
 
   // Follow state: starts ON; user scroll turns it OFF; Recenter turns it ON
   const [isFollowing, setIsFollowing] = useState(true);
