@@ -114,7 +114,6 @@ export function ParamsProvider({ children }) {
 
   // — LINES —
   const [showLines, setShowLines] = useState(true);
-  const [lineActiveColor, setLineActiveColor] = useState("#00cc00");
   const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
   const [lineOpacity, setLineOpacity] = useState(0.3);
   const [showEndRhymes, setShowEndRhymes] = useState(true);
@@ -274,8 +273,6 @@ export function ParamsProvider({ children }) {
         // lines
         showLines,
         setShowLines,
-        lineActiveColor,
-        setLineActiveColor,
         lineInactiveColor,
         setLineInactiveColor,
         lineOpacity,

@@ -16,7 +16,6 @@ export function VocalsParamsOverlay({ onClose }) {
   const {
     // Words — visual
     showWords, setShowWords,
-    wordActiveColor, setWordActiveColor,
     wordInactiveColor, setWordInactiveColor,
     wordOpacity, setWordOpacity,
 
@@ -29,7 +28,6 @@ export function VocalsParamsOverlay({ onClose }) {
 
     // Lines — visual
     showLines, setShowLines,
-    lineActiveColor, setLineActiveColor,
     lineInactiveColor, setLineInactiveColor,
     lineOpacity, setLineOpacity,
   } = useParams();
@@ -56,11 +54,6 @@ export function VocalsParamsOverlay({ onClose }) {
             {/* ── COLUMN 1: WORD GLYPHS ── */}
             <div className="visual-section">
               <SectionHeader label="Word Glyphs" checked={showWords} onChange={setShowWords} />
-
-              <label className="control inline">
-                Active Color:
-                <input type="color" value={wordActiveColor} onChange={pickColor(setWordActiveColor)} />
-              </label>
 
               <label className="control inline">
                 Inactive Color:
@@ -125,11 +118,6 @@ export function VocalsParamsOverlay({ onClose }) {
             {/* ── COLUMN 3: LINE GLYPHS ── */}
             <div className="visual-section">
               <SectionHeader label="Line Glyphs" checked={showLines} onChange={setShowLines} />
-
-              <label className="control inline">
-                Active Color:
-                <input type="color" value={lineActiveColor} onChange={pickColor(setLineActiveColor)} />
-              </label>
 
               <label className="control inline">
                 Inactive Color:
