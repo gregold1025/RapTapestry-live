@@ -60,3 +60,49 @@ and Pixi/WebGL init. If more is needed: (a) lyrics windowing (Plan D), (b) inlin
 single-path syllable shapes as `<symbol><path>` + `<use fill>` to drop the mask raster entirely
 (drum/divider assets use opacity/gradients, keep masks there), (c) Plan C selection caching
 for click latency.
+
+---
+
+# Addendum — query latency (same day, commits `495662e..ed39e87`)
+
+Load work did not touch query latency, so it was measured separately with the harness's
+`runQueries()`: click -> DOM settled -> next painted frame, 93Til, production, medians of 3
+alternating runs. The pre-layer build ("before") is the final load-optimised build above.
+
+| query | before | + stacked layers | + per-item subscriptions |
+|---|---|---|---|
+| word select (20 matches) | 675 ms | 145 ms | 253 ms* |
+| word deselect | 401 ms | 97 ms | 230 ms* |
+| line anchor | 148 ms | 93 ms | 96 ms |
+| syllable range (423 matches) | 774 ms | 213 ms | 342 ms* |
+
+\* The layers-vs-store comparison was run in a noisier window (its own "layers only" control
+came out at 340 / 598 / 232 / 282 ms, so relative to that control the store cut word deselect
+598 -> 230 and line select 232 -> 96, with word select and syllable range unchanged within
+noise). Read the table as: **stacked layers are the big win (3-5x); per-item subscriptions
+mostly cut the React side of deselect/line updates.** Original baseline before any of today's
+work was ~400-700 ms per query.
+
+## What each change does
+
+- **Stacked compositor layers** (`495662e`): the tapestry was one `<svg>`, so recolouring 20
+  word rects repainted everything including ~3.5k masked syllable `<use>`s (trace of one word
+  click: a single 211 ms task of Paint 97 + Layout 62 + Commit 40 + Layerize 40). Now five
+  `<svg>`s (bass < lines < words < syllables < drums+grids), same viewBox/box, each
+  `will-change: transform`; roots are `pointer-events: none`, interactive glyphs opt back in.
+  Hit-testing verified through the stack (`elementFromPoint` on syllable / word / line /
+  empty space) and all Cmd/Alt/plain click paths. Pixel parity vs the single SVG: 14 px > 40
+  levels in the whole tapestry (sub-pixel AA differences from per-layer compositing), lyrics 0.
+- **Per-item subscriptions** (`ed39e87`): `utils/selectorStore.js` (useSyncExternalStore).
+  Each selection provider publishes its memoised maps; WordBlock/WordLine subscribe to their
+  own entry (visual reused by value-equality, syllable state as a bitmask), so a selection
+  change re-renders only the affected words instead of all 996 context consumers.
+
+## Functionality re-verified after both changes (production build, zero console errors)
+
+Word click -> anchor + rhyme/alliteration matches + query card; click a matched word ->
+rhyme gravity moves the anchor (panel switches to the new word); hover -> footer phones;
+Cmd/Alt-click on tapestry word/line/syllable glyphs; two-click syllable range (lyrics and
+tapestry), draft cancel on double click; line anchor toggle + end-rhyme matches; tapestry hover
+tooltip; S/D/B glyph randomise; play/pause with the clock advancing and current-line
+highlight; load times unchanged within noise.
