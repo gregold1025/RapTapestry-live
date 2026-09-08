@@ -1,5 +1,6 @@
 // src/contexts/lyricsContexts/LineSelectionContext.tsx
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useRef, useState } from "react";
+import { useSelectorStoreProvider, useSelectorStore, useStableActions } from "../../utils/selectorStore";
 import { nanoid } from "nanoid";
 import { useParams } from "../ParamsContext";
 import { extractLines, getMatchingLinesFor } from "../../utils/extractLines";
@@ -34,6 +35,8 @@ type VisualForLine =
   | null;
 
 const LineSelectionContext = createContext<any>(null);
+// Per-line subscription store + stable actions.
+const LineSelectionStoreContext = createContext<any>(null);
 
 // ---- Provider ---------------------------------------------------------------
 
@@ -100,20 +103,52 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     return activeInZOrder.length ? activeInZOrder[activeInZOrder.length - 1].id : null;
   }, [manualFocusLineId, selections, activeInZOrder]);
 
-  function getVisualForLine(lineIdx: number): VisualForLine {
-    for (let i = activeInZOrder.length - 1; i >= 0; i--) {
-      const s = activeInZOrder[i];
-      if (s.lineIdx === lineIdx)
-        return { role: "anchor", color: s.color, selectionId: s.id };
+  // Visual per line, precomputed once per change (was a per-call scan).
+  // Most recent active selection wins for anchors, then for matches; entries
+  // are reused from the previous map when unchanged so per-line subscribers
+  // (useLineVisual) keep a stable reference.
+  const prevLineVisualRef = useRef<Map<number, VisualForLine>>(new Map());
+  const visualByLineIdx: Map<number, VisualForLine> = useMemo(() => {
+    const map = new Map<number, VisualForLine>();
+    for (const s of activeInZOrder) {
+      map.set(s.lineIdx, { role: "anchor", color: s.color, selectionId: s.id });
     }
-    for (let i = activeInZOrder.length - 1; i >= 0; i--) {
-      const s = activeInZOrder[i];
+    for (const s of activeInZOrder) {
       const set = matchesBySelectionId[s.id];
-      if (set?.has?.(lineIdx))
-        return { role: "match", color: s.color, selectionId: s.id };
+      if (!set) continue;
+      for (const lineIdx of set) {
+        const cur = map.get(lineIdx);
+        if (cur && cur.role === "anchor") continue;
+        map.set(lineIdx, { role: "match", color: s.color, selectionId: s.id });
+      }
     }
-    return null;
+    const prev = prevLineVisualRef.current;
+    for (const [lineIdx, v] of map) {
+      const b = prev.get(lineIdx);
+      if (b && v && b.role === v.role && b.color === v.color && b.selectionId === v.selectionId) map.set(lineIdx, b);
+    }
+    prevLineVisualRef.current = map;
+    return map;
+  }, [activeInZOrder, matchesBySelectionId]);
+
+  function getVisualForLine(lineIdx: number): VisualForLine {
+    return visualByLineIdx.get(lineIdx) ?? null;
   }
+
+  const latestSelectionByLineIdx: Map<number, LineSelection> = useMemo(() => {
+    const m = new Map<number, LineSelection>();
+    for (const s of selections) {
+      const cur = m.get(s.lineIdx);
+      if (!cur || s.createdAt > cur.createdAt) m.set(s.lineIdx, s);
+    }
+    return m;
+  }, [selections]);
+
+  const lineSnapshot = useMemo(
+    () => ({ visualByLineIdx, latestSelectionByLineIdx }),
+    [visualByLineIdx, latestSelectionByLineIdx]
+  );
+  const lineStore = useSelectorStoreProvider(lineSnapshot);
 
   // ---- Mutators -------------------------------------------------------------
 
@@ -205,7 +240,11 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     ? activeInZOrder[activeInZOrder.length - 1].lineIdx
     : null;
 
+  const lineActions = useStableActions({ anchorOrAdopt, removeSelection, addSelection });
+  const lineStoreValue = useMemo(() => ({ store: lineStore, actions: lineActions }), [lineStore, lineActions]);
+
   return (
+    <LineSelectionStoreContext.Provider value={lineStoreValue}>
     <LineSelectionContext.Provider
       value={{
         selections,
@@ -233,9 +272,23 @@ export function LineSelectionProvider({ transcriptionData, children }) {
     >
       {children}
     </LineSelectionContext.Provider>
+    </LineSelectionStoreContext.Provider>
   );
 }
 
 export function useLineSelection() {
   return useContext(LineSelectionContext);
+}
+
+/** Stable mutators only; never causes a re-render. */
+export function useLineSelectionActions() {
+  return useContext(LineSelectionStoreContext).actions;
+}
+
+/** Per-line subscription: re-renders only when THIS line's visual/anchor changes. */
+export function useLineVisual(lineIdx: number): { vis: VisualForLine; anchorForThisLine: LineSelection | null } {
+  const { store } = useContext(LineSelectionStoreContext);
+  const vis = useSelectorStore(store, useMemo(() => (snap: any) => snap.visualByLineIdx.get(lineIdx) ?? null, [lineIdx]));
+  const anchorForThisLine = useSelectorStore(store, useMemo(() => (snap: any) => snap.latestSelectionByLineIdx.get(lineIdx) ?? null, [lineIdx]));
+  return { vis, anchorForThisLine };
 }

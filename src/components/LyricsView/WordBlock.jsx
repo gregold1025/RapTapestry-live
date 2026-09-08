@@ -1,8 +1,8 @@
 // src/components/LyricsView/WordBlock.jsx
-import React, { useMemo } from "react";
+import React from "react";
 import { extractVowels } from "../../utils/extractVowels";
-import { useWordSelection } from "../../contexts/lyricsContexts/WordSelectionContext";
-import { useSyllableSelection } from "../../contexts/lyricsContexts/SyllableSelectionContext";
+import { useWordVisual, useWordSelectionActions } from "../../contexts/lyricsContexts/WordSelectionContext";
+import { useSyllableWordState, useSyllableClick } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 import "./LyricsView.css";
 
@@ -29,23 +29,15 @@ export const WordBlock = React.memo(function WordBlock({
 
   const wordId = `${lineIdx}-${wordIdx}`;
 
-  const { getVisualForWord, selections, anchorOrAdopt, removeSelection, markWordInteraction } =
-    useWordSelection();
-
-  const { wordActiveColor, wordOpacity, alliterationTier, showRhymes } =
+  // Per-word subscriptions (utils/selectorStore): this block re-renders only
+  // when ITS visual/anchor/syllable state changes, not on every selection.
+  const { anchorOrAdopt, removeSelection, markWordInteraction } = useWordSelectionActions();
+  const { vis, anchorForThisWord } = useWordVisual(wordId);
+  const { wordActiveColor, wordOpacity, alliterationTier, showRhymes, vowelColors } =
     useParams();
+  const handleSyllableClick = useSyllableClick();
+  const syllableMask = useSyllableWordState(lineIdx, wordIdx, nSyllables);
 
-  const { selectedIds, matchedIds, handleSyllableClick, vowelColors } =
-    useSyllableSelection();
-
-  // latest anchor (if multiple anchors ever pointed to this word)
-  const anchorForThisWord = useMemo(() => {
-    const candidates = (selections || []).filter((s) => s.wordId === wordId);
-    if (!candidates.length) return null;
-    return candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-  }, [selections, wordId]);
-
-  const vis = getVisualForWord(wordId); // null | { color, score, roles }
   const isAnchor    = vis?.roles?.isAnchor       ?? false;
   const isRhyme     = vis?.roles?.isRhyme        ?? false;
   const isAllit     = vis?.roles?.isAlliteration ?? false;
@@ -103,8 +95,8 @@ export const WordBlock = React.memo(function WordBlock({
           const vowel = vowels[i] ?? "AH";
           const color = vowelColors[vowel] ?? "#cccccc";
 
-          const isSel = selectedIds.includes(id);
-          const isMtch = matchedIds.has(id);
+          const isSel = (syllableMask & (1 << (2 * i))) !== 0;
+          const isMtch = (syllableMask & (1 << (2 * i + 1))) !== 0;
 
           return (
             <div

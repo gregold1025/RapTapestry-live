@@ -1,7 +1,7 @@
 // src/components/LyricsView/WordLine.jsx
-import React, { useMemo } from "react";
+import React from "react";
 import { WordBlock } from "./WordBlock";
-import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
+import { useLineVisual, useLineSelectionActions } from "../../contexts/lyricsContexts/LineSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 
@@ -24,18 +24,11 @@ export const WordLine = React.memo(function WordLine({
   onHoverEnd,
   dataLineIdx,
 }) {
-  const { getVisualForLine, selections, anchorOrAdopt, removeSelection } =
-    useLineSelection();
+  // Per-line subscriptions: re-render only when THIS line's visual changes.
+  const { anchorOrAdopt, removeSelection } = useLineSelectionActions();
+  const { vis, anchorForThisLine } = useLineVisual(lineIdx);
   const { showEndRhymes, lineOpacity } = useParams();
   const { seekAll } = useAudioControls();
-
-  const vis = getVisualForLine(lineIdx); // null | { role: "anchor"|"match", color, selectionId }
-
-  const anchorForThisLine = useMemo(() => {
-    const candidates = selections.filter((s) => s.lineIdx === lineIdx);
-    if (!candidates.length) return null;
-    return candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-  }, [selections, lineIdx]);
 
   // Anchors always show; matches show only if toggle is on.
   const showColor =

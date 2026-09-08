@@ -1,5 +1,6 @@
 // src/contexts/lyricsContexts/WordSelectionContext.tsx
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useRef, useState } from "react";
+import { useSelectorStoreProvider, useSelectorStore, useStableActions } from "../../utils/selectorStore";
 import { nanoid } from "nanoid";
 import { useParams } from "../ParamsContext";
 import { extractRhymingWords } from "../../utils/extractRhymingWords";
@@ -74,6 +75,27 @@ type VisualForWord = {
 } | null;
 
 const WordSelectionContext = createContext<any>(null);
+// Per-word subscription store + stable actions (see utils/selectorStore.js).
+const WordSelectionStoreContext = createContext<any>(null);
+
+function sameRole(a: RoleInfo, b: RoleInfo) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.color === b.color && a.selectionId === b.selectionId && a.score === b.score;
+}
+function sameVisual(a: VisualForWord, b: VisualForWord) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const ra = a.roles, rb = b.roles;
+  return (
+    a.color === b.color && a.selectionId === b.selectionId && a.score === b.score &&
+    ra.isAnchor === rb.isAnchor && ra.isRhyme === rb.isRhyme &&
+    ra.isAlliteration === rb.isAlliteration && ra.isAssonance === rb.isAssonance &&
+    ra.isConsonance === rb.isConsonance &&
+    sameRole(a.rhymeInfo, b.rhymeInfo) && sameRole(a.alliterationInfo, b.alliterationInfo) &&
+    sameRole(a.assonanceInfo, b.assonanceInfo)
+  );
+}
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -265,9 +287,11 @@ export function WordSelectionProvider({
 
   // ---- Visual map (pre-computed, O(1) at render time) -----------------------
 
+  const prevVisualRef = useRef<Map<string, VisualForWord>>(new Map());
   const visualByWordId: Map<string, VisualForWord> = useMemo(() => {
     const rev = [...activeInZOrder].reverse();
     const map = new Map<string, VisualForWord>();
+    const prev = prevVisualRef.current;
 
     for (const [wordId, wordPhones] of wordPhonesMap) {
       const isAnchor       = activeInZOrder.some((s) => s.wordId === wordId);
@@ -308,14 +332,36 @@ export function WordSelectionProvider({
         ({ color, selectionId, score } = assonanceInfo);
       }
 
-      map.set(wordId, {
+      const next: VisualForWord = {
         color, selectionId, score,
         roles: { isAnchor, isRhyme, isAlliteration, isAssonance, isConsonance: false },
         rhymeInfo, alliterationInfo, assonanceInfo,
-      });
+      };
+      const before = prev.get(wordId);
+      // Keep the old object when nothing changed so per-word subscribers
+      // (useWordVisual) see a stable reference and skip re-rendering.
+      map.set(wordId, before && sameVisual(before, next) ? before : next);
     }
+    prevVisualRef.current = map;
     return map;
   }, [activeInZOrder, matchesBySelectionId, alliterationBySelectionId, assonanceBySelectionId, wordPhonesMap]);
+
+  // Most recent selection (active or not) per word — what WordBlock's anchor
+  // toggle used to derive from `selections` on every render.
+  const latestSelectionByWordId: Map<string, WordSelection> = useMemo(() => {
+    const m = new Map<string, WordSelection>();
+    for (const s of selections) {
+      const cur = m.get(s.wordId);
+      if (!cur || s.createdAt > cur.createdAt) m.set(s.wordId, s);
+    }
+    return m;
+  }, [selections]);
+
+  const wordSnapshot = useMemo(
+    () => ({ visualByWordId, latestSelectionByWordId }),
+    [visualByWordId, latestSelectionByWordId]
+  );
+  const wordStore = useSelectorStoreProvider(wordSnapshot);
 
   function getVisualForWord(wordId: string): VisualForWord {
     return visualByWordId.get(wordId) ?? null;
@@ -415,7 +461,11 @@ export function WordSelectionProvider({
     ? activeInZOrder[activeInZOrder.length - 1].wordId
     : null;
 
+  const wordActions = useStableActions({ anchorOrAdopt, removeSelection, markWordInteraction, addSelection });
+  const storeValue = useMemo(() => ({ store: wordStore, actions: wordActions }), [wordStore, wordActions]);
+
   return (
+    <WordSelectionStoreContext.Provider value={storeValue}>
     <WordSelectionContext.Provider
       value={{
         selections, anchorsByWordId,
@@ -441,9 +491,29 @@ export function WordSelectionProvider({
     >
       {children}
     </WordSelectionContext.Provider>
+    </WordSelectionStoreContext.Provider>
   );
 }
 
 export function useWordSelection() {
   return useContext(WordSelectionContext);
+}
+
+/** Stable mutators only; never causes a re-render. */
+export function useWordSelectionActions() {
+  return useContext(WordSelectionStoreContext).actions;
+}
+
+const selectVis = (wordId: string) => (snap: any) => snap.visualByWordId.get(wordId) ?? null;
+const selectAnchor = (wordId: string) => (snap: any) => snap.latestSelectionByWordId.get(wordId) ?? null;
+
+/**
+ * Per-word subscription: re-renders the caller only when THIS word's visual
+ * or latest anchor changes (not on every selection change like useContext).
+ */
+export function useWordVisual(wordId: string): { vis: VisualForWord; anchorForThisWord: WordSelection | null } {
+  const { store } = useContext(WordSelectionStoreContext);
+  const vis = useSelectorStore(store, useMemo(() => selectVis(wordId), [wordId]));
+  const anchorForThisWord = useSelectorStore(store, useMemo(() => selectAnchor(wordId), [wordId]));
+  return { vis, anchorForThisWord };
 }

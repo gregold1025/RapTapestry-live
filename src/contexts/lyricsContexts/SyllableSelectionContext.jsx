@@ -5,7 +5,9 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  useRef,
 } from "react";
+import { useSelectorStoreProvider, useSelectorStore } from "../../utils/selectorStore";
 
 import { useParams } from "../ParamsContext";
 import { extractVowels } from "../../utils/extractVowels";
@@ -14,6 +16,8 @@ import { generateDistinctColor } from "../../utils/selectionColors.js";
 import { nextStamp } from "../../utils/interactionCounter.js";
 
 const SyllableSelectionContext = createContext(null);
+// Per-syllable subscription store + stable click handler.
+const SyllableSelectionStoreContext = createContext(null);
 
 /* ------------------ Helpers ------------------ */
 
@@ -163,9 +167,17 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
     [draft.anchorId]
   );
 
-  // Second click: auto-commit immediately, no modal
+  // Second click: auto-commit immediately, no modal.
+  // Reads draft/flat through refs so its identity is stable (every WordBlock
+  // and syllable glyph holds it; a new identity per click would re-render all).
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  const flatRef = useRef({ flat, flatById });
+  flatRef.current = { flat, flatById };
   const handleSyllableClick = useCallback(
     (id) => {
+      const draft = draftRef.current;
+      const { flat, flatById } = flatRef.current;
       if (!draft.anchorId) {
         // First click — set anchor
         setDraft({ anchorId: id });
@@ -216,7 +228,7 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
       setSyllableInteractionStamp(nextStamp());
       setDraft({ anchorId: null });
     },
-    [draft.anchorId, flat, flatById]
+    []
   );
 
   const cancelDraft = useCallback(() => {
@@ -285,6 +297,17 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
     return out;
   }, [matchesBySelectionId]);
 
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const syllableSnapshot = useMemo(
+    () => ({ selectedIdSet, matchedIds }),
+    [selectedIdSet, matchedIds]
+  );
+  const syllableStore = useSelectorStoreProvider(syllableSnapshot);
+  const syllableStoreValue = useMemo(
+    () => ({ store: syllableStore, handleSyllableClick }),
+    [syllableStore, handleSyllableClick]
+  );
+
   const focusedSyllableSelId = useMemo(() => {
     if (manualFocusSylId && selections.some((s) => s.id === manualFocusSylId))
       return manualFocusSylId;
@@ -292,6 +315,7 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
   }, [manualFocusSylId, selections]);
 
   return (
+    <SyllableSelectionStoreContext.Provider value={syllableStoreValue}>
     <SyllableSelectionContext.Provider
       value={{
         selections,
@@ -319,9 +343,37 @@ export function SyllableSelectionProvider({ children, transcriptionData }) {
     >
       {children}
     </SyllableSelectionContext.Provider>
+    </SyllableSelectionStoreContext.Provider>
   );
 }
 
 export function useSyllableSelection() {
   return useContext(SyllableSelectionContext);
+}
+
+/** Stable syllable click handler (two-click range selection). */
+export function useSyllableClick() {
+  return useContext(SyllableSelectionStoreContext).handleSyllableClick;
+}
+
+/**
+ * Per-word syllable state as a bitmask: bit 2i = syllable i selected,
+ * bit 2i+1 = syllable i matched. A primitive, so subscribers re-render only
+ * when one of THIS word's syllables actually flips.
+ */
+export function useSyllableWordState(lineIdx, wordIdx, nSyllables) {
+  const { store } = useContext(SyllableSelectionStoreContext);
+  const selector = useMemo(
+    () => (snap) => {
+      let mask = 0;
+      for (let i = 0; i < nSyllables; i++) {
+        const id = `${lineIdx}-${wordIdx}-${i}`;
+        if (snap.selectedIdSet.has(id)) mask |= 1 << (2 * i);
+        if (snap.matchedIds.has(id)) mask |= 1 << (2 * i + 1);
+      }
+      return mask;
+    },
+    [lineIdx, wordIdx, nSyllables]
+  );
+  return useSelectorStore(store, selector);
 }
