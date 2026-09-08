@@ -28,13 +28,41 @@
 
 /* Each line */
 .line {
-  padding: 12px;
-  border-bottom: 2px dashed #ccc;
+  position: relative;
+  padding: 12px 42px 6px 12px;
+  border-bottom: 1px dashed #ccc;
   font-weight: 500;
   font-size: 1rem;
   display: flex;
   align-items: center;
   gap: 12px;
+  outline-offset: -2px;
+  /* background-color / outline are set inline only for anchors/matches;
+     text stays 100% legible because we never set container opacity. */
+}
+
+/* Hover-only "jump to this line" button (right-aligned) */
+.line-jump {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  line-height: 1;
+  font-size: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.line:hover .line-jump {
+  display: inline-flex;
 }
 
 .line.current {
@@ -56,6 +84,19 @@
   gap: 6px;
 }
 
+/* One word: syllable dots stacked above the text */
+.word-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.syllable-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
 /* Word chip */
 .word {
   display: inline-block; /* highlight hugs text */
@@ -66,6 +107,9 @@
   background-color: transparent; /* inline style may override for highlight */
   color: #000;
   cursor: pointer;
+  outline-offset: 0px;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 2px;
 }
 .word.current {
   color: #f00;
@@ -78,6 +122,11 @@
   border-radius: 50%;
   outline: none;
   border: 1px solid #999;
+  background-color: #cccccc;
+  cursor: pointer;
+}
+.lyrics-syllable-circle.selected {
+  border: 2px solid red;
 }
 
 /* Footer: recenter button + hover info */

@@ -1,5 +1,5 @@
 // src/components/LyricsView/WordLine.jsx
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { WordBlock } from "./WordBlock";
 import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
@@ -19,7 +19,6 @@ export function WordLine({
   lineIdx,
   isCurrent,
   currentWordId,
-  hoverData,
   onWordHover,
   onSyllableHover,
   onHoverEnd,
@@ -29,7 +28,6 @@ export function WordLine({
     useLineSelection();
   const { showEndRhymes, lineOpacity } = useParams();
   const { seekAll } = useAudioEngine();
-  const [hovered, setHovered] = useState(false);
 
   const vis = getVisualForLine(lineIdx); // null | { role: "anchor"|"match", color, selectionId }
 
@@ -57,25 +55,19 @@ export function WordLine({
     }
   }
 
+  // Only the tint/outline are dynamic; everything else lives in LyricsView.css
+  // so the ~150 line nodes carry no inline style at rest (cheaper style
+  // resolution + DOM commit on load).
+  const lineStyle =
+    showColor || vis?.role === "anchor"
+      ? { backgroundColor: bgColor, outline: outlineStyle }
+      : undefined;
+
   return (
     <div
       className={["line", isCurrent ? "current" : ""].join(" ").trim()}
       data-line-idx={dataLineIdx}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        position: "relative",
-        paddingBottom: 6,
-        borderBottom: "1px dashed #ccc",
-        backgroundColor: bgColor, // ← tint only
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        outline: outlineStyle,
-        outlineOffset: "-2px",
-        paddingRight: "42px",
-        // DO NOT set container opacity; keep text 100% legible
-      }}
+      style={lineStyle}
       title={
         "Click □ to toggle an anchor • Matches colorize when 'End Rhymes' is on"
       }
@@ -87,16 +79,12 @@ export function WordLine({
         title={anchorForThisLine ? "Remove anchor" : "Add / Adopt anchor"}
         aria-pressed={!!anchorForThisLine}
         role="button"
-        style={{ cursor: "pointer" }}
       >
         {anchorForThisLine ? "■" : "□"}
       </div>
 
       {/* Words — content opacity stays at 1 for legibility */}
-      <div
-        className="words-container"
-        style={{ display: "flex", flexWrap: "wrap", gap: "6px", opacity: 1 }}
-      >
+      <div className="words-container">
         {line.words?.map((word, wordIdx) => (
           <WordBlock
             key={wordIdx}
@@ -104,7 +92,6 @@ export function WordLine({
             lineIdx={lineIdx}
             wordIdx={wordIdx}
             isCurrent={`${lineIdx}-${wordIdx}` === currentWordId}
-            hoverData={hoverData}
             onWordHover={onWordHover}
             onSyllableHover={onSyllableHover}
             onHoverEnd={onHoverEnd}
@@ -112,31 +99,13 @@ export function WordLine({
         ))}
       </div>
 
-      {/* Hover-only jump button (right-aligned) */}
+      {/* Hover-only jump button (right-aligned); shown via .line:hover in CSS */}
       <button
         type="button"
+        className="line-jump"
         aria-label="Jump to this line"
         title="Jump to this line"
         onClick={() => seekAll(line.start)}
-        style={{
-          position: "absolute",
-          right: 6,
-          top: "50%",
-          transform: "translateY(-50%)",
-          display: hovered ? "inline-flex" : "none",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 32,
-          height: 32,
-          borderRadius: 6,
-          border: "1px solid #d0d0d0",
-          background: "#fff",
-          color: "#000",
-          cursor: "pointer",
-          lineHeight: 1,
-          fontSize: "1rem",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
-        }}
       >
         ⏱
       </button>

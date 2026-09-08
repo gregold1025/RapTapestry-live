@@ -115,7 +115,6 @@ export default function LyricsView({ height = "100%" }) {
             lineIdx={idx}
             isCurrent={idx === currentLineIndex}
             currentWordId={currentWordId}
-            hoverData={hoverData}
             onWordHover={setWordHover}
             onSyllableHover={setSyllableHover}
             onHoverEnd={clearHover}

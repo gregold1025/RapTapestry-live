@@ -20,7 +20,6 @@ export function WordBlock({
   lineIdx,
   wordIdx,
   isCurrent,
-  hoverData,
   onWordHover,
   onSyllableHover,
   onHoverEnd,
@@ -63,27 +62,29 @@ export function WordBlock({
   const allitScore = vis?.alliterationInfo?.score ?? score;
   const asonScore  = vis?.assonanceInfo?.score ?? score;
 
-  // background tint — opacity scales with match score (same as tapestry)
-  const bgRgba =
-    isAnchor
-      ? hexToRgba(vis?.color || wordActiveColor, baseOpacity)
-      : isRhyme && showRhymes
-      ? hexToRgba(rhymeColor, baseOpacity * rhymeScore)
-      : "transparent";
-
-  // outline — anchor full, alliteration score-scaled
-  const outlineStyle = isAnchor
-    ? `3px solid ${hexToRgba(vis?.color || wordActiveColor, 1)}`
-    : alliterationTier !== "off" && isAllit
-    ? `2px solid ${hexToRgba(allitColor, allitScore)}`
-    : "none";
-
-  // underline: assonance = dotted, score-scaled opacity
-  const textDecorationLine  = isAssonance ? "underline" : "none";
-  const textDecorationStyle = "dotted";
-  const textDecorationColor = isAssonance
-    ? hexToRgba(asonColor, baseOpacity * asonScore)
-    : undefined;
+  // Dynamic styling only when this word is an anchor/match; at rest the span
+  // carries no inline style (see LyricsView.css for the static rules).
+  let wordStyle;
+  if (isAnchor || (isRhyme && showRhymes) || (isAllit && alliterationTier !== "off") || isAssonance) {
+    wordStyle = {};
+    // background tint — opacity scales with match score (same as tapestry)
+    if (isAnchor) {
+      wordStyle.backgroundColor = hexToRgba(vis?.color || wordActiveColor, baseOpacity);
+    } else if (isRhyme && showRhymes) {
+      wordStyle.backgroundColor = hexToRgba(rhymeColor, baseOpacity * rhymeScore);
+    }
+    // outline — anchor full, alliteration score-scaled
+    if (isAnchor) {
+      wordStyle.outline = `3px solid ${hexToRgba(vis?.color || wordActiveColor, 1)}`;
+    } else if (alliterationTier !== "off" && isAllit) {
+      wordStyle.outline = `2px solid ${hexToRgba(allitColor, allitScore)}`;
+    }
+    // underline: assonance = dotted, score-scaled opacity
+    if (isAssonance) {
+      wordStyle.textDecorationLine = "underline";
+      wordStyle.textDecorationColor = hexToRgba(asonColor, baseOpacity * asonScore);
+    }
+  }
 
   function onToggleAnchor() {
     markWordInteraction();
@@ -95,19 +96,8 @@ export function WordBlock({
   }
 
   return (
-    <div
-      className="word-wrapper"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginBottom: "4px",
-      }}
-    >
-      <div
-        className="syllable-row"
-        style={{ display: "flex", gap: "4px", marginBottom: "4px" }}
-      >
+    <div className="word-wrapper">
+      <div className="syllable-row">
         {Array.from({ length: nSyllables }).map((_, i) => {
           const id = `${lineIdx}-${wordIdx}-${i}`;
           const vowel = vowels[i] ?? "AH";
@@ -119,13 +109,10 @@ export function WordBlock({
           return (
             <div
               key={i}
-              className="lyrics-syllable-circle"
-              style={{
-                borderRadius: "50%",
-                backgroundColor: isSel || isMtch ? color : "#cccccc",
-                border: isSel ? "2px solid red" : "1px solid #999",
-                cursor: "pointer",
-              }}
+              className={
+                "lyrics-syllable-circle" + (isSel ? " selected" : "")
+              }
+              style={isSel || isMtch ? { backgroundColor: color } : undefined}
               onClick={() => handleSyllableClick(id, vowel)}
               onMouseEnter={() =>
                 onSyllableHover?.({
@@ -147,16 +134,7 @@ export function WordBlock({
         onClick={onToggleAnchor}
         onMouseEnter={() => onWordHover?.(word)}
         onMouseLeave={onHoverEnd}
-        style={{
-          backgroundColor: bgRgba,
-          outline: outlineStyle,
-          outlineOffset: "0px",
-          textDecorationLine,
-          textDecorationStyle,
-          textDecorationColor,
-          textDecorationThickness: "2px",
-          cursor: "pointer",
-        }}
+        style={wordStyle}
         title={
           anchorForThisWord
             ? "Click to remove word anchor"
