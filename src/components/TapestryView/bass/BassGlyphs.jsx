@@ -21,6 +21,11 @@ const dividerModules = import.meta.glob("/src/svg_dividers/*.svg", {
 });
 const BASS_DIVIDER_URLS = Object.values(dividerModules);
 
+// One shared <mask> + <symbol> pair serves every divider topper; each topper
+// is a single <use>, stretched (preserveAspectRatio="none") to its own box.
+const BASS_DIVIDER_MASK_ID = "tapestry-bass-divider-mask";
+const BASS_DIVIDER_SYMBOL_ID = "tapestry-bass-divider";
+const BASS_NOMINAL = 100; // symbol viewBox size
 export default function BassGlyphs({ bassTranscriptionData }) {
   const { layout } = useTapestryLayout();
   const { showBass, bassParams, glyphStyle } = useParams();
@@ -99,43 +104,28 @@ export default function BassGlyphs({ bassTranscriptionData }) {
 
         // Divider topper
         if (dividerUrl) {
-          const maskId = `bass-divider-mask-${idx}-r${seg.row}`;
           const baseTopperHeight = Math.max(4, rowHeight * 0.12);
           const h = Math.min(seg.segHeight, baseTopperHeight);
           const bottomOfTopper = seg.rectY - gap;
           const cx = seg.x1 + seg.segWidth / 2;
           const cy = bottomOfTopper - h / 2;
 
+          const transform = `translate(${cx}, ${cy}) rotate(180) translate(${
+            -seg.segWidth / 2
+          }, ${-h / 2})`;
+
           els.push(
-            <g
+            <use
               key={`bass-div-${idx}-r${seg.row}`}
-              transform={`translate(${cx}, ${cy}) rotate(180) translate(${
-                -seg.segWidth / 2
-              }, ${-h / 2})`}
-            >
-              <defs>
-                <mask id={maskId}>
-                  <image
-                    href={dividerUrl}
-                    x={0}
-                    y={0}
-                    width={seg.segWidth}
-                    height={h}
-                    preserveAspectRatio="none"
-                    style={{ filter: "brightness(0) invert(1)" }}
-                  />
-                </mask>
-              </defs>
-              <rect
-                x={0}
-                y={0}
-                width={seg.segWidth}
-                height={h}
-                fill={fillColor}
-                opacity={opacity}
-                mask={`url(#${maskId})`}
-              />
-            </g>
+              href={`#${BASS_DIVIDER_SYMBOL_ID}`}
+              transform={transform}
+              x={0}
+              y={0}
+              width={seg.segWidth}
+              height={h}
+              fill={fillColor}
+              opacity={opacity}
+            />
           );
         }
       }
@@ -158,6 +148,43 @@ export default function BassGlyphs({ bassTranscriptionData }) {
           >
             <feGaussianBlur in="SourceGraphic" stdDeviation={blur} />
           </filter>
+        </defs>
+      )}
+
+      {dividerUrl && (
+        <defs>
+          <mask
+            id={BASS_DIVIDER_MASK_ID}
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse"
+            x={0}
+            y={0}
+            width={BASS_NOMINAL}
+            height={BASS_NOMINAL}
+          >
+            <image
+              href={dividerUrl}
+              x={0}
+              y={0}
+              width={BASS_NOMINAL}
+              height={BASS_NOMINAL}
+              preserveAspectRatio="none"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </mask>
+          <symbol
+            id={BASS_DIVIDER_SYMBOL_ID}
+            viewBox={`0 0 ${BASS_NOMINAL} ${BASS_NOMINAL}`}
+            preserveAspectRatio="none"
+          >
+            <rect
+              x={0}
+              y={0}
+              width={BASS_NOMINAL}
+              height={BASS_NOMINAL}
+              mask={`url(#${BASS_DIVIDER_MASK_ID})`}
+            />
+          </symbol>
         </defs>
       )}
 

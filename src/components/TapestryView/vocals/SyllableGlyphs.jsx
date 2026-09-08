@@ -15,6 +15,12 @@ const glyphUrlModules = import.meta.glob("/src/svg_shapes/*.svg", {
 });
 const GLYPH_URLS = Object.values(glyphUrlModules);
 
+// One shared <mask> + <symbol> pair serves every syllable glyph; each glyph
+// is then a single <use>. (Chrome does not render <image> inside an
+// objectBoundingBox mask, so the mask lives in user space inside a symbol.)
+const SYLLABLE_MASK_ID = "tapestry-syllable-glyph-mask";
+const SYLLABLE_SYMBOL_ID = "tapestry-syllable-glyph";
+const SYL_NOMINAL = 100; // symbol viewBox size; scaled per glyph via <use>
 export default function SyllableGlyphs({
   transcriptionData,
   onGlyphHoverEnter,
@@ -139,53 +145,36 @@ export default function SyllableGlyphs({
         } else {
           const groupX = x;
           const groupY = finalY - radius;
-          const maskId = `syllable-mask-${id}`;
 
           syllables.push(
-            <g
+            <use
               key={id}
-              transform={`translate(${groupX}, ${groupY})`}
+              href={`#${SYLLABLE_SYMBOL_ID}`}
+              x={groupX}
+              y={groupY}
+              width={diameter}
+              height={diameter}
+              fill={fill}
+              opacity={syllableOpacity}
               {...commonHandlers}
-            >
-              {/* Define a mask that uses the SVG glyph image */}
-              <defs>
-                <mask id={maskId}>
-                  <image
-                    href={glyphUrl}
-                    x={0}
-                    y={0}
-                    width={diameter}
-                    height={diameter}
-                    preserveAspectRatio="xMidYMid meet"
-                    style={{ filter: "brightness(0) invert(1)" }}
-                  />
-                </mask>
-              </defs>
-
-              {/* Colored shape, clipped to the glyph silhouette */}
-              <rect
-                x={0}
-                y={0}
-                width={diameter}
-                height={diameter}
-                fill={fill}
-                opacity={syllableOpacity}
-                mask={`url(#${maskId})`}
-              />
-
-              {/* Selection outline */}
-              {isSelected && (
-                <circle
-                  cx={radius}
-                  cy={radius}
-                  r={radius + 1.5}
-                  fill="none"
-                  stroke="red"
-                  strokeWidth={2}
-                />
-              )}
-            </g>
+            />
           );
+
+          // Selection outline
+          if (isSelected) {
+            syllables.push(
+              <circle
+                key={`${id}-sel`}
+                cx={groupX + radius}
+                cy={finalY}
+                r={radius + 1.5}
+                fill="none"
+                stroke="red"
+                strokeWidth={2}
+                pointerEvents="none"
+              />
+            );
+          }
         }
       }
     });
@@ -267,6 +256,39 @@ export default function SyllableGlyphs({
 
   return (
     <>
+      {glyphUrl && (
+        <defs>
+          <mask
+            id={SYLLABLE_MASK_ID}
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse"
+            x={0}
+            y={0}
+            width={SYL_NOMINAL}
+            height={SYL_NOMINAL}
+          >
+            <image
+              href={glyphUrl}
+              x={0}
+              y={0}
+              width={SYL_NOMINAL}
+              height={SYL_NOMINAL}
+              preserveAspectRatio="xMidYMid meet"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </mask>
+          {/* The rect has no fill of its own, so each <use> supplies it. */}
+          <symbol id={SYLLABLE_SYMBOL_ID} viewBox={`0 0 ${SYL_NOMINAL} ${SYL_NOMINAL}`}>
+            <rect
+              x={0}
+              y={0}
+              width={SYL_NOMINAL}
+              height={SYL_NOMINAL}
+              mask={`url(#${SYLLABLE_MASK_ID})`}
+            />
+          </symbol>
+        </defs>
+      )}
       {/* {connectors} */}
       {syllables}
     </>

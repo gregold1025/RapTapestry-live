@@ -11,6 +11,12 @@ const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
 });
 const DRUM_GLYPH_URLS = Object.values(lineGlyphModules);
 
+// One shared <mask> + <symbol> pair serves every drum glyph; each hit is a
+// single <use>. The symbol is a 3x "safe area" box with the glyph in the
+// centre third, matching the previous per-hit mask geometry.
+const DRUM_MASK_ID = "tapestry-drum-glyph-mask";
+const DRUM_SYMBOL_ID = "tapestry-drum-glyph";
+const DRUM_NOMINAL = 300; // symbol viewBox size (glyph occupies 100..200)
 // category → vertical placement
 function hitYOffset(category, rowHeight) {
   switch (category) {
@@ -57,6 +63,7 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
   // -------------------------------
   // RENDER GLYPHS
   // -------------------------------
+  const maskBox = size * 3; // generous safe area around the rotated glyph
   const glyphs = hits.map((hit, idx) => {
     const { x, y } = timeToPixels(hit.time);
 
@@ -64,45 +71,57 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
     const cx = x;
     const cy = y + hitYOffset(hit.category, rowHeight) + glyphSize / 2;
 
-    const maskId = `drum-mask-${idx}`;
-    const maskBox = glyphSize * 3; // generous safe area
-    const glyphBox = glyphSize; // actual glyph drawn inside
-
     return (
-      <g
+      <use
         key={`drumglyph-${idx}`}
+        href={`#${DRUM_SYMBOL_ID}`}
         transform={`translate(${cx}, ${cy}) rotate(${tiltDeg})`}
+        x={-maskBox / 2}
+        y={-maskBox / 2}
+        width={maskBox}
+        height={maskBox}
+        fill={fillColor}
+        opacity={opacity}
         pointerEvents="none"
-      >
-        <g transform={`translate(${-maskBox / 2}, ${-maskBox / 2})`}>
-          <defs>
-            <mask id={maskId}>
-              <rect x={0} y={0} width={maskBox} height={maskBox} fill="black" />
-              <image
-                href={glyphUrl}
-                x={(maskBox - glyphBox) / 2}
-                y={(maskBox - glyphBox) / 2}
-                width={glyphBox}
-                height={glyphBox}
-                preserveAspectRatio="xMidYMid meet"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
-            </mask>
-          </defs>
-
-          <rect
-            x={0}
-            y={0}
-            width={maskBox}
-            height={maskBox}
-            fill={fillColor}
-            opacity={opacity}
-            mask={`url(#${maskId})`}
-          />
-        </g>
-      </g>
+      />
     );
   });
 
-  return <>{glyphs}</>;
+  return (
+    <>
+      {glyphUrl && (
+        <defs>
+          <mask
+            id={DRUM_MASK_ID}
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse"
+            x={0}
+            y={0}
+            width={DRUM_NOMINAL}
+            height={DRUM_NOMINAL}
+          >
+            <image
+              href={glyphUrl}
+              x={DRUM_NOMINAL / 3}
+              y={DRUM_NOMINAL / 3}
+              width={DRUM_NOMINAL / 3}
+              height={DRUM_NOMINAL / 3}
+              preserveAspectRatio="xMidYMid meet"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </mask>
+          <symbol id={DRUM_SYMBOL_ID} viewBox={`0 0 ${DRUM_NOMINAL} ${DRUM_NOMINAL}`}>
+            <rect
+              x={0}
+              y={0}
+              width={DRUM_NOMINAL}
+              height={DRUM_NOMINAL}
+              mask={`url(#${DRUM_MASK_ID})`}
+            />
+          </symbol>
+        </defs>
+      )}
+      {glyphs}
+    </>
+  );
 }
