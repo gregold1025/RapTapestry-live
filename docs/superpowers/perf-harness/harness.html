@@ -38,4 +38,47 @@ window.runAB = async function (variants, runs) {
   }
   return out;
 };
+
+// runQueries(variants, runs): click-to-painted latency for word / line / syllable-range queries (93Til)
+window.runQueries = async function (variants, runs) {
+  const out = [];
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const waitMark = async (win, name, after) => { for (let i = 0; i < 200; i++) { const p = win.performance.getEntriesByName(name); if (p.length && p[p.length - 1].startTime > after) return; await sleep(50); } };
+  const painted = (win) => new Promise(r => win.requestAnimationFrame(() => win.requestAnimationFrame(() => r(win.performance.now()))));
+  // build-agnostic: time until the DOM stops mutating (150 ms quiet), then next painted frame
+  const measure = async (win, act) => {
+    const doc = win.document; let last = 0; let any = false;
+    const mo = new win.MutationObserver(() => { last = win.performance.now(); any = true; });
+    mo.observe(doc.body, { subtree: true, childList: true, attributes: true, characterData: true });
+    const t0 = win.performance.now(); act();
+    for (let i = 0; i < 800; i++) { await sleep(10); const now = win.performance.now(); if (any && now - last > 150) break; if (!any && now - t0 > 3000) break; }
+    mo.disconnect();
+    const tPaint = await painted(win);
+    return { toDom: Math.round(last - t0), toPaint: Math.round(tPaint - t0 - 150) };
+  };
+  for (let r = 0; r < runs; r++) for (const v of variants) {
+    const f = document.createElement('iframe'); f.src = '/' + v + '?q=' + r; document.body.appendChild(f);
+    await new Promise(res => f.addEventListener('load', res, { once: true }));
+    const win = f.contentWindow, doc = f.contentDocument, qa = (s) => [...doc.querySelectorAll(s)];
+    await waitMark(win, 'tapestry-svg-painted', 0);
+    const sel = doc.querySelector('header select'); const ts = win.performance.now();
+    sel.value = '93Til'; sel.dispatchEvent(new win.Event('change', { bubbles: true }));
+    await waitMark(win, 'tapestry-svg-painted', ts); await sleep(600);
+    const rec = { variant: v, run: r };
+    const styled = () => qa('.word[style]').filter(e => e.getAttribute('style')).length;
+    const w = qa('.word')[40];
+    rec.wordSelect = await measure(win, () => w.click());
+    rec.wordMatches = styled();
+    rec.wordDeselect = await measure(win, () => w.click());
+    const ls = doc.querySelector('.line-select');
+    rec.lineSelect = await measure(win, () => ls.click());
+    rec.lineDeselect = await measure(win, () => ls.click());
+    const circles = qa('.lyrics-syllable-circle');
+    circles[10].click(); await sleep(150);
+    rec.syllableRange = await measure(win, () => circles[14].click());
+    rec.syllableMatches = qa('.lyrics-syllable-circle[style]').filter(e => e.getAttribute('style')).length;
+    out.push(rec); f.remove(); await sleep(400);
+  }
+  return out;
+};
 </script></body></html>
