@@ -86,6 +86,7 @@ export default function WordGlyphs({
 
       const sharedEvents = {
         style:       { cursor: "pointer" },
+        pointerEvents: "visiblePainted", // layer root is pointer-events:none
         onClick:     (e) => {
           if (e.metaKey || e.ctrlKey) { e.stopPropagation(); anchorOrAdopt(id); return; }
           if (e.altKey)               { e.stopPropagation(); markWordInteraction(); removeMostRecentAnchorFor(id); return; }

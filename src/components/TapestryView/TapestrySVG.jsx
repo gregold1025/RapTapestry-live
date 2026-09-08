@@ -8,6 +8,7 @@ import DrumsGlyphs from "./drums/DrumsGlyphs";
 import BassGlyphs from "./bass/BassGlyphs";
 import DrumGrid from "./drums/DrumGrid";
 import HorizontalGrid from "./global/HorizontalGrid";
+import TapestryLayer from "./TapestryLayer";
 import "./TapestryView.css";
 
 export default function TapestrySVG({
@@ -27,23 +28,23 @@ export default function TapestrySVG({
 
   if (!layout) return <div>Loading layout...</div>;
 
-  const { numberOfRows, rowHeight, width } = layout;
-
+  // Stacked per-layer SVGs, same z-order as the old single SVG:
+  // bass < lines < words < syllables < drums + grids.
   return (
-    <svg
-      viewBox={`0 0 ${width} ${rowHeight * numberOfRows}`}
-      preserveAspectRatio="none"
-    >
-      <BassGlyphs bassTranscriptionData={bassTranscription} />
+    <>
+      <TapestryLayer name="bass">
+        <BassGlyphs bassTranscriptionData={bassTranscription} />
+      </TapestryLayer>
       <VocalsGlyphs
         lyricTranscriptionData={lyricTranscription}
         onGlyphHoverEnter={onGlyphHoverEnter}
         onGlyphHoverLeave={onGlyphHoverLeave}
       />
-      <DrumsGlyphs drumTranscriptionData={drumTranscription} />
-      <DrumGrid drumTranscriptionData={drumTranscription} />
-
-      <HorizontalGrid />
-    </svg>
+      <TapestryLayer name="drums">
+        <DrumsGlyphs drumTranscriptionData={drumTranscription} />
+        <DrumGrid drumTranscriptionData={drumTranscription} />
+        <HorizontalGrid />
+      </TapestryLayer>
+    </>
   );
 }

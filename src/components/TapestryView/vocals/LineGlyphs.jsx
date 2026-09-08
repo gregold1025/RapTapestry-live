@@ -72,6 +72,7 @@ export default function LineGlyphs({
           stroke={stroke}
           strokeWidth={strokeWidth}
           style={{ cursor: "pointer" }}
+          pointerEvents="visiblePainted"
           onClick={(e) => {
             // Cmd/Ctrl + Click => adopt-or-create (collision-aware)
             if (e.metaKey || e.ctrlKey) {

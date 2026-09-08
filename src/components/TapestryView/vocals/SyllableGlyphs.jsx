@@ -125,6 +125,7 @@ export default function SyllableGlyphs({
             }),
           onMouseLeave: onGlyphHoverLeave,
           style: { cursor: "pointer" },
+          pointerEvents: "visiblePainted", // layer root is pointer-events:none
         };
 
         if (!glyphUrl) {

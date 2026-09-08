@@ -11,6 +11,16 @@
   width: 100%;
 }
 
+/* Stacked glyph layers (one <svg> each, same box + viewBox). Each is
+   promoted to its own compositor layer so a repaint in one (e.g. word
+   selection fills) does not re-rasterise the others (e.g. 3k+ masked
+   syllable glyphs). Roots ignore the pointer; interactive glyphs opt in
+   with pointer-events="visiblePainted". */
+.tapestry-layer {
+  pointer-events: none;
+  will-change: transform;
+}
+
 /* SVG underneath */
 .tapestry-content svg {
   position: absolute;
