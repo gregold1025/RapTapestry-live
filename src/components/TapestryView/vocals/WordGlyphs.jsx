@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useAudioControls } from "../../../contexts/AudioContext";
 import { getThreshold, ALLITERATION_TIERS } from "../../../utils/phonemeSimilarity.js";
 
 /**
@@ -45,7 +45,7 @@ export default function WordGlyphs({
     assonanceStrictness,
   } = useParams();
 
-  const { seekAll } = useAudioEngine();
+  const { seekAll } = useAudioControls();
   const [hoveredWordId, setHoveredWordId] = useState(null);
 
   if (!layout || !showWords) return null;

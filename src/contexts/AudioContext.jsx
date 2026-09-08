@@ -10,6 +10,10 @@ import {
 } from "react";
 
 const AudioContext = createContext();
+// Stable transport controls only (never change identity after mount).
+// Components that only need seekAll/subscribePlayhead should read this so
+// they do not re-render on every isPlaying/duration change.
+const AudioControlsContext = createContext();
 
 export function AudioProvider({ audioFiles, children }) {
   const audioRefs = useRef({});
@@ -118,9 +122,28 @@ export function AudioProvider({ audioFiles, children }) {
     ]
   );
 
-  return (
-    <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
+  const controls = useMemo(
+    () => ({
+      playAll,
+      pauseAll,
+      stopAll,
+      seekAll,
+      subscribePlayhead,
+      getPlayheadTime,
+    }),
+    [playAll, pauseAll, stopAll, seekAll, subscribePlayhead, getPlayheadTime]
   );
+
+  return (
+    <AudioControlsContext.Provider value={controls}>
+      <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
+    </AudioControlsContext.Provider>
+  );
+}
+
+/** Stable transport controls (seekAll etc.); no re-render on play/pause. */
+export function useAudioControls() {
+  return useContext(AudioControlsContext);
 }
 
 export function useAudioEngine() {
@@ -133,7 +156,7 @@ export function useAudioEngine() {
  * The latest `cb` is always invoked, so inline callbacks are safe (no deps needed).
  */
 export function usePlayheadSubscription(cb) {
-  const { subscribePlayhead } = useAudioEngine();
+  const { subscribePlayhead } = useAudioControls();
   const cbRef = useRef(cb);
   cbRef.current = cb;
   useEffect(

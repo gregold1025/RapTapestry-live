@@ -15,7 +15,7 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function WordBlock({
+export const WordBlock = React.memo(function WordBlock({
   word,
   lineIdx,
   wordIdx,
@@ -145,4 +145,4 @@ export function WordBlock({
       </span>
     </div>
   );
-}
+});

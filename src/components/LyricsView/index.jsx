@@ -25,6 +25,17 @@ export default function LyricsView({ height = "100%" }) {
 
   const { currentLineIndex, currentWordId } = useCurrentPlayheadIds(lines);
 
+  // Split the global "lineIdx-wordIdx" id so each WordLine receives a stable
+  // -1 unless the current word is inside it (keeps React.memo effective:
+  // only the ~2 lines involved in a word transition re-render).
+  let currentWordLineIdx = -1;
+  let currentWordIdxInLine = -1;
+  if (currentWordId) {
+    const dash = currentWordId.indexOf("-");
+    currentWordLineIdx = Number(currentWordId.slice(0, dash));
+    currentWordIdxInLine = Number(currentWordId.slice(dash + 1));
+  }
+
   // ------- TUNING: sizing knobs -------
   const nVisibleLines = 12; // how many lines should be visible at once
   const scale = 1.0; // small manual nudge (0.95–1.1)
@@ -114,7 +125,7 @@ export default function LyricsView({ height = "100%" }) {
             line={line}
             lineIdx={idx}
             isCurrent={idx === currentLineIndex}
-            currentWordId={currentWordId}
+            currentWordIdx={idx === currentWordLineIdx ? currentWordIdxInLine : -1}
             onWordHover={setWordHover}
             onSyllableHover={setSyllableHover}
             onHoverEnd={clearHover}

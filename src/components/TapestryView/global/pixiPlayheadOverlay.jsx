@@ -3,14 +3,14 @@ import React, { useRef, useEffect, useCallback } from "react";
 import { Application, extend } from "@pixi/react";
 import { Container, Graphics } from "pixi.js";
 
-import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useAudioControls } from "../../../contexts/AudioContext";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import "../TapestryView.css";
 
 extend({ Container, Graphics });
 
 export function PlayheadLine() {
-  const { subscribePlayhead, getPlayheadTime } = useAudioEngine();
+  const { subscribePlayhead, getPlayheadTime } = useAudioControls();
   const { layout } = useTapestryLayout();
   const graphicsRef = useRef(null);
 

@@ -1,9 +1,9 @@
 // src/components/LyricsView/WordLine.jsx
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { WordBlock } from "./WordBlock";
 import { useLineSelection } from "../../contexts/lyricsContexts/LineSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
-import { useAudioEngine } from "../../contexts/AudioContext";
+import { useAudioControls } from "../../contexts/AudioContext";
 
 function hexToRgba(hex, alpha = 1) {
   if (!hex) return `rgba(0,0,0,${alpha})`;
@@ -14,11 +14,11 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function WordLine({
+export const WordLine = React.memo(function WordLine({
   line,
   lineIdx,
   isCurrent,
-  currentWordId,
+  currentWordIdx,
   onWordHover,
   onSyllableHover,
   onHoverEnd,
@@ -27,7 +27,7 @@ export function WordLine({
   const { getVisualForLine, selections, anchorOrAdopt, removeSelection } =
     useLineSelection();
   const { showEndRhymes, lineOpacity } = useParams();
-  const { seekAll } = useAudioEngine();
+  const { seekAll } = useAudioControls();
 
   const vis = getVisualForLine(lineIdx); // null | { role: "anchor"|"match", color, selectionId }
 
@@ -91,7 +91,7 @@ export function WordLine({
             word={word}
             lineIdx={lineIdx}
             wordIdx={wordIdx}
-            isCurrent={`${lineIdx}-${wordIdx}` === currentWordId}
+            isCurrent={wordIdx === currentWordIdx}
             onWordHover={onWordHover}
             onSyllableHover={onSyllableHover}
             onHoverEnd={onHoverEnd}
@@ -111,4 +111,4 @@ export function WordLine({
       </button>
     </div>
   );
-}
+});

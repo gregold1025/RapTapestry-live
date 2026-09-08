@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useLineSelection } from "../../../contexts/lyricsContexts/LineSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
-import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useAudioControls } from "../../../contexts/AudioContext";
 
 export default function LineGlyphs({
   transcriptionData,
@@ -16,7 +16,7 @@ export default function LineGlyphs({
   const { getVisualForLine, anchorOrAdopt, selections, removeSelection } =
     useLineSelection();
   const { showLines, lineInactiveColor, lineOpacity, showEndRhymes } = useParams();
-  const { seekAll } = useAudioEngine();
+  const { seekAll } = useAudioControls();
 
   const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
   if (!layout || !showLines) return null;
