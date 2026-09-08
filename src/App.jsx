@@ -38,7 +38,6 @@ function StopAllBinder({ bindRef }) {
 export default function App() {
   const [selectedSong, setSelectedSong] = useState("Amen");
   const [songData, setSongData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
   // If you end up needing it again later:
@@ -50,7 +49,6 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     const token = Symbol("song-load");
-    setLoading(true);
     setLoadError(null);
     setSongData(null);
 
@@ -64,8 +62,6 @@ export default function App() {
       } catch (err) {
         if (cancelled) return;
         setLoadError(err instanceof Error ? err.message : String(err));
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     })();
 
@@ -80,7 +76,13 @@ export default function App() {
     setSelectedSong(e.target.value);
   };
 
-  if (loading && !songData) {
+  // songData is only "ready" once it belongs to the currently selected song.
+  // Without this, one render happens with the NEW song keys but the OLD
+  // song's data: every keyed provider/view remounts (hundreds of ms of
+  // wasted work on 93Til) and is immediately torn down again.
+  const songReady = !!songData && songData.song === selectedSong;
+
+  if (!songReady && !loadError) {
     return (
       <div className="app-container">
         <header className="header">
@@ -123,8 +125,6 @@ export default function App() {
       </div>
     );
   }
-
-  if (!songData) return null;
 
   const {
     lyricTranscription,

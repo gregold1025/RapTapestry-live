@@ -2,7 +2,6 @@
 export async function fetchSongData(songName) {
   const basePath = `/data/${songName}`;
   const audioPath = `${basePath}/audio`;
-  const midiPath = `${basePath}/midi`;
   const lyricTranscriptionPath = `${basePath}/lyric-transcription.json`;
   const drumTranscriptionPath = `${basePath}/drum-transcription.json`;
   const bassTranscriptionPath = `${basePath}/bass-transcription.json`;
@@ -43,61 +42,55 @@ export async function fetchSongData(songName) {
     });
   }
 
-  // --- JSON loads ---
-  let lyricTranscription = null;
-  try {
-    const res = await fetch(lyricTranscriptionPath);
-    if (!res.ok) throw new Error("Lyric transcription not found");
-    lyricTranscription = await res.json();
-  } catch (err) {
-    console.error(`Error loading lyric transcription for ${songName}:`, err);
+  // --- JSON loads (all three in parallel) ---
+  async function loadJson(url, label, { required = false } = {}) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
+      if (required) throw new Error(`${label} not found`);
+      console.warn(`No ${label} found for ${songName}`);
+    } catch (err) {
+      if (required) console.error(`Error loading ${label} for ${songName}:`, err);
+      else console.warn(`Error loading ${label} for ${songName}:`, err);
+    }
+    return null;
   }
 
-  let drumTranscription = null;
-  try {
-    const res = await fetch(drumTranscriptionPath);
-    if (res.ok) drumTranscription = await res.json();
-    else console.warn(`No drum transcription found for ${songName}`);
-  } catch (err) {
-    console.warn(`Error loading drum transcription for ${songName}:`, err);
+  // --- Audio URLs (probe for an existing extension), then duration from
+  // the first available stem (prefer vocals). Runs concurrently with JSON.
+  async function loadAudio() {
+    const audioFiles = {};
+    await Promise.all(
+      stems.map(async (stem) => {
+        const base = `${audioPath}/${songName}_${stem}`;
+        const url = await pickExistingUrl(base, preferredExts);
+        if (url) {
+          audioFiles[stem.toLowerCase()] = url;
+        } else {
+          console.warn(
+            `[fetchSongData] Missing audio for ${songName} ${stem} at ${base}.( ${preferredExts.join(
+              " | "
+            )} )`
+          );
+        }
+      })
+    );
+    const duration =
+      (await computeDurationFrom(audioFiles.vocals)) ||
+      (await computeDurationFrom(Object.values(audioFiles)[0]));
+    return { audioFiles, duration };
   }
 
-  let bassTranscription = null;
-  try {
-    const res = await fetch(bassTranscriptionPath);
-    if (res.ok) bassTranscription = await res.json();
-    else console.warn(`No bass transcription found for ${songName}`);
-  } catch (err) {
-    console.warn(`Error loading bass transcription for ${songName}:`, err);
-  }
-
-  // --- Audio URLs (probe for an existing extension) ---
-  const audioFiles = {};
-  await Promise.all(
-    stems.map(async (stem) => {
-      const base = `${audioPath}/${songName}_${stem}`;
-      const url = await pickExistingUrl(base, preferredExts);
-      if (url) {
-        audioFiles[stem.toLowerCase()] = url;
-      } else {
-        console.warn(
-          `[fetchSongData] Missing audio for ${songName} ${stem} at ${base}.( ${preferredExts.join(
-            " | "
-          )} )`
-        );
-      }
-    })
-  );
-
-  // --- Duration from first available stem (prefer vocals, else any) ---
-  const duration =
-    (await computeDurationFrom(audioFiles.vocals)) ||
-    (await (async () => {
-      const any = Object.values(audioFiles)[0];
-      return computeDurationFrom(any);
-    })());
+  const [lyricTranscription, drumTranscription, bassTranscription, { audioFiles, duration }] =
+    await Promise.all([
+      loadJson(lyricTranscriptionPath, "lyric transcription", { required: true }),
+      loadJson(drumTranscriptionPath, "drum transcription"),
+      loadJson(bassTranscriptionPath, "bass transcription"),
+      loadAudio(),
+    ]);
 
   return {
+    song: songName,
     lyricTranscription,
     audio: audioFiles,
     // midi: midiFiles, // (left commented as in your original)
