@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8"><title>perf harness</title>
+<style>html,body{margin:0;background:#eee}iframe{border:0;width:1400px;height:880px;display:block}</style></head>
+<body><script>
+window.runAB = async function (variants, runs) {
+  const out = [];
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const waitMark = async (win, name, after) => {
+    for (let i = 0; i < 200; i++) {
+      const p = win.performance.getEntriesByName(name);
+      if (p.length && p[p.length - 1].startTime > after) return p[p.length - 1].startTime;
+      await sleep(50);
+    }
+    return null;
+  };
+  const lastMark = (win, name, after) => { const p = win.performance.getEntriesByName(name).filter(e => e.startTime > after); return p.length ? p[p.length-1].startTime : null; };
+  for (let r = 0; r < runs; r++) {
+    for (const v of variants) {
+      const f = document.createElement('iframe');
+      f.src = '/' + v + (v.includes('?') ? '&' : '?') + 'r=' + r;
+      document.body.appendChild(f);
+      await new Promise(res => f.addEventListener('load', res, { once: true }));
+      const win = f.contentWindow;
+      await waitMark(win, 'tapestry-svg-painted', 0);
+      const rec = { variant: v, run: r };
+      const g = (n, a=0) => lastMark(win, n, a);
+      rec.amen = { fetchMs: Math.round(g('song-data-loaded:Amen') - g('song-fetch-start:Amen')), dataToLyricsCommitted: Math.round(g('lyrics-committed') - g('song-data-loaded:Amen')), dataToPaint: Math.round(g('tapestry-svg-painted') - g('song-data-loaded:Amen')), svgNodes: win.document.querySelectorAll('svg *').length };
+      await sleep(300);
+      const sel = win.document.querySelector('header select');
+      const t0 = win.performance.now();
+      sel.value = '93Til'; sel.dispatchEvent(new win.Event('change', { bubbles: true }));
+      await waitMark(win, 'tapestry-svg-painted', t0);
+      const dl = g('song-data-loaded:93Til', t0);
+      const fs = g('song-fetch-start:93Til', t0); rec.t93 = { switchToFetchStart: Math.round(fs - t0), fetchMs: Math.round(dl - fs), switchToData: Math.round(dl - t0), dataToLyricsCommitted: Math.round(g('lyrics-committed', dl) - dl), dataToLyricsPainted: Math.round(g('lyrics-painted', dl) - dl), dataToPaint: Math.round(g('tapestry-svg-painted', t0) - dl), svgNodes: win.document.querySelectorAll('svg *').length };
+      out.push(rec);
+      f.remove();
+      await sleep(500);
+    }
+  }
+  return out;
+};
+</script></body></html>
