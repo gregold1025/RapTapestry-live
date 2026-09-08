@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { extractVowels } from "../../../utils/extractVowels";
-import { useAudioEngine } from "../../../contexts/AudioContext";
+import { useAudioControls } from "../../../contexts/AudioContext";
 import "../TapestryView.css";
 
 // ------------------------------------
@@ -42,18 +42,10 @@ export default function SyllableGlyphs({
 
   const glyphUrl = glyphStyle?.syllableGlyphUrl ?? null;
 
-  const { seekAll } = useAudioEngine();
-
-  // -------------------------------
-
-  if (!layout || !showSyllables) return null;
-
-  const { rowHeight, timeToPixels } = layout;
-  const radius = syllableRadius ?? 8;
-  const diameter = radius * 2;
+  const { seekAll } = useAudioControls();
 
   // build a flat-ordered list of all syllable IDs (stable across renders)
-  const { flatOrderedIds, idToFlatIndex } = useMemo(() => {
+  const { idToFlatIndex } = useMemo(() => {
     const ids = [];
     transcriptionData.lines.forEach((line, li) =>
       line.words?.forEach((word, wi) => {
@@ -63,8 +55,16 @@ export default function SyllableGlyphs({
         }
       })
     );
-    return { flatOrderedIds: ids, idToFlatIndex: new Map(ids.map((id, idx) => [id, idx])) };
+    return { idToFlatIndex: new Map(ids.map((id, idx) => [id, idx])) };
   }, [transcriptionData]);
+
+  // Hooks above; early return below (rules-of-hooks).
+  if (!layout || !showSyllables) return null;
+
+  const { rowHeight, timeToPixels } = layout;
+  const radius = syllableRadius ?? 8;
+  const diameter = radius * 2;
+
 
   const glyphCoords = new Map();
   const syllables = [];
@@ -83,7 +83,7 @@ export default function SyllableGlyphs({
 
       for (let si = 0; si < nSyllables; si++) {
         const start = word.start + si * syllableDuration;
-        const { x, y, row } = timeToPixels(start);
+        const { x, y } = timeToPixels(start);
         const ci = Math.floor(si * spacing);
         const vertOff = ((centroids[ci] ?? 0.5) * 0.5 - 0.65) * rowHeight;
         const finalY = y + rowHeight / 2 + vertOff;

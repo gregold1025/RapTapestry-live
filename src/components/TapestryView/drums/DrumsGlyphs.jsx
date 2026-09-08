@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
@@ -38,18 +38,19 @@ export default function DrumsGlyphs({ drumTranscriptionData }) {
 
   const glyphUrl = glyphStyle?.drumGlyphUrl ?? null;
 
-  if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs)
-    return null;
-
-  const { rowHeight, timeToPixels } = layout;
-  const { drum_hits } = drumTranscriptionData;
-
+  const drum_hits = drumTranscriptionData?.drum_hits;
   const hits = useMemo(() => {
     if (!Array.isArray(drum_hits)) return [];
     return drum_hits
       .filter((h) => h && Number.isFinite(h.time))
       .sort((a, b) => a.time - b.time);
   }, [drum_hits]);
+
+  // Hooks above; early return below (rules-of-hooks).
+  if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs)
+    return null;
+
+  const { rowHeight, timeToPixels } = layout;
 
   const {
     fillColor = "#bbbbbb",

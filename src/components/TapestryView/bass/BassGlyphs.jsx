@@ -32,9 +32,11 @@ export default function BassGlyphs({ bassTranscriptionData }) {
 
   const dividerUrl = glyphStyle?.bassDividerUrl ?? null;
 
-  if (!layout || !bassTranscriptionData || !showBass) return null;
-
-  const { rowHeight, timeToPixels, width } = layout;
+  // Layout fields are read defensively so the hooks below can run
+  // unconditionally (rules-of-hooks); the early return comes after them.
+  const rowHeight = layout?.rowHeight;
+  const timeToPixels = layout?.timeToPixels;
+  const width = layout?.width;
   const {
     rectHeight, // now used as GAP between rect and topper
     fillColor,
@@ -50,6 +52,7 @@ export default function BassGlyphs({ bassTranscriptionData }) {
 
   // Compute geometry once (does NOT depend on playheadTime)
   const noteGeometry = useMemo(() => {
+    if (!timeToPixels || !bassTranscriptionData) return [];
     return bassTranscriptionData.map((note, idx) => {
       const { start_time, end_time, pitch_class } = note;
 
@@ -80,12 +83,11 @@ export default function BassGlyphs({ bassTranscriptionData }) {
     });
   }, [bassTranscriptionData, rowHeight, timeToPixels, width]);
 
-  // Render: geometry is stable, only isActive changes with playheadTime
-  const tolerance = 0.08;
+  // Render: geometry is stable across playback (no playhead dependency)
   const glyphs = useMemo(() => {
     const gap = rectHeight != null ? rectHeight : 0;
 
-    return noteGeometry.flatMap(({ start_time, end_time, idx, segments }) => {
+    return noteGeometry.flatMap(({ idx, segments }) => {
       const els = [];
 
       for (const seg of segments) {
@@ -132,6 +134,9 @@ export default function BassGlyphs({ bassTranscriptionData }) {
       return els;
     });
   }, [noteGeometry, fillColor, opacity, rectHeight, dividerUrl, rowHeight]);
+
+  // Hooks above; early return below (rules-of-hooks).
+  if (!layout || !bassTranscriptionData || !showBass) return null;
 
   return (
     <>
