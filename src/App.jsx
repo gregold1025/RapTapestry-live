@@ -8,6 +8,7 @@ import { AudioProvider, useAudioEngine } from "./contexts/AudioContext";
 import { ParamsProvider } from "./contexts/ParamsContext";
 import { TapestryLayoutProvider } from "./contexts/TapestryLayoutContext";
 import { UIStateProvider } from "./contexts/UIStateContext";
+import { StemMixProvider } from "./contexts/StemMixContext";
 
 import { SongDataProvider } from "./contexts/SongDataContext";
 import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSelectionContext";
@@ -110,6 +111,7 @@ export default function App() {
         {/* key={selectedSong} ensures a clean re-mount of the audio graph per song */}
         <AudioProvider key={selectedSong} audioFiles={audio}>
           <StopAllBinder bindRef={stopAllRef} />
+          <StemMixProvider>
           <SongDataProvider
             lyricTranscription={lyricTranscription}
             drumTranscription={drumTranscription}
@@ -136,6 +138,7 @@ export default function App() {
               </LineSelectionProvider>
             </SyllableSelectionProvider>
           </SongDataProvider>
+          </StemMixProvider>
         </AudioProvider>
       </ParamsProvider>
     </UIStateProvider>
