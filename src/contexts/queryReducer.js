@@ -2,7 +2,8 @@
 // Pure state for queries: each query is one word or a contiguous run of words
 // (anchorIds in song order), with a color and the rhyme types it shows.
 //
-// Click rules (env.matchesFor tells us which words a query currently matches):
+// Click rules (env.matchesFor(q) tells us which words a query currently SHOWS as
+// matches, i.e. filtered by the query's rhyme types, so adopt follows what is drawn):
 //   plain click on a free word        -> new query, focused
 //   plain click on a query's anchor   -> focus that query
 //   plain click on a query's match    -> adopt: that query's anchor moves here (rhyme gravity)
@@ -23,7 +24,7 @@ function ownerOf(state, wordId, env) {
   const rev = [...state.queries].reverse();
   const anchor = rev.find((q) => q.anchorIds.includes(wordId));
   if (anchor) return { q: anchor, role: "anchor" };
-  const match = rev.find((q) => q.active && env.matchesFor(q.anchorIds).includes(wordId));
+  const match = rev.find((q) => q.active && env.matchesFor(q).includes(wordId));
   if (match) return { q: match, role: "match" };
   return null;
 }

@@ -8,11 +8,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
 import { followScroll, clampScroll, revealInset } from "../../../utils/scrollWindow";
+import { isBackgroundTarget } from "./scrollTarget";
 import "../TapestryView.css";
 
 export default function ScrollController({ containerRef, contentRef }) {
   const { layout } = useTapestryLayout();
-  const { subscribePlayhead, getPlayheadTime, seekAll, isPlaying } = useAudioEngine();
+  const { subscribePlayhead, getPlayheadTime, seekAll, playAll, isPlaying } = useAudioEngine();
   const [follow, setFollow] = useState(true);
   const [where, setWhere] = useState("");
   const needleRef = useRef(null);
@@ -52,6 +53,13 @@ export default function ScrollController({ containerRef, contentRef }) {
   useEffect(() => subscribePlayhead(frame), [subscribePlayhead, frame]);
   useEffect(() => { frame(getPlayheadTime()); }, [layout, follow, isPlaying, frame, getPlayheadTime]);
 
+  // Leaving the scroll layout: the content wrapper is React's again, so undo
+  // the transform and reveal clip written here.
+  useEffect(() => {
+    const content = contentRef.current;
+    return () => { if (content) { content.style.transform = ""; content.style.clipPath = ""; } };
+  }, [contentRef]);
+
   // Drag to scrub (freezes), click on the background to play from there.
   useEffect(() => {
     const el = containerRef.current;
@@ -78,13 +86,17 @@ export default function ScrollController({ containerRef, contentRef }) {
       S.drag = null; el.style.cursor = "";
       if (d.moved) { S.justDragged = true; setTimeout(() => { S.justDragged = false; }, 0); }
     };
+    // A plain click on the background plays from there (glyph clicks are the
+    // glyphs' own: this native listener runs before React's root handler, so
+    // their stopPropagation cannot reach it).
     const onClick = (e) => {
       const S = st.current;
       if (S.justDragged) { e.stopPropagation(); e.preventDefault(); return; }
-      if (!S.layout?.singleRow) return;
+      if (!S.layout?.singleRow || !isBackgroundTarget(e.target)) return;
       const r = el.getBoundingClientRect();
       const x = e.clientX - r.left + S.scrollX;
       seekAll(S.layout.xToTime(x));
+      if (!S.playing) playAll();
     };
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
@@ -98,7 +110,7 @@ export default function ScrollController({ containerRef, contentRef }) {
       window.removeEventListener("pointercancel", onUp);
       el.removeEventListener("click", onClick);
     };
-  }, [containerRef, frame, getPlayheadTime, seekAll]);
+  }, [containerRef, frame, getPlayheadTime, seekAll, playAll]);
 
   return (
     <>

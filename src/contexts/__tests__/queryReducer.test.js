@@ -4,8 +4,9 @@ import { queryReducer, initialQueryState } from "../queryReducer";
 // A tiny song: flat order 0..5, ids "0-0".."0-5"
 const flat = ["0-0", "0-1", "0-2", "0-3", "0-4", "0-5"];
 const flatOf = (id) => flat.indexOf(id);
-// matches: query on 0-1 matches 0-4; everything else matches nothing
-const matchesFor = (anchorIds) => (anchorIds.includes("0-1") ? ["0-4"] : []);
+// matches: query on 0-1 matches 0-4 (an assonance); everything else matches nothing.
+// The env receives the query itself so the context can honor the query's shown types.
+const matchesFor = (q) => (q.anchorIds.includes("0-1") && q.types.has("assonance") ? ["0-4"] : []);
 const env = { flatOf, idAt: (i) => flat[i], matchesFor };
 
 const click = (st, wordId, mods = {}) => queryReducer(st, { type: "click", wordId, ...mods }, env);
@@ -76,5 +77,14 @@ describe("queryReducer", () => {
     expect(st.queries.length).toBe(1);
     st = queryReducer(st, { type: "clear" }, env);
     expect(st.queries.length).toBe(0);
+  });
+
+  it("a word whose match type is toggled off is free: clicking it starts a new query (no adopt)", () => {
+    let st = click(initialQueryState, "0-1");
+    const id = st.queries[0].id;
+    st = queryReducer(st, { type: "setTypes", id, types: ["perfect"] }, env);
+    st = click(st, "0-4");
+    expect(st.queries.length).toBe(2);
+    expect(st.queries[0].anchorIds).toEqual(["0-1"]);
   });
 });

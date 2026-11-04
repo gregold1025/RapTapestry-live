@@ -48,9 +48,10 @@ export function QueryProvider({ children }) {
   envRef.current = {
     flatOf: (id) => songModel?.byId.get(id)?.flat ?? -1,
     idAt: (f) => songModel?.words[f]?.id,
-    matchesFor: (anchorIds) => {
+    // words the query currently shows as matches (its rhyme types only)
+    matchesFor: (q) => {
       const ids = [];
-      for (const m of matchesFor(anchorIds)) if (m.type !== "anchor") for (const w of m.words) ids.push(w.id);
+      for (const m of matchesFor(q.anchorIds)) if (m.type !== "anchor" && q.types.has(m.type)) for (const w of m.words) ids.push(w.id);
       return ids;
     },
   };
