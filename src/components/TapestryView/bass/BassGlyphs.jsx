@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
+import { laneY } from "../../../utils/laneLayout";
 
 /**
  * Visualizes bass notes from a JSON file with structure:
@@ -27,10 +28,13 @@ const BASS_DIVIDER_MASK_ID = "tapestry-bass-divider-mask";
 const BASS_DIVIDER_SYMBOL_ID = "tapestry-bass-divider";
 const BASS_NOMINAL = 100; // symbol viewBox size
 export default function BassGlyphs({ bassTranscriptionData }) {
-  const { layout } = useTapestryLayout();
+  const { layout, laneFor } = useTapestryLayout();
   const { showBass, bassParams, glyphStyle } = useParams();
+  const lane = laneFor("bass");
 
-  const dividerUrl = glyphStyle?.bassDividerUrl ?? null;
+  const topper = bassParams.topper ?? "divider";
+  const dividerUrl = topper === "none" ? null : (glyphStyle?.bassDividerUrl ?? null);
+  const band = bassParams.band ?? { lo: 10, hi: 60 };
 
   // Layout fields are read defensively so the hooks below can run
   // unconditionally (rules-of-hooks); the early return comes after them.
@@ -59,29 +63,29 @@ export default function BassGlyphs({ bassTranscriptionData }) {
       const { x: startX, row: startRow } = timeToPixels(start_time);
       const { x: endX, row: endRow } = timeToPixels(end_time);
 
+      // Pitch class 0 sits at band.lo, 11 at band.hi (percent of the bass lane);
+      // the rect fills from that height down to the lane bottom.
       const bins = 12;
       const pitchBin = Math.max(0, Math.min(bins - 1, pitch_class));
-      const binHeight = (rowHeight * 0.5) / bins;
-      const binOffset = binHeight * pitchBin;
-
-      const baseY = (row) => row * rowHeight + rowHeight * 0.9 - binOffset;
+      const pct = band.lo + ((band.hi - band.lo) * pitchBin) / (bins - 1);
 
       const segments = [];
       for (let row = startRow; row <= endRow; row++) {
         const x1 = row === startRow ? startX : 0;
         const x2 = row === endRow ? endX : width;
         const segWidth = Math.max(1, x2 - x1);
-        const yTop = baseY(row);
-        const rowBottom = (row + 1) * rowHeight;
-        let segHeight = Math.max(1, rowBottom - yTop);
-        const rectY = rowBottom - segHeight;
+        const rowTop = row * rowHeight;
+        const yTop = laneY(rowTop, rowHeight, lane, pct);
+        const laneBottom = laneY(rowTop, rowHeight, lane, 0);
+        const segHeight = Math.max(1, laneBottom - yTop);
+        const rectY = laneBottom - segHeight;
 
         segments.push({ x1, rectY, segWidth, segHeight, row, idx });
       }
 
       return { start_time, end_time, idx, segments };
     });
-  }, [bassTranscriptionData, rowHeight, timeToPixels, width]);
+  }, [bassTranscriptionData, rowHeight, timeToPixels, width, lane, band.lo, band.hi]);
 
   // Render: geometry is stable across playback (no playhead dependency)
   const glyphs = useMemo(() => {
@@ -106,7 +110,7 @@ export default function BassGlyphs({ bassTranscriptionData }) {
 
         // Divider topper
         if (dividerUrl) {
-          const baseTopperHeight = Math.max(4, rowHeight * 0.12);
+          const baseTopperHeight = Math.max(4, rowHeight * lane.height * 0.12);
           const h = Math.min(seg.segHeight, baseTopperHeight);
           const bottomOfTopper = seg.rectY - gap;
           const cx = seg.x1 + seg.segWidth / 2;
@@ -133,7 +137,7 @@ export default function BassGlyphs({ bassTranscriptionData }) {
       }
       return els;
     });
-  }, [noteGeometry, fillColor, opacity, rectHeight, dividerUrl, rowHeight]);
+  }, [noteGeometry, fillColor, opacity, rectHeight, dividerUrl, rowHeight, lane.height]);
 
   // Hooks above; early return below (rules-of-hooks).
   if (!layout || !bassTranscriptionData || !showBass) return null;
