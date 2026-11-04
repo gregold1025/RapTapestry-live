@@ -135,7 +135,7 @@ export default function App() {
                     <AppShell
                       header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} />}
                       left={<LyricsView key={`lyrics-${selectedSong}`} height="100%" />}
-                      center={<CenterStage songKey={selectedSong} />}
+                      center={<CenterStage songKey={selectedSong} duration={duration} />}
                       right={<RightPane />}
                     />
                   </TapestryLayoutProvider>

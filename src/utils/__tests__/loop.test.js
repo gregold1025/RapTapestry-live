@@ -30,3 +30,13 @@ describe("pointToTime (wrap rows)", () => {
     expect(pointToTime(999, 999, lay)).toBeCloseTo(8);
   });
 });
+
+describe("dragLoopEdge", () => {
+  it("keeps the edge that is not held, even when the pointer crosses it", async () => {
+    const { dragLoopEdge } = await import("../loop");
+    // loop 10-20, holding the start edge (fixed = 20)
+    expect(dragLoopEdge(20, 15, 100)).toEqual({ start: 15, end: 20 });
+    expect(dragLoopEdge(20, 25, 100)).toEqual({ start: 20, end: 25 });
+    expect(dragLoopEdge(20, 26, 100)).toEqual({ start: 20, end: 26 });
+  });
+});

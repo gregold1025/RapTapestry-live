@@ -14,7 +14,7 @@
 // Clicks: click = query (adopt / focus / new), shift = extend the focused query,
 // cmd = new query, alt = remove, double-click = seek.
 
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useQueries } from "../../../contexts/QueryContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -51,6 +51,7 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
   const { seekAll } = useAudioControls();
   const { centroidSpan, timing } = useSongData();
   const [hoveredWordId, setHoveredWordId] = useState(null);
+  const instanceId = useId().replace(/:/g, "");
 
   if (!layout || !showWords) return null;
 
@@ -134,7 +135,7 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
       if (vis) {
         if (curveD && curvePts) {
           // color the matched stretch of the curve by clipping to its x range
-          const clipId = `wclip-${id}`;
+          const clipId = `wclip${instanceId}-${id}`;   // per tapestry instance (the Line Staff pane draws the same words)
           glyphs.push(
             <g key={`${id}-m`}>
               {partial && <clipPath id={clipId}><rect x={mx0} y={rowTop} width={Math.max(1, mx1 - mx0)} height={rowHeight} /></clipPath>}

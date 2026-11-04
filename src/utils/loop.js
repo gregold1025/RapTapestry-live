@@ -24,3 +24,8 @@ export function defaultLoop(t, song, bars = 4) {
   const b1 = Math.min(numBars, b0 + bars);
   return normalizeLoop({ start: barStart(b0), end: b1 >= numBars ? duration : barStart(b1) }, duration);
 }
+
+/** Dragging one edge: the other edge stays put; crossing it swaps roles. */
+export function dragLoopEdge(fixedEdge, t, duration) {
+  return normalizeLoop({ start: fixedEdge, end: t }, duration);
+}

@@ -63,11 +63,14 @@ export function AudioProvider({ audioFiles, children }) {
     if (!isPlaying) return;
     let frameId;
     const tick = () => {
-      let current = audioRefs.current.vocals?.currentTime || 0;
+      const vocals = audioRefs.current.vocals;
+      let current = vocals?.currentTime || 0;
       const L = loopRef.current;
-      if (L.on && L.end > L.start && current >= L.end) {
+      // wrap a little before the audio's own end, and restart any stem that ended
+      const wrapAt = Math.min(L.end, (vocals?.duration || Infinity) - 0.05);
+      if (L.on && L.end > L.start && (current >= wrapAt || vocals?.ended)) {
         current = L.start;
-        Object.values(audioRefs.current).forEach((a) => { a.currentTime = current; });
+        Object.values(audioRefs.current).forEach((a) => { a.currentTime = current; if (a.paused) a.play().catch(() => {}); });
       }
       emitPlayhead(current);
       frameId = requestAnimationFrame(tick);
@@ -77,10 +80,11 @@ export function AudioProvider({ audioFiles, children }) {
   }, [isPlaying, emitPlayhead]);
 
   // Controls
-  // With the loop on, play always starts at the loop start.
-  const playAll = useCallback(() => {
+  // With the loop on, play (the button) always starts at the loop start;
+  // callers that just set a position pass { fromLoopStart: false }.
+  const playAll = useCallback(({ fromLoopStart = true } = {}) => {
     const L = loopRef.current;
-    if (L.on && L.end > L.start) {
+    if (fromLoopStart && L.on && L.end > L.start) {
       Object.values(audioRefs.current).forEach((a) => { a.currentTime = L.start; });
       emitPlayhead(L.start);
     }

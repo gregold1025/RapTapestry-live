@@ -6,12 +6,12 @@ import TapestryView from "./TapestryView";
 import StaffPane from "./StaffPane/StaffPane";
 import { useUIState } from "../contexts/UIStateContext";
 
-export default function CenterStage({ songKey }) {
+export default function CenterStage({ songKey, duration }) {
   const { staffOpen } = useUIState();
   return (
     <div className="rt-stage">
       <div className="rt-stage-top"><TapestryView key={`tapestry-${songKey}`} /></div>
-      {staffOpen && <div className="rt-stage-bottom"><StaffPane /></div>}
+      {staffOpen && <div className="rt-stage-bottom"><StaffPane duration={duration} /></div>}
     </div>
   );
 }

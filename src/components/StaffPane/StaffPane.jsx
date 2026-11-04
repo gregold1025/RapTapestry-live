@@ -6,15 +6,13 @@ import React from "react";
 import { TapestryLayoutProvider } from "../../contexts/TapestryLayoutContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useUIState } from "../../contexts/UIStateContext";
-import { useAudioEngine } from "../../contexts/AudioContext";
 import TapestryView from "../TapestryView";
 import { IconClef } from "../Shell/AppHeader";
 import { Segmented } from "../ui";
 import "./StaffPane.css";
 
-export default function StaffPane() {
+export default function StaffPane({ duration }) {
   const { songId, drumTranscription } = useSongData();
-  const { duration } = useAudioEngine();
   const { staffBars, setStaffBars, toggleStaff } = useUIState();
   return (
     <section className="staff-pane" aria-label="Line Staff">

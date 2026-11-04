@@ -5,7 +5,7 @@
 import React, { useRef } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
-import { normalizeLoop } from "../../../utils/loop";
+import { dragLoopEdge } from "../../../utils/loop";
 
 const HANDLE_W = 8;
 
@@ -18,7 +18,9 @@ export default function LoopGlyphs() {
   const { rowHeight, width, timeToPixels, pointToTime } = layout;
 
   const { x: x0, row: r0 } = timeToPixels(loop.start);
-  const { x: x1, row: r1 } = timeToPixels(loop.end);
+  let { x: x1, row: r1 } = timeToPixels(loop.end);
+  // an end on a row boundary belongs to the right edge of the row before
+  if (x1 === 0 && r1 > r0) { x1 = width; r1 -= 1; }
   const bands = [];
   for (let row = r0; row <= r1; row++) {
     const a = row === r0 ? x0 : 0;
@@ -34,17 +36,19 @@ export default function LoopGlyphs() {
     const rect = svg.getBoundingClientRect();
     const scaleX = svg.viewBox.baseVal.width / rect.width || 1;
     const scaleY = svg.viewBox.baseVal.height / rect.height || 1;
-    dragRef.current = { which, rect, scaleX, scaleY };
+    // the edge NOT held stays fixed; crossing it just swaps which is start/end
+    dragRef.current = { fixed: which === "start" ? loop.end : loop.start, scaleX, scaleY };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const moveDrag = (e) => {
     const d = dragRef.current;
     if (!d) return;
+    if (e.buttons === 0) { dragRef.current = null; return; }
     const rect = e.currentTarget.ownerSVGElement.getBoundingClientRect();
     const x = (e.clientX - rect.left) * d.scaleX;
     const y = (e.clientY - rect.top) * d.scaleY;
     const t = pointToTime(x, y);
-    setLoop((prev) => ({ ...prev, ...normalizeLoop(d.which === "start" ? { start: t, end: prev.end } : { start: prev.start, end: t }, duration || prev.end) }));
+    setLoop((prev) => ({ ...prev, ...dragLoopEdge(d.fixed, t, duration || Math.max(prev.end, t)) }));
   };
   const endDrag = (e) => {
     if (!dragRef.current) return;
@@ -54,7 +58,7 @@ export default function LoopGlyphs() {
 
   const handle = (which, x, row) => (
     <g key={`h-${which}`} data-loop-handle={which} style={{ cursor: "ew-resize" }} pointerEvents="all"
-      onPointerDown={startDrag(which)} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}
+      onPointerDown={startDrag(which)} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={() => { dragRef.current = null; }}
       onClick={(e) => e.stopPropagation()}>
       <rect x={x - HANDLE_W / 2} y={row * rowHeight} width={HANDLE_W} height={rowHeight} fill="transparent" />
       <line x1={x} x2={x} y1={row * rowHeight} y2={(row + 1) * rowHeight} stroke="#1a1a1a" strokeWidth={2} />

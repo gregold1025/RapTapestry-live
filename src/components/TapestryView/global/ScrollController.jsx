@@ -97,7 +97,7 @@ export default function ScrollController({ containerRef, contentRef }) {
       const r = el.getBoundingClientRect();
       const x = e.clientX - r.left + S.scrollX;
       seekAll(S.layout.xToTime(x));
-      if (!S.playing) playAll();
+      if (!S.playing) playAll({ fromLoopStart: false });
     };
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
