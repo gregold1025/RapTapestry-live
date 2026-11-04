@@ -10,6 +10,7 @@ import React, {
 
 import { computeLayout } from "../utils/computeLayout";
 import { timeToPixels, getRowIndex } from "../utils/timeUtils";
+import { computeLanes } from "../utils/laneLayout";
 import { useParams } from "./ParamsContext";
 
 const TapestryLayoutContext = createContext(null);
@@ -20,7 +21,7 @@ export function TapestryLayoutProvider({
   estimated_bpm,
   downbeats = [],
   beats = [],
-  barsPerRow = 8,
+  barsPerRow: barsPerRowOverride,
 
   // Optional overrides (if you pass these explicitly, they win)
   rowHeightMode: rowHeightModeOverride,
@@ -33,6 +34,11 @@ export function TapestryLayoutProvider({
   const {
     rowHeightMode: rowHeightModeFromParams,
     fixedRowHeightPx: fixedRowHeightPxFromParams,
+    barsPerRow: barsPerRowFromParams,
+    stemsLayout,
+    showVocals,
+    showDrums,
+    showBass,
   } = useParams();
 
   // Decide final values: override props > params > defaults
@@ -40,6 +46,13 @@ export function TapestryLayoutProvider({
     rowHeightModeOverride ?? rowHeightModeFromParams ?? "fit";
   const fixedRowHeightPx =
     fixedRowHeightPxOverride ?? fixedRowHeightPxFromParams ?? 140;
+  const barsPerRow = barsPerRowOverride ?? barsPerRowFromParams ?? 8;
+
+  // Stem lanes inside a row (fractions of rowHeight); see utils/laneLayout.
+  const lanes = useMemo(
+    () => computeLanes({ stemsLayout, visible: { drums: showDrums, vocals: showVocals, bass: showBass } }),
+    [stemsLayout, showDrums, showVocals, showBass]
+  );
 
   // Keep layout inputs in a ref so the ResizeObserver callback always
   // sees current values without needing to re-subscribe on every change.
@@ -119,7 +132,8 @@ export function TapestryLayoutProvider({
     rowHeightMode, fixedRowHeightPx, recompute,
   ]);
 
-  const value = useMemo(() => ({ layout, containerRef }), [layout]);
+  const laneFor = React.useCallback((stem) => lanes[stem] ?? { top: 0, height: 1 }, [lanes]);
+  const value = useMemo(() => ({ layout, containerRef, lanes, laneFor }), [layout, lanes, laneFor]);
 
   return (
     <TapestryLayoutContext.Provider value={value}>

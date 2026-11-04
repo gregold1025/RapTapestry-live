@@ -40,8 +40,11 @@ function pickRandomFrom(list) {
 
 export function ParamsProvider({ children }) {
   // — GLOBAL TAPESTRY (layout/background) —
-  const [rowHeightMode, setRowHeightMode] = useState("auto"); // "fixed" | "auto" | ...
-  const [fixedRowHeightPx, setFixedRowHeightPx] = useState(100);
+  const [rowHeightMode, setRowHeightMode] = useState("fit"); // "fit" | "fixed"
+  const [fixedRowHeightPx, setFixedRowHeightPx] = useState(120);
+  const [barsPerRow, setBarsPerRow] = useState(8); // 2 | 4 | 8
+  const [timeLayout, setTimeLayout] = useState("wrap"); // "wrap" (scroll, fold: coming soon)
+  const [stemsLayout, setStemsLayout] = useState("superimposed"); // "superimposed" | "separated"
   const [tapestryBackgroundColor, setTapestryBackgroundColor] =
     useState("#ffffff");
 
@@ -70,9 +73,12 @@ export function ParamsProvider({ children }) {
   const [syllableStrictness, setSyllableStrictness] = useState(0.7);
   // visual
   const [showSyllables, setShowSyllables] = useState(true);
-  const [inactiveSyllableColor, setInactiveSyllableColor] =
-    useState("transparent");
+  const [inactiveSyllableColor, setInactiveSyllableColor] = useState("#9e9ea2");
+  const [syllableInactiveOpacity, setSyllableInactiveOpacity] = useState(0);
   const [syllableOpacity, setSyllableOpacity] = useState(0.8);
+  const [syllableMode, setSyllableMode] = useState("pitched"); // "unpitched" | "pitched"
+  const [syllableBand, setSyllableBand] = useState({ lo: 30, hi: 85 });
+  const [syllableFixedHeight, setSyllableFixedHeight] = useState(60);
   const [syllableRadius, setSyllableRadius] = useState(7);
   const [syllableArcCurve, setSyllableArcCurve] = useState(1);
   // logical
@@ -83,8 +89,13 @@ export function ParamsProvider({ children }) {
   // visual
   const [showWords, setShowWords] = useState(true);
   const [wordActiveColor, setWordActiveColor] = useState("#00aaff");
-  const [wordInactiveColor, setWordInactiveColor] = useState("transparent");
+  const [wordInactiveColor, setWordInactiveColor] = useState("#9e9ea2");
+  const [wordInactiveOpacity, setWordInactiveOpacity] = useState(0);
   const [wordOpacity, setWordOpacity] = useState(0.6);
+  const [wordMode, setWordMode] = useState("unpitched"); // "unpitched" | "pitched" | "perSyllable"
+  const [wordThicknessPx, setWordThicknessPx] = useState(10);
+  const [wordCenter, setWordCenter] = useState(50);
+  const [wordBand, setWordBand] = useState({ lo: 30, hi: 85 });
 
   // logical / per-type phonetic matching
   const [exactMatches, setExactMatches] = useState(false);
@@ -114,17 +125,22 @@ export function ParamsProvider({ children }) {
 
   // — LINES —
   const [showLines, setShowLines] = useState(true);
-  const [lineInactiveColor, setLineInactiveColor] = useState("transparent");
+  const [lineInactiveColor, setLineInactiveColor] = useState("#9e9ea2");
+  const [lineInactiveOpacity, setLineInactiveOpacity] = useState(0);
   const [lineOpacity, setLineOpacity] = useState(0.3);
+  const [lineBand, setLineBand] = useState({ lo: 5, hi: 95 });
+  const [lineShadow, setLineShadow] = useState(0);
   const [showEndRhymes, setShowEndRhymes] = useState(true);
 
   // — BASS —
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
-    rectHeight: 0,
+    rectHeight: 0, // gap between the note rect and its topper
     fillColor: "#670079",
     opacity: 0.4,
     blur: 0.2,
+    band: { lo: 10, hi: 60 }, // pitch class 0 lands at lo, 11 at hi (percent of the bass lane)
+    topper: "divider", // "divider" | "none"
   });
 
   // — DRUMS —
@@ -136,6 +152,17 @@ export function ParamsProvider({ children }) {
     fillColor: "#0011bb",
     opacity: 0.5,
   });
+  const [drumDetection, setDrumDetection] = useState("bands"); // "bands" (classes: coming soon)
+  // Per frequency band: visible, glyph size (px), opacity, height (percent of the drum lane)
+  const [drumBands, setDrumBands] = useState({
+    high: { visible: true, size: 10, opacity: 1, height: 80 },
+    mid:  { visible: true, size: 14, opacity: 1, height: 55 },
+    low:  { visible: true, size: 16, opacity: 1, height: 20 },
+  });
+  const setDrumBand = useCallback(
+    (key, patch) => setDrumBands((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
+    []
+  );
   const [showDownbeats, setShowDownbeats] = useState(true);
   const [showBeatsLines, setShowBeatLines] = useState(true);
 
@@ -207,6 +234,12 @@ export function ParamsProvider({ children }) {
         setRowHeightMode,
         fixedRowHeightPx,
         setFixedRowHeightPx,
+        barsPerRow,
+        setBarsPerRow,
+        timeLayout,
+        setTimeLayout,
+        stemsLayout,
+        setStemsLayout,
         tapestryBackgroundColor,
         setTapestryBackgroundColor,
 
@@ -221,8 +254,16 @@ export function ParamsProvider({ children }) {
         setShowSyllables,
         inactiveSyllableColor,
         setInactiveSyllableColor,
+        syllableInactiveOpacity,
+        setSyllableInactiveOpacity,
         syllableOpacity,
         setSyllableOpacity,
+        syllableMode,
+        setSyllableMode,
+        syllableBand,
+        setSyllableBand,
+        syllableFixedHeight,
+        setSyllableFixedHeight,
         syllableRadius,
         setSyllableRadius,
         syllableArcCurve,
@@ -239,8 +280,18 @@ export function ParamsProvider({ children }) {
         setWordActiveColor,
         wordInactiveColor,
         setWordInactiveColor,
+        wordInactiveOpacity,
+        setWordInactiveOpacity,
         wordOpacity,
         setWordOpacity,
+        wordMode,
+        setWordMode,
+        wordThicknessPx,
+        setWordThicknessPx,
+        wordCenter,
+        setWordCenter,
+        wordBand,
+        setWordBand,
         exactMatches,
         setExactMatches,
         showRhymes,
@@ -275,8 +326,14 @@ export function ParamsProvider({ children }) {
         setShowLines,
         lineInactiveColor,
         setLineInactiveColor,
+        lineInactiveOpacity,
+        setLineInactiveOpacity,
         lineOpacity,
         setLineOpacity,
+        lineBand,
+        setLineBand,
+        lineShadow,
+        setLineShadow,
         showEndRhymes,
         setShowEndRhymes,
 
@@ -297,6 +354,11 @@ export function ParamsProvider({ children }) {
         setShowDrumGlyphs,
         drumParams,
         setDrumParams,
+        drumDetection,
+        setDrumDetection,
+        drumBands,
+        setDrumBands,
+        setDrumBand,
 
         showHorizontalGrid,
         setShowHorizontalGrid,
