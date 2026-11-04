@@ -1,7 +1,8 @@
 // src/components/Shell/AppHeader.jsx
 import React from "react";
-import { useUIState, LEFT_PANELS } from "../../contexts/UIStateContext";
+import { useUIState } from "../../contexts/UIStateContext";
 import AudioControlsView from "../AudioControlsView";
+import StemsStrip from "./StemsStrip";
 
 export const SONGS = [
   { id: "93Til", label: "93 Til Infinity — Souls of Mischief" },
@@ -9,31 +10,6 @@ export const SONGS = [
   { id: "RhymesLikeDimes", label: "Rhymes Like Dimes — MF DOOM" },
   { id: "Unemployed", label: "Unemployed — Tierra Whack" },
 ];
-
-const PANEL_LABELS = { global: "Global", vocals: "Vocals", drums: "Drums", bass: "Bass", other: "Other" };
-
-function PanelSelector() {
-  const { leftPanel, toggleLeftPanel } = useUIState();
-  return (
-    <div className="rt-header-group">
-      <span className="rt-header-label">panel</span>
-      <div className="rt-seg" role="group" aria-label="Left panel">
-        {LEFT_PANELS.map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={leftPanel === p ? "is-active" : ""}
-            aria-pressed={leftPanel === p}
-            onClick={() => toggleLeftPanel(p)}
-            title={leftPanel === p ? "Close panel" : `Show ${PANEL_LABELS[p]} panel`}
-          >
-            {PANEL_LABELS[p]}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const IconLyrics = () => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -61,7 +37,7 @@ const VIEWS = [
 function RightViewSelector() {
   const { rightView, setRightView } = useUIState();
   return (
-    <div className="rt-header-group" style={{ marginLeft: "auto" }}>
+    <div className="rt-header-group">
       <div className="rt-seg rt-seg--icons" role="group" aria-label="Right view">
         {VIEWS.map((v) => (
           <button
@@ -83,22 +59,31 @@ function RightViewSelector() {
 export default function AppHeader({ selectedSong, onSongChange, transport = true }) {
   return (
     <>
-      <select
-        className="rt-song-select"
-        value={selectedSong}
-        onChange={onSongChange}
-        aria-label="Song"
-        title="Song"
-      >
-        {SONGS.map((s) => (
-          <option key={s.id} value={s.id}>{s.label}</option>
-        ))}
-      </select>
+      {/* left: the global stems panel (eye / M / S; name opens the stem's panel) */}
+      <div className="rt-header-left">
+        <StemsStrip mix={transport} />
+      </div>
 
-      <div className="rt-header-transport">{transport ? <AudioControlsView /> : null}</div>
+      {/* center: song on top, transport underneath */}
+      <div className="rt-header-center">
+        <select
+          className="rt-song-select"
+          value={selectedSong}
+          onChange={onSongChange}
+          aria-label="Song"
+          title="Song"
+        >
+          {SONGS.map((s) => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
+        </select>
+        <div className="rt-header-transport">{transport ? <AudioControlsView /> : null}</div>
+      </div>
 
-      <PanelSelector />
-      <RightViewSelector />
+      {/* right: which view fills the right pane */}
+      <div className="rt-header-right">
+        <RightViewSelector />
+      </div>
     </>
   );
 }

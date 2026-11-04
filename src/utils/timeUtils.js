@@ -63,3 +63,15 @@ export function timeToPixels(
 
   return { x, y, row, segmentIndex };
 }
+
+/** Inverse of the per-row x mapping: content x (within a row) -> time. */
+export function xToTime(x, gridTimes, columnWidth) {
+  if (!gridTimes || gridTimes.length < 2 || !columnWidth) return 0;
+  const n = gridTimes.length - 1;
+  const raw = x / columnWidth;
+  const i = Math.max(0, Math.min(n - 1, Math.floor(raw)));
+  const frac = Math.max(0, Math.min(1, raw - i));
+  if (raw <= 0) return gridTimes[0];
+  if (raw >= n) return gridTimes[n];
+  return gridTimes[i] + frac * (gridTimes[i + 1] - gridTimes[i]);
+}

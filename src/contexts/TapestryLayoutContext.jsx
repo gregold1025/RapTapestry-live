@@ -9,7 +9,7 @@ import React, {
 } from "react";
 
 import { computeLayout } from "../utils/computeLayout";
-import { timeToPixels, getRowIndex } from "../utils/timeUtils";
+import { timeToPixels, getRowIndex, xToTime } from "../utils/timeUtils";
 import { computeLanes } from "../utils/laneLayout";
 import { useParams } from "./ParamsContext";
 
@@ -35,6 +35,7 @@ export function TapestryLayoutProvider({
     rowHeightMode: rowHeightModeFromParams,
     fixedRowHeightPx: fixedRowHeightPxFromParams,
     barsPerRow: barsPerRowFromParams,
+    timeLayout,
     stemsLayout,
     showVocals,
     showDrums,
@@ -56,13 +57,14 @@ export function TapestryLayoutProvider({
 
   // Keep layout inputs in a ref so the ResizeObserver callback always
   // sees current values without needing to re-subscribe on every change.
+  const scroll = timeLayout === "scroll";
   const inputsRef = useRef({
     duration, estimated_bpm, beats, downbeats, barsPerRow,
-    rowHeightMode, fixedRowHeightPx,
+    rowHeightMode, fixedRowHeightPx, scroll,
   });
   inputsRef.current = {
     duration, estimated_bpm, beats, downbeats, barsPerRow,
-    rowHeightMode, fixedRowHeightPx,
+    rowHeightMode, fixedRowHeightPx, scroll,
   };
 
   // Single function that reads container size and computes layout in one pass
@@ -75,7 +77,7 @@ export function TapestryLayoutProvider({
 
     const {
       duration: dur, estimated_bpm: bpm, beats: b, downbeats: db,
-      barsPerRow: bpr, rowHeightMode: rhm, fixedRowHeightPx: frhp,
+      barsPerRow: bpr, rowHeightMode: rhm, fixedRowHeightPx: frhp, scroll: scr,
     } = inputsRef.current;
 
     if (!dur || !bpm || !Array.isArray(b) || b.length === 0) return;
@@ -90,6 +92,10 @@ export function TapestryLayoutProvider({
       estimated_bpm: bpm,
       rowHeightMode: rhm,
       fixedRowHeightPx: frhp,
+      // Scroll time layout (ported from the Line Staff): one row as wide as
+      // the song, `barsPerRow` bars visible in the container at a time.
+      singleRow: scr,
+      pxPerBar: clientWidth / bpr,
     });
 
     if (!newLayout) return;
@@ -106,7 +112,11 @@ export function TapestryLayoutProvider({
           newLayout.beatsPerRow
         ),
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
+      // content x -> time (single row only; wrap rows need the row too)
+      xToTime: (x) => xToTime(x, newLayout.gridTimes, newLayout.columnWidth),
       contentHeight: newLayout.rowHeight * newLayout.numberOfRows,
+      viewWidth: clientWidth,
+      viewHeight: clientHeight,
     };
 
     setLayout(mappedLayout);
@@ -129,7 +139,7 @@ export function TapestryLayoutProvider({
     recompute();
   }, [
     duration, estimated_bpm, beats, downbeats, barsPerRow,
-    rowHeightMode, fixedRowHeightPx, recompute,
+    rowHeightMode, fixedRowHeightPx, scroll, recompute,
   ]);
 
   const laneFor = React.useCallback((stem) => lanes[stem] ?? { top: 0, height: 1 }, [lanes]);

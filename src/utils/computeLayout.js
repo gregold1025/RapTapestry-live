@@ -33,6 +33,12 @@ export function computeLayout({
   maxFitRowHeight = 220,
   minFixedRowHeight = 40,
   maxFixedRowHeight = 400,
+
+  // Scroll time layout: the whole song on one row, `pxPerBar` pixels per
+  // bar; `width` is then ignored (the content is as wide as the song) and
+  // the row is exactly `height` tall.
+  singleRow = false,
+  pxPerBar = 200,
 }) {
   // Minimal validation
   const haveBeats = Array.isArray(beats) && beats.length > 0;
@@ -43,7 +49,7 @@ export function computeLayout({
 
   // Beats per bar from time signature (e.g., 4 in 4/4, 3 in 3/4, 6 in 6/8)
   const beatsPerBar = timeSig.num * (4 / timeSig.den);
-  const beatsPerRow = Math.max(1, Math.round(barsPerRow * beatsPerBar));
+  let beatsPerRow = Math.max(1, Math.round(barsPerRow * beatsPerBar));
 
   const spBeat = secondsPerBeatFrom(estimated_bpm, timeSig);
 
@@ -104,6 +110,12 @@ export function computeLayout({
     beatInferred.push(true);
   }
 
+  if (singleRow) {
+    // every beat on the one row; the row ends at the song's end
+    beatsPerRow = Math.max(1, gridTimes.length - 1);
+    width = (pxPerBar / beatsPerBar) * beatsPerRow;
+  }
+
   // --- Row boundaries every beatsPerRow
   const rowBoundaries = [];
   const rowBoundaryInferred = [];
@@ -130,7 +142,7 @@ export function computeLayout({
     Math.max(minFixedRowHeight, fixedRowHeightPx)
   );
 
-  const rowHeight = rowHeightMode === "fixed" ? fixedRowHeight : fitRowHeight;
+  const rowHeight = singleRow ? height : rowHeightMode === "fixed" ? fixedRowHeight : fitRowHeight;
 
   const columnWidth = width / beatsPerRow;
 
@@ -157,6 +169,8 @@ export function computeLayout({
     estimated_bpm,
 
     // mode metadata (useful for UI later)
+    singleRow,
+    pxPerBar: singleRow ? pxPerBar : width / barsPerRow,
     rowHeightMode,
     fixedRowHeightPx: fixedRowHeight,
 
