@@ -16,6 +16,7 @@ import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { useAudioControls } from "../../../contexts/AudioContext";
+import { useSongData } from "../../../contexts/SongDataContext";
 import { getThreshold, ALLITERATION_TIERS } from "../../../utils/phonemeSimilarity.js";
 import { laneY, wordPitchCenter, syllablePitchPct } from "../../../utils/laneLayout";
 
@@ -74,11 +75,12 @@ export default function WordGlyphs({
   } = useParams();
 
   const { seekAll } = useAudioControls();
+  const { centroidSpan } = useSongData();
   const [hoveredWordId, setHoveredWordId] = useState(null);
 
   if (!layout || !showWords) return null;
 
-  const { rowHeight, timeToPixels } = layout;
+  const { rowHeight, timeToPixels, width: rowWidth } = layout;
   const lane = laneFor("vocals");
   const barH = Math.max(1, wordThicknessPx);
   const underH = 3;
@@ -106,10 +108,12 @@ export default function WordGlyphs({
       const id = `${lineIdx}-${wordIdx}`;
       const vis = getVisualForWord(id);
 
-      const { x: startX, y: rowTop } = timeToPixels(word.start);
-      const { x: endX } = timeToPixels(word.end);
+      const { x: startX, y: rowTop, row: startRow } = timeToPixels(word.start);
+      const endPx = timeToPixels(word.end);
+      // A word that crosses a row boundary is drawn to the end of its first row.
+      const endX = endPx.row === startRow ? endPx.x : rowWidth;
       const widthPx = Math.max(1, endX - startX);
-      const centerPct = wordPitchCenter(word, wordMode, wordBand, wordCenter);
+      const centerPct = wordPitchCenter(word, wordMode, wordBand, wordCenter, centroidSpan);
       const cy = laneY(rowTop, rowHeight, lane, centerPct);
       const rectY = cy - barH / 2;
       const isHovered = hoveredWordId === id;
@@ -127,8 +131,9 @@ export default function WordGlyphs({
         const pts = [];
         for (let si = 0; si < n; si++) {
           const t = word.start + (si + 0.5) * ((word.end - word.start) / n);
-          const { x } = timeToPixels(t);
-          const pct = syllablePitchPct(word, si, n, wordBand, centerPct);
+          const px = timeToPixels(t);
+          const x = px.row === startRow ? px.x : rowWidth;
+          const pct = syllablePitchPct(word, si, n, wordBand, centerPct, centroidSpan);
           pts.push({ x, y: laneY(rowTop, rowHeight, lane, pct) });
         }
         if (pts.length) {

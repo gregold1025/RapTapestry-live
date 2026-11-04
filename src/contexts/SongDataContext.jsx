@@ -4,6 +4,7 @@
 // and bassTranscription through TapestryView -> TapestrySVG -> individual glyphs.
 
 import React, { createContext, useContext, useMemo } from "react";
+import { centroidRange } from "../utils/laneLayout";
 
 const SongDataContext = createContext(null);
 
@@ -13,9 +14,11 @@ export function SongDataProvider({
   drumTranscription,
   bassTranscription,
 }) {
+  // Song-wide centroid spread (5th..95th percentile) used by pitched layers.
+  const centroidSpan = useMemo(() => centroidRange(lyricTranscription), [lyricTranscription]);
   const value = useMemo(
-    () => ({ lyricTranscription, drumTranscription, bassTranscription }),
-    [lyricTranscription, drumTranscription, bassTranscription]
+    () => ({ lyricTranscription, drumTranscription, bassTranscription, centroidSpan }),
+    [lyricTranscription, drumTranscription, bassTranscription, centroidSpan]
   );
 
   return (

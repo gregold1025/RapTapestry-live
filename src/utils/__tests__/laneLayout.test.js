@@ -53,3 +53,26 @@ describe("pitchPct / wordPitchCenter", () => {
     expect(wordPitchCenter({}, "pitched", { lo: 30, hi: 85 }, 50)).toBe(50);
   });
 });
+
+describe("centroid normalization", () => {
+  it("pitchPct with a range maps range.lo to band.lo and range.hi to band.hi", async () => {
+    const { pitchPct } = await import("../laneLayout");
+    const band = { lo: 20, hi: 80 }, range = { lo: 0.8, hi: 0.9 };
+    expect(pitchPct(0.8, band, range)).toBe(20);
+    expect(pitchPct(0.9, band, range)).toBe(80);
+    expect(pitchPct(0.85, band, range)).toBeCloseTo(50);
+    expect(pitchPct(0.3, band, range)).toBe(20); // clamped below
+  });
+  it("centroidRange returns the 5th and 95th percentile of all centroid values", async () => {
+    const { centroidRange } = await import("../laneLayout");
+    const vals = Array.from({ length: 100 }, (_, i) => i / 100);
+    const data = { lines: [{ words: [{ centroid: vals.slice(0, 50) }, { centroid: vals.slice(50) }] }] };
+    const r = centroidRange(data);
+    expect(r.lo).toBeCloseTo(0.05, 1);
+    expect(r.hi).toBeCloseTo(0.95, 1);
+  });
+  it("centroidRange falls back to 0..1 when there is no data", async () => {
+    const { centroidRange } = await import("../laneLayout");
+    expect(centroidRange({ lines: [] })).toEqual({ lo: 0, hi: 1 });
+  });
+});

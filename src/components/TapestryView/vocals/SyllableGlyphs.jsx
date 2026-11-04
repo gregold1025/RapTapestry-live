@@ -4,6 +4,7 @@ import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableS
 import { useParams } from "../../../contexts/ParamsContext";
 import { extractVowels } from "../../../utils/extractVowels";
 import { useAudioControls } from "../../../contexts/AudioContext";
+import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY, syllablePitchPct } from "../../../utils/laneLayout";
 import "../TapestryView.css";
 
@@ -37,6 +38,7 @@ export default function SyllableGlyphs({
 
   const glyphUrl = glyphStyle?.syllableGlyphUrl ?? null;
   const { seekAll } = useAudioControls();
+  const { centroidSpan } = useSongData();
 
   // Stable flat index of syllable ids (kept for future connectors).
   useMemo(() => {
@@ -73,7 +75,7 @@ export default function SyllableGlyphs({
         const start = word.start + si * syllableDuration;
         const { x, y } = timeToPixels(start);
         const pct = pitched
-          ? syllablePitchPct(word, si, nSyllables, syllableBand, syllableFixedHeight)
+          ? syllablePitchPct(word, si, nSyllables, syllableBand, syllableFixedHeight, centroidSpan)
           : syllableFixedHeight;
         const finalY = laneY(y, rowHeight, lane, pct);
         const id = `${li}-${wi}-${si}`;
