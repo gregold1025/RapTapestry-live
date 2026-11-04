@@ -1,0 +1,77 @@
+/* Panels.css — left sidebar panels (greybox, Figma columns) */
+
+.pn-root {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--rt-panel);
+  color: var(--rt-ink);
+  font-size: 12px;
+}
+
+.pn-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+.pn-title { font-size: 14px; font-weight: 700; margin: 0; line-height: 1.2; }
+.pn-subtitle { font-size: 9px; color: var(--rt-muted); margin: 2px 0 0 0; }
+.pn-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.pn-section { display: flex; flex-direction: column; gap: 6px; }
+.pn-field { display: flex; flex-direction: column; gap: 4px; }
+.pn-field-label { font-size: 10px; color: var(--rt-muted); }
+
+.pn-list { display: flex; flex-direction: column; }
+.pn-stem-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  border-top: 1px solid var(--rt-line);
+}
+.pn-list .pn-stem-row:last-child { border-bottom: 1px solid var(--rt-line); }
+.pn-stem-name { flex: 1 1 auto; font-size: 12px; font-weight: 600; }
+.pn-stem-name.is-off { color: var(--rt-muted); }
+
+.pn-card {
+  background: var(--rt-card);
+  border: 1px solid var(--rt-line);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pn-placeholder {
+  border: 1px dashed var(--rt-line);
+  border-radius: 6px;
+  background: var(--rt-card);
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--rt-muted);
+}
+.pn-placeholder strong { display: block; color: var(--rt-muted); font-size: 12px; margin-bottom: 4px; }
+
+/* lane preview (static schematic) */
+.pn-lane {
+  position: relative;
+  height: 84px;
+  border: 1px solid var(--rt-line);
+  border-radius: 6px;
+  background: var(--rt-card);
+  overflow: hidden;
+}
+.pn-lane svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pn-lane-label { position: absolute; left: 6px; font-size: 8px; color: var(--rt-muted); }
+.pn-lane-label.top { top: 4px; }
+.pn-lane-label.bottom { bottom: 4px; }
+
+/* vslider mini preview content */
+.vs-prev { width: 100%; height: 100%; display: block; }

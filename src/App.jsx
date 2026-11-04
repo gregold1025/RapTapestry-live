@@ -19,6 +19,7 @@ import AppShell from "./components/Shell/AppShell";
 import AppHeader from "./components/Shell/AppHeader";
 import TapestryView from "./components/TapestryView";
 import LyricsView from "./components/LyricsView";
+import LeftPanel from "./components/Panels/LeftPanel";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -129,7 +130,7 @@ export default function App() {
                   >
                     <AppShell
                       header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} />}
-                      left={<div className="rt-left-placeholder" />}
+                      left={<LeftPanel />}
                       center={<TapestryView key={`tapestry-${selectedSong}`} />}
                       right={<LyricsView key={`lyrics-${selectedSong}`} height="100%" />}
                     />
