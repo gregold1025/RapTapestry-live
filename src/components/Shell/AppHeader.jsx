@@ -63,16 +63,16 @@ function RightViewSelector() {
   return (
     <div className="rt-header-group" style={{ marginLeft: "auto" }}>
       <div className="rt-seg rt-seg--icons" role="group" aria-label="Right view">
-        {VIEWS.map(({ id, title, Icon }) => (
+        {VIEWS.map((v) => (
           <button
-            key={id}
+            key={v.id}
             type="button"
-            className={rightView === id ? "is-active" : ""}
-            aria-pressed={rightView === id}
-            onClick={() => setRightView(id)}
-            title={title}
+            className={rightView === v.id ? "is-active" : ""}
+            aria-pressed={rightView === v.id}
+            onClick={() => setRightView(v.id)}
+            title={v.title}
           >
-            <Icon />
+            <v.Icon />
           </button>
         ))}
       </div>

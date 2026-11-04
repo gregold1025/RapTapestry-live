@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { usePlayheadSubscription } from "../../../contexts/AudioContext";
 import { ScrubSlider } from "./ScrubSlider";
 
-export function fmtTime(sec = 0) {
+function fmtTime(sec = 0) {
   if (!isFinite(sec)) return "0:00";
   const s = Math.max(0, Math.floor(sec));
   const m = Math.floor(s / 60);
