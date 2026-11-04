@@ -18,8 +18,7 @@ export default function LyricsView({ height = "100%" }) {
   const containerRef = useRef(null); // outer container (for sizing)
   const scrollRef = useRef(null); // scrollable div (the list of all lines)
   const suppressUntilRef = useRef(0); // timestamp (ms) to ignore scroll events until
-  const { hoverData, setWordHover, setSyllableHover, clearHover } =
-    useHoverInfo();
+  const { hoverData, setWordHover, clearHover } = useHoverInfo();
 
   const lines = transcriptionData?.lines ?? [];
 
@@ -127,7 +126,6 @@ export default function LyricsView({ height = "100%" }) {
             isCurrent={idx === currentLineIndex}
             currentWordIdx={idx === currentWordLineIdx ? currentWordIdxInLine : -1}
             onWordHover={setWordHover}
-            onSyllableHover={setSyllableHover}
             onHoverEnd={clearHover}
             dataLineIdx={idx} // rendered as data-line-idx in WordLine
           />

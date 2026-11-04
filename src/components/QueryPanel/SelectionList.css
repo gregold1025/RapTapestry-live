@@ -3,7 +3,7 @@
 .sel-list {
   display: flex;
   flex-direction: column;
-  background: #1a2640;
+  background: #ededf0;
   overflow-y: auto;
   max-height: 100%;
 }
@@ -14,12 +14,12 @@
   gap: 7px;
   padding: 5px 10px;
   border-left: 3px solid transparent;
-  border-bottom: 1px solid #1e2e48;
+  border-bottom: 1px solid #ededf0;
   cursor: pointer;
   transition: background 0.1s;
 }
-.sel-row:hover { background: #1e2e4a; }
-.sel-row.is-focused { background: #1e2e4a; }
+.sel-row:hover { background: #ededf0; }
+.sel-row.is-focused { background: #ededf0; }
 .sel-row.is-inactive { opacity: 0.45; }
 
 .sel-dot {
@@ -32,13 +32,13 @@
 .sel-label {
   flex: 1;
   font-size: 0.72rem;
-  color: #8a9ab0;
+  color: #777a80;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: monospace;
 }
-.sel-row.is-focused .sel-label { color: #e9eef5; }
+.sel-row.is-focused .sel-label { color: #1a1a1a; }
 
 .sel-counts {
   display: flex;
@@ -53,14 +53,14 @@
   border-radius: 3px;
   font-variant-numeric: tabular-nums;
 }
-.sel-count--r { background: rgba(74,127,165,0.15); color: #5a8fa8; }
-.sel-count--a { background: rgba(120,100,180,0.15); color: #8878b8; }
-.sel-count--v { background: rgba(80,160,100,0.15); color: #50a060; }
-.sel-count--s { background: rgba(200,160,60,0.15);  color: #b89040; }
+.sel-count--r { background: rgba(74,127,165,0.15); color: #777a80; }
+.sel-count--a { background: rgba(120,100,180,0.15); color: #777a80; }
+.sel-count--v { background: rgba(80,160,100,0.15); color: #777a80; }
+.sel-count--s { background: rgba(200,160,60,0.15);  color: #777a80; }
 
 .sel-kind {
   font-size: 0.6rem;
-  color: #3a4558;
+  color: #d6d6db;
   font-weight: 700;
   flex-shrink: 0;
   width: 10px;
@@ -70,12 +70,12 @@
 .sel-btn {
   background: transparent;
   border: none;
-  color: #3a4558;
+  color: #d6d6db;
   font-size: 0.8rem;
   cursor: pointer;
   padding: 0 2px;
   line-height: 1;
   flex-shrink: 0;
 }
-.sel-btn:hover { color: #8a9ab0; }
+.sel-btn:hover { color: #777a80; }
 .sel-btn--danger:hover { color: #ef4444; }

@@ -89,12 +89,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 4px;
-}
-.syllable-row {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 /* Word chip */
@@ -115,20 +110,6 @@
   color: #f00;
 }
 
-/* Small syllable circles above the word */
-.lyrics-syllable-circle {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  outline: none;
-  border: 1px solid #999;
-  background-color: #cccccc;
-  cursor: pointer;
-}
-.lyrics-syllable-circle.selected {
-  border: 2px solid red;
-}
-
 /* Footer: recenter button + hover info */
 .lyrics-footer {
   border-top: 1px solid #e5e7eb;
@@ -141,10 +122,10 @@
 }
 
 .recenter-btn {
-  padding: 10px 10px;
+  padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #d0d0d0;
-  background: #bbb;
+  border: 1px solid #d6d6db;
+  background: #fff;
   color: #000;
   cursor: pointer;
   font-size: 1em;

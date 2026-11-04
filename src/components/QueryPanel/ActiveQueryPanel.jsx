@@ -628,8 +628,8 @@ function EmptyState() {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export default function ActiveQueryPanel() {
-  const { lyricTranscription: transcriptionData } = useSongData();
+/** The most recently interacted selection across word / line / syllable queries. */
+export function useFocusedQuery() {
   const { selections: wordSels, focusedWordSelId, wordInteractionStamp } = useWordSelection();
   const { selections: lineSels, focusedLineSelId, lineInteractionStamp } = useLineSelection();
   const { selections: sylSels, focusedSyllableSelId, syllableInteractionStamp } = useSyllableSelection();
@@ -650,7 +650,21 @@ export default function ActiveQueryPanel() {
   }, [focusedWordSel, focusedLineSel, focusedSylSel, wordInteractionStamp, lineInteractionStamp, syllableInteractionStamp]);
 
   const hasSelections = wordSels.length > 0 || lineSels.length > 0 || sylSels.length > 0;
+  return { focused, hasSelections };
+}
 
+/** The focused query's card, without the selection strip. */
+export function FocusedQueryCard({ emptyText = "Click a word or line to analyze it" }) {
+  const { lyricTranscription: transcriptionData } = useSongData();
+  const { focused } = useFocusedQuery();
+  if (!focused) return <div className="aqp-empty"><span>{emptyText}</span></div>;
+  if (focused.type === "word") return <WordQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />;
+  if (focused.type === "line") return <LineQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />;
+  return <SyllableQueryCard key={focused.sel.id} sel={focused.sel} />;
+}
+
+export default function ActiveQueryPanel() {
+  const { hasSelections } = useFocusedQuery();
   return (
     <div className="aqp-root">
       {hasSelections && (
@@ -659,16 +673,7 @@ export default function ActiveQueryPanel() {
         </div>
       )}
       <div className="aqp-body">
-        {!focused && <EmptyState />}
-        {focused?.type === "word" && (
-          <WordQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />
-        )}
-        {focused?.type === "line" && (
-          <LineQueryCard key={focused.sel.id} sel={focused.sel} transcriptionData={transcriptionData} />
-        )}
-        {focused?.type === "syllable" && (
-          <SyllableQueryCard key={focused.sel.id} sel={focused.sel} />
-        )}
+        <FocusedQueryCard />
       </div>
     </div>
   );

@@ -20,7 +20,6 @@ export const WordLine = React.memo(function WordLine({
   isCurrent,
   currentWordIdx,
   onWordHover,
-  onSyllableHover,
   onHoverEnd,
   dataLineIdx,
 }) {
@@ -86,7 +85,6 @@ export const WordLine = React.memo(function WordLine({
             wordIdx={wordIdx}
             isCurrent={wordIdx === currentWordIdx}
             onWordHover={onWordHover}
-            onSyllableHover={onSyllableHover}
             onHoverEnd={onHoverEnd}
           />
         ))}

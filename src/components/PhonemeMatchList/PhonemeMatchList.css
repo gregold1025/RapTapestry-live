@@ -14,10 +14,10 @@
   font-family: monospace;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1a1a1a;
   background: none;
   padding: 2px 4px;
-  border-right: 2px solid #444;
+  border-right: 2px solid #d6d6db;
   margin-right: 4px;
   align-self: center;
   white-space: nowrap;
@@ -43,33 +43,33 @@
 .pml-phoneme {
   font-family: monospace;
   font-size: 0.78rem;
-  color: #b0b8c8;
+  color: #3a3a3f;
 }
 
 .pml-pct {
   font-size: 0.65rem;
-  color: #5a6478;
+  color: #9a9ca3;
 }
 
 .pml-placeholder {
   font-size: 0.73rem;
-  color: #4a5568;
+  color: #9a9ca3;
   font-style: italic;
   padding: 4px 0;
 }
 
 /* When used inside LyricPresets (light background) override colours */
 .lp-submenu-content .pml-anchor {
-  color: #111;
-  border-right-color: #ccc;
+  color: #f6f6f7;
+  border-right-color: #3a3a3f;
 }
 
 .lp-submenu-content .pml-phoneme {
-  color: #374151;
+  color: #d6d6db;
 }
 
 .lp-submenu-content .pml-pct {
-  color: #9ca3af;
+  color: #777a80;
 }
 
 .lp-submenu-content .pml-item {
@@ -77,5 +77,5 @@
 }
 
 .lp-submenu-content .pml-placeholder {
-  color: #9ca3af;
+  color: #777a80;
 }

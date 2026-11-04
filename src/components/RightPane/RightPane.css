@@ -1,0 +1,81 @@
+/* RightPane.css — lyrics / query list / single query (greybox) */
+
+.rp-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--rt-panel);
+}
+
+.rp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rt-line);
+  background: var(--rt-panel);
+}
+.rp-head-title { font-size: 12px; font-weight: 700; color: var(--rt-ink); margin: 0; }
+.rp-head-meta { font-size: 10px; color: var(--rt-muted); }
+
+.rp-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--rt-card);
+}
+
+.rp-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--rt-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* query list: match-type toggles strip at top */
+.rp-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rt-line);
+  background: var(--rt-panel);
+}
+.rp-strip-label { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rt-muted); width: 100%; margin: 0 0 2px 0; }
+.rp-chip {
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 10px;
+  border: 1px solid var(--rt-line);
+  background: var(--rt-card);
+  color: var(--rt-muted);
+  cursor: pointer;
+}
+.rp-chip.is-active { background: var(--rt-ink); border-color: var(--rt-ink); color: #fff; }
+
+/* single query: open-in-list link */
+.rp-link {
+  font: inherit;
+  font-size: 10px;
+  color: var(--rt-muted);
+  background: transparent;
+  border: 1px solid var(--rt-line);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.rp-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
+
+/* Make the query list rows a touch roomier in the full-height view */
+.rp-body .sel-list { max-height: none; }
+.rp-body .sel-row { padding: 8px 12px; }
+.rp-body .sel-label { font-size: 12px; }

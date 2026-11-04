@@ -18,7 +18,7 @@ import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionCo
 import AppShell from "./components/Shell/AppShell";
 import AppHeader from "./components/Shell/AppHeader";
 import TapestryView from "./components/TapestryView";
-import LyricsView from "./components/LyricsView";
+import RightPane from "./components/RightPane/RightPane";
 import LeftPanel from "./components/Panels/LeftPanel";
 
 // Helper child that binds stopAll into a ref the parent can call.
@@ -132,7 +132,7 @@ export default function App() {
                       header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} />}
                       left={<LeftPanel />}
                       center={<TapestryView key={`tapestry-${selectedSong}`} />}
-                      right={<LyricsView key={`lyrics-${selectedSong}`} height="100%" />}
+                      right={<RightPane songKey={selectedSong} />}
                     />
                   </TapestryLayoutProvider>
                 </WordSelectionProvider>

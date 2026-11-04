@@ -1,8 +1,6 @@
 // src/components/LyricsView/WordBlock.jsx
 import React from "react";
-import { extractVowels } from "../../utils/extractVowels";
 import { useWordVisual, useWordSelectionActions } from "../../contexts/lyricsContexts/WordSelectionContext";
-import { useSyllableWordState, useSyllableClick } from "../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../contexts/ParamsContext";
 import "./LyricsView.css";
 
@@ -21,22 +19,15 @@ export const WordBlock = React.memo(function WordBlock({
   wordIdx,
   isCurrent,
   onWordHover,
-  onSyllableHover,
   onHoverEnd,
 }) {
-  const vowels = extractVowels(word.phones?.[0]);
-  const nSyllables = word.nSyllables ?? 1;
-
   const wordId = `${lineIdx}-${wordIdx}`;
 
   // Per-word subscriptions (utils/selectorStore): this block re-renders only
   // when ITS visual/anchor/syllable state changes, not on every selection.
   const { anchorOrAdopt, removeSelection, markWordInteraction } = useWordSelectionActions();
   const { vis, anchorForThisWord } = useWordVisual(wordId);
-  const { wordActiveColor, wordOpacity, alliterationTier, showRhymes, vowelColors } =
-    useParams();
-  const handleSyllableClick = useSyllableClick();
-  const syllableMask = useSyllableWordState(lineIdx, wordIdx, nSyllables);
+  const { wordActiveColor, wordOpacity, alliterationTier, showRhymes } = useParams();
 
   const isAnchor    = vis?.roles?.isAnchor       ?? false;
   const isRhyme     = vis?.roles?.isRhyme        ?? false;
@@ -89,37 +80,6 @@ export const WordBlock = React.memo(function WordBlock({
 
   return (
     <div className="word-wrapper">
-      <div className="syllable-row">
-        {Array.from({ length: nSyllables }).map((_, i) => {
-          const id = `${lineIdx}-${wordIdx}-${i}`;
-          const vowel = vowels[i] ?? "AH";
-          const color = vowelColors[vowel] ?? "#cccccc";
-
-          const isSel = (syllableMask & (1 << (2 * i))) !== 0;
-          const isMtch = (syllableMask & (1 << (2 * i + 1))) !== 0;
-
-          return (
-            <div
-              key={i}
-              className={
-                "lyrics-syllable-circle" + (isSel ? " selected" : "")
-              }
-              style={isSel || isMtch ? { backgroundColor: color } : undefined}
-              onClick={() => handleSyllableClick(id, vowel)}
-              onMouseEnter={() =>
-                onSyllableHover?.({
-                  vowel,
-                  syllableIndex: i,
-                  totalSyllables: nSyllables,
-                  phones: word.phones?.join(" ") || "",
-                })
-              }
-              onMouseLeave={onHoverEnd}
-            />
-          );
-        })}
-      </div>
-
       {/* Word text toggles anchor adopt/remove */}
       <span
         className={`word ${isCurrent ? "current" : ""}`}

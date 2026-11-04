@@ -12,8 +12,8 @@
 }
 
 .psm-panel {
-  background: #12171f;
-  border: 1px solid #2a3444;
+  background: #f6f6f7;
+  border: 1px solid #d6d6db;
   border-radius: 10px;
   padding: 22px 26px;
   max-width: 500px;
@@ -38,29 +38,29 @@
 .psm-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #e9eef5;
+  color: #1a1a1a;
   letter-spacing: 0.02em;
 }
 
 .psm-close {
   width: 26px;
   height: 26px;
-  border: 1px solid #2a3444;
+  border: 1px solid #d6d6db;
   border-radius: 6px;
   background: transparent;
-  color: #6b7280;
+  color: #9a9ca3;
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   display: grid;
   place-items: center;
 }
-.psm-close:hover { color: #e9eef5; border-color: #6b7280; }
+.psm-close:hover { color: #1a1a1a; border-color: #9a9ca3; }
 
 .psm-desc {
   margin: 0;
   font-size: 0.82rem;
-  color: #7c8a9e;
+  color: #777a80;
   line-height: 1.6;
 }
 
@@ -86,7 +86,7 @@
 .psm-section-heading {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #b0c4d8;
+  color: #3a3a3f;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -94,7 +94,7 @@
 .psm-section-note {
   margin: 0;
   font-size: 0.78rem;
-  color: #5a7090;
+  color: #9a9ca3;
   line-height: 1.5;
 }
 
@@ -107,13 +107,13 @@
 
 .psm-axis-label {
   font-size: 9px;
-  fill: #3a4f66;
+  fill: #d6d6db;
   font-family: sans-serif;
 }
 
 .psm-vowel-circle {
   fill: rgba(74, 127, 165, 0.18);
-  stroke: #4a7fa5;
+  stroke: #777a80;
   stroke-width: 1.5;
 }
 
@@ -141,39 +141,39 @@
 
 .psm-coda-table th {
   text-align: left;
-  color: #4a5e76;
+  color: #9a9ca3;
   font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 4px 8px 6px 0;
-  border-bottom: 1px solid #1a2840;
+  border-bottom: 1px solid #ededf0;
 }
 
 .psm-coda-table td {
   padding: 5px 8px 5px 0;
-  border-bottom: 1px solid #111827;
-  color: #8aabcc;
+  border-bottom: 1px solid #f6f6f7;
+  color: #3a3a3f;
   vertical-align: top;
 }
 .psm-coda-table tr:last-child td { border-bottom: none; }
 .psm-row-highlight td { background: rgba(255, 200, 80, 0.04); }
-.psm-row-highlight .psm-coda-sim { color: #c8b870; }
+.psm-row-highlight .psm-coda-sim { color: #3a3a3f; }
 
 .psm-coda-cell {
   font-family: monospace;
-  color: #7a9ab8;
+  color: #777a80;
 }
 
 .psm-coda-sim {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #90c0a0;
+  color: #3a3a3f;
   white-space: nowrap;
 }
 
 .psm-coda-eg {
-  color: #6a8aaa;
+  color: #777a80;
   font-style: italic;
   font-size: 0.7rem;
 }
@@ -187,19 +187,19 @@
   border-radius: 6px;
   padding: 8px 10px;
   font-size: 0.7rem;
-  color: #8aabcc;
+  color: #3a3a3f;
   line-height: 1.5;
 }
 
 .psm-plural-star {
-  color: #c8b870;
+  color: #3a3a3f;
   font-size: 0.9rem;
   flex-shrink: 0;
   line-height: 1.4;
 }
 
 .psm-plural-note strong { color: #c8d8f0; }
-.psm-plural-note em { color: #a0b8d0; font-style: normal; font-weight: 600; }
+.psm-plural-note em { color: #3a3a3f; font-style: normal; font-weight: 600; }
 
 /* ── Consonant table ─────────────────────────────────────────────────────── */
 
@@ -217,7 +217,7 @@
 
 .psm-cons-manner {
   font-size: 0.72rem;
-  color: #5a6478;
+  color: #9a9ca3;
   width: 74px;
   flex-shrink: 0;
   text-align: right;
@@ -233,9 +233,9 @@
 .psm-cons-chip {
   font-family: monospace;
   font-size: 0.75rem;
-  color: #b0c4d8;
+  color: #3a3a3f;
   background: rgba(74, 127, 165, 0.12);
-  border: 1px solid #2a3a50;
+  border: 1px solid #d6d6db;
   border-radius: 4px;
   padding: 2px 6px;
 }
@@ -243,6 +243,6 @@
 .psm-cons-note {
   margin: 6px 0 0;
   font-size: 0.7rem;
-  color: #4a5568;
+  color: #9a9ca3;
   line-height: 1.5;
 }
