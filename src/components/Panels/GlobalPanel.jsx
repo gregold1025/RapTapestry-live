@@ -100,7 +100,7 @@ export default function GlobalPanel() {
             ]}
           />
           {rowHeightMode === "fixed" && (
-            <Slider label="" value={fixedRowHeightPx} min={40} max={400} step={1} unit=" px" onChange={setFixedRowHeightPx} />
+            <Slider label="pixels" value={fixedRowHeightPx} min={40} max={400} step={1} unit=" px" onChange={setFixedRowHeightPx} />
           )}
         </div>
         <p className="ui-note">Width is always in bars. Pixels per bar follow from the window.</p>

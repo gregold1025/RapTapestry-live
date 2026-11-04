@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useSyllableSelection } from "../../../contexts/lyricsContexts/SyllableSelectionContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -39,18 +39,6 @@ export default function SyllableGlyphs({
   const glyphUrl = glyphStyle?.syllableGlyphUrl ?? null;
   const { seekAll } = useAudioControls();
   const { centroidSpan } = useSongData();
-
-  // Stable flat index of syllable ids (kept for future connectors).
-  useMemo(() => {
-    const ids = [];
-    transcriptionData.lines.forEach((line, li) =>
-      line.words?.forEach((word, wi) => {
-        const n = word.nSyllables ?? 1;
-        for (let si = 0; si < n; si++) ids.push(`${li}-${wi}-${si}`);
-      })
-    );
-    return ids;
-  }, [transcriptionData]);
 
   // Hooks above; early return below (rules-of-hooks).
   if (!layout || !showSyllables) return null;

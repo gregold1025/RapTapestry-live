@@ -3,7 +3,7 @@
 .sel-list {
   display: flex;
   flex-direction: column;
-  background: #ededf0;
+  background: #ffffff;
   overflow-y: auto;
   max-height: 100%;
 }
@@ -60,7 +60,7 @@
 
 .sel-kind {
   font-size: 0.6rem;
-  color: #d6d6db;
+  color: #9a9ca3;
   font-weight: 700;
   flex-shrink: 0;
   width: 10px;
@@ -70,12 +70,12 @@
 .sel-btn {
   background: transparent;
   border: none;
-  color: #d6d6db;
+  color: #777a80;
   font-size: 0.8rem;
   cursor: pointer;
   padding: 0 2px;
   line-height: 1;
   flex-shrink: 0;
 }
-.sel-btn:hover { color: #777a80; }
+.sel-btn:hover { color: #1a1a1a; }
 .sel-btn--danger:hover { color: #ef4444; }

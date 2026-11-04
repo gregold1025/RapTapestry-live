@@ -81,25 +81,31 @@ export default function App() {
   // (avoids one render with new keys but old data; see perf notes).
   const songReady = !!songData && songData.song === selectedSong;
 
+  // UIStateProvider and ParamsProvider stay mounted across song loads so the
+  // header selectors and every panel parameter survive a song switch.
+  const loading = (
+    <AppShell
+      header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} transport={false} />}
+      left={null}
+      center={
+        <CenteredMessage>
+          {loadError ? (
+            <p style={{ color: "crimson" }}>
+              Failed to load <strong>{selectedSong}</strong>: {loadError}
+            </p>
+          ) : (
+            <div>Loading song data…</div>
+          )}
+        </CenteredMessage>
+      }
+      right={null}
+    />
+  );
+
   if (!songReady || loadError) {
     return (
       <UIStateProvider>
-        <AppShell
-          header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} transport={false} />}
-          left={null}
-          center={
-            <CenteredMessage>
-              {loadError ? (
-                <p style={{ color: "crimson" }}>
-                  Failed to load <strong>{selectedSong}</strong>: {loadError}
-                </p>
-              ) : (
-                <div>Loading song data…</div>
-              )}
-            </CenteredMessage>
-          }
-          right={null}
-        />
+        <ParamsProvider>{loading}</ParamsProvider>
       </UIStateProvider>
     );
   }

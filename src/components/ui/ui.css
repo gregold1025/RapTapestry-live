@@ -227,8 +227,8 @@
 .ui-glyph-pop {
   position: absolute;
   z-index: 50;
-  top: 28px; left: 0;
-  width: 212px;
+  top: 28px; left: -20px;
+  width: 216px;
   max-height: 240px;
   overflow: auto;
   padding: 6px;

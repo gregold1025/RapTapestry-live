@@ -21,8 +21,11 @@ export default function AudioControlsView() {
   useEffect(() => {
     const onKeyDown = (e) => {
       const tag = (e.target?.tagName || "").toLowerCase();
-      const isTyping = tag === "input" || tag === "textarea" || tag === "select" || e.target?.isContentEditable;
-      if (isTyping) return;
+      const role = e.target?.getAttribute?.("role");
+      const isControl =
+        tag === "input" || tag === "textarea" || tag === "select" || tag === "button" ||
+        role === "button" || role === "slider" || e.target?.isContentEditable;
+      if (isControl) return;
       if (e.code === "Space" || e.key === " ") {
         e.preventDefault();
         isPlaying ? pauseAll() : playAll();

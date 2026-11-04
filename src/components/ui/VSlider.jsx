@@ -29,6 +29,7 @@ export function VSlider({ knobs, onChange, label = "height", height = 92, previe
   const onPointerMove = (e) => {
     const i = dragging.current;
     if (i < 0) return;
+    if (!(e.buttons & 1)) { dragging.current = -1; return; }
     const p = pctFromEvent(e);
     const next = [...knobs];
     next[i] = p;
@@ -68,6 +69,7 @@ export function VSlider({ knobs, onChange, label = "height", height = 92, previe
             className="ui-vslider-knob"
             style={{ bottom: `${clamp(v, 0, 100)}%` }}
             onPointerDown={onPointerDown(i)}
+            onLostPointerCapture={onPointerUp}
             role="slider"
             aria-valuenow={v}
             aria-valuemin={0}

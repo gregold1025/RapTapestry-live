@@ -67,8 +67,9 @@ export default function LineGlyphs({ transcriptionData }) {
           width={segWidth}
           height={Math.max(1, yBot - yTop)}
           fill={fill}
-          opacity={opacity}
+          fillOpacity={opacity}
           stroke={stroke}
+          strokeOpacity={isHovered ? 1 : opacity}
           strokeWidth={strokeWidth}
           filter={shadowOn && active ? `url(#${LINE_SHADOW_FILTER_ID})` : undefined}
           style={{ cursor: "pointer" }}
