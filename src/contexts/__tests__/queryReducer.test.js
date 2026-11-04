@@ -87,4 +87,49 @@ describe("queryReducer", () => {
     expect(st.queries.length).toBe(2);
     expect(st.queries[0].anchorIds).toEqual(["0-1"]);
   });
+
+  // Line queries: their own kind. Line 0 ends in 0-5; line 1 is "1-0".."1-2"; a line
+  // query on line 0 matches line 1 (end rhyme), nothing else.
+  const lineEnv = {
+    ...env,
+    lastWordOf: (li) => (li === 0 ? "0-5" : li === 1 ? "1-2" : null),
+    lineMatchesFor: (q) => (q.kind === "line" && q.lineIdx === 0 ? [1] : []),
+  };
+  const clickLine = (st, lineIdx, mods = {}) => queryReducer(st, { type: "clickLine", lineIdx, ...mods }, lineEnv);
+
+  it("clicking a line's square makes a line query anchored on that line", () => {
+    const st = clickLine(initialQueryState, 0);
+    expect(st.queries.length).toBe(1);
+    expect(st.queries[0].kind).toBe("line");
+    expect(st.queries[0].lineIdx).toBe(0);
+    expect(st.queries[0].anchorIds).toEqual(["0-5"]);
+    expect(st.focusedId).toBe(st.queries[0].id);
+  });
+  it("clicking a matched line adopts the line query; clicking its own line focuses it", () => {
+    let st = clickLine(initialQueryState, 0);
+    const id = st.queries[0].id;
+    st = clickLine(st, 1);
+    expect(st.queries.length).toBe(1);
+    expect(st.queries[0].id).toBe(id);
+    expect(st.queries[0].lineIdx).toBe(1);
+    expect(st.queries[0].anchorIds).toEqual(["1-2"]);
+    st = clickLine(st, 1);
+    expect(st.queries.length).toBe(1);
+  });
+  it("word clicks never adopt a line query, even on the line's last word", () => {
+    let st = clickLine(initialQueryState, 0);
+    st = queryReducer(st, { type: "click", wordId: "0-5" }, lineEnv);
+    expect(st.queries.length).toBe(2);
+    expect(st.queries[0].kind).toBe("line");
+    expect(st.queries[1].kind).toBe("word");
+  });
+  it("alt-clicking a line removes the line query that owns it", () => {
+    let st = clickLine(initialQueryState, 0);
+    st = clickLine(st, 1, { alt: true });
+    expect(st.queries.length).toBe(0);
+  });
+  it("every query carries its kind", () => {
+    const st = click(initialQueryState, "0-1");
+    expect(st.queries[0].kind).toBe("word");
+  });
 });

@@ -1,8 +1,10 @@
 // src/components/Shell/AppHeader.jsx
+// Left: the lyrics toggle (ABC). Center: the song above the transport (play,
+// stop, loop, bar.beat, scrubber, time) and the Line Staff toggle (treble
+// clef). Right: parameters | queries for the right pane.
 import React from "react";
 import { useUIState } from "../../contexts/UIStateContext";
 import AudioControlsView from "../AudioControlsView";
-import StemsStrip from "./StemsStrip";
 
 export const SONGS = [
   { id: "93Til", label: "93 Til Infinity — Souls of Mischief" },
@@ -21,68 +23,50 @@ const IconList = () => (
     <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
   </svg>
 );
-const IconMagnifier = () => (
+const IconSliders = () => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="2.4" />
-    <path d="m15.5 15.5 5 5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    <path d="M7 4v16M17 4v16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <circle cx="7" cy="9" r="2.6" fill="currentColor" />
+    <circle cx="17" cy="15" r="2.6" fill="currentColor" />
+  </svg>
+);
+export const IconClef = () => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M11 22c-1.5 0-2.5-1-2.5-2.2 0-1.1.9-1.9 1.9-1.9.9 0 1.6.6 1.6 1.4 0 .7-.5 1.2-1.1 1.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M12.5 2.5c1.6 1.6 2.4 3.6 1.1 5.9-1.4 2.4-5.3 4.5-5.3 8.1 0 2.1 1.7 3.6 3.9 3.6 2 0 3.3-1.3 3.3-3 0-1.6-1.2-2.8-2.8-2.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M12.5 2.5 11.2 20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
   </svg>
 );
 
-const VIEWS = [
-  { id: "lyrics", title: "Lyrics", Icon: IconLyrics },
-  { id: "queries", title: "Query list", Icon: IconList },
-  { id: "query", title: "Single query", Icon: IconMagnifier },
-];
-
-function RightViewSelector() {
-  const { rightView, setRightView } = useUIState();
-  return (
-    <div className="rt-header-group">
-      <div className="rt-seg rt-seg--icons" role="group" aria-label="Right view">
-        {VIEWS.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            className={rightView === v.id ? "is-active" : ""}
-            aria-pressed={rightView === v.id}
-            onClick={() => setRightView(v.id)}
-            title={v.title}
-          >
-            <v.Icon />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function AppHeader({ selectedSong, onSongChange, transport = true }) {
+  const { lyricsOpen, toggleLyrics, rightView, setRightView, staffOpen, toggleStaff } = useUIState();
   return (
     <>
-      {/* left: the global stems panel (eye / M / S; name opens the stem's panel) */}
       <div className="rt-header-left">
-        <StemsStrip mix={transport} />
+        <button type="button" className={`rt-tog ${lyricsOpen ? "is-active" : ""}`} aria-pressed={lyricsOpen} onClick={toggleLyrics} title={lyricsOpen ? "Hide the lyrics" : "Show the lyrics"}>
+          <IconLyrics />
+        </button>
       </div>
 
-      {/* center: song on top, transport underneath */}
       <div className="rt-header-center">
-        <select
-          className="rt-song-select"
-          value={selectedSong}
-          onChange={onSongChange}
-          aria-label="Song"
-          title="Song"
-        >
+        <select className="rt-song-select" value={selectedSong} onChange={onSongChange} aria-label="Song" title="Song">
           {SONGS.map((s) => (
             <option key={s.id} value={s.id}>{s.label}</option>
           ))}
         </select>
-        <div className="rt-header-transport">{transport ? <AudioControlsView /> : null}</div>
+        <div className="rt-header-transport">
+          {transport ? <AudioControlsView /> : null}
+          <button type="button" className={`rt-tog ${staffOpen ? "is-active" : ""}`} aria-pressed={staffOpen} onClick={toggleStaff} title={staffOpen ? "Close the Line Staff" : "Open the Line Staff under the tapestry"} disabled={!transport}>
+            <IconClef />
+          </button>
+        </div>
       </div>
 
-      {/* right: which view fills the right pane */}
       <div className="rt-header-right">
-        <RightViewSelector />
+        <div className="rt-seg rt-seg--icons" role="group" aria-label="Right pane">
+          <button type="button" className={rightView === "params" ? "is-active" : ""} aria-pressed={rightView === "params"} onClick={() => setRightView("params")} title="Parameters"><IconSliders /></button>
+          <button type="button" className={rightView === "queries" ? "is-active" : ""} aria-pressed={rightView === "queries"} onClick={() => setRightView("queries")} title="Queries"><IconList /></button>
+        </div>
       </div>
     </>
   );

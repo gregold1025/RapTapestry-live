@@ -5,6 +5,8 @@ import { useAudioEngine } from "../../contexts/AudioContext";
 import { PlayPauseButton } from "./UIElements/PlayPauseButton";
 import { StopButton } from "./UIElements/StopButton";
 import { TransportClock } from "./UIElements/TransportClock";
+import { LoopButton } from "./UIElements/LoopButton";
+import { BarBeat } from "./UIElements/BarBeat";
 import "./AudioControlsView.css";
 
 export default function AudioControlsView() {
@@ -40,7 +42,9 @@ export default function AudioControlsView() {
       <div className="ac-transport">
         <PlayPauseButton isPlaying={isPlaying} onClick={() => (isPlaying ? pauseAll() : playAll())} />
         <StopButton onClick={stopAll} />
+        <LoopButton />
       </div>
+      <BarBeat />
       <TransportClock duration={duration} onSeek={seekAll} />
       <label className="ac-volume" title="Volume">
         <span className="ac-volume-icon" aria-hidden="true">

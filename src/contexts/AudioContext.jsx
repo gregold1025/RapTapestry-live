@@ -20,6 +20,11 @@ export function AudioProvider({ audioFiles, children }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(null);
 
+  // Loop section: on/off + [start, end]. The rAF tick reads it from a ref.
+  const [loop, setLoopState] = useState({ on: false, start: 0, end: 0 });
+  const loopRef = useRef(loop);
+  loopRef.current = loop;
+
   // High-frequency playhead time lives OUTSIDE React state.
   const playheadRef = useRef(0);
   const subscribersRef = useRef(new Set());
@@ -58,7 +63,12 @@ export function AudioProvider({ audioFiles, children }) {
     if (!isPlaying) return;
     let frameId;
     const tick = () => {
-      const current = audioRefs.current.vocals?.currentTime || 0;
+      let current = audioRefs.current.vocals?.currentTime || 0;
+      const L = loopRef.current;
+      if (L.on && L.end > L.start && current >= L.end) {
+        current = L.start;
+        Object.values(audioRefs.current).forEach((a) => { a.currentTime = current; });
+      }
       emitPlayhead(current);
       frameId = requestAnimationFrame(tick);
     };
@@ -67,10 +77,18 @@ export function AudioProvider({ audioFiles, children }) {
   }, [isPlaying, emitPlayhead]);
 
   // Controls
+  // With the loop on, play always starts at the loop start.
   const playAll = useCallback(() => {
+    const L = loopRef.current;
+    if (L.on && L.end > L.start) {
+      Object.values(audioRefs.current).forEach((a) => { a.currentTime = L.start; });
+      emitPlayhead(L.start);
+    }
     Object.values(audioRefs.current).forEach((a) => a.play());
     setIsPlaying(true);
-  }, []);
+  }, [emitPlayhead]);
+
+  const setLoop = useCallback((patch) => setLoopState((prev) => ({ ...prev, ...(typeof patch === "function" ? patch(prev) : patch) })), []);
 
   const pauseAll = useCallback(() => {
     Object.values(audioRefs.current).forEach((a) => a.pause());
@@ -109,6 +127,8 @@ export function AudioProvider({ audioFiles, children }) {
       seekAll,
       subscribePlayhead,
       getPlayheadTime,
+      loop,
+      setLoop,
     }),
     [
       isPlaying,
@@ -119,6 +139,8 @@ export function AudioProvider({ audioFiles, children }) {
       seekAll,
       subscribePlayhead,
       getPlayheadTime,
+      loop,
+      setLoop,
     ]
   );
 
@@ -130,8 +152,9 @@ export function AudioProvider({ audioFiles, children }) {
       seekAll,
       subscribePlayhead,
       getPlayheadTime,
+      setLoop,
     }),
-    [playAll, pauseAll, stopAll, seekAll, subscribePlayhead, getPlayheadTime]
+    [playAll, pauseAll, stopAll, seekAll, subscribePlayhead, getPlayheadTime, setLoop]
   );
 
   return (

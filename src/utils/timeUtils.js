@@ -75,3 +75,12 @@ export function xToTime(x, gridTimes, columnWidth) {
   if (raw >= n) return gridTimes[n];
   return gridTimes[i] + frac * (gridTimes[i + 1] - gridTimes[i]);
 }
+
+/** Content point (x, y) -> time, for wrap rows or the single scroll row. */
+export function pointToTime(x, y, lay) {
+  const { gridTimes, beatsPerRow, columnWidth, rowHeight, numberOfRows = 1 } = lay;
+  const row = Math.max(0, Math.min(numberOfRows - 1, Math.floor(y / rowHeight)));
+  const seg = gridTimes.slice(row * beatsPerRow, row * beatsPerRow + beatsPerRow + 1);
+  const xx = Math.max(0, Math.min(seg.length > 1 ? (seg.length - 1) * columnWidth : 0, x));
+  return xToTime(xx, seg, columnWidth);
+}

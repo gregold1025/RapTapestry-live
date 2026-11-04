@@ -1,6 +1,9 @@
 // src/contexts/queryReducer.js
-// Pure state for queries: each query is one word or a contiguous run of words
-// (anchorIds in song order), with a color and the rhyme types it shows.
+// Pure state for queries. Two kinds, each its own thing:
+//   word: one word or a contiguous run of words (anchorIds in song order)
+//   line: a line (lineIdx); it matches other lines by end rhyme, and is drawn
+//         on lines only. Its anchorIds hold the line's last word for the engine.
+// Both carry a color and the rhyme types they show.
 //
 // Click rules (env.matchesFor(q) tells us which words a query currently SHOWS as
 // matches, i.e. filtered by the query's rhyme types, so adopt follows what is drawn):
@@ -20,8 +23,8 @@ export const DEFAULT_TYPES = RHYME_TYPES.filter((t) => t.on).map((t) => t.key);
 export const initialQueryState = { queries: [], focusedId: null };
 
 function ownerOf(state, wordId, env) {
-  // most recent query first, anchors before matches
-  const rev = [...state.queries].reverse();
+  // most recent WORD query first, anchors before matches
+  const rev = [...state.queries].reverse().filter((q) => q.kind !== "line");
   const anchor = rev.find((q) => q.anchorIds.includes(wordId));
   if (anchor) return { q: anchor, role: "anchor" };
   const match = rev.find((q) => q.active && env.matchesFor(q).includes(wordId));
@@ -29,10 +32,21 @@ function ownerOf(state, wordId, env) {
   return null;
 }
 
-function newQuery(state, anchorIds) {
+function ownerOfLine(state, lineIdx, env) {
+  const rev = [...state.queries].reverse().filter((q) => q.kind === "line");
+  const anchor = rev.find((q) => q.lineIdx === lineIdx);
+  if (anchor) return { q: anchor, role: "anchor" };
+  const match = rev.find((q) => q.active && env.lineMatchesFor(q).includes(lineIdx));
+  if (match) return { q: match, role: "match" };
+  return null;
+}
+
+function newQuery(state, anchorIds, extra = {}) {
   return {
     id: nanoid(),
+    kind: "word",
     anchorIds,
+    ...extra,
     color: generateDistinctColor(state.queries.map((q) => q.color)),
     active: true,
     createdAt: Date.now(),
@@ -72,6 +86,29 @@ export function queryReducer(state, action, env = action.__env) {
         }
       }
       const q = newQuery(state, [wordId]);
+      return { queries: [...state.queries, q], focusedId: q.id };
+    }
+    case "clickLine": {
+      const { lineIdx, meta, alt } = action;
+      const last = env.lastWordOf(lineIdx);
+      if (last == null) return state;
+      if (alt) {
+        const own = ownerOfLine(state, lineIdx, env);
+        if (!own) return state;
+        const queries = state.queries.filter((q) => q.id !== own.q.id);
+        return { queries, focusedId: state.focusedId === own.q.id ? (queries.length ? queries[queries.length - 1].id : null) : state.focusedId };
+      }
+      if (!meta) {
+        const own = ownerOfLine(state, lineIdx, env);
+        if (own?.role === "anchor") return { ...state, focusedId: own.q.id };
+        if (own?.role === "match") {
+          return {
+            queries: state.queries.map((q) => (q.id === own.q.id ? { ...q, lineIdx, anchorIds: [last] } : q)),
+            focusedId: own.q.id,
+          };
+        }
+      }
+      const q = newQuery(state, [last], { kind: "line", lineIdx });
       return { queries: [...state.queries, q], focusedId: q.id };
     }
     case "remove": {

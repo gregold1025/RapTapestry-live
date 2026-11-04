@@ -1,25 +1,30 @@
 // src/contexts/UIStateContext.jsx
-// Header selectors: which left panel is open (one at a time, or none) and
-// which right view is shown (always exactly one).
+// The shell's switches: lyrics pane (left) shown or hidden; the right pane
+// shows the parameters (Global, or one stem's nested panel) or the Queries
+// view; the Line Staff pane (under the tapestry) open or closed, with its own
+// bars-in-view.
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 const UIStateContext = createContext(null);
 
-export const LEFT_PANELS = ["global", "vocals", "drums", "bass", "other"];
-export const RIGHT_VIEWS = ["lyrics", "queries", "query"];
+export const PARAM_PANELS = ["global", "vocals", "drums", "bass", "other"];
+export const RIGHT_VIEWS = ["params", "queries"];
 
-export function UIStateProvider({ children, initialLeftPanel = "vocals", initialRightView = "lyrics" }) {
-  const [leftPanel, setLeftPanel] = useState(initialLeftPanel);
+export function UIStateProvider({ children, initialRightView = "params", initialParamsPanel = "global" }) {
+  const [lyricsOpen, setLyricsOpen] = useState(true);
   const [rightView, setRightView] = useState(initialRightView);
+  const [paramsPanel, setParamsPanel] = useState(initialParamsPanel);
+  const [staffOpen, setStaffOpen] = useState(false);
+  const [staffBars, setStaffBars] = useState(4);
 
-  // Clicking the active panel button again closes the left sidebar.
-  const toggleLeftPanel = useCallback((p) => {
-    setLeftPanel((cur) => (cur === p ? null : p));
-  }, []);
+  const toggleLyrics = useCallback(() => setLyricsOpen((v) => !v), []);
+  const toggleStaff = useCallback(() => setStaffOpen((v) => !v), []);
+  // Opening a stem's panel also brings the parameters view forward.
+  const openParamsPanel = useCallback((p) => { setParamsPanel(p); setRightView("params"); }, []);
 
   const value = useMemo(
-    () => ({ leftPanel, setLeftPanel, toggleLeftPanel, rightView, setRightView }),
-    [leftPanel, toggleLeftPanel, rightView]
+    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, paramsPanel, setParamsPanel, openParamsPanel, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars }),
+    [lyricsOpen, toggleLyrics, rightView, paramsPanel, openParamsPanel, staffOpen, toggleStaff, staffBars]
   );
   return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }

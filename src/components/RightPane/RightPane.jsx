@@ -1,14 +1,11 @@
 import React from "react";
 import { useUIState } from "../../contexts/UIStateContext";
-import LyricsView from "../LyricsView";
-import QueryListView from "./QueryListView";
-import SingleQueryView from "./SingleQueryView";
+import ParamsPane from "../Panels/ParamsPane";
+import QueriesView from "./QueriesView";
 import "./RightPane.css";
 
-/** Exactly one of: lyrics, query list, single query (header right selector). */
-export default function RightPane({ songKey }) {
+/** The right pane: parameters (Global or a stem's panel) or the queries. */
+export default function RightPane() {
   const { rightView } = useUIState();
-  if (rightView === "queries") return <QueryListView />;
-  if (rightView === "query") return <SingleQueryView />;
-  return <LyricsView key={`lyrics-${songKey}`} height="100%" />;
+  return rightView === "queries" ? <QueriesView /> : <ParamsPane />;
 }

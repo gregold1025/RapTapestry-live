@@ -1,9 +1,10 @@
 // src/contexts/QueryContext.jsx
-// One query model for every layer. A query is a word or a contiguous run of
-// words; its matches come from the typed rhyme engine (src/engine). Lines are
-// context (a line query is a query on the line's last word); syllables are the
-// data the matches are drawn on. Color = query identity; type and form travel
-// with each word's visual so layers can style them without a second lookup.
+// One query model for every layer. Two kinds of query, each its own thing:
+// a WORD query (a word or a contiguous run) is drawn on words and syllables;
+// a LINE query (a line, matched to other lines by the end rhyme of their last
+// words) is drawn on lines only. Matches come from the typed rhyme engine
+// (src/engine). Color = query identity; type and form travel with each
+// visual so layers can style them without a second lookup.
 import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react";
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
@@ -22,6 +23,23 @@ function sylRangeFor(m, w) {
   }
   const first = m.words[0] === w, last = m.words[m.words.length - 1] === w;
   return { vi0: first ? (m.vi0 ?? 0) : 0, vi1: last ? (m.vi1 ?? n - 1) : n - 1 };
+}
+
+/** End-rhyme matches of a line query: engine matches whose last word ends a line,
+ *  one entry per line (lowest-ranked type), with the line's index and text. */
+function lineMatches(ms, song) {
+  const best = new Map();
+  for (const m of ms) {
+    if (m.type === "anchor") continue;
+    const w = m.words[m.words.length - 1];
+    const line = song?.lines?.[w.li];
+    if (!line || w.wi !== line.words.length - 1) continue;
+    const rank = TYPE_RANK[m.type] ?? 99;
+    const prev = best.get(w.li);
+    if (prev && prev.rank <= rank) continue;
+    best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, expected: !!m.expected });
+  }
+  return [...best.values()].sort((a, b) => a.lineIdx - b.lineIdx);
 }
 
 export function QueryProvider({ children }) {
@@ -54,23 +72,35 @@ export function QueryProvider({ children }) {
       for (const m of matchesFor(q.anchorIds)) if (m.type !== "anchor" && q.types.has(m.type)) for (const w of m.words) ids.push(w.id);
       return ids;
     },
+    lastWordOf: (li) => {
+      const n = songModel?.lines?.[li]?.words?.length ?? 0;
+      return n ? `${li}-${n - 1}` : null;
+    },
+    // lines the line query currently shows as matches
+    lineMatchesFor: (q) => lineMatches(matchesFor(q.anchorIds), songModel).filter((lm) => q.types.has(lm.type)).map((lm) => lm.lineIdx),
   };
   const dispatch = useCallback((action) => dispatchRaw({ ...action, __env: envRef.current }), []);
 
+  // Word queries: the engine's matches. Line queries: end-rhyme matches, one
+  // per line (the lowest-ranked type whose match ends on that line's last word).
   const matchesByQueryId = useMemo(() => {
     const out = new Map();
-    for (const q of state.queries) out.set(q.id, matchesFor(q.anchorIds));
+    for (const q of state.queries) {
+      const ms = matchesFor(q.anchorIds);
+      out.set(q.id, q.kind === "line" ? lineMatches(ms, songModel) : ms);
+    }
     return out;
-  }, [state.queries, matchesFor]);
+  }, [state.queries, matchesFor, songModel]);
 
-  // Per-word visual: anchors win; else the lowest-ranked type; ties -> most recent query.
+  // Per-word visual (word queries only): anchors win; else the lowest-ranked
+  // type; ties -> most recent query.
   // Entries are reused from the previous map when unchanged so per-word subscribers
   // (useWordVisual) keep a stable reference and skip re-rendering.
   const prevVisualRef = useRef(new Map());
   const visualByWordId = useMemo(() => {
     const map = new Map();
     for (const q of state.queries) {
-      if (!q.active) continue;
+      if (!q.active || q.kind === "line") continue;
       for (const m of matchesByQueryId.get(q.id) ?? []) {
         const isAnchor = m.type === "anchor";
         if (!isAnchor && !q.types.has(m.type)) continue;
@@ -93,37 +123,38 @@ export function QueryProvider({ children }) {
     return map;
   }, [state.queries, matchesByQueryId]);
 
-  // Per-line visual: the query of an anchor in the line, else of its best match.
+  // Per-line visual (line queries only): the anchor line, and every matched
+  // line at its lowest-ranked type; ties -> most recent query.
+  const prevLineRef = useRef(new Map());
   const visualByLineIdx = useMemo(() => {
     const map = new Map();
-    for (const [wordId, v] of visualByWordId) {
-      const li = Number(wordId.split("-")[0]);
-      const prev = map.get(li);
-      if (!prev || (v.isAnchor && !prev.isAnchor) || (!prev.isAnchor && v.rank < prev.rank)) {
-        map.set(li, { queryId: v.queryId, color: v.color, role: v.isAnchor ? "anchor" : "match", rank: v.rank });
+    for (const q of state.queries) {
+      if (!q.active || q.kind !== "line") continue;
+      const prevA = map.get(q.lineIdx);
+      if (!prevA || !prevA.isAnchor) map.set(q.lineIdx, { queryId: q.id, color: q.color, role: "anchor", isAnchor: true, type: "anchor", rank: -1 });
+      for (const lm of matchesByQueryId.get(q.id) ?? []) {
+        if (lm.type === "anchor" || !q.types.has(lm.type)) continue;
+        const prev = map.get(lm.lineIdx);
+        const rank = TYPE_RANK[lm.type] ?? 99;
+        if (prev && (prev.isAnchor || prev.rank < rank)) continue;
+        map.set(lm.lineIdx, { queryId: q.id, color: q.color, role: "match", isAnchor: false, type: lm.type, form: lm.form, rank, text: lm.text });
       }
     }
+    const prev = prevLineRef.current;
+    for (const [li, v] of map) {
+      const b = prev.get(li);
+      if (b && b.queryId === v.queryId && b.color === v.color && b.role === v.role && b.type === v.type && b.form === v.form) map.set(li, b);
+    }
+    prevLineRef.current = map;
     return map;
-  }, [visualByWordId]);
+  }, [state.queries, matchesByQueryId]);
 
   const snapshot = useMemo(() => ({ visualByWordId, visualByLineIdx }), [visualByWordId, visualByLineIdx]);
   const store = useSelectorStoreProvider(snapshot);
 
-  const lastWordIdOfLine = useCallback(
-    (lineIdx) => {
-      const line = songModel?.lines?.[lineIdx];
-      const n = line?.words?.length ?? 0;
-      return n ? `${lineIdx}-${n - 1}` : null;
-    },
-    [songModel]
-  );
-
   const actions = useStableActions({
     click: (wordId, mods = {}) => dispatch({ type: "click", wordId, shift: !!mods.shift, meta: !!mods.meta, alt: !!mods.alt }),
-    clickLine: (lineIdx, mods = {}) => {
-      const id = lastWordIdOfLine(lineIdx);
-      if (id) dispatch({ type: "click", wordId: id, shift: !!mods.shift, meta: !!mods.meta, alt: !!mods.alt });
-    },
+    clickLine: (lineIdx, mods = {}) => dispatch({ type: "clickLine", lineIdx, meta: !!mods.meta, alt: !!mods.alt }),
     remove: (id) => dispatch({ type: "remove", id }),
     toggleActive: (id) => dispatch({ type: "toggleActive", id }),
     setTypes: (id, types) => dispatch({ type: "setTypes", id, types }),

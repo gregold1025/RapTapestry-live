@@ -1,12 +1,13 @@
 // src/components/Shell/AppShell.jsx
-// Fixed header, left panel (one at a time, collapsible), center stage, right pane.
+// Fixed header; lyrics on the left (hideable); center stage; right pane
+// (parameters or queries).
 import React from "react";
 import { useUIState } from "../../contexts/UIStateContext";
 import "./Shell.css";
 
 export default function AppShell({ header, left, center, right }) {
-  const { leftPanel } = useUIState();
-  const closed = !leftPanel || !left;
+  const { lyricsOpen } = useUIState();
+  const closed = !lyricsOpen || !left;
   return (
     <div className={`rt-shell ${closed ? "left-closed" : ""}`}>
       <header className="rt-header">{header}</header>

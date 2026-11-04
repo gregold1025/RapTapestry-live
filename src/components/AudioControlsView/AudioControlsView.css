@@ -118,3 +118,12 @@
 }
 .ac-volume-range::-moz-range-track { height: 4px; background: #5a5a5a; border-radius: 999px; }
 .ac-volume-range::-moz-range-thumb { width: 11px; height: 11px; border-radius: 999px; background: #fff; border: 2px solid #1a1a1a; }
+
+.ac-loop.is-on { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.ac-barbeat {
+  display: inline-flex; align-items: baseline; gap: 3px; flex-shrink: 0;
+  padding: 3px 8px; border: 1px solid #d6d6db; border-radius: 6px; background: #fff;
+  font-variant-numeric: tabular-nums; color: #1a1a1a;
+}
+.ac-barbeat-n { font-size: 13px; font-weight: 700; min-width: 1.4em; text-align: right; }
+.ac-barbeat-l { font-size: 9px; color: #777a80; margin-right: 4px; text-transform: uppercase; letter-spacing: 0.04em; }

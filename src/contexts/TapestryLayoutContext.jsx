@@ -9,7 +9,7 @@ import React, {
 } from "react";
 
 import { computeLayout } from "../utils/computeLayout";
-import { timeToPixels, getRowIndex, xToTime } from "../utils/timeUtils";
+import { timeToPixels, getRowIndex, xToTime, pointToTime } from "../utils/timeUtils";
 import { computeLanes } from "../utils/laneLayout";
 import { useParams } from "./ParamsContext";
 
@@ -22,6 +22,8 @@ export function TapestryLayoutProvider({
   downbeats = [],
   beats = [],
   barsPerRow: barsPerRowOverride,
+  // "wrap" | "scroll"; the Line Staff pane passes "scroll"
+  timeLayout: timeLayoutOverride,
 
   // Optional overrides (if you pass these explicitly, they win)
   rowHeightMode: rowHeightModeOverride,
@@ -57,7 +59,7 @@ export function TapestryLayoutProvider({
 
   // Keep layout inputs in a ref so the ResizeObserver callback always
   // sees current values without needing to re-subscribe on every change.
-  const scroll = timeLayout === "scroll";
+  const scroll = (timeLayoutOverride ?? timeLayout) === "scroll";
   const inputsRef = useRef({
     duration, estimated_bpm, beats, downbeats, barsPerRow,
     rowHeightMode, fixedRowHeightPx, scroll,
@@ -114,6 +116,7 @@ export function TapestryLayoutProvider({
       getRowIndex: (t) => getRowIndex(t, newLayout.rowBoundaries),
       // content x -> time (single row only; wrap rows need the row too)
       xToTime: (x) => xToTime(x, newLayout.gridTimes, newLayout.columnWidth),
+      pointToTime: (x, y) => pointToTime(x, y, newLayout),
       contentHeight: newLayout.rowHeight * newLayout.numberOfRows,
       viewWidth: clientWidth,
       viewHeight: clientHeight,

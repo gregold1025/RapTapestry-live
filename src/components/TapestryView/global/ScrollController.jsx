@@ -66,6 +66,7 @@ export default function ScrollController({ containerRef, contentRef }) {
     if (!el) return;
     const onDown = (e) => {
       if (e.button !== 0) return;
+      if (e.target.closest?.("[data-loop-handle]")) return;   // the loop handle drags itself
       st.current.drag = { x: e.clientX, scrollX: st.current.scrollX, moved: false };
     };
     const onMove = (e) => {

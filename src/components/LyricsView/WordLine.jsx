@@ -24,11 +24,11 @@ export const WordLine = React.memo(function WordLine({ line, lineIdx, isCurrent,
 
   return (
     <div className={["line", isCurrent ? "current" : ""].join(" ").trim()} data-line-idx={dataLineIdx} style={lineStyle}>
-      {/* Line query: the line's last word */}
+      {/* Line query: this line, matched to other lines by the end rhyme of their last words */}
       <div
         className="line-select"
         onClick={(e) => clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey })}
-        title={vis?.role === "anchor" ? "This line holds a query (alt-click: remove)" : "Query this line (its last word)"}
+        title={vis?.role === "anchor" ? "This line is a line query (alt-click: remove)" : vis?.role === "match" ? "This line rhymes with a line query (click: move the query here)" : "Line query: lines whose last word rhymes with this one"}
         aria-pressed={vis?.role === "anchor"}
         role="button"
       >

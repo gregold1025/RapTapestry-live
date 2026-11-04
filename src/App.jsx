@@ -15,9 +15,9 @@ import { QueryProvider } from "./contexts/QueryContext";
 
 import AppShell from "./components/Shell/AppShell";
 import AppHeader from "./components/Shell/AppHeader";
-import TapestryView from "./components/TapestryView";
+import CenterStage from "./components/CenterStage";
 import RightPane from "./components/RightPane/RightPane";
-import LeftPanel from "./components/Panels/LeftPanel";
+import LyricsView from "./components/LyricsView";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -134,9 +134,9 @@ export default function App() {
                   >
                     <AppShell
                       header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} />}
-                      left={<LeftPanel />}
-                      center={<TapestryView key={`tapestry-${selectedSong}`} />}
-                      right={<RightPane songKey={selectedSong} />}
+                      left={<LyricsView key={`lyrics-${selectedSong}`} height="100%" />}
+                      center={<CenterStage songKey={selectedSong} />}
+                      right={<RightPane />}
                     />
                   </TapestryLayoutProvider>
             </QueryProvider>

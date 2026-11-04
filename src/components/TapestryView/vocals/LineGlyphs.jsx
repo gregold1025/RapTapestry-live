@@ -1,6 +1,7 @@
 // src/components/TapestryView/vocals/LineGlyphs.jsx
-// Lines are the context of a query: a line is tinted by the query of an anchor
-// it holds, else of its best match. Clicking a line queries its last word.
+// Line queries are drawn here and only here: the anchor line and every line
+// whose last word rhymes with its last word. Clicking a line makes (or moves)
+// a line query; word queries never tint lines.
 import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useQueries } from "../../../contexts/QueryContext";
@@ -59,7 +60,7 @@ export default function LineGlyphs({ transcriptionData }) {
           onClick={(e) => { e.stopPropagation(); clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); }}
           onMouseEnter={() => setHoveredLineIdx(lineIdx)}
           onMouseLeave={() => setHoveredLineIdx(null)}
-          title={"Click: query this line (its last word) • Cmd+Click: new query • Alt+Click: remove"}
+          title={"Click: line query (end rhyme) • Cmd+Click: new query • Alt+Click: remove"}
         />
       );
     }

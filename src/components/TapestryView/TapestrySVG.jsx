@@ -8,6 +8,7 @@ import DrumsGlyphs from "./drums/DrumsGlyphs";
 import BassGlyphs from "./bass/BassGlyphs";
 import DrumGrid from "./drums/DrumGrid";
 import HorizontalGrid from "./global/HorizontalGrid";
+import LoopGlyphs from "./global/LoopGlyphs";
 import TapestryLayer from "./TapestryLayer";
 import "./TapestryView.css";
 
@@ -44,6 +45,9 @@ export default function TapestrySVG({
         <DrumsGlyphs drumTranscriptionData={drumTranscription} />
         <DrumGrid drumTranscriptionData={drumTranscription} />
         <HorizontalGrid />
+      </TapestryLayer>
+      <TapestryLayer name="loop">
+        <LoopGlyphs />
       </TapestryLayer>
     </>
   );

@@ -6,7 +6,7 @@ const GLYPH_TAGS = new Set(["rect", "path", "circle", "use", "ellipse", "line", 
 
 export function isBackgroundTarget(el) {
   if (!el) return false;
-  if (el.closest?.(".scroll-toolbar")) return false;
+  if (el.closest?.(".scroll-toolbar") || el.closest?.("[data-loop-handle]")) return false;
   const tag = String(el.tagName || "").toLowerCase();
   if (GLYPH_TAGS.has(tag)) return false;
   return true;

@@ -1,22 +1,24 @@
 import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
+import { useStemMix } from "../../contexts/StemMixContext";
 import { useUIState } from "../../contexts/UIStateContext";
-import { Segmented, Slider, ColorField, SectionLabel } from "../ui";
+import { Segmented, Slider, EyeButton, MuteButton, SoloButton, ColorField, SectionLabel } from "../ui";
 import "./Panels.css";
 
 const STEM_ROWS = [
-  { key: "vocals", label: "Vocals" },
-  { key: "drums", label: "Drums" },
-  { key: "bass", label: "Bass" },
-  { key: "other", label: "Other" },
+  { key: "vocals", label: "Vocals", canHide: true },
+  { key: "drums", label: "Drums", canHide: true },
+  { key: "bass", label: "Bass", canHide: true },
+  { key: "other", label: "Other", canHide: false },
 ];
 
+/** Global: the stems (show / mute / solo; a name opens that stem's panel), the
+ *  tapestry's view width and row height, appearance. */
 export default function GlobalPanel() {
-  const { setLeftPanel } = useUIState();
+  const { muted, soloed, visible, toggleMute, toggleSolo, setVisible } = useStemMix();
+  const { openParamsPanel } = useUIState();
   const {
-    timeLayout, setTimeLayout,
     barsPerRow, setBarsPerRow,
-    stemsLayout, setStemsLayout,
     rowHeightMode, setRowHeightMode,
     fixedRowHeightPx, setFixedRowHeightPx,
     tapestryBackgroundColor, setTapestryBackgroundColor,
@@ -38,31 +40,26 @@ export default function GlobalPanel() {
         <SectionLabel>Stems</SectionLabel>
         <div className="pn-list">
           {STEM_ROWS.map((s) => (
-            <button key={s.key} type="button" className="pn-stem-row pn-stem-link" onClick={() => setLeftPanel(s.key)} title={`Open the ${s.label} panel`}>
-              <span className="pn-stem-name">{s.label}</span>
-              <span className="ui-note" style={{ margin: 0 }}>settings &rsaquo;</span>
-            </button>
+            <div key={s.key} className="pn-stem-row">
+              <button type="button" className={`pn-stem-name pn-stem-open ${visible[s.key] ? "" : "is-off"}`} onClick={() => openParamsPanel(s.key)} title={`Open the ${s.label} panel`}>
+                {s.label} <span className="pn-stem-chev">&rsaquo;</span>
+              </button>
+              <EyeButton
+                on={!!visible[s.key] && s.canHide}
+                onClick={() => s.canHide && setVisible(s.key, !visible[s.key])}
+                title={s.canHide ? undefined : "No visual for this stem yet"}
+              />
+              <MuteButton on={!!muted[s.key] && !soloed} onClick={() => toggleMute(s.key)} />
+              <SoloButton on={soloed === s.key} onClick={() => toggleSolo(s.key)} />
+            </div>
           ))}
         </div>
-        <p className="ui-note">Show, mute and solo live in the header.</p>
       </div>
 
       <div className="pn-section">
-        <SectionLabel>Layout</SectionLabel>
+        <SectionLabel>Tapestry</SectionLabel>
         <div className="pn-field">
-          <span className="pn-field-label">time</span>
-          <Segmented
-            value={timeLayout}
-            onChange={setTimeLayout}
-            options={[
-              { value: "wrap", label: "Wrap" },
-              { value: "scroll", label: "Scroll" },
-              { value: "fold", label: "Fold", disabled: true },
-            ]}
-          />
-        </div>
-        <div className="pn-field">
-          <span className="pn-field-label">{timeLayout === "scroll" ? "window" : "view width"}</span>
+          <span className="pn-field-label">view width</span>
           <Segmented
             value={barsPerRow}
             onChange={setBarsPerRow}
@@ -70,17 +67,6 @@ export default function GlobalPanel() {
               { value: 2, label: "2 bar" },
               { value: 4, label: "4 bar" },
               { value: 8, label: "8 bar" },
-            ]}
-          />
-        </div>
-        <div className="pn-field">
-          <span className="pn-field-label">stems</span>
-          <Segmented
-            value={stemsLayout}
-            onChange={setStemsLayout}
-            options={[
-              { value: "superimposed", label: "superimposed" },
-              { value: "separated", label: "separated" },
             ]}
           />
         </div>
@@ -98,7 +84,6 @@ export default function GlobalPanel() {
             <Slider label="pixels" value={fixedRowHeightPx} min={40} max={400} step={1} unit=" px" onChange={setFixedRowHeightPx} />
           )}
         </div>
-        <p className="ui-note">{timeLayout === "scroll" ? "Scroll: the song on one row; the window follows the playhead (held two thirds across) and reveals each glyph as it is played. Drag the tapestry to scrub, click to play from there, Freeze to hold the window." : "Width is always in bars. Pixels per bar follow from the window."}</p>
       </div>
 
       <div className="pn-section">
