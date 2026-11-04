@@ -1,37 +1,39 @@
 // src/contexts/SongDataContext.jsx
-// Holds the loaded transcription data for the current song.
-// Eliminates prop-drilling of lyricTranscription, drumTranscription,
-// and bassTranscription through TapestryView -> TapestrySVG -> individual glyphs.
-
+// Holds the loaded transcriptions for the current song plus two derived models:
+//   songModel  - the typed rhyme engine's view of the song (dictionary phones, beat grid)
+//   timing     - per-word syllable onsets and F0 from the measured dataset (fallbacks inside)
 import React, { createContext, useContext, useMemo } from "react";
 import { centroidRange } from "../utils/laneLayout";
+import { buildTiming } from "../utils/timingModel";
+import { buildSongModel } from "../engine";
 
 const SongDataContext = createContext(null);
 
 export function SongDataProvider({
   children,
+  songId,
   lyricTranscription,
   drumTranscription,
   bassTranscription,
+  measuredTranscription = null,
 }) {
-  // Song-wide centroid spread (5th..95th percentile) used by pitched layers.
   const centroidSpan = useMemo(() => centroidRange(lyricTranscription), [lyricTranscription]);
+  const songModel = useMemo(
+    () => (lyricTranscription && drumTranscription ? buildSongModel({ songId, lyricTranscription, drumTranscription }) : null),
+    [songId, lyricTranscription, drumTranscription]
+  );
+  const timing = useMemo(() => buildTiming(lyricTranscription, measuredTranscription), [lyricTranscription, measuredTranscription]);
+
   const value = useMemo(
-    () => ({ lyricTranscription, drumTranscription, bassTranscription, centroidSpan }),
-    [lyricTranscription, drumTranscription, bassTranscription, centroidSpan]
+    () => ({ songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, centroidSpan, songModel, timing }),
+    [songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, centroidSpan, songModel, timing]
   );
 
-  return (
-    <SongDataContext.Provider value={value}>
-      {children}
-    </SongDataContext.Provider>
-  );
+  return <SongDataContext.Provider value={value}>{children}</SongDataContext.Provider>;
 }
 
 export function useSongData() {
   const ctx = useContext(SongDataContext);
-  if (!ctx) {
-    throw new Error("useSongData must be used within a SongDataProvider");
-  }
+  if (!ctx) throw new Error("useSongData must be used within a SongDataProvider");
   return ctx;
 }

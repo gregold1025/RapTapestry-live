@@ -1,57 +1,62 @@
 import React from "react";
-import { useParams } from "../../contexts/ParamsContext";
+import { useQueries } from "../../contexts/QueryContext";
 import { useUIState } from "../../contexts/UIStateContext";
-import { useFocusedQuery } from "../QueryPanel/ActiveQueryPanel";
-import SelectionList from "../QueryPanel/SelectionList";
+import { RHYME_TYPES } from "../../engine";
+import { EyeButton } from "../ui";
 import "./RightPane.css";
 
-function Chip({ active, onClick, children }) {
-  return (
-    <button type="button" className={`rp-chip ${active ? "is-active" : ""}`} onClick={onClick} aria-pressed={active}>
-      {children}
-    </button>
-  );
-}
-
-/** All queries (word / line / syllable) with per-type visibility toggles. */
+/** All queries, most recent first: color, anchor text, match counts per type, eye, remove. */
 export default function QueryListView() {
-  const { hasSelections, focused } = useFocusedQuery();
+  const { queries, focusedId, matchesByQueryId, songModel, focus, toggleActive, remove, clear } = useQueries();
   const { setRightView } = useUIState();
-  const {
-    showRhymes, setShowRhymes,
-    alliterationTier, setAlliterationTier,
-    showAssonance, setShowAssonance,
-    showEndRhymes, setShowEndRhymes,
-  } = useParams();
 
-  const allitActive = alliterationTier !== "off";
-  const cycleAllit = () => {
-    const tiers = ["off", "near", "exact"];
-    setAlliterationTier(tiers[(tiers.indexOf(alliterationTier) + 1) % tiers.length]);
-  };
+  const rows = [...queries].sort((a, b) => b.createdAt - a.createdAt);
+  const anchorText = (q) => q.anchorIds.map((id) => songModel?.byId.get(id)?.text ?? id).join(" ");
 
   return (
     <div className="rp-root">
       <div className="rp-head">
         <h3 className="rp-head-title">Queries</h3>
-        {focused && (
-          <button type="button" className="rp-link" onClick={() => setRightView("query")} title="Open the focused query">
-            open focused
-          </button>
-        )}
-      </div>
-      <div className="rp-strip" role="group" aria-label="Match types shown on the tapestry">
-        <p className="rp-strip-label">show matches</p>
-        <Chip active={showRhymes} onClick={() => setShowRhymes(!showRhymes)}>Rhyme</Chip>
-        <Chip active={allitActive} onClick={cycleAllit}>{allitActive ? `Alliteration (${alliterationTier})` : "Alliteration"}</Chip>
-        <Chip active={showAssonance} onClick={() => setShowAssonance(!showAssonance)}>Assonance</Chip>
-        <Chip active={showEndRhymes} onClick={() => setShowEndRhymes(!showEndRhymes)}>End rhyme</Chip>
+        <div style={{ display: "flex", gap: 6 }}>
+          {queries.length > 0 && <button type="button" className="rp-link" onClick={clear} title="Remove every query">clear</button>}
+          {focusedId && <button type="button" className="rp-link" onClick={() => setRightView("query")} title="Open the focused query">open focused</button>}
+        </div>
       </div>
       <div className="rp-body">
-        {hasSelections ? (
-          <SelectionList />
+        {rows.length === 0 ? (
+          <div className="rp-empty">No queries yet. Click a word in the lyrics or on the tapestry; shift-click to extend it across words; click a line's square to query its last word.</div>
         ) : (
-          <div className="rp-empty">No queries yet. Click a word in the lyrics, or Cmd-click a word or line on the tapestry.</div>
+          <div className="ql-list">
+            {rows.map((q) => {
+              const ms = (matchesByQueryId.get(q.id) ?? []).filter((m) => m.type !== "anchor");
+              const counts = {};
+              for (const m of ms) counts[m.type] = (counts[m.type] ?? 0) + 1;
+              const shown = ms.filter((m) => q.types.has(m.type)).length;
+              return (
+                <div
+                  key={q.id}
+                  className={`ql-row ${q.id === focusedId ? "is-focused" : ""} ${q.active ? "" : "is-inactive"}`}
+                  style={q.id === focusedId ? { borderLeftColor: q.color } : undefined}
+                  onClick={() => focus(q.id)}
+                  onDoubleClick={() => { focus(q.id); setRightView("query"); }}
+                  title="Click: focus • Double-click: open"
+                >
+                  <span className="ql-dot" style={{ background: q.color }} />
+                  <span className="ql-text">{anchorText(q)}</span>
+                  <span className="ql-counts" title={RHYME_TYPES.map((t) => `${t.label}: ${counts[t.key] ?? 0}`).join("\n")}>
+                    {RHYME_TYPES.filter((t) => counts[t.key]).map((t) => (
+                      <span key={t.key} className={`ql-count ${q.types.has(t.key) ? "" : "is-off"}`}>{t.label.slice(0, 3).toLowerCase()} {counts[t.key]}</span>
+                    ))}
+                    <span className="ql-total">{shown}</span>
+                  </span>
+                  <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-flex", gap: 4 }}>
+                    <EyeButton on={q.active} onClick={() => toggleActive(q.id)} />
+                    <button type="button" className="ui-ibtn" onClick={() => remove(q.id)} title="Remove">&times;</button>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

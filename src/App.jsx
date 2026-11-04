@@ -11,9 +11,7 @@ import { UIStateProvider } from "./contexts/UIStateContext";
 import { StemMixProvider } from "./contexts/StemMixContext";
 
 import { SongDataProvider } from "./contexts/SongDataContext";
-import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSelectionContext";
-import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionContext";
-import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
+import { QueryProvider } from "./contexts/QueryContext";
 
 import AppShell from "./components/Shell/AppShell";
 import AppHeader from "./components/Shell/AppHeader";
@@ -110,7 +108,7 @@ export default function App() {
     );
   }
 
-  const { lyricTranscription, drumTranscription, bassTranscription, audio, duration } = songData;
+  const { lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, audio, duration } = songData;
 
   return (
     <UIStateProvider>
@@ -120,13 +118,13 @@ export default function App() {
           <StopAllBinder bindRef={stopAllRef} />
           <StemMixProvider>
           <SongDataProvider
+            songId={selectedSong}
             lyricTranscription={lyricTranscription}
             drumTranscription={drumTranscription}
             bassTranscription={bassTranscription}
+            measuredTranscription={measuredTranscription}
           >
-            <SyllableSelectionProvider key={`syllables-${selectedSong}`} transcriptionData={lyricTranscription}>
-              <LineSelectionProvider key={`lines-${selectedSong}`} transcriptionData={lyricTranscription}>
-                <WordSelectionProvider key={`words-${selectedSong}`} transcriptionData={lyricTranscription}>
+            <QueryProvider key={`queries-${selectedSong}`}>
                   <TapestryLayoutProvider
                     key={`layout-${selectedSong}`}
                     duration={duration}
@@ -141,9 +139,7 @@ export default function App() {
                       right={<RightPane songKey={selectedSong} />}
                     />
                   </TapestryLayoutProvider>
-                </WordSelectionProvider>
-              </LineSelectionProvider>
-            </SyllableSelectionProvider>
+            </QueryProvider>
           </SongDataProvider>
           </StemMixProvider>
         </AudioProvider>

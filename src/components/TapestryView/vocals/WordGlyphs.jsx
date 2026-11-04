@@ -1,34 +1,28 @@
-// src/components/Tapestry/Vocals/WordGlyphs.jsx
+// src/components/TapestryView/vocals/WordGlyphs.jsx
 //
-// Visual grammar per match type (decorations stack — multiple can show at once):
-//   anchor       — solid fill + thick stroke border (full opacity)
-//   rhyme        — solid fill, opacity ∝ rhyme score
-//   alliteration — colored outline rect (no fill)
-//   assonance    — dotted underline bar, full width
+// Words on the tapestry, colored by the QUERY they belong to (color = query
+// identity). The rhyme TYPE is not a color; the FORM is the dash: whole word
+// solid, mosaic "5 3", embedded "1.5 3". For a mosaic or embedded match only
+// the matched syllables (vi0..vi1, by measured timing) take the color; the rest
+// of the word stays inactive.
 //
 // Vertical placement (percent of the vocals lane, 0 bottom .. 100 top):
-//   unpitched   — every word at wordCenter
-//   pitched     — word at its first syllable's centroid inside wordBand
-//   perSyllable — a curve through every syllable's centroid (stroke = thickness)
+//   unpitched   - every word at wordCenter
+//   pitched     - the word's median F0 inside wordBand (centroid when unmeasured)
+//   perSyllable - a curve through every syllable's F0 (stroke = thickness)
+//
+// Clicks: click = query (adopt / focus / new), shift = extend the focused query,
+// cmd = new query, alt = remove, double-click = seek.
 
 import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useWordSelection } from "../../../contexts/lyricsContexts/WordSelectionContext";
+import { useQueries } from "../../../contexts/QueryContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { useAudioControls } from "../../../contexts/AudioContext";
 import { useSongData } from "../../../contexts/SongDataContext";
-import { getThreshold, ALLITERATION_TIERS } from "../../../utils/phonemeSimilarity.js";
 import { laneY, wordPitchCenter, syllablePitchPct } from "../../../utils/laneLayout";
-
-/**
- * Map a match score to an opacity multiplier.
- * threshold → 0.30 (just barely visible), 1.0 → 1.0 (fully opaque).
- */
-function scoreToOpacityMult(score, threshold) {
-  if (threshold >= 1) return score >= 1 ? 1 : 0;
-  const t = Math.max(0, Math.min(1, (score - threshold) / (1 - threshold)));
-  return 0.30 + t * 0.70;
-}
+import { f0Pct } from "../../../utils/timingModel";
+import { FORM_BY_KEY } from "../../../engine";
 
 /** Catmull-Rom spline through points, as an SVG path (straight line for < 3 points). */
 function splinePath(pts) {
@@ -37,45 +31,25 @@ function splinePath(pts) {
   if (pts.length === 2) return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`;
   let d = `M ${pts[0].x} ${pts[0].y}`;
   for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+    const p0 = pts[i - 1] ?? pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] ?? p2;
+    const lo = Math.min(p1.x, p2.x), hi = Math.max(p1.x, p2.x);
+    const c1x = Math.max(lo, Math.min(hi, p1.x + (p2.x - p0.x) / 6)), c1y = p1.y + (p2.y - p0.y) / 6;
+    let c2x = Math.max(lo, Math.min(hi, p2.x - (p3.x - p1.x) / 6)); const c2y = p2.y - (p3.y - p1.y) / 6;
+    if (c2x < c1x) c2x = c1x;
     d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
   }
   return d;
 }
 
-export default function WordGlyphs({
-  transcriptionData,
-  onGlyphHoverEnter,
-  onGlyphHoverLeave,
-}) {
+export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGlyphHoverLeave }) {
   const { layout, laneFor } = useTapestryLayout();
-  const { getVisualForWord, anchorOrAdopt, selections, removeSelection, markWordInteraction } =
-    useWordSelection();
-
+  const { visualByWordId, click } = useQueries();
   const {
-    showWords,
-    wordActiveColor,
-    wordInactiveColor,
-    wordInactiveOpacity,
-    wordOpacity,
-    wordMode,
-    wordThicknessPx,
-    wordCenter,
-    wordBand,
-    showRhymes,
-    alliterationTier,
-    showAssonance,
-    rhymeStrictness,
-    assonanceStrictness,
+    showWords, wordActiveColor, wordInactiveColor, wordInactiveOpacity, wordOpacity,
+    wordMode, wordThicknessPx, wordCenter, wordBand,
   } = useParams();
-
   const { seekAll } = useAudioControls();
-  const { centroidSpan } = useSongData();
+  const { centroidSpan, timing } = useSongData();
   const [hoveredWordId, setHoveredWordId] = useState(null);
 
   if (!layout || !showWords) return null;
@@ -83,151 +57,104 @@ export default function WordGlyphs({
   const { rowHeight, timeToPixels, width: rowWidth } = layout;
   const lane = laneFor("vocals");
   const barH = Math.max(1, wordThicknessPx);
-  const underH = 3;
   const perSyllable = wordMode === "perSyllable";
-
-  const rhymeThresh = getThreshold(rhymeStrictness, "rhyme");
-  const assonThresh = getThreshold(assonanceStrictness, "assonance");
-  const allitThresh = ALLITERATION_TIERS[alliterationTier]?.threshold ?? 1;
-
-  function removeMostRecentAnchorFor(wordId) {
-    const candidates = selections.filter((s) => s.wordId === wordId);
-    if (!candidates.length) return;
-    const mostRecent = candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-    removeSelection(mostRecent.id);
-  }
+  const pitched = wordMode !== "unpitched";
+  const f0Mid = timing?.f0Mid ?? null;
 
   const glyphs = [];
 
   transcriptionData.lines.forEach((line, lineIdx) => {
     if (!line.words) return;
-
     line.words.forEach((word, wordIdx) => {
-      if (typeof word.start !== "number" || typeof word.end !== "number") return;
-
       const id = `${lineIdx}-${wordIdx}`;
-      const vis = getVisualForWord(id);
+      const tw = timing?.words.get(id);
+      const start = tw?.start ?? word.start, end = tw?.end ?? word.end;
+      if (typeof start !== "number" || typeof end !== "number") return;
 
-      const { x: startX, y: rowTop, row: startRow } = timeToPixels(word.start);
-      const endPx = timeToPixels(word.end);
-      // A word that crosses a row boundary is drawn to the end of its first row.
-      const endX = endPx.row === startRow ? endPx.x : rowWidth;
+      const vis = visualByWordId.get(id);
+      const { x: startX, y: rowTop, row: startRow } = timeToPixels(start);
+      const endPx = timeToPixels(end);
+      const endX = endPx.row === startRow ? endPx.x : rowWidth;   // row-wrapped words end at the row edge
       const widthPx = Math.max(1, endX - startX);
-      const centerPct = wordPitchCenter(word, wordMode, wordBand, wordCenter, centroidSpan);
+      const n = Math.max(1, word.nSyllables ?? 1);
+      const syls = tw?.syls ?? Array.from({ length: n }, (_, k) => ({ k, start: start + (k * (end - start)) / n, end: start + ((k + 1) * (end - start)) / n, f0: null }));
+
+      // vertical: F0 when measured, centroid otherwise
+      const centroidPct = wordPitchCenter(word, wordMode, wordBand, wordCenter, centroidSpan);
+      const centerPct = pitched ? f0Pct(tw?.f0, f0Mid, wordBand, centroidPct) : wordCenter;
       const cy = laneY(rowTop, rowHeight, lane, centerPct);
       const rectY = cy - barH / 2;
-      const isHovered = hoveredWordId === id;
+      const xOf = (t) => { const p = timeToPixels(t); return p.row === startRow ? p.x : rowWidth; };
 
-      const isAnchor = !!vis?.roles?.isAnchor;
-      const isRhyme = !!vis?.roles?.isRhyme && showRhymes;
-      const isAllit = !!vis?.roles?.isAlliteration && alliterationTier !== "off";
-      const isAson = !!vis?.roles?.isAssonance && showAssonance;
-      const active = isAnchor || isRhyme || isAllit || isAson;
-
-      // Per-syllable curve through syllable centroids (only meaningful for 2+ syllables)
-      let curveD = null;
+      // per-syllable curve through F0 (or centroid) points
+      let curveD = null, curvePts = null;
       if (perSyllable) {
-        const n = word.nSyllables ?? 1;
-        const pts = [];
-        for (let si = 0; si < n; si++) {
-          const t = word.start + (si + 0.5) * ((word.end - word.start) / n);
-          const px = timeToPixels(t);
-          const x = px.row === startRow ? px.x : rowWidth;
-          const pct = syllablePitchPct(word, si, n, wordBand, centerPct, centroidSpan);
-          pts.push({ x, y: laneY(rowTop, rowHeight, lane, pct) });
-        }
-        if (pts.length) {
-          pts.unshift({ x: startX, y: pts[0].y });
-          pts.push({ x: endX, y: pts[pts.length - 1].y });
-          curveD = splinePath(pts);
-        }
+        curvePts = syls.map((s, k) => {
+          const pct = f0Pct(s.f0, f0Mid, wordBand, syllablePitchPct(word, k, n, wordBand, centerPct, centroidSpan));
+          return { x: xOf((s.start + s.end) / 2), y: laneY(rowTop, rowHeight, lane, pct) };
+        });
+        const pts = [{ x: startX, y: curvePts[0].y }, ...curvePts, { x: endX, y: curvePts[curvePts.length - 1].y }];
+        curveD = splinePath(pts);
       }
 
-      const sharedEvents = {
+      const isHovered = hoveredWordId === id;
+      const active = !!vis;
+      const events = {
         style: { cursor: "pointer" },
-        pointerEvents: "visiblePainted", // layer root is pointer-events:none
-        onClick: (e) => {
-          if (e.metaKey || e.ctrlKey) { e.stopPropagation(); anchorOrAdopt(id); return; }
-          if (e.altKey) { e.stopPropagation(); markWordInteraction(); removeMostRecentAnchorFor(id); return; }
-          seekAll(word.start);
-        },
+        pointerEvents: "visiblePainted",
+        onClick: (e) => { e.stopPropagation(); click(id, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); },
+        onDoubleClick: (e) => { e.stopPropagation(); seekAll(start); },
         onMouseEnter: (e) => {
           setHoveredWordId(id);
-          onGlyphHoverEnter?.(e, {
-            type: "word",
-            wordText: word.text,
-            phones: Array.isArray(word.phones) ? word.phones.join(" ") : String(word.phones || ""),
-          });
+          onGlyphHoverEnter?.(e, { type: "word", wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: vis ? `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}` : null });
         },
         onMouseLeave: (e) => { setHoveredWordId(null); onGlyphHoverLeave?.(e); },
-        title: "Click: seek • Cmd/Ctrl+Click: select anchor • Alt+Click: remove anchor",
+        title: "Click: query • Shift+Click: extend • Cmd+Click: new query • Alt+Click: remove • Double-click: seek",
       };
 
-      // Base shape: the hit target. Inactive words draw with the inactive
-      // color/opacity (opacity 0 by default = invisible but still clickable).
-      const baseFill = active ? "none" : wordInactiveColor;
-      const baseOpacity = active ? 1 : wordInactiveOpacity;
+      // base shape = hit target (inactive look when unqueried)
       if (curveD) {
-        glyphs.push(
-          <path key={`${id}-base`} d={curveD} fill="none"
-            stroke={active ? "transparent" : wordInactiveColor} strokeWidth={barH} strokeLinecap="round"
-            opacity={active ? 1 : baseOpacity} {...sharedEvents} />
-        );
+        glyphs.push(<path key={`${id}-base`} d={curveD} fill="none" stroke={active ? "transparent" : wordInactiveColor} strokeWidth={barH} strokeLinecap="round" opacity={active ? 1 : wordInactiveOpacity} {...events} />);
       } else {
-        glyphs.push(
-          <rect key={`${id}-base`} x={startX} y={rectY} width={widthPx} height={barH}
-            fill={active ? "transparent" : baseFill} opacity={active ? 1 : baseOpacity}
-            {...sharedEvents} />
-        );
+        glyphs.push(<rect key={`${id}-base`} x={startX} y={rectY} width={widthPx} height={barH} fill={active ? "transparent" : wordInactiveColor} opacity={active ? 1 : wordInactiveOpacity} {...events} />);
       }
 
       if (!active && !isHovered) return;
 
-      const paint = (key, { fill, stroke, strokeWidth, opacity, dash }) => {
-        if (curveD) {
-          return (
-            <path key={key} d={curveD} fill="none"
-              stroke={fill !== "none" ? fill : stroke} strokeWidth={fill !== "none" ? barH : strokeWidth}
-              strokeLinecap="round" strokeDasharray={dash} opacity={opacity} pointerEvents="none" />
+      // the matched part of the word (syllables vi0..vi1), in time
+      const vi0 = vis ? Math.max(0, Math.min(syls.length - 1, vis.vi0 ?? 0)) : 0;
+      const vi1 = vis ? Math.max(vi0, Math.min(syls.length - 1, vis.vi1 ?? syls.length - 1)) : syls.length - 1;
+      const partial = vis && (vi0 > 0 || vi1 < syls.length - 1);
+      const mx0 = partial ? xOf(syls[vi0].start) : startX;
+      const mx1 = partial ? xOf(syls[vi1].end) : endX;
+      const dash = vis ? FORM_BY_KEY[vis.form]?.dash ?? null : null;
+      const color = vis?.color ?? wordActiveColor;
+      const alpha = vis?.expected ? wordOpacity * 0.55 : wordOpacity;
+
+      if (vis) {
+        if (curveD && curvePts) {
+          // color the matched stretch of the curve by clipping to its x range
+          const clipId = `wclip-${id}`;
+          glyphs.push(
+            <g key={`${id}-m`}>
+              {partial && <clipPath id={clipId}><rect x={mx0} y={rowTop} width={Math.max(1, mx1 - mx0)} height={rowHeight} /></clipPath>}
+              <path d={curveD} fill="none" stroke={color} strokeWidth={barH} strokeLinecap="round" strokeDasharray={dash ?? undefined} opacity={alpha} clipPath={partial ? `url(#${clipId})` : undefined} pointerEvents="none" />
+              {vis.isAnchor && <path d={curveD} fill="none" stroke={color} strokeWidth={barH + 4} strokeLinecap="round" opacity={0.35} pointerEvents="none" />}
+            </g>
+          );
+        } else {
+          glyphs.push(
+            <rect key={`${id}-m`} x={mx0} y={rectY} width={Math.max(1, mx1 - mx0)} height={barH}
+              fill={color} opacity={alpha}
+              stroke={vis.isAnchor ? color : dash ? color : "none"} strokeWidth={vis.isAnchor ? 4 : dash ? 1.5 : 0}
+              strokeDasharray={!vis.isAnchor && dash ? dash : undefined} pointerEvents="none" />
           );
         }
-        return (
-          <rect key={key} x={startX} y={rectY} width={widthPx} height={barH}
-            fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dash}
-            opacity={opacity} pointerEvents="none" />
-        );
-      };
-
-      if (isAnchor) {
-        glyphs.push(paint(`${id}-anchor`, { fill: vis.color, stroke: vis.color, strokeWidth: 5, opacity: wordOpacity }));
-        return;
       }
-
-      if (isRhyme) {
-        const ri = vis.rhymeInfo;
-        const mult = scoreToOpacityMult(ri?.score ?? vis.score, rhymeThresh);
-        glyphs.push(paint(`${id}-match`, { fill: ri?.color ?? vis.color, stroke: "none", strokeWidth: 0, opacity: wordOpacity * mult }));
-      }
-
-      if (isAllit) {
-        const ai = vis.alliterationInfo;
-        const mult = scoreToOpacityMult(ai?.score ?? vis.score, allitThresh);
-        glyphs.push(paint(`${id}-allit`, { fill: "none", stroke: ai?.color ?? vis.color, strokeWidth: 2, opacity: wordOpacity * mult }));
-      }
-
-      if (isAson) {
-        const si = vis.assonanceInfo;
-        const mult = scoreToOpacityMult(si?.score ?? vis.score, assonThresh);
-        glyphs.push(
-          <line key={`${id}-ason`}
-            x1={startX} y1={rectY + barH + 3} x2={startX + widthPx} y2={rectY + barH + 3}
-            stroke={si?.color ?? vis.color} strokeWidth={underH}
-            strokeDasharray="3 3" opacity={wordOpacity * mult} pointerEvents="none" />
-        );
-      }
-
       if (isHovered) {
-        glyphs.push(paint(`${id}-hover`, { fill: "none", stroke: wordActiveColor, strokeWidth: 3, opacity: 1 }));
+        glyphs.push(curveD
+          ? <path key={`${id}-h`} d={curveD} fill="none" stroke={wordActiveColor} strokeWidth={2} opacity={0.9} pointerEvents="none" />
+          : <rect key={`${id}-h`} x={startX} y={rectY} width={widthPx} height={barH} fill="none" stroke={wordActiveColor} strokeWidth={2} opacity={0.9} pointerEvents="none" />);
       }
     });
   });

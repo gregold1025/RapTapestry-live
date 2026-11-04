@@ -1,87 +1,65 @@
-// src/components/Tapestry/Vocals/LineGlyphs.jsx
+// src/components/TapestryView/vocals/LineGlyphs.jsx
+// Lines are the context of a query: a line is tinted by the query of an anchor
+// it holds, else of its best match. Clicking a line queries its last word.
 import React, { useState } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
-import { useLineSelection } from "../../../contexts/lyricsContexts/LineSelectionContext";
+import { useQueries } from "../../../contexts/QueryContext";
 import { useParams } from "../../../contexts/ParamsContext";
-import { useAudioControls } from "../../../contexts/AudioContext";
+import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY } from "../../../utils/laneLayout";
 
 const LINE_SHADOW_FILTER_ID = "tapestry-line-shadow";
+const HOVER_STROKE = "#00ff3b";
 
 export default function LineGlyphs({ transcriptionData }) {
-  const HOVER_STROKE = "#00ff3b"; // solid green
-
   const { layout, laneFor } = useTapestryLayout();
-  const { getVisualForLine, anchorOrAdopt, selections, removeSelection } = useLineSelection();
-  const {
-    showLines, lineInactiveColor, lineInactiveOpacity, lineOpacity, lineBand, lineShadow, showEndRhymes,
-  } = useParams();
-  const { seekAll } = useAudioControls();
-
+  const { visualByLineIdx, clickLine } = useQueries();
+  const { timing } = useSongData();
+  const { showLines, lineInactiveColor, lineInactiveOpacity, lineOpacity, lineBand, lineShadow } = useParams();
   const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
+
   if (!layout || !showLines) return null;
 
   const { rowHeight, width, timeToPixels } = layout;
   const lane = laneFor("vocals");
   const shadowOn = lineShadow > 0;
 
-  function removeMostRecentAnchorFor(lineIdx) {
-    const candidates = selections.filter((s) => s.lineIdx === lineIdx);
-    if (!candidates.length) return;
-    const mostRecent = candidates.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-    removeSelection(mostRecent.id);
-  }
-
   const rects = transcriptionData.lines.flatMap((line, lineIdx) => {
-    if (typeof line.start !== "number" || typeof line.end !== "number") return [];
+    const n = line.words?.length ?? 0;
+    const t0 = timing?.words.get(`${lineIdx}-0`)?.start ?? line.start;
+    const t1 = timing?.words.get(`${lineIdx}-${n - 1}`)?.end ?? line.end;
+    if (typeof t0 !== "number" || typeof t1 !== "number") return [];
 
-    const vis = getVisualForLine(lineIdx);
+    const vis = visualByLineIdx.get(lineIdx);
     const isHovered = hoveredLineIdx === lineIdx;
-
-    // Gate match coloring on showEndRhymes (anchors always show)
-    const effectiveVis = vis && (vis.role === "anchor" || showEndRhymes) ? vis : null;
-    const active = !!effectiveVis;
-
-    const fill = active ? effectiveVis.color : lineInactiveColor;
-    const opacity = active ? lineOpacity : lineInactiveOpacity;
-    const stroke = isHovered ? HOVER_STROKE : effectiveVis?.role === "anchor" ? effectiveVis.color : "none";
-    const strokeWidth = isHovered ? 4 : effectiveVis?.role === "anchor" ? 3 : 0;
+    const active = !!vis;
+    const fill = active ? vis.color : lineInactiveColor;
+    const opacity = active ? (vis.role === "anchor" ? lineOpacity : lineOpacity * 0.6) : lineInactiveOpacity;
+    const stroke = isHovered ? HOVER_STROKE : vis?.role === "anchor" ? vis.color : "none";
+    const strokeWidth = isHovered ? 3 : vis?.role === "anchor" ? 2 : 0;
 
     const out = [];
-    const { x: startX, row: startRow } = timeToPixels(line.start);
-    const { x: endX, row: endRow } = timeToPixels(line.end);
-
+    const { x: startX, row: startRow } = timeToPixels(t0);
+    const { x: endX, row: endRow } = timeToPixels(t1);
     for (let row = startRow; row <= endRow; row++) {
       const x1 = row === startRow ? startX : 0;
       const x2 = row === endRow ? endX : width;
-      const segWidth = Math.max(1, x2 - x1);
       const rowTop = row * rowHeight;
       const yTop = laneY(rowTop, rowHeight, lane, lineBand.hi);
       const yBot = laneY(rowTop, rowHeight, lane, lineBand.lo);
-
       out.push(
         <rect
           key={`line-${lineIdx}-r${row}`}
-          x={x1}
-          y={yTop}
-          width={segWidth}
-          height={Math.max(1, yBot - yTop)}
-          fill={fill}
-          fillOpacity={opacity}
-          stroke={stroke}
-          strokeOpacity={isHovered ? 1 : opacity}
-          strokeWidth={strokeWidth}
+          x={x1} y={yTop} width={Math.max(1, x2 - x1)} height={Math.max(1, yBot - yTop)}
+          fill={fill} fillOpacity={opacity}
+          stroke={stroke} strokeOpacity={isHovered ? 1 : opacity} strokeWidth={strokeWidth}
           filter={shadowOn && active ? `url(#${LINE_SHADOW_FILTER_ID})` : undefined}
           style={{ cursor: "pointer" }}
           pointerEvents="visiblePainted"
-          onClick={(e) => {
-            if (e.metaKey || e.ctrlKey) { e.stopPropagation(); anchorOrAdopt(lineIdx); return; }
-            if (e.altKey) { e.stopPropagation(); removeMostRecentAnchorFor(lineIdx); return; }
-            seekAll(line.start);
-          }}
+          onClick={(e) => { e.stopPropagation(); clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); }}
           onMouseEnter={() => setHoveredLineIdx(lineIdx)}
           onMouseLeave={() => setHoveredLineIdx(null)}
-          title={"Click: seek • Cmd/Ctrl+Click: adopt/create anchor • Alt+Click: remove anchor"}
+          title={"Click: query this line (its last word) • Cmd+Click: new query • Alt+Click: remove"}
         />
       );
     }

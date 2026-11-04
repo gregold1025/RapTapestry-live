@@ -6,8 +6,8 @@ export function useHoverInfo() {
 
   // useCallback: WordLine/WordBlock are React.memo'd, so these must keep a
   // stable identity across LyricsView re-renders or the memo never bites.
-  const setWordHover = useCallback((word) => {
-    const phones = word?.phones?.join(" ") || "";
+  const setWordHover = useCallback((word, match) => {
+    const phones = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
     // console.log("🔤 Hovered Word:", word?.text);
     // console.log("📞 Phones:", phones);
 
@@ -15,6 +15,7 @@ export function useHoverInfo() {
       type: "word",
       text: word?.text,
       phones,
+      match: match || null,
     });
   }, []);
 

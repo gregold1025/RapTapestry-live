@@ -11,7 +11,7 @@ export function HoverDisplay({ hoverData }) {
         minHeight: "1.2em",
       }}
     >
-      {hoverData.type === "word" && <>Phones: {hoverData.phones}</>}
+      {hoverData.type === "word" && <>{hoverData.phones}{hoverData.match ? <strong> · {hoverData.match}</strong> : null}</>}
 
       {hoverData.type === "syllable" && (
         <>

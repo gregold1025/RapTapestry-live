@@ -1,81 +1,40 @@
 // src/components/LyricsView/WordLine.jsx
 import React from "react";
 import { WordBlock } from "./WordBlock";
-import { useLineVisual, useLineSelectionActions } from "../../contexts/lyricsContexts/LineSelectionContext";
+import { useLineVisual, useQueryActions } from "../../contexts/QueryContext";
 import { useParams } from "../../contexts/ParamsContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 
 function hexToRgba(hex, alpha = 1) {
   if (!hex) return `rgba(0,0,0,${alpha})`;
   const m = hex.replace("#", "");
-  const [r, g, b] = [m.slice(0, 2), m.slice(2, 4), m.slice(4, 6)].map((h) =>
-    parseInt(h || "00", 16)
-  );
+  const [r, g, b] = [m.slice(0, 2), m.slice(2, 4), m.slice(4, 6)].map((h) => parseInt(h || "00", 16));
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export const WordLine = React.memo(function WordLine({
-  line,
-  lineIdx,
-  isCurrent,
-  currentWordIdx,
-  onWordHover,
-  onHoverEnd,
-  dataLineIdx,
-}) {
-  // Per-line subscriptions: re-render only when THIS line's visual changes.
-  const { anchorOrAdopt, removeSelection } = useLineSelectionActions();
-  const { vis, anchorForThisLine } = useLineVisual(lineIdx);
-  const { showEndRhymes, lineOpacity } = useParams();
+export const WordLine = React.memo(function WordLine({ line, lineIdx, isCurrent, currentWordIdx, onWordHover, onHoverEnd, dataLineIdx }) {
+  const vis = useLineVisual(lineIdx);
+  const { clickLine } = useQueryActions();
+  const { lineOpacity } = useParams();
   const { seekAll } = useAudioControls();
 
-  // Anchors always show; matches show only if toggle is on.
-  const showColor =
-    !!vis && (vis.role === "anchor" || (vis.role === "match" && showEndRhymes));
-  const bgColor = showColor
-    ? hexToRgba(vis.color, typeof lineOpacity === "number" ? lineOpacity : 0.6)
-    : "transparent";
-  const outlineStyle =
-    vis?.role === "anchor" ? `2px solid ${vis.color}` : "none";
-
-  function onToggleAnchor() {
-    if (anchorForThisLine) {
-      removeSelection(anchorForThisLine.id);
-    } else {
-      // adopt existing selection if this line belongs to a match group; otherwise create
-      anchorOrAdopt(lineIdx);
-    }
-  }
-
-  // Only the tint/outline are dynamic; everything else lives in LyricsView.css
-  // so the ~150 line nodes carry no inline style at rest (cheaper style
-  // resolution + DOM commit on load).
-  const lineStyle =
-    showColor || vis?.role === "anchor"
-      ? { backgroundColor: bgColor, outline: outlineStyle }
-      : undefined;
+  const lineStyle = vis
+    ? { backgroundColor: hexToRgba(vis.color, (typeof lineOpacity === "number" ? lineOpacity : 0.3) * (vis.role === "anchor" ? 1 : 0.6)), outline: vis.role === "anchor" ? `2px solid ${vis.color}` : "none" }
+    : undefined;
 
   return (
-    <div
-      className={["line", isCurrent ? "current" : ""].join(" ").trim()}
-      data-line-idx={dataLineIdx}
-      style={lineStyle}
-      title={
-        "Click □ to toggle an anchor • Matches colorize when 'End Rhymes' is on"
-      }
-    >
-      {/* Anchor toggle (square) */}
+    <div className={["line", isCurrent ? "current" : ""].join(" ").trim()} data-line-idx={dataLineIdx} style={lineStyle}>
+      {/* Line query: the line's last word */}
       <div
         className="line-select"
-        onClick={onToggleAnchor}
-        title={anchorForThisLine ? "Remove anchor" : "Add / Adopt anchor"}
-        aria-pressed={!!anchorForThisLine}
+        onClick={(e) => clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey })}
+        title={vis?.role === "anchor" ? "This line holds a query (alt-click: remove)" : "Query this line (its last word)"}
+        aria-pressed={vis?.role === "anchor"}
         role="button"
       >
-        {anchorForThisLine ? "■" : "□"}
+        {vis?.role === "anchor" ? "■" : "□"}
       </div>
 
-      {/* Words — content opacity stays at 1 for legibility */}
       <div className="words-container">
         {line.words?.map((word, wordIdx) => (
           <WordBlock
@@ -90,14 +49,7 @@ export const WordLine = React.memo(function WordLine({
         ))}
       </div>
 
-      {/* Hover-only jump button (right-aligned); shown via .line:hover in CSS */}
-      <button
-        type="button"
-        className="line-jump"
-        aria-label="Jump to this line"
-        title="Jump to this line"
-        onClick={() => seekAll(line.start)}
-      >
+      <button type="button" className="line-jump" aria-label="Jump to this line" title="Jump to this line" onClick={() => seekAll(line.start)}>
         ⏱
       </button>
     </div>
