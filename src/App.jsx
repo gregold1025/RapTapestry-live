@@ -4,23 +4,20 @@ import "./App.css";
 import { fetchSongData } from "./utils/fetchSongData";
 import { perfMark } from "./utils/perfMarks";
 
-import { AudioProvider, useAudioEngine } from "./contexts/AudioContext"; // ⬅️ import useAudioEngine
+import { AudioProvider, useAudioEngine } from "./contexts/AudioContext";
 import { ParamsProvider } from "./contexts/ParamsContext";
 import { TapestryLayoutProvider } from "./contexts/TapestryLayoutContext";
+import { UIStateProvider } from "./contexts/UIStateContext";
 
 import { SongDataProvider } from "./contexts/SongDataContext";
 import { SyllableSelectionProvider } from "./contexts/lyricsContexts/SyllableSelectionContext";
 import { WordSelectionProvider } from "./contexts/lyricsContexts/WordSelectionContext";
 import { LineSelectionProvider } from "./contexts/lyricsContexts/LineSelectionContext";
 
-import HeaderSettingsMenu from "./components/HeaderSettingsMenu";
-import AudioControlsView from "./components/AudioControlsView";
-import GlyphControlsView from "./components/GlyphControlsView";
-import LyricsView from "./components/LyricsView";
+import AppShell from "./components/Shell/AppShell";
+import AppHeader from "./components/Shell/AppHeader";
 import TapestryView from "./components/TapestryView";
-import ChannelStripsPanel from "./components/ChannelStripView";
-import ActiveQueryPanel from "./components/QueryPanel/ActiveQueryPanel";
-import GlobalMasterStrip from "./components/QueryPanel/GlobalMasterStrip";
+import LyricsView from "./components/LyricsView";
 
 // Helper child that binds stopAll into a ref the parent can call.
 function StopAllBinder({ bindRef }) {
@@ -28,11 +25,18 @@ function StopAllBinder({ bindRef }) {
   useEffect(() => {
     bindRef.current = stopAll;
     return () => {
-      // Clear on unmount to avoid calling a stale function
       bindRef.current = null;
     };
   }, [stopAll, bindRef]);
   return null;
+}
+
+function CenteredMessage({ children }) {
+  return (
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      {children}
+    </div>
+  );
 }
 
 export default function App() {
@@ -40,15 +44,11 @@ export default function App() {
   const [songData, setSongData] = useState(null);
   const [loadError, setLoadError] = useState(null);
 
-  // If you end up needing it again later:
-  const tapestryContainerRef = useRef(null);
-
   // Ref where StopAllBinder will drop in the current stopAll()
   const stopAllRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
-    const token = Symbol("song-load");
     setLoadError(null);
     setSongData(null);
 
@@ -71,163 +71,73 @@ export default function App() {
   }, [selectedSong]);
 
   const handleSongChange = (e) => {
-    // Stop any currently playing audio before swapping songs
     stopAllRef.current?.();
     setSelectedSong(e.target.value);
   };
 
-  // songData is only "ready" once it belongs to the currently selected song.
-  // Without this, one render happens with the NEW song keys but the OLD
-  // song's data: every keyed provider/view remounts (hundreds of ms of
-  // wasted work on 93Til) and is immediately torn down again.
+  // songData is only "ready" once it belongs to the currently selected song
+  // (avoids one render with new keys but old data; see perf notes).
   const songReady = !!songData && songData.song === selectedSong;
 
-  if (!songReady && !loadError) {
+  if (!songReady || loadError) {
     return (
-      <div className="app-container">
-        <header className="header">
-          <select value={selectedSong} onChange={handleSongChange}>
-            <option value="93Til">93 Til Infinity - Souls of Mischief</option>
-            <option value="Amen">Amen - Nappy Nina</option>
-            <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
-            <option value="Unemployed"> Unemployed - Tierra Whack</option>
-          </select>
-        </header>
-        <main
-          className="main-content"
-          style={{ alignItems: "center", justifyContent: "center" }}
-        >
-          <div>Loading song data…</div>
-        </main>
-        <footer className="footer"> </footer>
-      </div>
+      <UIStateProvider>
+        <AppShell
+          header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} transport={false} />}
+          left={null}
+          center={
+            <CenteredMessage>
+              {loadError ? (
+                <p style={{ color: "crimson" }}>
+                  Failed to load <strong>{selectedSong}</strong>: {loadError}
+                </p>
+              ) : (
+                <div>Loading song data…</div>
+              )}
+            </CenteredMessage>
+          }
+          right={null}
+        />
+      </UIStateProvider>
     );
   }
 
-  if (loadError) {
-    return (
-      <div className="app-container">
-        <header className="header">
-          <select value={selectedSong} onChange={handleSongChange}>
-            <option value="93Til">93 Til Infinity - Souls of Mischief</option>
-            <option value="Amen">Amen - Nappy Nina</option>
-            <option value="RhymesLikeDimes">Rhymes Like Dimes - MF DOOM</option>
-            <option value="Unemployed"> Unemployed - Tierra Whack</option>
-          </select>
-          <HeaderSettingsMenu />
-        </header>
-        <main className="main-content" style={{ padding: 16 }}>
-          <p style={{ color: "crimson" }}>
-            Failed to load <strong>{selectedSong}</strong>: {loadError}
-          </p>
-        </main>
-        <footer className="footer"> </footer>
-      </div>
-    );
-  }
-
-  const {
-    lyricTranscription,
-    drumTranscription,
-    bassTranscription,
-    audio,
-    midi,
-    duration,
-  } = songData;
+  const { lyricTranscription, drumTranscription, bassTranscription, audio, duration } = songData;
 
   return (
-    <ParamsProvider>
-      {/* key={selectedSong} ensures a clean re-mount of the audio graph per song */}
-      <AudioProvider key={selectedSong} audioFiles={audio}>
-        {/* Bind stopAll from the current provider instance */}
-        <StopAllBinder bindRef={stopAllRef} />
-
-        <SongDataProvider
-          lyricTranscription={lyricTranscription}
-          drumTranscription={drumTranscription}
-          bassTranscription={bassTranscription}
-        >
-        <SyllableSelectionProvider key={`syllables-${selectedSong}`} transcriptionData={lyricTranscription}>
-          {/* re-mount rhyme/line/word contexts on song change */}
-          <LineSelectionProvider
-            key={`lines-${selectedSong}`}
-            transcriptionData={lyricTranscription}
+    <UIStateProvider>
+      <ParamsProvider>
+        {/* key={selectedSong} ensures a clean re-mount of the audio graph per song */}
+        <AudioProvider key={selectedSong} audioFiles={audio}>
+          <StopAllBinder bindRef={stopAllRef} />
+          <SongDataProvider
+            lyricTranscription={lyricTranscription}
+            drumTranscription={drumTranscription}
+            bassTranscription={bassTranscription}
           >
-            <WordSelectionProvider
-              key={`words-${selectedSong}`}
-              transcriptionData={lyricTranscription}
-            >
-              <div className="app-container">
-                <header className="header">
-                  <select value={selectedSong} onChange={handleSongChange}>
-                    <option value="93Til">
-                      93 Til Infinity - Souls of Mischief
-                    </option>
-                    <option value="Amen">Amen - Nappy Nina</option>
-                    <option value="RhymesLikeDimes">
-                      Rhymes Like Dimes - MF DOOM
-                    </option>
-                    <option value="Unemployed">
-                      Unemployed - Tierra Whack
-                    </option>
-                  </select>
-                  <div className="header-transport">
-                    <AudioControlsView />
-                  </div>
-                  <HeaderSettingsMenu />
-                </header>
-
-                <main className="main-content">
-                  <div className="left-pane">
-                    {/* re-mount layout + view so visual playhead/grid fully reset */}
-                    <TapestryLayoutProvider
-                      key={`layout-${selectedSong}`}
-                      duration={duration}
-                      estimated_bpm={drumTranscription.estimated_bpm}
-                      downbeats={drumTranscription.downbeats}
-                      beats={drumTranscription.beats}
-                      barsPerRow={8}
-                    >
-                      <TapestryView
-                        key={`tapestry-${selectedSong}`}
-                      />
-                    </TapestryLayoutProvider>
-
-                    {/* Independent bottom overlays (no shared container) */}
-                    <div className="left-controls left-controls--left">
-                      <GlyphControlsView />
-                    </div>
-
-                    <div className="left-controls left-controls--right">
-                      <ChannelStripsPanel />
-                    </div>
-                  </div>
-
-                  <div className="right-pane">
-                    <div className="rp-lyrics">
-                      <LyricsView
-                        key={`lyrics-${selectedSong}`}
-                        height="100%"
-                      />
-                    </div>
-
-                    <div className="rp-query">
-                      <ActiveQueryPanel />
-                    </div>
-
-                    <div className="rp-master-strip">
-                      <GlobalMasterStrip />
-                    </div>
-                  </div>
-                </main>
-
-                <footer className="footer"></footer>
-              </div>
-            </WordSelectionProvider>
-          </LineSelectionProvider>
-        </SyllableSelectionProvider>
-        </SongDataProvider>
-      </AudioProvider>
-    </ParamsProvider>
+            <SyllableSelectionProvider key={`syllables-${selectedSong}`} transcriptionData={lyricTranscription}>
+              <LineSelectionProvider key={`lines-${selectedSong}`} transcriptionData={lyricTranscription}>
+                <WordSelectionProvider key={`words-${selectedSong}`} transcriptionData={lyricTranscription}>
+                  <TapestryLayoutProvider
+                    key={`layout-${selectedSong}`}
+                    duration={duration}
+                    estimated_bpm={drumTranscription.estimated_bpm}
+                    downbeats={drumTranscription.downbeats}
+                    beats={drumTranscription.beats}
+                  >
+                    <AppShell
+                      header={<AppHeader selectedSong={selectedSong} onSongChange={handleSongChange} />}
+                      left={<div className="rt-left-placeholder" />}
+                      center={<TapestryView key={`tapestry-${selectedSong}`} />}
+                      right={<LyricsView key={`lyrics-${selectedSong}`} height="100%" />}
+                    />
+                  </TapestryLayoutProvider>
+                </WordSelectionProvider>
+              </LineSelectionProvider>
+            </SyllableSelectionProvider>
+          </SongDataProvider>
+        </AudioProvider>
+      </ParamsProvider>
+    </UIStateProvider>
   );
 }

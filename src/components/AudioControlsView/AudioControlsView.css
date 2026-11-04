@@ -1,124 +1,63 @@
-/* AudioControlsView.css
-   Static / docked audio controls panel (no floating, no drag, no collapse)
-*/
+/* AudioControlsView.css — header transport row */
 
-/* ===== Wrapper (static, docked) ===== */
-/* AudioControlsView.css */
-
-/* Wrapper (static, docked) */
-.audio-controls-panel {
-  position: relative;
-  z-index: 2;
-  user-select: none;
-
-  width: 100%;
-
-  /* ✅ fixed-ish height */
-  height: 180px; /* tweak */
-  max-height: 120px;
-
-  min-width: 320px;
-  border-radius: 10px; /* slight rounding here is fine in right-pane */
-  overflow: hidden;
-
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
-  background: #101521;
-  color: #fff;
-  border: 1px solid #2a3344;
-
-  box-sizing: border-box;
-}
-
-/* Header (purely informational) */
-.ac-header {
+.ac-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 5px;
-  padding: 0;
-  background: #0b0f1a;
-}
-
-.ac-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.2px;
-}
-
-/* ===== Base panel layout ===== */
-.audio-controls {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px;
-
-  /* Ensure content can shrink inside a constrained bottom pane */
-  min-height: 0;
-
-  --scrub-track-h: 0.5em;
-  --scrub-thumb-d: 1em;
-  --scrub-fill: #d93030;
-
-  --vol-track-h: 0.5em;
-  --vol-thumb-d: 1em;
-}
-
-/* Volume popover */
-.ac-volume {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-
-/* Transport row */
-.ac-transport {
-  display: flex;
-  justify-content: center;
   align-items: center;
   gap: 10px;
-  margin: 2px 0 6px 0;
+  width: 100%;
+  min-width: 0;
+  user-select: none;
+  --scrub-track-h: 4px;
+  --scrub-thumb-d: 14px;
+  --scrub-fill: #1a1a1a;
 }
 
-/* Generic skin (for any plain buttons you render here) */
-.ac-btn {
-  border-radius: 6px;
-  border: 1px solid #d0d0d0;
-  background: #fff;
-  color: #000;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 1em;
-  line-height: 1;
-}
-
-/* ===== Scrub ===== */
-.ac-scrub-row {
+.ac-transport {
   display: flex;
   align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ac-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid #d6d6db;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  line-height: 1;
+}
+.ac-btn:hover { border-color: #1a1a1a; }
+.ac-btn svg { width: 60%; height: 60%; display: block; }
+
+.ac-scrub-row {
+  flex: 1 1 auto;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
 }
 
 .scrub-slider {
   flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
-  width: 88%;
   height: var(--scrub-track-h);
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   cursor: pointer;
 }
-
-/* WebKit/Blink track */
 .scrub-slider::-webkit-slider-runnable-track {
   height: var(--scrub-track-h);
   background: var(--scrub-fill);
-  border: 1px solid #a32222;
   border-radius: 999px;
 }
-
-/* WebKit/Blink thumb */
 .scrub-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -126,97 +65,56 @@
   height: var(--scrub-thumb-d);
   border-radius: 999px;
   background: #fff;
-  border: 2px solid #9199aa;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   margin-top: calc((var(--scrub-track-h) - var(--scrub-thumb-d)) / 2);
 }
-
-/* Firefox track */
 .scrub-slider::-moz-range-track {
   height: var(--scrub-track-h);
   background: var(--scrub-fill);
-  border: 1px solid #a32222;
   border-radius: 999px;
 }
-
-/* Firefox thumb */
 .scrub-slider::-moz-range-thumb {
   width: var(--scrub-thumb-d);
   height: var(--scrub-thumb-d);
   border-radius: 999px;
   background: #fff;
-  border: 2px solid #9199aa;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 2px solid #1a1a1a;
   cursor: pointer;
 }
 
-/* ===== Compact inline mode (used in header) ===== */
-
-.header-transport .audio-controls-panel {
-  height: auto;
-  max-height: none;
-  min-width: 0;
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  background: transparent;
-  overflow: visible;
-}
-
-.header-transport .ac-header { display: none; }
-
-.header-transport .audio-controls {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0;
-  --scrub-track-h: 3px;
-  --scrub-thumb-d: 11px;
-}
-
-.header-transport .ac-transport {
-  margin: 0;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.header-transport .ac-scrub-row {
-  flex: 1;
-  min-width: 60px;
-}
-
-.header-transport .scrub-slider { width: 100%; }
-
-.header-transport .ac-time-row {
-  flex-shrink: 0;
-  gap: 2px;
-  padding: 0;
-  margin-top: 0;
-}
-
-.header-transport .ac-time {
-  font-size: 0.7rem;
-  min-width: 2.8ch;
-  color: #c0cad8;
-}
-
-.header-transport .ac-volume {
-  position: static;
-  flex-shrink: 0;
-}
-
-/* ===== Time row ===== */
 .ac-time-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #fff;
-  padding: 0 2px;
-  margin-top: -2px;
+  align-items: baseline;
+  gap: 4px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: #1a1a1a;
 }
+.ac-time-sep { color: #4a4a4a; }
+.ac-time-total { color: #3a3a3a; }
 
-.ac-time {
-  min-width: 3.5ch;
-  letter-spacing: 0.3px;
-  font-size: 0.95rem;
+.ac-volume {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: #1a1a1a;
 }
+.ac-volume-range {
+  width: 70px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.ac-volume-range::-webkit-slider-runnable-track { height: 4px; background: #5a5a5a; border-radius: 999px; }
+.ac-volume-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 11px; height: 11px; border-radius: 999px;
+  background: #fff; border: 2px solid #1a1a1a; margin-top: -3.5px;
+}
+.ac-volume-range::-moz-range-track { height: 4px; background: #5a5a5a; border-radius: 999px; }
+.ac-volume-range::-moz-range-thumb { width: 11px; height: 11px; border-radius: 999px; background: #fff; border: 2px solid #1a1a1a; }

@@ -1,0 +1,138 @@
+/* Shell.css — app frame + greybox theme tokens (Figma: Rap-Tapestry-Interface-Redesign) */
+
+:root {
+  --rt-header-h: 56px;
+  --rt-left-w: 240px;
+  --rt-right-w: minmax(315px, 28%);
+
+  --rt-header-bg: #a3a3a3;
+  --rt-panel: #f6f6f7;
+  --rt-card: #ffffff;
+  --rt-ink: #1a1a1a;
+  --rt-muted: #777a80;
+  --rt-line: #d6d6db;
+  --rt-line-soft: #e6e6ea;
+  --rt-accent: #1a1a1a;
+  --rt-radius: 6px;
+  --rt-font: ui-sans-serif, system-ui, -apple-system, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.rt-shell {
+  display: grid;
+  grid-template-rows: var(--rt-header-h) 1fr;
+  grid-template-columns: var(--rt-left-w) 1fr var(--rt-right-w);
+  grid-template-areas:
+    "header header header"
+    "left center right";
+  height: 100%;
+  width: 100%;
+  background: #fff;
+  color: var(--rt-ink);
+  font-family: var(--rt-font);
+  font-size: 13px;
+}
+.rt-shell.left-closed {
+  grid-template-columns: 0 1fr var(--rt-right-w);
+}
+
+.rt-header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  background: var(--rt-header-bg);
+  border-bottom: 1px solid #7d7d7d;
+  min-width: 0;
+}
+.rt-left {
+  grid-area: left;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--rt-panel);
+  border-right: 1px solid var(--rt-line);
+}
+.rt-shell.left-closed .rt-left { border-right: 0; }
+.rt-center {
+  grid-area: center;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+}
+.rt-right {
+  grid-area: right;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--rt-panel);
+  border-left: 1px solid var(--rt-line);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- header pieces ---- */
+.rt-song-select {
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--rt-ink);
+  background: var(--rt-card);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-radius);
+  padding: 7px 10px;
+  max-width: 260px;
+  min-width: 0;
+}
+
+.rt-header-transport {
+  flex: 1 1 auto;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+}
+
+.rt-header-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.rt-header-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #3a3a3a;
+}
+
+/* segmented control (header size) */
+.rt-seg {
+  display: inline-flex;
+  background: var(--rt-card);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-radius);
+  overflow: hidden;
+}
+.rt-seg > button {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rt-muted);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rt-line-soft);
+  padding: 0 12px;
+  height: 34px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rt-seg > button:last-child { border-right: 0; }
+.rt-seg > button.is-active { background: var(--rt-ink); color: #fff; }
+.rt-seg > button:disabled { opacity: 0.4; cursor: not-allowed; }
+.rt-seg > button:not(.is-active):not(:disabled):hover { color: var(--rt-ink); }
+
+.rt-seg--icons > button { width: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.rt-seg--icons svg { width: 18px; height: 18px; display: block; }
