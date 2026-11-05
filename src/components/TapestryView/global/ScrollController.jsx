@@ -3,7 +3,7 @@
 // the content (one row as wide as the song) is translated so the playhead
 // sits two thirds across the view while following; when following and
 // playing, only what the playhead has passed is revealed; dragging freezes
-// the window and scrubs it; a plain click on the background plays from there.
+// the window and scrubs it; a plain click on the background scrubs to that point.
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";

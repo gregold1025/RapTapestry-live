@@ -20,3 +20,19 @@ describe("isBackgroundTarget (scroll layout click-to-play)", () => {
     expect(isBackgroundTarget(node("BUTTON", { toolbar: true }))).toBe(false);
   });
 });
+
+describe("isBackgroundTarget: text inside a glyph", () => {
+  const inGlyph = (tagName) => ({
+    tagName,
+    closest: (sel) => (sel === '[pointer-events="visiblePainted"]' ? {} : null),
+    getAttribute: () => null,
+  });
+  it("letters on a curve (textPath / tspan) are the glyph's, not background", () => {
+    expect(isBackgroundTarget({ tagName: "textPath", closest: () => null })).toBe(false);
+    expect(isBackgroundTarget({ tagName: "tspan", closest: () => null })).toBe(false);
+  });
+  it("anything inside an interactive glyph group is not background", () => {
+    expect(isBackgroundTarget(inGlyph("text"))).toBe(false);
+    expect(isBackgroundTarget(inGlyph("g"))).toBe(false);
+  });
+});

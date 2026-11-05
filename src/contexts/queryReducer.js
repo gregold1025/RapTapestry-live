@@ -12,8 +12,10 @@
 //   plain click on a query's match    -> adopt: that query's anchor moves here (rhyme gravity)
 //   shift-click                       -> extend the focused query to the contiguous run
 //                                        (no focused query: behaves like a plain click)
-//   cmd/ctrl-click                    -> always a new query
+//   meta (cmd/ctrl in the lyrics)     -> always a new query
 //   alt-click                         -> remove the query that owns the word (anchor or match)
+// On the tapestry and the Line Staff a plain click scrubs instead; there cmd-click
+// sends the plain-click rules above (meta: false), cmd-shift extends, alt removes.
 import { nanoid } from "nanoid";
 import { generateDistinctColor } from "../utils/selectionColors.js";
 import { RHYME_TYPES } from "../engine/rhymeTypes.js";

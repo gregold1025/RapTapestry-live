@@ -12,7 +12,7 @@
 //   perSyllable - a curve through every syllable's F0 (stroke = thickness)
 //
 // Clicks: click = query (adopt / focus / new), shift = extend the focused query,
-// cmd = new query, alt = remove, double-click = seek.
+// Clicks: plain = scrub to that point; cmd = query (new / focus / adopt); cmd-shift = extend; alt = remove.
 
 import React, { useState, useId } from "react";
 import { timeAtEvent } from "../global/timeAtEvent";

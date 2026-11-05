@@ -47,7 +47,7 @@ export default function LoopGlyphs() {
     const rect = e.currentTarget.ownerSVGElement.getBoundingClientRect();
     const x = (e.clientX - rect.left) * d.scaleX;
     const y = (e.clientY - rect.top) * d.scaleY;
-    const t = snapToGrid(pointToTime(x, y), layout.gridTimes);   // loop edges sit on beat lines
+    const t = snapToGrid(pointToTime(x, y), layout.gridTimes[0] > 0 ? [0, ...layout.gridTimes] : layout.gridTimes);   // loop edges sit on beat lines (or the song start)
     setLoop((prev) => ({ ...prev, ...dragLoopEdge(d.fixed, t, duration || Math.max(prev.end, t)) }));
   };
   const endDrag = (e) => {
