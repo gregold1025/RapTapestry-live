@@ -19,13 +19,14 @@ export const WordBlock = React.memo(function WordBlock({ word, lineIdx, wordIdx,
 
   let style;
   if (vis) {
-    style = { backgroundColor: hexToRgba(vis.color, vis.isAnchor ? wordOpacity : wordOpacity * (vis.expected ? 0.4 : 0.7)) };
+    style = { backgroundColor: hexToRgba(vis.color, vis.isAnchor ? wordOpacity : wordOpacity * 0.7) };
     if (vis.isAnchor) style.outline = `3px solid ${vis.color}`;
     if (vis.form === "mosaic") { style.textDecorationLine = "underline"; style.textDecorationStyle = "dashed"; style.textDecorationColor = vis.color; }
     if (vis.form === "embedded") { style.textDecorationLine = "underline"; style.textDecorationStyle = "dotted"; style.textDecorationColor = vis.color; }
+    if (vis.form === "semirhyme") { style.textDecorationLine = "underline"; style.textDecorationStyle = "wavy"; style.textDecorationColor = vis.color; }
   }
 
-  const label = vis ? (vis.isAnchor ? "query" : `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}${vis.expected ? " (expected)" : ""}`) : null;
+  const label = vis ? (vis.isAnchor ? "query" : `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}`) : null;
 
   return (
     <div className="word-wrapper">

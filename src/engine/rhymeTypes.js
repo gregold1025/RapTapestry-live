@@ -37,49 +37,30 @@ export const RHYME_TYPES = [
   { key: 'additive', label: 'Additive / subtractive', color: '#ff8f4d', on: true, example: 'clock / blocks; quick / think; Bridgette / digits',
     desc: 'Perfect, except one side has exactly one extra consonant, anywhere in the consonant cluster after the vowel: at the end (clock / blocks, the plural S) or inside it (quick / think, the NG before K). A one-slot wildcard; which side has the extra sound (additive vs subtractive) is not distinguished. In rap, leftovers are most common at the end (S, Z, T, D) and at the start of the cluster (R, L, S). Only one loosening at a time: hot / rocks (K for T and an extra S) is not additive.',
     sources: ['pattison', 'hirjee'] },
-  { key: 'slant', label: 'Slant (near vowel)', color: '#b28dff', on: true, example: 'beat / bit',
+  { key: 'slant', label: 'Slant (near vowel)', color: '#b28dff', on: false, example: 'beat / bit',
     desc: 'A neighboring stressed vowel (formant similarity >= 0.75, both plain vowels or both glides), with consonants that would be perfect, family or additive. "Slant" is used loosely in the literature; this is our operational definition.',
     sources: ['poetics', 'design'] },
   { key: 'assonance', label: 'Assonance', color: '#4dc3ff', on: true, example: 'dizziness / silly bitch; seen / feel (same line)',
-    desc: 'The same stressed vowel and the following vowels, with consonants that differ beyond family or additive: a vowel chain. Admitted on its own when the chain is two or more syllables (dizziness / silly bitch: IH IY schwa), since a one-vowel match is mostly a measure of how common the vowel is. A one-syllable assonance is admitted only by expectation: within one bar of a perfect or family match already in the family (seen / keen set up feel in one line).',
-    sources: ['pattison', 'poetics', 'malmi', 'huron', 'design'] },
+    desc: 'The same vowels with consonants that differ beyond family or additive: a vowel chain. Needs two or more full vowels (dizziness / silly bitch); a schwa can hold a chain together but does not count, since a one-vowel match is mostly a measure of how common the vowel is. A single shared vowel shows only as a semirhyme.',
+    sources: ['pattison', 'poetics', 'malmi', 'design'] },
 ];
 
 // Second axis: the FORM of the match. Not a filter: always shown, encoded as
 // line style, and named together with the type ("family mosaic").
 export const FORMS = [
-  { key: 'word', label: 'Whole word', dash: null, example: 'midget / Bridgette',
-    desc: 'The rhyme sits in one word, from its last stressed vowel to its end.', sources: ['poetics'] },
-  { key: 'mosaic', label: 'Mosaic', dash: '5 3', example: 'gotta / Got a; Electromagnetic / Check it',
-    desc: 'The rhyming syllables are spread across two or more words. The span starts at a word\'s stressed vowel and ends at the end of a word; stress on later one-syllable words is ignored.',
+  { key: 'word', label: 'Whole word', dash: null, example: 'midget / Bridgette; slapstick / Chapstick',
+    desc: 'The rhyme sits in one word, from one of its stressed vowels to its end.', sources: ['poetics'] },
+  { key: 'mosaic', label: 'Mosaic', dash: '5 3', example: 'gotta / Got a; so-so / so low',
+    desc: 'The rhyming syllables are spread across two or more words, ending at the end of a word. One-syllable function words (the, a, and) count as unstressed.',
     sources: ['poetics', 'hirjee', 'design'] },
   { key: 'embedded', label: 'Embedded', dash: '1.5 3', example: 'logic / bio-logic-al',
-    desc: 'A run of two or more rhyming syllables hidden inside a longer word, not reaching its end or starting at a secondary stress. (A single stressed syllable inside a longer word, as in my / Dial, is semirhyme, a different device, and is not shown.)',
+    desc: 'The rhyming syllables sit inside a longer word and stop before its end. A single syllable only when it is a perfect, closed one (engage / engage-ments).',
     sources: ['meter', 'design'] },
+  { key: 'semirhyme', label: 'Semirhyme', dash: '0.5 2.5', example: 'logic / Spock; ending / bend',
+    desc: 'One word carries an unstressed ending the other lacks; the stressed syllables match (lo-gic / Spock). Shown only for content words within one bar of the query.',
+    sources: ['poetics', 'design'] },
 ];
 export const FORM_BY_KEY = Object.fromEntries(FORMS.map((f) => [f.key, f]));
-// Minimum sound closeness per form. Spans multiply the number of candidates
-// (every run of adjacent words), so they need tighter criteria to stay
-// meaningful: consonants must be at least family-close, or the vowel chain must
-// be long enough to be specific on its own (assonance, 2+ syllables).
-export const SPAN_TYPES = new Set(['perfect', 'family', 'additive', 'slant']);
-// Assonance: a one-vowel match is mostly a measure of how common the vowel is;
-// a chain of two or more matching vowels is rare and specific (Malmi et al.'s
-// rhyme density is exactly this length). Below the minimum, assonance is
-// admitted only by EXPECTATION: within this many bars of a match already in the
-// family, the listener's threshold has dropped (busyness, dizziness ... silly bitch).
-export const ASSONANCE_MIN_SYLLABLES = 2;
-export const EXPECTATION_WINDOW_BARS = 1;
-// Which matches can set up an expectation: an established rhyme (perfect or
-// family), not a loosening (additive, slant) and not another expected match
-// (no chaining: expectation must not feed itself). Measured on 93 Til, all
-// seeds + chaining admitted 35 one-syllable assonances per anchor on average;
-// this setting 17, and still finds seen / keen -> feel. Mutable for measurement.
-export const EXPECTATION = { seeds: new Set(['identical', 'perfect', 'family']), chain: false };
-export function spanAllowed(type, nSyl) {
-  return SPAN_TYPES.has(type) || (type === 'assonance' && nSyl >= ASSONANCE_MIN_SYLLABLES);
-}
-
 export const TYPE_BY_KEY = Object.fromEntries(RHYME_TYPES.map((t) => [t.key, t]));
 
 const VOWELS = new Set(Object.keys(VOWEL_SIM));
@@ -97,7 +78,7 @@ export const REDUCED = new Set(['AH', 'IH', 'EH']);
 //   anyUnstressedReduces: after the stressed vowel, two unstressed vowels match whatever their
 //     dictionary identity (roam THE strip / bones TO pick: AH against UW), not only the reduced
 //     set AH / IH / EH.
-export const RULE_OPTIONS = { compoundRimes: true, anyUnstressedReduces: false };   // compoundRimes on since 2026-10-20 (Greg; yardstick +1 family, none worse)
+export const RULE_OPTIONS = { compoundRimes: true, anyUnstressedReduces: false, slant: false };   // slant off 2026-11-05 (Greg: left open, default off)   // compoundRimes on since 2026-10-20 (Greg; yardstick +1 family, none worse)
 // One-syllable function words: the dictionary gives them stress, the flow does
 // not. Used when partitioning a highlighted reference into parts: a content
 // monosyllable (cause, bitch) starts a part, a function word does not.

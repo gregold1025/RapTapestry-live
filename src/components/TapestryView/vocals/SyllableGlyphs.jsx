@@ -51,7 +51,7 @@ export default function SyllableGlyphs({ transcriptionData, onGlyphHoverEnter, o
       syls.forEach((s, si) => {
         const inMatch = vis && si >= (vis.vi0 ?? 0) && si <= (vis.vi1 ?? syls.length - 1);
         const fill = inMatch ? vis.color : inactiveSyllableColor;
-        const opacity = inMatch ? (vis.expected ? syllableOpacity * 0.55 : syllableOpacity) : syllableInactiveOpacity;
+        const opacity = inMatch ? syllableOpacity : syllableInactiveOpacity;
         if (!inMatch && opacity <= 0) return;
         const { x, y } = timeToPixels(s.start);
         const fallback = pitched ? syllablePitchPct(word, si, syls.length, syllableBand, syllableFixedHeight, centroidSpan) : syllableFixedHeight;

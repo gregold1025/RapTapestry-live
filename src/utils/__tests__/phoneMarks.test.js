@@ -26,3 +26,28 @@ describe("phoneMarks: which phones made the rhyme", () => {
     expect(phoneMarks("", 0, 0)).toEqual([]);
   });
 });
+
+describe("phoneMarks: the syllable each phone belongs to", () => {
+  it("gives each phone its syllable index (k)", () => {
+    expect(phoneMarks("P OW1 AH0 T", 0, 1).map((x) => x.k)).toEqual([0, 0, 1, 1]);
+  });
+});
+
+import { sylRange, linkTypeAt } from "../phoneMarks";
+describe("sylRange: the syllables a match covers in one of its words", () => {
+  const w = { id: "w", nSyllables: 2, rime: { stressedSyl: 1 } };
+  it("a whole-word match with its own range uses it (slap-stick: both syllables)", () => {
+    expect(sylRange({ type: "perfect", form: "word", words: [w], vi0: 0, vi1: 1 }, w)).toEqual({ vi0: 0, vi1: 1 });
+  });
+  it("a whole-word match without a range starts at the stressed syllable", () => {
+    expect(sylRange({ type: "perfect", form: "word", words: [w] }, w)).toEqual({ vi0: 1, vi1: 1 });
+  });
+});
+describe("linkTypeAt: the link type of a word's syllable inside a match", () => {
+  const m = { links: [{ wordId: "a", k: 0, kEnd: 0, type: "additive", counted: true }, { wordId: "b", k: 0, kEnd: 1, type: "perfect", counted: true }] };
+  it("finds the link covering that syllable, merged syllables included", () => {
+    expect(linkTypeAt(m, "a", 0).type).toBe("additive");
+    expect(linkTypeAt(m, "b", 1).type).toBe("perfect");
+    expect(linkTypeAt(m, "c", 0)).toBe(null);
+  });
+});

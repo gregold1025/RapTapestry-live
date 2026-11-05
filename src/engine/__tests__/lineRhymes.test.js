@@ -21,6 +21,12 @@ describe("line end rhymes", () => {
     expect(alamo).toBeTruthy();
     expect(alamo.lineIdx).not.toBe(li);
   });
+  it("the longest ending wins: talent show ~ Alamo links two syllables, not just show ~ -mo", () => {
+    const li = song.lines.findIndex((l) => /talent show$/i.test(l.words.map((w) => w.text.trim()).join(" ")));
+    const alamo = lineEndMatches(song, li, matchesFor).find((m) => /alamo/i.test(m.text));
+    expect(alamo.match.links.length).toBeGreaterThanOrEqual(2);
+    expect(alamo.unit).toBe(alamo.match.links.length);
+  });
   it("one entry per line, never the anchor line, sorted by line", () => {
     const ms = lineEndMatches(song, 8, matchesFor);
     const idx = ms.map((m) => m.lineIdx);

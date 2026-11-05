@@ -89,14 +89,14 @@ export function QueryProvider({ children }) {
           if (prev && prev.isAnchor && !isAnchor) continue;
           if (prev && !prev.isAnchor && !isAnchor && prev.rank < rank) continue;
           const { vi0, vi1 } = sylRange(m, w);
-          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, isAnchor, rank, expected: !!m.expected, text: m.text });
+          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, isAnchor, rank, text: m.text });
         }
       }
     }
     const prev = prevVisualRef.current;
     for (const [id, v] of map) {
       const b = prev.get(id);
-      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.expected === v.expected) map.set(id, b);
+      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor) map.set(id, b);
     }
     prevVisualRef.current = map;
     return map;

@@ -5,9 +5,9 @@
 import React, { useMemo, useState } from "react";
 import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
-import { RHYME_TYPES, FORM_BY_KEY } from "../../engine";
+import { RHYME_TYPES, FORM_BY_KEY, TYPE_BY_KEY } from "../../engine";
 import { queryLabel } from "../../utils/queryLabel";
-import { phoneMarks, sylRange } from "../../utils/phoneMarks";
+import { phoneMarks, sylRange, linkTypeAt } from "../../utils/phoneMarks";
 import { EyeButton } from "../ui";
 import "./RightPane.css";
 
@@ -127,15 +127,16 @@ export default function QueriesView() {
                   type="button"
                   className="sq-match"
                   onClick={() => seekAll(m.start)}
-                  title={`${m.type}${m.form && m.form !== "word" ? " " + (FORM_BY_KEY[m.form]?.label ?? m.form).toLowerCase() : ""}${m.expected ? " (by expectation)" : ""} • click to seek`}
+                  title={`${m.type}${m.form && m.form !== "word" ? " " + (FORM_BY_KEY[m.form]?.label ?? m.form).toLowerCase() : ""} • click to seek`}
                 >
                   <span className="sq-match-main">
-                    <span className="sq-match-text" style={m.form === "mosaic" ? { textDecoration: "underline dashed" } : m.form === "embedded" ? { textDecoration: "underline dotted" } : undefined}>
+                    <LinkStrip m={m.match ?? m} />
+                    <span className="sq-match-text" style={FORM_DECORATION[m.form]}>
                       {focused.kind === "line" ? <LineText text={m.text} /> : m.text}
                     </span>
                     <MatchPhones m={m} />
                   </span>
-                  <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}{m.expected ? " · expected" : ""}</span>
+                  <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}</span>
                   <span className="sq-match-time">{fmtTime(m.start)}</span>
                 </button>
               ))}
@@ -189,7 +190,29 @@ export default function QueriesView() {
   );
 }
 
-/** A match's phones, shown on hover; the phones that made the rhyme in bold. */
+// Temporary visual language (Greg will rework it): form as the underline style.
+const FORM_DECORATION = {
+  mosaic: { textDecoration: "underline dashed" },
+  embedded: { textDecoration: "underline dotted" },
+  semirhyme: { textDecoration: "underline wavy" },
+};
+const typeColor = (t) => TYPE_BY_KEY[t]?.color ?? "#888888";
+
+/** One small mark per syllable of the match, in that syllable's type color (left to right).
+ *  Faint: an unstressed link that only keeps the vowel. Hollow: a pickup. */
+function LinkStrip({ m }) {
+  const ls = m.links ?? [];
+  if (!ls.length) return null;
+  return (
+    <span className="sq-strip" aria-label={`Per syllable: ${ls.map((l) => (l.pickup ? "pickup " : "") + l.type).join(", ")}`}>
+      {ls.map((l, i) => (
+        <span key={i} className={`sq-strip-mark ${l.pickup ? "is-pickup" : l.counted ? "" : "is-soft"}`} style={{ "--c": typeColor(l.type) }} title={`${l.pickup ? "pickup, " : ""}${l.type}${!l.counted && !l.pickup ? " (unstressed: keeps the vowel)" : ""}`} />
+      ))}
+    </span>
+  );
+}
+
+/** A match's phones, shown on hover; the phones that made the rhyme in bold, colored by their syllable's type. */
 function MatchPhones({ m }) {
   const mm = m.match ?? m;
   const ws = mm.words ?? [];
@@ -201,9 +224,10 @@ function MatchPhones({ m }) {
         return (
           <span key={w.id ?? i}>
             {i > 0 && <span className="sq-match-sep"> | </span>}
-            {phoneMarks(w.phones, vi0, vi1).map((x, j) => (
-              <React.Fragment key={j}>{j > 0 && " "}{x.on ? <b>{x.p}</b> : x.p}</React.Fragment>
-            ))}
+            {phoneMarks(w.phones, vi0, vi1).map((x, j) => {
+              const l = x.on ? linkTypeAt(mm, w.id, x.k) : null;
+              return <React.Fragment key={j}>{j > 0 && " "}{x.on ? <b style={l ? { color: typeColor(l.type), opacity: l.counted ? 1 : 0.6 } : undefined}>{x.p}</b> : x.p}</React.Fragment>;
+            })}
           </span>
         );
       })}

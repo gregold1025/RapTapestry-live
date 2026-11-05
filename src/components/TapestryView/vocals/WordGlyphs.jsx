@@ -134,7 +134,7 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
       const mx1 = partial ? xOf(syls[vi1].end) : endX;
       const dash = vis ? FORM_BY_KEY[vis.form]?.dash ?? null : null;
       const color = vis?.color ?? wordActiveColor;
-      const alpha = vis?.expected ? wordOpacity * 0.55 : wordOpacity;
+      const alpha = wordOpacity;
 
       if (vis) {
         if (curveD && curvePts) {

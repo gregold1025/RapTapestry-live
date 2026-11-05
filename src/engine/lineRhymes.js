@@ -1,8 +1,9 @@
 // src/engine/lineRhymes.js
 // End rhyme between lines. A line's rhyming unit is not always its last word
-// ("talent show" ~ "Alamo"), so a line query is run for its last one, two and
-// three words; a line matches when a match from any of those runs ends on that
-// line's last word. One entry per line, at its lowest-ranked type.
+// ("talent show" ~ "Alamo"), so a line query is its last three words (fewer on a
+// shorter line), run as one query: a match ends on the query's last syllable and
+// extends leftward as far as syllables link, so the longest ending wins (Greg,
+// 2026-11-05). A line matches when a match ends on its last word's last syllable.
 import { TYPE_RANK } from "./index.js";
 
 export const END_UNIT_MAX_WORDS = 3;
@@ -18,21 +19,25 @@ export function endUnits(song, lineIdx, maxWords = END_UNIT_MAX_WORDS) {
 
 /**
  * @param matchesFor (anchorIds) => engine matches (anchor entries included or not)
- * @returns [{ lineIdx, type, form, rank, start, text, lastWordId, expected, unit, words, match }] (words/match: the word match behind it) sorted by line
+ * @returns [{ lineIdx, type, form, rank, start, text, lastWordId, unit, words, match }] sorted by line;
+ *   unit = the number of syllables the ending links
  */
 export function lineEndMatches(song, lineIdx, matchesFor, maxWords = END_UNIT_MAX_WORDS) {
+  const units = endUnits(song, lineIdx, maxWords);
+  const unit = units[units.length - 1];
   const best = new Map();
-  for (const unit of endUnits(song, lineIdx, maxWords)) {
-    for (const m of matchesFor(unit)) {
-      if (m.type === "anchor") continue;
-      const w = m.words[m.words.length - 1];
-      const line = song.lines[w.li];
-      if (!line || w.li === lineIdx || w.wi !== line.words.length - 1) continue;
-      const rank = TYPE_RANK[m.type] ?? 99;
-      const prev = best.get(w.li);
-      if (prev && prev.rank <= rank) continue;
-      best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, expected: !!m.expected, unit: unit.length, words: m.words, match: m });
-    }
+  if (!unit) return [];
+  for (const m of matchesFor(unit)) {
+    if (m.type === "anchor") continue;
+    const w = m.words[m.words.length - 1];
+    const line = song.lines[w.li];
+    if (!line || w.li === lineIdx || w.wi !== line.words.length - 1) continue;
+    if (m.vi1 != null && m.vi1 !== w.nSyllables - 1) continue;
+    const rank = TYPE_RANK[m.type] ?? 99;
+    const len = m.links?.length ?? 1;
+    const prev = best.get(w.li);
+    if (prev && (prev.unit > len || (prev.unit === len && prev.rank <= rank))) continue;
+    best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, unit: len, words: m.words, match: m });
   }
   return [...best.values()].sort((a, b) => a.lineIdx - b.lineIdx);
 }

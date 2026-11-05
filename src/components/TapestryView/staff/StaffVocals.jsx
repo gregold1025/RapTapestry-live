@@ -135,7 +135,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
       {items.map((it) => {
         const { id, text, col, hit, vis, syls } = it;
         const form = vis?.form;
-        const dashes = form === "mosaic" ? "7 4" : form === "embedded" ? "1.5 4" : null;
+        const dashes = form === "mosaic" ? "7 4" : form === "embedded" ? "1.5 4" : form === "semirhyme" ? "0.5 3" : null;
         const common = { style: { cursor: "pointer" }, onClick: onClick(id), onMouseEnter: hover(it), onMouseLeave: onGlyphHoverLeave, pointerEvents: "visiblePainted" };
 
         if (it.mode === "syllables") {
