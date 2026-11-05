@@ -15,8 +15,8 @@ function NotesPreview({ lo, hi, color, topper }) {
         return (
           <g key={i}>
             <path d={`M${x},${y0} C${x + w / 2},${y0} ${x + w / 2},${y1} ${x + w},${y1}`} stroke={color} strokeWidth={4} fill="none" />
-            {topper !== "none" && <rect x={x} y={Math.min(y0, y1) - 7} width={w} height={2} fill={color} />}
-            {topper !== "none" && <rect x={x} y={Math.max(y0, y1) + 5} width={w} height={2} fill={color} />}
+            {topper !== "none" && <path d={`M${x},${y0 - 5} C${x + w / 2},${y0 - 5} ${x + w / 2},${y1 - 5} ${x + w},${y1 - 5}`} stroke={color} strokeWidth={1.5} fill="none" />}
+            {topper !== "none" && <path d={`M${x},${y0 + 5} C${x + w / 2},${y0 + 5} ${x + w / 2},${y1 + 5} ${x + w},${y1 + 5}`} stroke={color} strokeWidth={1.5} fill="none" />}
           </g>
         );
       })}
@@ -57,13 +57,7 @@ export default function BassPanel() {
           <Slider label="thickness" value={bp.thickness ?? 6} min={1} max={24} step={1} unit=" px" onChange={(v) => set({ thickness: v })} />
           <Slider label="opacity" value={Math.round(bp.opacity * 100)} min={0} max={100} step={1} unit="%" onChange={(v) => set({ opacity: v / 100 })} />
         </div>
-        <div className="ui-row">
-          <Slider label="blur" value={bp.blur ?? 0} min={0} max={5} step={0.2} unit=" px" onChange={(v) => set({ blur: v })} format={(v) => `${v.toFixed(1)} px`} />
-          <div className="pn-field" style={{ flex: 1 }}>
-            <span className="pn-field-label">ends</span>
-            <Segmented size="sm" value={bp.caps ?? "butt"} onChange={(v) => set({ caps: v })} options={[{ value: "butt", label: "straight" }, { value: "round", label: "round" }]} />
-          </div>
-        </div>
+        <Slider label="blur" value={bp.blur ?? 0} min={0} max={5} step={0.2} unit=" px" onChange={(v) => set({ blur: v })} format={(v) => `${v.toFixed(1)} px`} />
         <div className="pn-field">
           <span className="pn-field-label">topper</span>
           <Segmented
@@ -81,7 +75,7 @@ export default function BassPanel() {
           onChange={([lo, hi]) => set({ band: { lo, hi } })}
           preview={<NotesPreview lo={band.lo} hi={band.hi} color={bp.fillColor} topper={bp.topper ?? "divider"} />}
         />
-        <p className="ui-note">Each note is a line through its pitch (pYIN contour, experiments/bass-01). Band = where the song's lowest to highest notes land; default the bottom half of the lane. Toppers sit above and below each note, a gap away.</p>
+        <p className="ui-note">Each note is a line through its pitch (pYIN contour, experiments/bass-01). Band = where the song's lowest to highest notes land; default the bottom half of the lane. Toppers sit above and below each note and follow its line, a gap away.</p>
       </div>
     </div>
   );

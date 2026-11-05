@@ -59,3 +59,21 @@ describe("noteSegments at row boundaries", () => {
     expect(segs[0].points[segs[0].points.length - 1].x).toBeCloseTo(100);
   });
 });
+
+describe("topperSlices (toppers follow the note's line)", () => {
+  it("cuts a rising note into narrow slices whose centers ride the line", async () => {
+    const { topperSlices } = await import("../bassModel");
+    const P = [[0, 100], [30, 70]];             // pixels: rising 30 px over 30 px
+    const sl = topperSlices(P, 3);
+    expect(sl.length).toBe(10);
+    expect(sl[0]).toMatchObject({ x: 0, w: 3, u0: 0, du: 0.1 });
+    expect(sl[0].y).toBeCloseTo(98.5);
+    expect(sl[9].y).toBeCloseTo(71.5);
+    expect(sl.reduce((a, s) => a + s.w, 0)).toBeCloseTo(30);
+  });
+  it("a flat note is one slice", async () => {
+    const { topperSlices } = await import("../bassModel");
+    const sl = topperSlices([[10, 50], [20, 50], [40, 50]], 3);
+    expect(sl).toEqual([{ x: 10, w: 30, y: 50, u0: 0, du: 1 }]);
+  });
+});

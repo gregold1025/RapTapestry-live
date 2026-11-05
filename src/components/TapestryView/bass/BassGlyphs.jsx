@@ -1,16 +1,17 @@
 // src/components/TapestryView/bass/BassGlyphs.jsx
 // Bass v2 (experiments/bass-01): each note a spline through its pitch contour,
 // like the words; height = pitch within the song's range, mapped into the
-// band (default: the bottom half of the bass lane). Straight-cut ends by
-// default. Toppers: the divider glyph as a strip above and below each note's
-// spline, a gap away (later: the gap will open as the playhead passes).
+// band (default: the bottom half of the bass lane). Straight-cut ends.
+// Toppers: the divider glyph as a strip above (flipped) and below each note,
+// a gap away, cut into thin slices that follow the line (later: the gap will
+// open as the playhead passes).
 // Songs without v2 data fall back to the v1 pitch-class events as flat lines.
 import React, { useId, useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY } from "../../../utils/laneLayout";
-import { bassRange, midiPct, noteSegments } from "../../../utils/bassModel";
+import { bassRange, midiPct, noteSegments, topperSlices } from "../../../utils/bassModel";
 
 const BASS_NOMINAL = 100;
 
@@ -58,7 +59,7 @@ export default function BassGlyphs() {
         const rowTop = seg.row * rowHeight;
         const P = seg.points.map((p) => [p.x, laneY(rowTop, rowHeight, lane, midiPct(p.midi, band, range))]);
         const ys = P.map((p) => p[1]);
-        out.push({ key: `${idx}-${seg.row}`, d: splineD(P), x0: P[0][0], x1: P[P.length - 1][0], yMin: Math.min(...ys), yMax: Math.max(...ys) });
+        out.push({ key: `${idx}-${seg.row}`, d: splineD(P), slices: topperSlices(P, 3), yMin: Math.min(...ys), yMax: Math.max(...ys) });
       }
     });
     return out;
@@ -66,7 +67,7 @@ export default function BassGlyphs() {
 
   if (!layout || !showBass || !notes.length) return null;
 
-  const { fillColor, opacity, blur = 0, caps = "butt" } = bassParams;
+  const { fillColor, opacity, blur = 0 } = bassParams;
   const topperH = Math.max(3, thickness * 0.9);
   const symId = `${uid}-bdiv`;
 
@@ -90,20 +91,29 @@ export default function BassGlyphs() {
         )}
       </defs>
       <g opacity={opacity} filter={blur > 0 ? `url(#${uid}-blur)` : undefined} pointerEvents="none">
-        {shapes.map((s) => {
-          const w = Math.max(1, s.x1 - s.x0);
-          return (
-            <g key={s.key}>
-              <path d={s.d} fill="none" stroke={fillColor} strokeWidth={thickness} strokeLinecap={caps} />
-              {dividerUrl && (
-                <>
-                  <use href={`#${symId}`} x={s.x0} y={s.yMin - thickness / 2 - gap - topperH} width={w} height={topperH} fill={fillColor} />
-                  <use href={`#${symId}`} x={s.x0} y={s.yMax + thickness / 2 + gap} width={w} height={topperH} fill={fillColor} transform={`rotate(180 ${s.x0 + w / 2} ${s.yMax + thickness / 2 + gap + topperH / 2})`} />
-                </>
-              )}
-            </g>
-          );
-        })}
+        {shapes.map((s) => (
+          <g key={s.key}>
+            <path d={s.d} fill="none" stroke={fillColor} strokeWidth={thickness} strokeLinecap="butt" />
+            {dividerUrl && s.slices.map((sl, i) => {
+              const vb = `${(sl.u0 * BASS_NOMINAL).toFixed(3)} 0 ${Math.max(0.001, sl.du * BASS_NOMINAL).toFixed(3)} ${BASS_NOMINAL}`;
+              const yTop = sl.y - thickness / 2 - gap - topperH;
+              const yBot = sl.y + thickness / 2 + gap;
+              const w = sl.w + 0.4; // a hair of overlap so slices do not seam
+              return (
+                <React.Fragment key={i}>
+                  {/* above: the glyph flipped so it faces the line */}
+                  <svg x={sl.x} y={yTop} width={w} height={topperH} viewBox={vb} preserveAspectRatio="none" overflow="hidden">
+                    <use href={`#${symId}`} x={0} y={0} width={BASS_NOMINAL} height={BASS_NOMINAL} fill={fillColor} transform={`translate(0 ${BASS_NOMINAL}) scale(1 -1)`} />
+                  </svg>
+                  {/* below: the glyph as drawn */}
+                  <svg x={sl.x} y={yBot} width={w} height={topperH} viewBox={vb} preserveAspectRatio="none" overflow="hidden">
+                    <use href={`#${symId}`} x={0} y={0} width={BASS_NOMINAL} height={BASS_NOMINAL} fill={fillColor} />
+                  </svg>
+                </React.Fragment>
+              );
+            })}
+          </g>
+        ))}
       </g>
     </>
   );

@@ -85,6 +85,7 @@
 .pn-back:hover { color: var(--rt-ink); }
 
 /* ---- lane preview (top of each stem panel) ---- */
-.pn-lane { position: relative; background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 6px; overflow: hidden; }
-.pn-lane-svg { display: block; width: 100%; height: 64px; }
+.pn-lane { position: relative; background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 6px; overflow: hidden; pointer-events: none; }
+.pn-lane .tapestry-content { position: relative; width: 100%; }
 .pn-lane-label { position: absolute; left: 6px; top: 3px; font-size: 8px; color: var(--rt-muted); letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
+.pn-lane * { pointer-events: none !important; }

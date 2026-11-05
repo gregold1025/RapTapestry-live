@@ -1,119 +1,103 @@
 // src/components/Panels/LanePreview.jsx
-// A live preview of one stem's lane at the top of its panel: two bars of the
-// real song from the bar under the playhead, drawn with the current heights,
-// sizes and glyphs, so a change to a slider shows where things land.
-import React, { useMemo, useState } from "react";
-import { useParams } from "../../contexts/ParamsContext";
+// The stem's lane as the tapestry draws it: two bars of the song rendered by
+// the stem's own glyph layer (same thickness, sizes, opacity, toppers,
+// heights) at the tapestry's own proportions (its pixels per bar and row
+// height), then scaled to the panel's width. Static: the stem's busiest
+// two-bar passage, not the playhead.
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { TapestryLayoutProvider, useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import { useSongData } from "../../contexts/SongDataContext";
-import { usePlayheadSubscription } from "../../contexts/AudioContext";
-import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
-import { f0Pct } from "../../utils/timingModel";
-import { bassRange, midiPct } from "../../utils/bassModel";
-import { defaultGlyphFor } from "../../utils/drumGlyphDefaults";
+import TapestryLayer from "../TapestryView/TapestryLayer";
+import DrumGrid from "../TapestryView/drums/DrumGrid";
+import DrumsGlyphs from "../TapestryView/drums/DrumsGlyphs";
+import BassGlyphs from "../TapestryView/bass/BassGlyphs";
+import VocalsGlyphs from "../TapestryView/vocals/VocalsGlyphs";
+import "../TapestryView/TapestryView.css";
 import "./Panels.css";
 
-const W = 200, H = 64, BARS = 2;
+const BARS = 2;
 
-function useWindow() {
-  const { songModel } = useSongData();
-  const [bar, setBar] = useState(0);
-  usePlayheadSubscription((t) => {
-    if (!songModel) return;
-    const b = Math.max(0, songModel.barPosition(t).bar);
-    setBar((prev) => (prev === b ? prev : b));
-  });
-  if (!songModel) return null;
-  const { grid, beatsPerBar } = songModel;
-  const at = (b) => grid[Math.min(grid.length - 1, b * beatsPerBar)];
-  const lastBar = Math.max(0, Math.floor((grid.length - 1) / beatsPerBar) - BARS);
-  const b0 = Math.min(bar, lastBar);
-  const t0 = at(b0), t1 = at(b0 + BARS);
-  return { t0, t1, x: (t) => ((t - t0) / Math.max(1e-6, t1 - t0)) * W, beats: grid.filter((g) => g >= t0 && g <= t1), downbeats: [0, 1, 2].map((k) => at(b0 + k)) };
+/** The start of the busiest two-bar passage for the stem (most events), so the preview shows it playing. */
+function useStartBar(stem) {
+  const { songModel, bassNotes, drumTranscription, timing } = useSongData();
+  return useMemo(() => {
+    if (!songModel) return 0;
+    let times = [];
+    if (stem === "bass") times = (bassNotes ?? []).map((n) => n.start);
+    if (stem === "drums") times = (drumTranscription?.drum_hits ?? []).map((h) => h.time);
+    if (stem === "vocals" && timing) for (const w of timing.words.values()) for (const sy of w.syls) times.push(sy.start);
+    const count = new Map();
+    for (const t of times) {
+      const b = Math.max(0, songModel.barPosition(t).bar);
+      const k = b - (b % BARS);
+      count.set(k, (count.get(k) ?? 0) + 1);
+    }
+    let best = 0, bestN = -1;
+    for (const [k, n] of [...count].sort((a, b) => a[0] - b[0])) if (n > bestN) { best = k; bestN = n; }
+    return best;
+  }, [stem, songModel, bassNotes, drumTranscription, timing]);
 }
 
-const y = (pct) => H - (Math.max(0, Math.min(100, pct)) / 100) * H;
-
-function Frame({ win, children, label }) {
+function Stage({ stem, rowIdx, scale, w, h }) {
+  const { containerRef, layout } = useTapestryLayout();
+  const { lyricTranscription, drumTranscription } = useSongData();
   return (
-    <div className="pn-lane">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="pn-lane-svg">
-        {win?.beats.map((b, i) => <line key={i} x1={win.x(b)} x2={win.x(b)} y1={0} y2={H} stroke="#d6d6db" strokeWidth={0.6} vectorEffect="non-scaling-stroke" />)}
-        {win?.downbeats.map((b, i) => <line key={`d${i}`} x1={win.x(b)} x2={win.x(b)} y1={0} y2={H} stroke="#9a9ca3" strokeWidth={1.2} vectorEffect="non-scaling-stroke" />)}
-        {children}
-      </svg>
-      <span className="pn-lane-label">{label}</span>
+    <div style={{ width: w * scale, height: h * scale, overflow: "hidden", position: "relative" }}>
+      <div ref={containerRef} className="pn-lane-stage" style={{ width: w, height: h, transform: `scale(${scale})`, transformOrigin: "0 0", overflow: "hidden", position: "relative" }}>
+        {layout && (
+          <div className="tapestry-content" style={{ height: layout.contentHeight, transform: `translateY(${-rowIdx * layout.rowHeight}px)` }}>
+            <TapestryLayer name={`preview-grid`}>
+              <DrumGrid drumTranscriptionData={drumTranscription} />
+            </TapestryLayer>
+            {stem === "bass" && <TapestryLayer name="preview-bass"><BassGlyphs /></TapestryLayer>}
+            {stem === "drums" && <TapestryLayer name="preview-drums"><DrumsGlyphs /></TapestryLayer>}
+            {stem === "vocals" && <VocalsGlyphs lyricTranscriptionData={lyricTranscription} />}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-export function VocalsLanePreview() {
-  const p = useParams();
-  const { timing, lyricTranscription } = useSongData();
-  const win = useWindow();
-  const items = useMemo(() => {
-    if (!win || !timing) return [];
-    const out = [];
-    (lyricTranscription?.lines ?? []).forEach((line, li) => (line.words ?? []).forEach((_, wi) => {
-      const w = timing.words.get(`${li}-${wi}`);
-      if (w && w.end > win.t0 && w.start < win.t1) out.push(w);
-    }));
-    return out;
-  }, [win?.t0, win?.t1, timing, lyricTranscription]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!win) return null;
-  const sylPct = (s) => (p.syllableMode === "pitched" ? f0Pct(s.f0, timing?.f0Mid, p.syllableBand, (p.syllableBand.lo + p.syllableBand.hi) / 2) : p.syllableFixedHeight);
-  const r = Math.max(1, (p.syllableRadius ?? 6) * 0.35);
+export function LanePreview({ stem }) {
+  const { layout: main } = useTapestryLayout();
+  const { drumTranscription } = useSongData();
+  const startBar = useStartBar(stem);
+  const boxRef = useRef(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    ro.observe(el);
+    setWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+  if (!main || !drumTranscription) return <div ref={boxRef} className="pn-lane" />;
+  // the tapestry's own scale: px per bar and row height
+  const w = (main.width / main.barsPerRow) * BARS;
+  const h = main.rowHeight;
+  const scale = width > 0 ? width / w : 0;
   return (
-    <Frame win={win} label="lane preview · 2 bars at the playhead">
-      {p.showLines && <rect x={0} y={y(p.lineBand.hi)} width={W} height={Math.max(1, y(p.lineBand.lo) - y(p.lineBand.hi))} fill="#9e9ea2" opacity={0.18} />}
-      {p.showWords && items.map((w, i) => {
-        const pct = p.wordMode === "unpitched" ? p.wordCenter ?? 50 : f0Pct(w.f0, timing?.f0Mid, p.wordBand, (p.wordBand.lo + p.wordBand.hi) / 2);
-        return <rect key={i} x={win.x(w.start)} y={y(pct) - 1.5} width={Math.max(1, win.x(w.end) - win.x(w.start))} height={3} fill="#9e9ea2" />;
-      })}
-      {p.showSyllables && items.flatMap((w, i) => w.syls.map((s, k) => <circle key={`${i}-${k}`} cx={win.x(s.start)} cy={y(sylPct(s))} r={r} fill="#1a1a1a" />))}
-    </Frame>
+    <div ref={boxRef} className="pn-lane" title={`Two bars from bar ${startBar + 1}, as the tapestry draws this stem`}>
+      <TapestryLayoutProvider
+        timeLayout="wrap"
+        barsPerRow={BARS}
+        rowHeightMode="fixed"
+        fixedRowHeightPx={h}
+        duration={main.rowBoundaries[main.rowBoundaries.length - 1]}
+        estimated_bpm={drumTranscription.estimated_bpm}
+        downbeats={drumTranscription.downbeats}
+        beats={drumTranscription.beats}
+      >
+        {/* mounted from the start so the nested layout can measure its stage */}
+        <Stage stem={stem} rowIdx={Math.floor(startBar / BARS)} scale={scale || 1} w={w} h={h} />
+      </TapestryLayoutProvider>
+      <span className="pn-lane-label">bars {startBar + 1}–{startBar + BARS}{stem === "vocals" ? " · unqueried glyphs at their inactive opacity" : ""}</span>
+    </div>
   );
 }
 
-export function DrumsLanePreview() {
-  const p = useParams();
-  const hits = useDrumHits();
-  const byClass = useByClass();
-  const win = useWindow();
-  if (!win) return null;
-  const groups = byClass ? p.drumClasses : p.drumBands;
-  const byName = p.glyphAssets.syllableGlyphByName;
-  return (
-    <Frame win={win} label="lane preview · 2 bars at the playhead">
-      {hits.filter((h) => h.time >= win.t0 && h.time <= win.t1).map((h, i) => {
-        const key = byClass ? h.cls : h.category;
-        const g = groups[key];
-        if (!g || g.visible === false) return null;
-        const url = g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(key, byName);
-        const s = Math.max(3, g.size * 0.45);
-        const cx = win.x(h.time), cy = y(g.height ?? 50);
-        return url
-          ? <image key={i} href={url} x={cx - s / 2} y={cy - s / 2} width={s} height={s} preserveAspectRatio="none" opacity={g.opacity} style={{ filter: "brightness(0)" }} />
-          : <circle key={i} cx={cx} cy={cy} r={s / 3} fill={p.drumParams.fillColor} opacity={g.opacity} />;
-      })}
-    </Frame>
-  );
-}
-
-export function BassLanePreview() {
-  const p = useParams();
-  const { bassNotes } = useSongData();
-  const win = useWindow();
-  const range = useMemo(() => bassRange(bassNotes ?? []), [bassNotes]);
-  if (!win) return null;
-  const band = p.bassParams.band ?? { lo: 0, hi: 50 };
-  return (
-    <Frame win={win} label="lane preview · 2 bars at the playhead">
-      <rect x={0} y={y(band.hi)} width={W} height={Math.max(1, y(band.lo) - y(band.hi))} fill={p.bassParams.fillColor} opacity={0.06} />
-      {(bassNotes ?? []).filter((n) => n.end > win.t0 && n.start < win.t1).map((n, i) => {
-        const pts = (n.contour?.length ? n.contour : [[n.start, n.midi], [n.end, n.midi]]).map(([t, m]) => `${win.x(t).toFixed(1)},${y(midiPct(m, band, range)).toFixed(1)}`);
-        if (pts.length === 1) pts.push(`${win.x(n.end).toFixed(1)},${y(midiPct(n.midi, band, range)).toFixed(1)}`);
-        return <polyline key={i} points={pts.join(" ")} fill="none" stroke={p.bassParams.fillColor} strokeWidth={Math.max(1, (p.bassParams.thickness ?? 6) * 0.4)} strokeLinecap={p.bassParams.caps ?? "butt"} opacity={p.bassParams.opacity} />;
-      })}
-    </Frame>
-  );
-}
+export const VocalsLanePreview = () => <LanePreview stem="vocals" />;
+export const DrumsLanePreview = () => <LanePreview stem="drums" />;
+export const BassLanePreview = () => <LanePreview stem="bass" />;

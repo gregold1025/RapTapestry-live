@@ -140,12 +140,11 @@ export function ParamsProvider({ children }) {
   // — BASS —
   const [showBass, setShowBass] = useState(true);
   const [bassParams, setBassParams] = useState({
-    rectHeight: 3, // gap (px) between the spline and its toppers
+    rectHeight: 0, // gap (px) between the line and its toppers
     fillColor: "#670079",
     opacity: 0.7,
     blur: 0,
     thickness: 6, // spline stroke (px)
-    caps: "butt", // "butt" (straight cut) | "round"
     band: { lo: 0, hi: 50 }, // the song's pitch range lands in the bottom half of the bass lane
     topper: "divider", // "divider" | "none": a glyph strip above and below each note
   });

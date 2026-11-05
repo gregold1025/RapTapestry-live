@@ -59,3 +59,27 @@ export function noteSegments(note, timeToPixels, rowEndTime = null, width = null
   }
   return out;
 }
+
+/**
+ * Toppers that follow a note's line: the strip is cut into slices `dx` px
+ * wide, each placed at the line's height at its middle. P = [[x, y], ...]
+ * pixels, x increasing. Returns [{ x, w, y, u0, du }] where u0/du is the
+ * slice's share of the glyph (0..1). A flat note is one slice.
+ */
+export function topperSlices(P, dx = 3) {
+  const x0 = P[0][0], x1 = P[P.length - 1][0], W = Math.max(1e-6, x1 - x0);
+  const ys = P.map((p) => p[1]);
+  if (Math.max(...ys) - Math.min(...ys) < 0.5) return [{ x: x0, w: x1 - x0, y: P[0][1], u0: 0, du: 1 }];
+  const yAt = (x) => {
+    let i = 0;
+    while (i < P.length - 2 && P[i + 1][0] < x) i++;
+    const [ax, ay] = P[i], [bx, by] = P[i + 1];
+    return bx > ax ? ay + ((Math.max(ax, Math.min(bx, x)) - ax) / (bx - ax)) * (by - ay) : ay;
+  };
+  const out = [];
+  for (let x = x0; x < x1 - 1e-6; x += dx) {
+    const w = Math.min(dx, x1 - x);
+    out.push({ x, w, y: yAt(x + w / 2), u0: (x - x0) / W, du: w / W });
+  }
+  return out;
+}
