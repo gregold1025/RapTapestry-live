@@ -29,6 +29,7 @@ export default function GlobalPanel() {
     staffBackgroundColor, setStaffBackgroundColor,
     staffWordColor, setStaffWordColor,
     staffTextHeight, setStaffTextHeight,
+    staffBassThickness, setStaffBassThickness,
     staffShowDownbeats, setStaffShowDownbeats,
     staffShowBeatLines, setStaffShowBeatLines,
   } = useParams();
@@ -120,6 +121,9 @@ export default function GlobalPanel() {
         <div className="ui-row">
           <Slider label="text" value={staffTextPx} min={8} max={20} step={1} unit=" px" onChange={setStaffTextPx} />
           <Slider label="drum glyphs" value={Math.round(staffDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setStaffDrumScale(v / 100)} />
+        </div>
+        <div className="ui-row">
+          <Slider label="bass thickness" value={staffBassThickness} min={1} max={24} step={1} unit=" px" onChange={setStaffBassThickness} />
         </div>
         <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />

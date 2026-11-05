@@ -48,7 +48,7 @@ function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
             open={!!open[b.key]}
             onToggle={() => toggle(b.key)}
             title={b.label}
-            meta={(counts[b.key] ?? 0).toLocaleString("en-US")}
+            meta={b.meta ?? (counts[b.key] ?? 0).toLocaleString("en-US")}
             glyph={
               <GlyphPicker
                 label={`${b.label} glyph`}
@@ -97,6 +97,11 @@ export default function DrumsPanel() {
     return c;
   }, [named]);
   const total = onsets.length;
+  const unnamedBands = useMemo(() => {
+    const c = { low: 0, mid: 0, high: 0 };
+    for (const h of named) if (h.cls === "other" && c[h.category] != null) c[h.category] += 1;
+    return c;
+  }, [named]);
   const hasClasses = !!drumClassesTranscription?.hits;
   const byClass = useByClass();
 
@@ -137,7 +142,7 @@ export default function DrumsPanel() {
       <div className="pn-section">
         <SectionLabel right="hits">{byClass ? "Classes" : "Bands"}</SectionLabel>
         {byClass ? (
-          <GroupRows rows={DRUM_CLASSES.map((k) => ({ key: k, label: DRUM_CLASS_LABELS[k] }))} groups={p.drumClasses} setGroup={p.setDrumClass} counts={classCounts} open={open} toggle={toggle} p={p} />
+          <GroupRows rows={DRUM_CLASSES.map((k) => ({ key: k, label: DRUM_CLASS_LABELS[k], meta: k === "other" ? `${(classCounts.other ?? 0).toLocaleString("en-US")} (low ${unnamedBands.low} · mid ${unnamedBands.mid} · high ${unnamedBands.high})` : undefined }))} groups={p.drumClasses} setGroup={p.setDrumClass} counts={classCounts} open={open} toggle={toggle} p={p} />
         ) : (
           <GroupRows rows={BANDS} groups={p.drumBands} setGroup={p.setDrumBand} counts={bandCounts} open={open} toggle={toggle} p={p} />
         )}

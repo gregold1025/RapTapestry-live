@@ -34,7 +34,7 @@ function v1AsNotes(v1) {
 
 export default function BassGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showBass, bassParams, glyphStyle } = useParams();
+  const { showBass, bassParams, glyphStyle, staffBassThickness } = useParams();
   const { bassNotes, bassTranscription } = useSongData();
   const lane = laneFor("bass");
   const uid = useId().replace(/[:«»]/g, "");
@@ -43,7 +43,7 @@ export default function BassGlyphs() {
   const range = useMemo(() => bassRange(notes), [notes]);
 
   const band = bassParams.band ?? { lo: 0, hi: 50 };
-  const thickness = bassParams.thickness ?? 6;
+  const thickness = layout?.singleRow ? staffBassThickness ?? 6 : bassParams.thickness ?? 6;   // the Line Staff has its own
   const topper = bassParams.topper ?? "divider";
   const dividerUrl = topper === "none" ? null : glyphStyle?.bassDividerUrl ?? null;
   const gap = bassParams.rectHeight ?? 0;

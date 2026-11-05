@@ -49,7 +49,9 @@ export default function DrumsGlyphs() {
     const size = (g.size ?? 12) * scale;
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
-    const cy = laneY(y, rowHeight, lane, g.height ?? 50);
+    // unnamed onsets keep their frequency band: low / mid / high sit a little below / at / above the row's height
+    const bandOffset = rowKey === "other" ? ({ low: -4, mid: 0, high: 4 }[hit.category] ?? 0) : 0;
+    const cy = laneY(y, rowHeight, lane, Math.max(0, Math.min(100, (g.height ?? 50) + bandOffset)));
     const sym = symbolFor(g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(rowKey, byName));   // "none" = a circle
     const opacity = (drumParams?.opacity ?? 1) * (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(

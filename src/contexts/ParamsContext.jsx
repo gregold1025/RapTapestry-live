@@ -84,7 +84,7 @@ export function ParamsProvider({ children }) {
   const [syllableMode, setSyllableMode] = useState("pitched"); // "unpitched" | "pitched"
   const [syllableBand, setSyllableBand] = useState({ lo: 30, hi: 85 });
   const [syllableFixedHeight, setSyllableFixedHeight] = useState(60);
-  const [syllableRadius, setSyllableRadius] = useState(7);
+  const [syllableRadius, setSyllableRadius] = useState(4);
   const [syllableArcCurve, setSyllableArcCurve] = useState(1);
   // logical
   const [wildcardSkips, setWildcardSkips] = useState(1);
@@ -146,7 +146,7 @@ export function ParamsProvider({ children }) {
     blur: 0,
     thickness: 6, // spline stroke (px)
     band: { lo: 0, hi: 50 }, // the song's pitch range lands in the bottom half of the bass lane
-    topper: "divider", // "divider" | "none": a glyph strip above and below each note
+    topper: "none", // "divider" | "none": a glyph strip above and below each note
   });
 
   // — DRUMS —
@@ -158,7 +158,7 @@ export function ParamsProvider({ children }) {
     fillColor: "#0011bb",
     opacity: 1, // all drum glyphs (multiplies each row's opacity)
   });
-  const [drumDetection, setDrumDetection] = useState("bands"); // "bands" | "classes"
+  const [drumDetection, setDrumDetection] = useState("classes"); // "bands" | "classes" (falls back to bands without classifier output)
   // Per frequency band: visible, glyph size (px), opacity, height (percent of the
   // drum lane), glyphUrl (null = the default drum glyph)
   const [drumBands, setDrumBands] = useState({
@@ -178,7 +178,8 @@ export function ParamsProvider({ children }) {
     snare:  { visible: true, size: 14, opacity: 1, height: 22, glyphUrl: null },
     tom:    { visible: true, size: 12, opacity: 1, height: 15, glyphUrl: null },
     kick:   { visible: true, size: 16, opacity: 1, height: 10, glyphUrl: null },
-    other:  { visible: false, size: 8, opacity: 0.6, height: 5, glyphUrl: null },
+    // unnamed onsets: mostly hi-hats or filtered hits; placed around 35% and spread by their frequency band
+    other:  { visible: true, size: 5, opacity: 0.6, height: 35, glyphUrl: null },
   });
   const setDrumClass = useCallback(
     (key, patch) => setDrumClasses((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
@@ -189,6 +190,7 @@ export function ParamsProvider({ children }) {
 
   // — LINE STAFF — (its own sizes: the staff scales to be read, not to the tapestry's glyphs)
   const [staffDrumScale, setStaffDrumScale] = useState(1);
+  const [staffBassThickness, setStaffBassThickness] = useState(6); // bass line thickness in the Line Staff (px)
   // Line Staff text: the bottom of its pitch band, percent of the staff height (the band spans 34 points above it)
   const [staffTextHeight, setStaffTextHeight] = useState(63);
   const [staffTextPx, setStaffTextPx] = useState(12);
@@ -413,6 +415,8 @@ export function ParamsProvider({ children }) {
         setDrumThreshold,
         staffDrumScale,
         setStaffDrumScale,
+        staffBassThickness,
+        setStaffBassThickness,
         staffTextHeight,
         setStaffTextHeight,
         staffTextPx,
