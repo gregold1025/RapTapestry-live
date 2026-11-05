@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { useSongData } from "../../contexts/SongDataContext";
-import { useDrumHits } from "../../hooks/useDrumHits";
+import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import { DRUM_CLASSES, DRUM_CLASS_LABELS } from "../../utils/drumClasses";
 import StemHeader from "./StemHeader";
 import { Segmented, Slider, VSlider, EyeButton, CollapsibleRow, GlyphPicker, ColorField, SectionLabel } from "../ui";
@@ -90,11 +90,11 @@ export default function DrumsPanel() {
   }, [hits]);
   const total = hits.length;
   const hasClasses = !!drumClassesTranscription?.hits;
-  const byClass = p.drumDetection === "classes";
+  const byClass = useByClass();
 
   return (
     <div className="pn-root">
-      <StemHeader stem="drums" title="Drums" subtitle={`${total.toLocaleString("en-US")} hits`} />
+      <StemHeader stem="drums" title="Drums" subtitle={`${total.toLocaleString("en-US")} onsets`} />
 
       <div className="pn-section">
         <ColorField label="Color" value={p.drumParams.fillColor} note="all glyphs"
@@ -118,7 +118,7 @@ export default function DrumsPanel() {
       <div className="pn-section">
         <SectionLabel>Detection</SectionLabel>
         <Segmented
-          value={p.drumDetection}
+          value={byClass ? "classes" : "bands"}
           onChange={p.setDrumDetection}
           options={[
             { value: "bands", label: "Bands" },
@@ -127,7 +127,7 @@ export default function DrumsPanel() {
         />
         {byClass ? (
           <>
-            <p className="ui-note">The stem's onsets named by the drum classifier (ADTOF Frame_RNN on the summed stems) within {30} ms. Raise the threshold to keep only confident names; the rest are unnamed.</p>
+            <p className="ui-note">The stem's onsets, each named by the drum classifier (ADTOF Frame_RNN on the summed stems) within 30 ms: one name per onset, the strongest class above threshold. Raise the threshold to keep only confident names; the rest are unnamed.</p>
             <Slider label="threshold" value={Math.round(p.drumThreshold * 100)} min={30} max={300} step={5} unit="%" onChange={(v) => p.setDrumThreshold(v / 100)} />
           </>
         ) : (

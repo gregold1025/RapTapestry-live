@@ -6,6 +6,13 @@ import { useSongData } from "../contexts/SongDataContext";
 import { useParams } from "../contexts/ParamsContext";
 import { nameOnsets } from "../utils/drumClasses";
 
+/** True when the song has classifier output and Classes detection is on. */
+export function useByClass() {
+  const { drumClassesTranscription } = useSongData();
+  const { drumDetection } = useParams();
+  return drumDetection === "classes" && !!drumClassesTranscription?.hits;
+}
+
 export function useDrumHits() {
   const { drumTranscription, drumClassesTranscription } = useSongData();
   const { drumThreshold } = useParams();

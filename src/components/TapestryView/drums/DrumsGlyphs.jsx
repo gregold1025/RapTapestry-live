@@ -2,7 +2,7 @@ import React, { useId } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
-import { useDrumHits } from "../../../hooks/useDrumHits";
+import { useDrumHits, useByClass } from "../../../hooks/useDrumHits";
 
 // Each hit is one <use> of a <symbol> (a 3x "safe area" box with the glyph in
 // the centre third). One mask + symbol pair per distinct glyph url in use, so
@@ -14,8 +14,9 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumDetection, drumBands, drumClasses, glyphStyle, staffDrumScale } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphStyle, staffDrumScale } = useParams();
   const hits = useDrumHits();
+  const byClass = useByClass();   // a song without classifier output falls back to bands
   const instanceId = useId().replace(/:/g, "");
 
   // Hooks above; early return below (rules-of-hooks).
@@ -26,7 +27,6 @@ export default function DrumsGlyphs() {
   const { fillColor = "#bbbbbb", tilt = 10 } = drumParams || {};
   const tiltDeg = clamp(tilt, -90, 90);
   const defaultUrl = glyphStyle?.drumGlyphUrl ?? null;
-  const byClass = drumDetection === "classes";
   const groups = byClass ? drumClasses : drumBands;
   const scale = layout.singleRow ? staffDrumScale : 1;   // the staff scales to be read
 
