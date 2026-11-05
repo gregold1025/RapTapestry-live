@@ -197,10 +197,9 @@ export function ParamsProvider({ children }) {
   const [staffTextPx, setStaffTextPx] = useState(12);
   const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
   const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
-  const [staffShowDownbeats, setStaffShowDownbeats] = useState(true);
-  const [staffShowBeatLines, setStaffShowBeatLines] = useState(true);
-  const [showDownbeats, setShowDownbeats] = useState(true);
-  const [showBeatsLines, setShowBeatLines] = useState(true);
+  // grid level: 0 none, 1 bar lines, 2 bar + beat lines, 3 + eighths and sixteenths (utils/gridLines.js)
+  const [staffGridLevel, setStaffGridLevel] = useState(2);
+  const [gridLevel, setGridLevel] = useState(2);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -396,10 +395,8 @@ export function ParamsProvider({ children }) {
         // drums
         showDrums,
         setShowDrums,
-        showDownbeats,
-        setShowDownbeats,
-        showBeatsLines,
-        setShowBeatLines,
+        gridLevel,
+        setGridLevel,
         showDrumGlyphs,
         setShowDrumGlyphs,
         drumParams,
@@ -426,10 +423,8 @@ export function ParamsProvider({ children }) {
         setStaffBackgroundColor,
         staffWordColor,
         setStaffWordColor,
-        staffShowDownbeats,
-        setStaffShowDownbeats,
-        staffShowBeatLines,
-        setStaffShowBeatLines,
+        staffGridLevel,
+        setStaffGridLevel,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

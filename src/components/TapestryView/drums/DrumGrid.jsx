@@ -3,126 +3,46 @@ import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { gridStrokes } from "../../../utils/gridStroke";
+import { gridLines } from "../../../utils/gridLines";
 
-/** Beat and bar lines. The Line Staff passes variant="staff" and uses its own toggles and background. */
+const WIDTH = { bar: 3, beat: 1, sub: 0.6 };
+
+/**
+ * The vertical grid at the chosen level (none / bars / + beats / + eighths and
+ * sixteenths). The Line Staff passes variant="staff" and uses its own level and
+ * background. Downbeats are derived by counting beats: the first beat is bar 1.
+ */
 export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }) {
   const { layout } = useTapestryLayout();
   const p = useParams();
   const staff = variant === "staff";
-  const showDownbeats = staff ? p.staffShowDownbeats : p.showDownbeats;
-  const showBeatsLines = staff ? p.staffShowBeatLines : p.showBeatsLines;
+  const level = staff ? p.staffGridLevel : p.gridLevel;
   const background = staff ? p.staffBackgroundColor : p.tapestryBackgroundColor;
 
-  if (!layout || !drumTranscriptionData) return null;
+  if (!layout || !drumTranscriptionData || !level) return null;
 
   // Opaque colors pushed off the background, so the grid reads on any background.
   const strokes = gridStrokes(background);
-
   const { rowHeight, timeToPixels, gridTimes, beatsPerBar } = layout;
+  const ts = Number(drumTranscriptionData.time_signature_beats);
+  const per = Number.isFinite(beatsPerBar) && beatsPerBar > 0 ? beatsPerBar : ts > 0 ? ts : 4;
+  const beats = Array.isArray(gridTimes) && gridTimes.length ? gridTimes : drumTranscriptionData.beats ?? [];
 
-  // Prefer the layout’s notion of beats for rendering (already inferred + aligned).
-  // Still read raw transcription for reference / fallback.
-  const {
-    beats: beatsIn = [],
-    downbeats: downbeatsIn = [],
-    estimated_bpm,
-    time_signature_beats, // e.g., 4 for 4/4
-  } = drumTranscriptionData;
-
-  // Determine beatsPerBar (priority: layout -> prop -> default 4)
-  const tsBeats =
-    Number(time_signature_beats) > 0 ? Number(time_signature_beats) : undefined;
-  const beatsPerBarEffective =
-    Number.isFinite(beatsPerBar) && beatsPerBar > 0
-      ? beatsPerBar
-      : tsBeats ?? 4;
-
-  // === MODE A (ACTIVE): Derive downbeats by counting beats ===
-  // Assumption: the VERY FIRST beat is the first downbeat (offset = 0).
-  // Downbeats are every Nth beat where N = beatsPerBarEffective.
-  const beats =
-    Array.isArray(gridTimes) && gridTimes.length ? gridTimes : beatsIn;
-  const derivedDownbeats = [];
-  if (beats && beats.length) {
-    for (let i = 0; i < beats.length; i++) {
-      // Every Nth beat (i % N === 0) is a downbeat
-      if (i % beatsPerBarEffective === 0) {
-        derivedDownbeats.push(beats[i]);
-      }
-    }
-    // Ensure we include t=0 downbeat if the first beat happens slightly after 0
-    // (Optional – comment out if you do NOT want this)
-    // if (beats[0] > 0 && derivedDownbeats.length && derivedDownbeats[0] !== 0) {
-    //   derivedDownbeats.unshift(0);
-    // }
-  }
-
-  // === MODE B (OLD / COMMENTED): Use provided downbeat list from transcription ===
-  // const downbeats = Array.isArray(downbeatsIn) ? downbeatsIn : [];
-  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // NOTE: Leave the line above commented out to use the MODE A derivedDownbeats.
-  // To compare: swap what's passed to the "draw downbeats" loop below.
-
-  const lines = [];
-
-  // Draw downbeats (full height) — using MODE A (derived) by default:
-  if (showDownbeats && derivedDownbeats.length) {
-    derivedDownbeats.forEach((t, i) => {
-      const { x, y } = timeToPixels(t);
-      lines.push(
-        <line
-          key={`downbeat-derived-${i}`}
-          x1={x}
-          y1={y + 0.5}
-          x2={x}
-          y2={y + rowHeight - 0.5}
-          stroke={strokes.bar}
-          strokeWidth={3}
-          vectorEffect="non-scaling-stroke"
-        />
-      );
-    });
-  }
-
-  // // If you want to compare with the raw provided downbeats, temporarily replace the loop above with:
-  // if (showDownbeats && showDrums && downbeats.length) {
-  //   downbeats.forEach((t, i) => {
-  //     const { x, y } = timeToPixels(t);
-  //     const isActive = Math.abs(t - playheadTime) <= tolerance;
-  //     lines.push(
-  //       <line
-  //         key={`downbeat-provided-${i}`}
-  //         x1={x}
-  //         y1={y + 0.5}
-  //         x2={x}
-  //         y2={y + rowHeight - 0.5}
-  //         stroke="black"
-  //         strokeWidth={3}
-  //         opacity={isActive ? 0.7 : 0.4}
-  //         vectorEffect="non-scaling-stroke"
-  //       />
-  //     );
-  //   });
-  // }
-
-  // Draw beat lines (full height) from the *layout* beat grid so columns match rows
-  if (showBeatsLines && beats && beats.length) {
-    beats.forEach((t, i) => {
-      const { x, y } = timeToPixels(t);
-      lines.push(
-        <line
-          key={`beat-${i}`}
-          x1={x}
-          y1={y + 0.5}
-          x2={x}
-          y2={y + rowHeight - 0.5}
-          stroke={strokes.beat}
-          strokeWidth={1}
-          vectorEffect="non-scaling-stroke"
-        />
-      );
-    });
-  }
-
-  return <g className="drum-grid">{lines}</g>;
+  return (
+    <g className="drum-grid">
+      {gridLines(beats, per, level).map(({ t, kind }, i) => {
+        const { x, y } = timeToPixels(t);
+        return (
+          <line
+            key={i}
+            className={`grid-${kind}`}
+            x1={x} y1={y + 0.5} x2={x} y2={y + rowHeight - 0.5}
+            stroke={kind === "bar" ? strokes.bar : strokes.beat}
+            strokeWidth={WIDTH[kind]}
+            vectorEffect="non-scaling-stroke"
+          />
+        );
+      })}
+    </g>
+  );
 }

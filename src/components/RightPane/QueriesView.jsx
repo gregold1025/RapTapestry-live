@@ -92,9 +92,6 @@ export default function QueriesView() {
             <div style={{ minWidth: 0 }}>
               <div className="sq-anchor-text"><QueryName q={focused} song={songModel} chars={60} /></div>
               <div className="sq-anchor-phones">{words.map((w) => w.phones).join("  |  ")}</div>
-              <div className="ui-note">
-                {focused.kind === "line" ? "Lines whose last word rhymes with this one." : words.length > 1 ? "Matched as one rime of several syllables." : "Shift-click a nearby word in the lyrics to extend the query across words."} {all.length} matches.
-              </div>
             </div>
           </div>
 
@@ -132,12 +129,14 @@ export default function QueriesView() {
                   onClick={() => seekAll(m.start)}
                   title={`${m.type}${m.form && m.form !== "word" ? " " + (FORM_BY_KEY[m.form]?.label ?? m.form).toLowerCase() : ""}${m.expected ? " (by expectation)" : ""} • click to seek`}
                 >
-                  <span className="sq-match-text" style={m.form === "mosaic" ? { textDecoration: "underline dashed" } : m.form === "embedded" ? { textDecoration: "underline dotted" } : undefined}>
-                    {focused.kind === "line" ? <LineText text={m.text} /> : m.text}
+                  <span className="sq-match-main">
+                    <span className="sq-match-text" style={m.form === "mosaic" ? { textDecoration: "underline dashed" } : m.form === "embedded" ? { textDecoration: "underline dotted" } : undefined}>
+                      {focused.kind === "line" ? <LineText text={m.text} /> : m.text}
+                    </span>
+                    <MatchPhones m={m} />
                   </span>
                   <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}{m.expected ? " · expected" : ""}</span>
                   <span className="sq-match-time">{fmtTime(m.start)}</span>
-                  <MatchPhones m={m} />
                 </button>
               ))}
             </div>
@@ -147,6 +146,9 @@ export default function QueriesView() {
         </div>
       )}
 
+      {!focused && <div className="sq-none" />}
+      {/* the query list: the bottom third of the pane, scrolling on its own */}
+      <div className="ql-pane">
       {/* the list's header: its top line carries every query's color, one section each */}
       <div className="ql-head">
         <div className="ql-stripe" style={{ background: stripe(rows.map((q) => q.color)) }} />
@@ -182,7 +184,7 @@ export default function QueriesView() {
           );
         })}
       </div>
-
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useStemMix } from "../../contexts/StemMixContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { Segmented, Slider, EyeButton, MuteButton, SoloButton, ColorField, SectionLabel } from "../ui";
+import { GRID_LEVELS } from "../../utils/gridLines";
 import "./Panels.css";
 
 const STEM_ROWS = [
@@ -22,16 +23,14 @@ export default function GlobalPanel() {
     rowHeightMode, setRowHeightMode,
     fixedRowHeightPx, setFixedRowHeightPx,
     tapestryBackgroundColor, setTapestryBackgroundColor,
-    showDownbeats, setShowDownbeats,
-    showBeatsLines, setShowBeatLines,
+    gridLevel, setGridLevel,
     staffDrumScale, setStaffDrumScale,
     staffTextPx, setStaffTextPx,
     staffBackgroundColor, setStaffBackgroundColor,
     staffWordColor, setStaffWordColor,
     staffTextHeight, setStaffTextHeight,
     staffBassThickness, setStaffBassThickness,
-    staffShowDownbeats, setStaffShowDownbeats,
-    staffShowBeatLines, setStaffShowBeatLines,
+    staffGridLevel, setStaffGridLevel,
   } = useParams();
   const { staffBars, setStaffBars, staffMode, setStaffMode } = useUIState();
 
@@ -97,14 +96,7 @@ export default function GlobalPanel() {
       <div className="pn-section">
         <SectionLabel>Appearance</SectionLabel>
         <ColorField label="Background" value={tapestryBackgroundColor} onChange={setTapestryBackgroundColor} />
-        <label className="ui-toggle">
-          <input type="checkbox" checked={!!showDownbeats} onChange={(e) => setShowDownbeats(e.target.checked)} />
-          Bar lines
-        </label>
-        <label className="ui-toggle">
-          <input type="checkbox" checked={!!showBeatsLines} onChange={(e) => setShowBeatLines(e.target.checked)} />
-          Beat lines
-        </label>
+        <Slider label="grid" value={gridLevel} min={0} max={3} step={1} format={(v) => GRID_LEVELS[v]} onChange={setGridLevel} />
       </div>
 
       <div className="pn-section">
@@ -127,14 +119,7 @@ export default function GlobalPanel() {
         </div>
         <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />
-        <label className="ui-toggle">
-          <input type="checkbox" checked={!!staffShowDownbeats} onChange={(e) => setStaffShowDownbeats(e.target.checked)} />
-          Bar lines
-        </label>
-        <label className="ui-toggle">
-          <input type="checkbox" checked={!!staffShowBeatLines} onChange={(e) => setStaffShowBeatLines(e.target.checked)} />
-          Beat lines
-        </label>
+        <Slider label="grid" value={staffGridLevel} min={0} max={3} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
         <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
       </div>
     </div>
