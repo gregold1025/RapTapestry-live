@@ -93,11 +93,13 @@ export default function BassGlyphs() {
       <g opacity={opacity} filter={blur > 0 ? `url(#${uid}-blur)` : undefined} pointerEvents="none">
         {shapes.map((s) => (
           <g key={s.key}>
-            <path d={s.d} fill="none" stroke={fillColor} strokeWidth={thickness} strokeLinecap="butt" />
             {dividerUrl && s.slices.map((sl, i) => {
               const vb = `${(sl.u0 * BASS_NOMINAL).toFixed(3)} 0 ${Math.max(0.001, sl.du * BASS_NOMINAL).toFixed(3)} ${BASS_NOMINAL}`;
-              const yTop = sl.y - thickness / 2 - gap - topperH;
-              const yBot = sl.y + thickness / 2 + gap;
+              // at gap 0 the strips tuck 1.5 px under the line (drawn over them),
+              // so no anti-aliased seam shows between topper and line
+              const off = gap > 0 ? gap : -1.5;
+              const yTop = sl.y - thickness / 2 - off - topperH;
+              const yBot = sl.y + thickness / 2 + off;
               const w = sl.w + 0.4; // a hair of overlap so slices do not seam
               return (
                 <React.Fragment key={i}>
@@ -112,6 +114,7 @@ export default function BassGlyphs() {
                 </React.Fragment>
               );
             })}
+            <path d={s.d} fill="none" stroke={fillColor} strokeWidth={thickness} strokeLinecap="butt" />
           </g>
         ))}
       </g>

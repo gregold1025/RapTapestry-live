@@ -5,7 +5,6 @@ import { useDrumHitSets, useByClass } from "../../hooks/useDrumHits";
 import { DRUM_CLASSES, DRUM_CLASS_LABELS } from "../../utils/drumClasses";
 import { defaultGlyphFor, pickUnused } from "../../utils/drumGlyphDefaults";
 import StemHeader from "./StemHeader";
-import { DrumsLanePreview } from "./LanePreview";
 import { Segmented, Slider, VSlider, EyeButton, CollapsibleRow, GlyphPicker, ColorField, SectionLabel } from "../ui";
 import "./Panels.css";
 
@@ -104,7 +103,6 @@ export default function DrumsPanel() {
   return (
     <div className="pn-root">
       <StemHeader stem="drums" title="Drums" subtitle={`${total.toLocaleString("en-US")} onsets`} />
-      <DrumsLanePreview />
 
       <div className="pn-section">
         <ColorField label="Color" value={p.drumParams.fillColor} note="all glyphs"

@@ -2,7 +2,6 @@ import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import StemHeader from "./StemHeader";
-import { BassLanePreview } from "./LanePreview";
 import { Segmented, Slider, VSlider, GlyphPicker, ColorField } from "../ui";
 import "./Panels.css";
 
@@ -35,7 +34,6 @@ export default function BassPanel() {
   return (
     <div className="pn-root">
       <StemHeader stem="bass" title="Bass" subtitle={`${n.toLocaleString("en-US")} notes`} />
-      <BassLanePreview />
 
       <div className="pn-section">
         <ColorField label="Color" value={bp.fillColor} onChange={(c) => set({ fillColor: c })} />
