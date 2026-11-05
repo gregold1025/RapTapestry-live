@@ -1,4 +1,5 @@
 // src/contexts/ParamsContext.jsx
+import { isTypingTarget } from "../utils/isTypingTarget";
 import React, {
   createContext,
   useCallback,
@@ -244,10 +245,8 @@ export function ParamsProvider({ children }) {
   // Central key bindings for glyph randomizers (S/D/B).
   useEffect(() => {
     const onKeyDown = (e) => {
-      const tag = (e.target?.tagName || "").toLowerCase();
-      const isTyping =
-        tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-      if (isTyping) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;   // Cmd-D is the browser's
+      if (isTypingTarget(e.target)) return;
 
       if (e.key === "s" || e.key === "S") randomizeSyllableGlyph();
       if (e.key === "d" || e.key === "D") randomizeDrumGlyph();

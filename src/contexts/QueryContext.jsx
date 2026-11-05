@@ -9,12 +9,16 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
 import { undoable, UNDO, REDO } from "./undoable";
+import { isTypingTarget } from "../utils/isTypingTarget";
 import { computeMatches, TYPE_RANK } from "../engine";
 import { lineEndMatches } from "../engine/lineRhymes";
 import { useSelectorStoreProvider, useSelectorStore, useStableActions } from "../utils/selectorStore";
 
 const QueryContext = createContext(null);
 const QueryStoreContext = createContext(null);
+
+// Undo history over the query reducer; a change of focus alone is no step.
+const historyReducer = undoable(queryReducer, initialQueryState, { transientIf: (a, b) => a.queries === b.queries });
 
 /** Which syllables of `w` a match covers (first word from vi0, last word to vi1). */
 function sylRangeFor(m, w) {
@@ -29,7 +33,7 @@ function sylRangeFor(m, w) {
 
 export function QueryProvider({ children }) {
   const { songModel } = useSongData();
-  const [history, dispatchRaw] = useReducer(useMemo(() => undoable(queryReducer, initialQueryState), []), undefined, () => undoable(queryReducer, initialQueryState)(undefined, { type: "@init" }));
+  const [history, dispatchRaw] = useReducer(historyReducer, undefined, () => historyReducer(undefined, { type: "@init" }));
   const state = history.present;
 
   // Match cache per anchor run (engine results do not depend on query options).
@@ -145,7 +149,7 @@ export function QueryProvider({ children }) {
     redo: () => dispatch({ type: REDO }),
     toggleActive: (id) => dispatch({ type: "toggleActive", id }),
     setTypes: (id, types) => dispatch({ type: "setTypes", id, types }),
-    setColor: (id, color) => dispatch({ type: "setColor", id, color }),
+    setColor: (id, color) => dispatch({ type: "setColor", id, color, coalesce: `color:${id}` }),   // a drag is one undo step
     focus: (id) => dispatch({ type: "focus", id }),
     clear: () => dispatch({ type: "clear" }),
   });
@@ -157,8 +161,7 @@ export function QueryProvider({ children }) {
   useEffect(() => {
     const onKey = (e) => {
       if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "z") return;
-      const tag = (e.target?.tagName || "").toLowerCase();
-      if (tag === "textarea" || e.target?.isContentEditable || (tag === "input" && !["range", "checkbox", "radio", "color"].includes((e.target.getAttribute("type") || "text").toLowerCase()))) return;
+      if (isTypingTarget(e.target)) return;
       e.preventDefault();
       dispatch({ type: e.shiftKey ? REDO : UNDO });
     };

@@ -36,3 +36,35 @@ describe("undoable (query history)", () => {
     expect(before.canUndo).toBe(true);
   });
 });
+
+describe("undoable: coalescing and transient changes", () => {
+  const r = (state, action) => {
+    if (action.type === "color") return { ...state, color: action.color };
+    if (action.type === "focus") return { ...state, focus: action.id };
+    if (action.type === "add") return { ...state, items: [...state.items, action.id] };
+    return state;
+  };
+  const reducer = undoable(r, { items: [], color: "#000", focus: null }, { transientIf: (a, b) => a.items === b.items && a.color === b.color });
+
+  it("actions with the same coalesce key replace the previous step (a color drag is one undo)", () => {
+    let s = reducer(undefined, { type: "@init" });
+    s = reducer(s, { type: "add", id: 1 });
+    s = reducer(s, { type: "color", color: "#111", coalesce: "color:q1" });
+    s = reducer(s, { type: "color", color: "#222", coalesce: "color:q1" });
+    s = reducer(s, { type: "color", color: "#333", coalesce: "color:q1" });
+    expect(s.past.length).toBe(2);
+    s = reducer(s, { type: UNDO });
+    expect(s.present.color).toBe("#000");
+    expect(s.present.items).toEqual([1]);
+  });
+  it("a change the transientIf test accepts (focus only) adds no history", () => {
+    let s = reducer(undefined, { type: "@init" });
+    s = reducer(s, { type: "add", id: 1 });
+    s = reducer(s, { type: "focus", id: 1 });
+    s = reducer(s, { type: "focus", id: 2 });
+    expect(s.present.focus).toBe(2);
+    expect(s.past.length).toBe(1);
+    s = reducer(s, { type: UNDO });
+    expect(s.present.items).toEqual([]);
+  });
+});

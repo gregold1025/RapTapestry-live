@@ -33,7 +33,8 @@ function GlyphRowPreview({ url, height, size, color }) {
  *  set; no two rows share one), size, opacity, height. */
 function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
   const urls = p.glyphAssets.syllableGlyphUrls;
-  const urlOf = (key) => groups[key]?.glyphUrl ?? defaultGlyphFor(key, p.glyphAssets.syllableGlyphByName);
+  // glyphUrl: a url, "none" (a circle), or null (the row's default)
+  const urlOf = (key) => (groups[key]?.glyphUrl === "none" ? null : groups[key]?.glyphUrl ?? defaultGlyphFor(key, p.glyphAssets.syllableGlyphByName));
   return (
     <div className="pn-list">
       {rows.map((b) => {
@@ -56,7 +57,7 @@ function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
                 value={url}
                 taken={taken}
                 allowNone
-                onChange={(u) => setGroup(b.key, { glyphUrl: u })}
+                onChange={(u) => setGroup(b.key, { glyphUrl: u ?? "none" })}
                 onRandom={() => { const u = pickUnused(urls, taken); if (u) setGroup(b.key, { glyphUrl: u }); }}
               />
             }

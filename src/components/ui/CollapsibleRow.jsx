@@ -16,7 +16,7 @@ export function CollapsibleRow({ open, onToggle, glyph, title, meta, right, chil
         aria-expanded={open}
         onClick={onToggle}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); }
+          if (e.key === "Enter" ) { e.preventDefault(); onToggle(); }
         }}
       >
         <Chevron open={open} />

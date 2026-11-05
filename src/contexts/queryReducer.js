@@ -79,7 +79,7 @@ export function queryReducer(state, action, env = action.__env) {
       }
       const own = ownerOf(state, wordId, env);
       // a word that is already a query is focused, never duplicated (cmd-click included)
-      if (own?.role === "anchor") return { ...state, focusedId: own.q.id };
+      if (own?.role === "anchor") return state.focusedId === own.q.id ? state : { ...state, focusedId: own.q.id };
       if (!meta) {
         if (own?.role === "match") {
           return {
@@ -103,7 +103,7 @@ export function queryReducer(state, action, env = action.__env) {
       }
       if (!meta) {
         const own = ownerOfLine(state, lineIdx, env);
-        if (own?.role === "anchor") return { ...state, focusedId: own.q.id };
+        if (own?.role === "anchor") return state.focusedId === own.q.id ? state : { ...state, focusedId: own.q.id };
         if (own?.role === "match") {
           return {
             queries: state.queries.map((q) => (q.id === own.q.id ? { ...q, lineIdx, anchorIds: [last] } : q)),
@@ -126,7 +126,7 @@ export function queryReducer(state, action, env = action.__env) {
     case "setColor":
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, color: action.color } : q)) };
     case "focus":
-      return state.queries.some((q) => q.id === action.id) ? { ...state, focusedId: action.id } : state;
+      return state.focusedId !== action.id && state.queries.some((q) => q.id === action.id) ? { ...state, focusedId: action.id } : state;
     case "clear":
       return initialQueryState;
     default:

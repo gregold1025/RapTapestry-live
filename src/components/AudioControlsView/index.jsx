@@ -7,6 +7,7 @@ import { StopButton } from "./UIElements/StopButton";
 import { TransportClock } from "./UIElements/TransportClock";
 import { LoopButton } from "./UIElements/LoopButton";
 import { BarBeat } from "./UIElements/BarBeat";
+import { isTypingTarget } from "../../utils/isTypingTarget";
 import "./AudioControlsView.css";
 
 export default function AudioControlsView() {
@@ -24,13 +25,7 @@ export default function AudioControlsView() {
   useEffect(() => {
     const onKeyDown = (e) => {
       if (!(e.code === "Space" || e.key === " ")) return;
-      const el = e.target;
-      const tag = (el?.tagName || "").toLowerCase();
-      const type = (el?.getAttribute?.("type") || "text").toLowerCase();
-      const typing =
-        tag === "textarea" || tag === "select" || el?.isContentEditable ||
-        (tag === "input" && !["range", "checkbox", "radio", "button", "color"].includes(type));
-      if (typing) return;
+      if (isTypingTarget(e.target)) return;
       e.preventDefault();
       isPlaying ? pauseAll() : playAll();
     };

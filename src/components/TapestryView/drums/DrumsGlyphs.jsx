@@ -43,14 +43,14 @@ export default function DrumsGlyphs() {
   const glyphs = [];
   for (let idx = 0; idx < hits.length; idx++) {
     const hit = hits[idx];
-    const key = byClass ? hit.cls : hit.category;
-    const g = groups?.[key] ?? (byClass ? groups?.other : groups?.low);
+    const rowKey = groups?.[byClass ? hit.cls : hit.category] ? (byClass ? hit.cls : hit.category) : (byClass ? "other" : "low");
+    const g = groups?.[rowKey];
     if (!g || g.visible === false) continue;
     const size = (g.size ?? 12) * scale;
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
     const cy = laneY(y, rowHeight, lane, g.height ?? 50);
-    const sym = symbolFor(g.glyphUrl ?? defaultGlyphFor(key, byName));
+    const sym = symbolFor(g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(rowKey, byName));   // "none" = a circle
     const opacity = (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(
       sym ? (
