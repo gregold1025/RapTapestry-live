@@ -26,6 +26,9 @@ export default function GlobalPanel() {
     showBeatsLines, setShowBeatLines,
     staffDrumScale, setStaffDrumScale,
     staffTextPx, setStaffTextPx,
+    staffBackgroundColor, setStaffBackgroundColor,
+    staffShowDownbeats, setStaffShowDownbeats,
+    staffShowBeatLines, setStaffShowBeatLines,
   } = useParams();
   const { staffBars, setStaffBars, staffMode, setStaffMode } = useUIState();
 
@@ -115,7 +118,16 @@ export default function GlobalPanel() {
           <Slider label="text" value={staffTextPx} min={8} max={20} step={1} unit=" px" onChange={setStaffTextPx} />
           <Slider label="drum glyphs" value={Math.round(staffDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setStaffDrumScale(v / 100)} />
         </div>
-        <p className="ui-note">The staff keeps its own sizes so words and hits fit its window; open it with the treble clef.</p>
+        <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
+        <label className="ui-toggle">
+          <input type="checkbox" checked={!!staffShowDownbeats} onChange={(e) => setStaffShowDownbeats(e.target.checked)} />
+          Downbeat lines
+        </label>
+        <label className="ui-toggle">
+          <input type="checkbox" checked={!!staffShowBeatLines} onChange={(e) => setStaffShowBeatLines(e.target.checked)} />
+          Beat lines
+        </label>
+        <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
       </div>
     </div>
   );

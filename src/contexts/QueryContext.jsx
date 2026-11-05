@@ -5,9 +5,10 @@
 // words) is drawn on lines only. Matches come from the typed rhyme engine
 // (src/engine). Color = query identity; type and form travel with each
 // visual so layers can style them without a second lookup.
-import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
+import { undoable, UNDO, REDO } from "./undoable";
 import { computeMatches, TYPE_RANK } from "../engine";
 import { lineEndMatches } from "../engine/lineRhymes";
 import { useSelectorStoreProvider, useSelectorStore, useStableActions } from "../utils/selectorStore";
@@ -28,7 +29,8 @@ function sylRangeFor(m, w) {
 
 export function QueryProvider({ children }) {
   const { songModel } = useSongData();
-  const [state, dispatchRaw] = useReducer(queryReducer, initialQueryState);
+  const [history, dispatchRaw] = useReducer(useMemo(() => undoable(queryReducer, initialQueryState), []), undefined, () => undoable(queryReducer, initialQueryState)(undefined, { type: "@init" }));
+  const state = history.present;
 
   // Match cache per anchor run (engine results do not depend on query options).
   const cacheRef = useRef(new Map());
@@ -139,6 +141,8 @@ export function QueryProvider({ children }) {
     click: (wordId, mods = {}) => dispatch({ type: "click", wordId, shift: !!mods.shift, meta: !!mods.meta, alt: !!mods.alt }),
     clickLine: (lineIdx, mods = {}) => dispatch({ type: "clickLine", lineIdx, meta: !!mods.meta, alt: !!mods.alt }),
     remove: (id) => dispatch({ type: "remove", id }),
+    undo: () => dispatch({ type: UNDO }),
+    redo: () => dispatch({ type: REDO }),
     toggleActive: (id) => dispatch({ type: "toggleActive", id }),
     setTypes: (id, types) => dispatch({ type: "setTypes", id, types }),
     setColor: (id, color) => dispatch({ type: "setColor", id, color }),
@@ -148,9 +152,23 @@ export function QueryProvider({ children }) {
 
   const focused = state.queries.find((q) => q.id === state.focusedId) ?? null;
 
+  // Cmd-Z / Cmd-Shift-Z (Ctrl on other platforms) undo and redo the queries,
+  // except while typing in a text field.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "z") return;
+      const tag = (e.target?.tagName || "").toLowerCase();
+      if (tag === "textarea" || e.target?.isContentEditable || (tag === "input" && !["range", "checkbox", "radio", "color"].includes((e.target.getAttribute("type") || "text").toLowerCase()))) return;
+      e.preventDefault();
+      dispatch({ type: e.shiftKey ? REDO : UNDO });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [dispatch]);
+
   const value = useMemo(
-    () => ({ queries: state.queries, focusedId: state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, ...actions }),
-    [state.queries, state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, actions]
+    () => ({ queries: state.queries, focusedId: state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, canUndo: history.canUndo, canRedo: history.canRedo, ...actions }),
+    [state.queries, state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, history.canUndo, history.canRedo, actions]
   );
   const storeValue = useMemo(() => ({ store, actions }), [store, actions]);
 

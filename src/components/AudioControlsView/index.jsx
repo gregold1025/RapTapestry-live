@@ -19,19 +19,20 @@ export default function AudioControlsView() {
     Object.values(audioRefs.current).forEach((a) => { a.volume = v; });
   };
 
-  // Spacebar play/pause
+  // Spacebar is always play / pause, wherever focus landed (a word, a button, a
+  // slider), except while typing in a text field.
   useEffect(() => {
     const onKeyDown = (e) => {
-      const tag = (e.target?.tagName || "").toLowerCase();
-      const role = e.target?.getAttribute?.("role");
-      const isControl =
-        tag === "input" || tag === "textarea" || tag === "select" || tag === "button" ||
-        role === "button" || role === "slider" || e.target?.isContentEditable;
-      if (isControl) return;
-      if (e.code === "Space" || e.key === " ") {
-        e.preventDefault();
-        isPlaying ? pauseAll() : playAll();
-      }
+      if (!(e.code === "Space" || e.key === " ")) return;
+      const el = e.target;
+      const tag = (el?.tagName || "").toLowerCase();
+      const type = (el?.getAttribute?.("type") || "text").toLowerCase();
+      const typing =
+        tag === "textarea" || tag === "select" || el?.isContentEditable ||
+        (tag === "input" && !["range", "checkbox", "radio", "button", "color"].includes(type));
+      if (typing) return;
+      e.preventDefault();
+      isPlaying ? pauseAll() : playAll();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);

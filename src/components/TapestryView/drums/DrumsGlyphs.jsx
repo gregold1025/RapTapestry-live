@@ -3,18 +3,20 @@ import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
 import { useDrumHits, useByClass } from "../../../hooks/useDrumHits";
+import { defaultGlyphFor } from "../../../utils/drumGlyphDefaults";
 
 // Each hit is one <use> of a <symbol> (a 3x "safe area" box with the glyph in
 // the centre third). One mask + symbol pair per distinct glyph url in use, so
-// every band / class can have its own glyph. Ids are per tapestry instance
-// (the Line Staff draws the drums too).
+// every band / class has its own glyph (from the syllable glyph set; a row with
+// no glyph draws a circle). Ids are per tapestry instance (the Line Staff draws
+// the drums too).
 const DRUM_NOMINAL = 300; // symbol viewBox size (glyph occupies 100..200)
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphStyle, staffDrumScale } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();   // a song without classifier output falls back to bands
   const instanceId = useId().replace(/:/g, "");
@@ -26,7 +28,7 @@ export default function DrumsGlyphs() {
   const lane = laneFor("drums");
   const { fillColor = "#bbbbbb", tilt = 10 } = drumParams || {};
   const tiltDeg = clamp(tilt, -90, 90);
-  const defaultUrl = glyphStyle?.drumGlyphUrl ?? null;
+  const byName = glyphAssets.syllableGlyphByName;   // drums draw from the same set as the syllables
   const groups = byClass ? drumClasses : drumBands;
   const scale = layout.singleRow ? staffDrumScale : 1;   // the staff scales to be read
 
@@ -48,7 +50,7 @@ export default function DrumsGlyphs() {
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
     const cy = laneY(y, rowHeight, lane, g.height ?? 50);
-    const sym = symbolFor(g.glyphUrl ?? defaultUrl);
+    const sym = symbolFor(g.glyphUrl ?? defaultGlyphFor(key, byName));
     const opacity = (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(
       sym ? (

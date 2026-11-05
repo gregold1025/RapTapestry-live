@@ -74,6 +74,8 @@
   cursor: pointer;
 }
 .rp-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
+.rp-link:disabled { opacity: 0.35; cursor: default; }
+.rp-link:disabled:hover { color: var(--rt-muted); border-color: var(--rt-line); }
 
 /* Make the query list rows a touch roomier in the full-height view */
 .rp-body .sel-list { max-height: none; }

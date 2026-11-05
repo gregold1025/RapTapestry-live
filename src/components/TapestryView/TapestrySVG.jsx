@@ -56,7 +56,7 @@ export default function TapestrySVG({
       )}
       <TapestryLayer name="drums">
         <DrumsGlyphs />
-        <DrumGrid drumTranscriptionData={drumTranscription} />
+        <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
         <HorizontalGrid />
       </TapestryLayer>
       <TapestryLayer name="loop">

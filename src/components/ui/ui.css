@@ -275,3 +275,5 @@
 .ui-note { font-size: 10px; color: var(--rt-muted); line-height: 1.35; margin: 0; }
 .ui-toggle { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--rt-ink); cursor: pointer; }
 .ui-toggle input { margin: 0; }
+
+.ui-glyph-cell.is-taken { opacity: 0.25; cursor: not-allowed; }

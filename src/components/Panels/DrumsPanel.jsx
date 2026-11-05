@@ -3,6 +3,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import { DRUM_CLASSES, DRUM_CLASS_LABELS } from "../../utils/drumClasses";
+import { defaultGlyphFor, pickUnused } from "../../utils/drumGlyphDefaults";
 import StemHeader from "./StemHeader";
 import { Segmented, Slider, VSlider, EyeButton, CollapsibleRow, GlyphPicker, ColorField, SectionLabel } from "../ui";
 import "./Panels.css";
@@ -28,15 +29,18 @@ function GlyphRowPreview({ url, height, size, color }) {
   );
 }
 
-/** One collapsible row per band or class: its own glyph, size, opacity, height. */
+/** One collapsible row per band or class: its own glyph (from the syllable glyph
+ *  set; no two rows share one), size, opacity, height. */
 function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
-  const defaultUrl = p.glyphStyle?.drumGlyphUrl ?? null;
+  const urls = p.glyphAssets.syllableGlyphUrls;
+  const urlOf = (key) => groups[key]?.glyphUrl ?? defaultGlyphFor(key, p.glyphAssets.syllableGlyphByName);
   return (
     <div className="pn-list">
       {rows.map((b) => {
         const g = groups[b.key];
         if (!g) return null;
-        const url = g.glyphUrl ?? defaultUrl;
+        const url = urlOf(b.key);
+        const taken = new Set(rows.filter((r) => r.key !== b.key).map((r) => urlOf(r.key)).filter(Boolean));
         return (
           <CollapsibleRow
             key={b.key}
@@ -47,10 +51,13 @@ function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
             glyph={
               <GlyphPicker
                 label={`${b.label} glyph`}
-                urls={p.glyphAssets.drumGlyphUrls}
+                urls={urls}
+                nameOf={p.glyphAssets.glyphNameOf}
                 value={url}
+                taken={taken}
+                allowNone
                 onChange={(u) => setGroup(b.key, { glyphUrl: u })}
-                onRandom={() => setGroup(b.key, { glyphUrl: p.glyphAssets.drumGlyphUrls[Math.floor(Math.random() * p.glyphAssets.drumGlyphUrls.length)] })}
+                onRandom={() => { const u = pickUnused(urls, taken); if (u) setGroup(b.key, { glyphUrl: u }); }}
               />
             }
             right={<EyeButton on={g.visible} onClick={() => setGroup(b.key, { visible: !g.visible })} />}
@@ -99,20 +106,9 @@ export default function DrumsPanel() {
       <div className="pn-section">
         <ColorField label="Color" value={p.drumParams.fillColor} note="all glyphs"
           onChange={(c) => p.setDrumParams((d) => ({ ...d, fillColor: c }))} />
-        <div className="ui-row">
-          <Slider label="tilt" value={p.drumParams.tilt ?? 0} min={-90} max={90} step={1} unit="°"
-            onChange={(v) => p.setDrumParams((d) => ({ ...d, tilt: v }))} />
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
-            <span className="pn-field-label">default glyph</span>
-            <GlyphPicker
-              label="default drum glyph"
-              urls={p.glyphAssets.drumGlyphUrls}
-              value={p.glyphStyle?.drumGlyphUrl ?? null}
-              onChange={p.setDrumGlyphUrl}
-              onRandom={p.randomizeDrumGlyph}
-            />
-          </div>
-        </div>
+        <Slider label="tilt" value={p.drumParams.tilt ?? 0} min={-90} max={90} step={1} unit="°"
+          onChange={(v) => p.setDrumParams((d) => ({ ...d, tilt: v }))} />
+        <p className="ui-note">Each row below picks its own glyph from the syllable set; two rows never share one. D shuffles them.</p>
       </div>
 
       <div className="pn-section">

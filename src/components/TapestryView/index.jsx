@@ -21,7 +21,8 @@ export default function TapestryView({ variant = "tapestry" }) {
   const contentHeight = layout?.contentHeight ?? 0;
   const scroll = !!layout?.singleRow;
 
-  const { tapestryBackgroundColor } = useParams();
+  const { tapestryBackgroundColor, staffBackgroundColor } = useParams();
+  const background = variant === "staff" ? staffBackgroundColor : tapestryBackgroundColor;
 
   return (
     <div
@@ -29,7 +30,7 @@ export default function TapestryView({ variant = "tapestry" }) {
       ref={containerRef}
       onMouseMove={onHoverMove}
       onMouseLeave={onHoverLeave}
-      style={{ backgroundColor: tapestryBackgroundColor }}
+      style={{ backgroundColor: background }}
     >
       {/* Wrap: this wrapper enables fixed-row-height vertical scrolling.
           Scroll: it is as wide as the song and translated by ScrollController. */}

@@ -3,16 +3,22 @@ import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 
-export default function DrumGrid({ drumTranscriptionData }) {
+/** Beat and downbeat lines. The Line Staff passes variant="staff" and uses its own toggles and background. */
+export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }) {
   const { layout } = useTapestryLayout();
-  const { showDrums, showDownbeats, showBeatsLines, tapestryBackgroundColor } = useParams();
+  const p = useParams();
+  const staff = variant === "staff";
+  const showDownbeats = staff ? p.staffShowDownbeats : p.showDownbeats;
+  const showBeatsLines = staff ? p.staffShowBeatLines : p.showBeatsLines;
+  const background = staff ? p.staffBackgroundColor : p.tapestryBackgroundColor;
+  const { showDrums } = p;
 
   if (!layout || !drumTranscriptionData) return null;
 
   // Compute grid stroke color: white on dark backgrounds, black on light ones.
   // Uses WCAG relative luminance to decide.
   const gridStroke = (() => {
-    const hex = tapestryBackgroundColor || "#ffffff";
+    const hex = background || "#ffffff";
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;

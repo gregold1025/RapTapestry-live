@@ -18,6 +18,10 @@ const glyphUrlModules = import.meta.glob("/src/svg_shapes/*.svg", {
   import: "default",
 });
 const GLYPH_URLS = Object.values(glyphUrlModules);
+// Small SVGs are inlined as data: URIs by the bundler, so the file name only
+// survives in the glob key: name (without .svg) -> url, and url -> name.
+const GLYPH_BY_NAME = Object.fromEntries(Object.entries(glyphUrlModules).map(([k, v]) => [k.split("/").pop().replace(/\.svg$/, ""), v]));
+const GLYPH_NAME_OF = new Map(Object.entries(GLYPH_BY_NAME).map(([n, u]) => [u, n]));
 
 const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
   eager: true,
@@ -184,6 +188,9 @@ export function ParamsProvider({ children }) {
   // — LINE STAFF — (its own sizes: the staff scales to be read, not to the tapestry's glyphs)
   const [staffDrumScale, setStaffDrumScale] = useState(0.6);
   const [staffTextPx, setStaffTextPx] = useState(12);
+  const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
+  const [staffShowDownbeats, setStaffShowDownbeats] = useState(true);
+  const [staffShowBeatLines, setStaffShowBeatLines] = useState(true);
   const [showDownbeats, setShowDownbeats] = useState(true);
   const [showBeatsLines, setShowBeatLines] = useState(true);
 
@@ -213,9 +220,23 @@ export function ParamsProvider({ children }) {
   const randomizeSyllableGlyph = useCallback(
     () => setSyllableGlyphUrl(pickRandomFrom(GLYPH_URLS)), []
   );
-  const randomizeDrumGlyph = useCallback(
-    () => setDrumGlyphUrl(pickRandomFrom(DRUM_GLYPH_URLS)), []
-  );
+  // D: every drum row (bands and classes) gets a fresh glyph from the syllable
+  // set, no two rows alike within a mode.
+  const randomizeDrumGlyph = useCallback(() => {
+    const shuffle = (prev) => {
+      const taken = new Set();
+      const out = {};
+      for (const key of Object.keys(prev)) {
+        const free = GLYPH_URLS.filter((u) => !taken.has(u));   // the data: urls are what rows store
+        const u = free.length ? free[Math.floor(Math.random() * free.length)] : null;
+        if (u) taken.add(u);
+        out[key] = { ...prev[key], glyphUrl: u };
+      }
+      return out;
+    };
+    setDrumBands(shuffle);
+    setDrumClasses(shuffle);
+  }, []);
   const randomizeBassDivider = useCallback(
     () => setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS)), []
   );
@@ -241,6 +262,8 @@ export function ParamsProvider({ children }) {
   const glyphAssets = useMemo(
     () => ({
       syllableGlyphUrls: GLYPH_URLS,
+      syllableGlyphByName: GLYPH_BY_NAME,
+      glyphNameOf: (url) => GLYPH_NAME_OF.get(url) ?? null,
       drumGlyphUrls: DRUM_GLYPH_URLS,
       bassDividerUrls: BASS_DIVIDER_URLS,
     }),
@@ -389,6 +412,12 @@ export function ParamsProvider({ children }) {
         setStaffDrumScale,
         staffTextPx,
         setStaffTextPx,
+        staffBackgroundColor,
+        setStaffBackgroundColor,
+        staffShowDownbeats,
+        setStaffShowDownbeats,
+        staffShowBeatLines,
+        setStaffShowBeatLines,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

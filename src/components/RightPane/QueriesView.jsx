@@ -33,7 +33,7 @@ function countsOf(ms) {
 }
 
 export default function QueriesView() {
-  const { queries, focusedId, focused, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setColor } = useQueries();
+  const { queries, focusedId, focused, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setColor, undo, redo, canUndo, canRedo } = useQueries();
   const { seekAll } = useAudioControls();
   const [groupBy, setGroupBy] = useState("time");
 
@@ -56,7 +56,11 @@ export default function QueriesView() {
     <div className="rp-root">
       <div className="rp-head">
         <h3 className="rp-head-title">Queries</h3>
-        {queries.length > 0 && <button type="button" className="rp-link" onClick={clear} title="Remove every query">clear</button>}
+        <div style={{ display: "flex", gap: 6 }}>
+          <button type="button" className="rp-link" onClick={undo} disabled={!canUndo} title="Undo (Cmd-Z)">undo</button>
+          <button type="button" className="rp-link" onClick={redo} disabled={!canRedo} title="Redo (Cmd-Shift-Z)">redo</button>
+          {queries.length > 0 && <button type="button" className="rp-link" onClick={clear} title="Remove every query">clear</button>}
+        </div>
       </div>
 
       <div className="ql-list" role="list">

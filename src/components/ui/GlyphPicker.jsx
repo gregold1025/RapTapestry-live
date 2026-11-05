@@ -11,7 +11,8 @@ function fileName(url) {
  * Current glyph as a 24px box; click opens a popover grid of every glyph url.
  * `allowNone` adds a "none" cell (value null). `onRandom` adds a shuffle button.
  */
-export function GlyphPicker({ urls = [], value, onChange, onRandom, allowNone = false, label = "glyph", staticGlyph }) {
+export function GlyphPicker({ urls = [], value, onChange, onRandom, allowNone = false, label = "glyph", staticGlyph, taken, nameOf }) {
+  const nameFor = (u) => (nameOf && nameOf(u)) || fileName(u);
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
 
@@ -34,7 +35,7 @@ export function GlyphPicker({ urls = [], value, onChange, onRandom, allowNone = 
         type="button"
         className="ui-glyph-btn"
         onClick={() => setOpen((v) => !v)}
-        title={`${label}: ${fileName(value)} (click to change)`}
+        title={`${label}: ${nameFor(value)} (click to change)`}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -43,7 +44,7 @@ export function GlyphPicker({ urls = [], value, onChange, onRandom, allowNone = 
       {open && (
         <div className="ui-glyph-pop" role="dialog" aria-label={`${label} picker`}>
           <div className="ui-glyph-pop-head">
-            <span>{fileName(value)}</span>
+            <span>{nameFor(value)}</span>
             {onRandom && (
               <button type="button" className="ui-ibtn" style={{ width: "auto", padding: "0 6px" }} onClick={onRandom} title="Random">
                 random
@@ -60,9 +61,10 @@ export function GlyphPicker({ urls = [], value, onChange, onRandom, allowNone = 
               <button
                 key={u}
                 type="button"
-                className={`ui-glyph-cell ${u === value ? "is-active" : ""}`}
+                className={`ui-glyph-cell ${u === value ? "is-active" : ""} ${taken?.has(u) && u !== value ? "is-taken" : ""}`}
+                disabled={!!taken?.has(u) && u !== value}
                 onClick={() => { onChange(u); setOpen(false); }}
-                title={fileName(u)}
+                title={taken?.has(u) && u !== value ? `${nameFor(u)} (used by another row)` : nameFor(u)}
               >
                 <img src={u} alt="" draggable={false} />
               </button>
