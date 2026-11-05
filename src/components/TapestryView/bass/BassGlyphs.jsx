@@ -54,7 +54,7 @@ export default function BassGlyphs() {
     if (!timeToPixels || !rowHeight) return [];
     const out = [];
     notes.forEach((note, idx) => {
-      for (const seg of noteSegments(note, timeToPixels)) {
+      for (const seg of noteSegments(note, timeToPixels, (r) => layout.rowBoundaries[r + 1], layout.width)) {
         const rowTop = seg.row * rowHeight;
         const P = seg.points.map((p) => [p.x, laneY(rowTop, rowHeight, lane, midiPct(p.midi, band, range))]);
         const ys = P.map((p) => p[1]);
@@ -62,7 +62,7 @@ export default function BassGlyphs() {
       }
     });
     return out;
-  }, [notes, timeToPixels, rowHeight, lane, band.lo, band.hi, range]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notes, timeToPixels, rowHeight, lane, band.lo, band.hi, range, layout]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!layout || !showBass || !notes.length) return null;
 

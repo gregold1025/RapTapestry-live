@@ -22,7 +22,7 @@ export function nameOnsets(onsets, named, thresholds, k = 1, joinMs = JOIN_MS) {
     for (let i = j; i < sorted.length && sorted[i].time <= o.time + win; i++) {
       const c = sorted[i];
       const thr = thresholds?.[c.cls];
-      if (!thr || c.peak < thr * k) continue;
+      if (!thr || !(c.peak >= thr * k)) continue;
       const prev = best.get(c.cls);
       if (!prev || c.peak > prev.peak) best.set(c.cls, c);
     }

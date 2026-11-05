@@ -25,8 +25,10 @@ function useWindow() {
   if (!songModel) return null;
   const { grid, beatsPerBar } = songModel;
   const at = (b) => grid[Math.min(grid.length - 1, b * beatsPerBar)];
-  const t0 = at(bar), t1 = at(bar + BARS);
-  return { t0, t1, x: (t) => ((t - t0) / Math.max(1e-6, t1 - t0)) * W, beats: grid.filter((g) => g >= t0 && g <= t1), downbeats: [0, 1, 2].map((k) => at(bar + k)) };
+  const lastBar = Math.max(0, Math.floor((grid.length - 1) / beatsPerBar) - BARS);
+  const b0 = Math.min(bar, lastBar);
+  const t0 = at(b0), t1 = at(b0 + BARS);
+  return { t0, t1, x: (t) => ((t - t0) / Math.max(1e-6, t1 - t0)) * W, beats: grid.filter((g) => g >= t0 && g <= t1), downbeats: [0, 1, 2].map((k) => at(b0 + k)) };
 }
 
 const y = (pct) => H - (Math.max(0, Math.min(100, pct)) / 100) * H;

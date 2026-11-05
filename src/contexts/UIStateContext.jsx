@@ -16,7 +16,8 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const [rightOpen, setRightOpen] = useState(true);
   // header icons: the active one closes the pane; the other opens it on that view
   const toggleRightView = useCallback((v) => {
-    setRightOpen((open) => !(open && rightViewRef.current === v));
+    const same = rightViewRef.current === v;
+    setRightOpen((open) => !(open && same));
     setRightView(v);
   }, []);
   const [paramsPanel, setParamsPanel] = useState(initialParamsPanel);

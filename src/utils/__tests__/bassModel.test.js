@@ -40,3 +40,22 @@ describe("bass v2 model", () => {
     expect(segs[0].points[1].x).toBeCloseTo(250);
   });
 });
+
+describe("noteSegments at row boundaries", () => {
+  // rows 2 s wide, 100 px each; rowEnd(row) = the time the row ends
+  const timeToPixels = (t) => ({ x: (t % 2) * 50, row: Math.floor(t / 2) });
+  const rowEndTime = (row) => (row + 1) * 2;
+  it("a v1 note (no contour) crossing a row runs to the row's right edge and on from the next row's left edge", () => {
+    const segs = noteSegments({ start: 1.5, end: 2.5, midi: 40, contour: null }, timeToPixels, rowEndTime, 100);
+    expect(segs.length).toBe(2);
+    expect(segs[0].points[0].x).toBeCloseTo(75);
+    expect(segs[0].points[segs[0].points.length - 1].x).toBeCloseTo(100);
+    expect(segs[1].points[0].x).toBeCloseTo(0);
+    expect(segs[1].points[segs[1].points.length - 1].x).toBeCloseTo(25);
+  });
+  it("a note ending exactly on a row boundary leaves no stub on the next row", () => {
+    const segs = noteSegments({ start: 1.0, end: 2.0, midi: 40, contour: [[1, 40], [2, 40]] }, timeToPixels, rowEndTime, 100);
+    expect(segs.length).toBe(1);
+    expect(segs[0].points[segs[0].points.length - 1].x).toBeCloseTo(100);
+  });
+});
