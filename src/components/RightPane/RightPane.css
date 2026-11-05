@@ -136,7 +136,7 @@
 .sq-anchor-text .ql-name { white-space: normal; font-size: 14px; }
 
 /* the focused query reads as its own section below the list */
-.sq-body { border-top: 3px solid var(--q, var(--rt-line)); }
+
 .sq-bar {
   font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--rt-ink); background: var(--rt-head); padding: 4px 12px;
@@ -157,5 +157,9 @@
    the query list on the bottom half (scrolls) */
 .sq-body { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; background: var(--rt-panel); }
 .sq-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; }
-.rp-root .ql-list { flex: 1 1 0; min-height: 0; overflow-y: auto; background: var(--rt-panel); border-top: 1px solid var(--rt-line); }
-.rp-root .ql-list.is-half { border-top: 3px solid var(--rt-line); }
+.rp-root .ql-list { flex: 1 1 0; min-height: 0; overflow-y: auto; background: var(--rt-panel); }
+
+
+/* the Query list header: a multi-color line (one section per query) over an rgb(71) bar */
+.ql-head { flex: 0 0 auto; }
+.ql-stripe { height: 3px; }

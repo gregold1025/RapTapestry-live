@@ -32,6 +32,20 @@ function tint(hex, a) {
   return h + Math.round(a * 255).toString(16).padStart(2, "0");
 }
 
+/** `hex` laid over the panel's rgb(53) at `a`, as an opaque color (nothing shows through). */
+function mixOver(hex, a, bg = [53, 53, 53]) {
+  const h = /^#[0-9a-f]{6}$/i.test(hex) ? hex : "#888888";
+  const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return "#" + c.map((v, k) => Math.round(bg[k] + (v - bg[k]) * a).toString(16).padStart(2, "0")).join("");
+}
+
+/** A line split into equal sections, one per color, left to right. */
+function stripe(colors) {
+  if (!colors.length) return "var(--rt-line)";
+  const w = 100 / colors.length;
+  return `linear-gradient(to right, ${colors.map((c, i) => `${c} ${(i * w).toFixed(3)}% ${((i + 1) * w).toFixed(3)}%`).join(", ")})`;
+}
+
 function countsOf(ms) {
   const c = {};
   for (const m of ms) if (m.type !== "anchor") c[m.type] = (c[m.type] ?? 0) + 1;
@@ -70,7 +84,7 @@ export default function QueriesView() {
       </div>
 
       {focused && (
-        <div className="sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": tint(focused.color, 0.22) }}>
+        <div className="sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": mixOver(focused.color, 0.35) }}>
           <div className="sq-bar">Focused query</div>
           <div className="sq-anchor">
             <input className="ui-color-swatch" type="color" value={focused.color} onChange={(e) => setColor(focused.id, e.target.value)} aria-label="Query color" title="Query color" />
@@ -131,7 +145,12 @@ export default function QueriesView() {
         </div>
       )}
 
-      <div className={`ql-list ${focused ? "is-half" : ""}`} role="list">
+      {/* the list's header: its top line carries every query's color, one section each */}
+      <div className="ql-head">
+        <div className="ql-stripe" style={{ background: stripe(rows.map((q) => q.color)) }} />
+        <div className="sq-bar">Query list{rows.length ? ` (${rows.length})` : ""}</div>
+      </div>
+      <div className="ql-list" role="list">
         {rows.length === 0 && (
           <div className="rp-empty" style={{ height: "auto" }}>No queries yet. Click a word in the lyrics or on the tapestry; shift-click to extend it across words; click a line's square for a line query (end rhyme).</div>
         )}
