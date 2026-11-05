@@ -69,3 +69,5 @@
 .pn-pane-body { flex: 1 1 0; min-height: 0; }
 .pn-back { font: inherit; font-size: 11px; font-weight: 600; color: var(--rt-muted); background: var(--rt-card); border: 0; border-bottom: 1px solid var(--rt-line); text-align: left; padding: 6px 12px; cursor: pointer; }
 .pn-back:hover { color: var(--rt-ink); }
+
+.pn-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }

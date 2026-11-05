@@ -109,6 +109,8 @@ export default function DrumsPanel() {
           onChange={(c) => p.setDrumParams((d) => ({ ...d, fillColor: c }))} />
         <Slider label="tilt" value={p.drumParams.tilt ?? 0} min={-90} max={90} step={1} unit="°"
           onChange={(v) => p.setDrumParams((d) => ({ ...d, tilt: v }))} />
+        <Slider label="opacity (all glyphs)" value={Math.round((p.drumParams.opacity ?? 1) * 100)} min={0} max={100} step={1} unit="%"
+          onChange={(v) => p.setDrumParams((d) => ({ ...d, opacity: v / 100 }))} />
         <p className="ui-note">Each row below picks its own glyph from the syllable set; two rows never share one. D shuffles them.</p>
       </div>
 

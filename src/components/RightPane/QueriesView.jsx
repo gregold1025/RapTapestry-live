@@ -69,39 +69,8 @@ export default function QueriesView() {
         </div>
       </div>
 
-      <div className="ql-list" role="list">
-        {rows.length === 0 && (
-          <div className="rp-empty" style={{ height: "auto" }}>No queries yet. Click a word in the lyrics or on the tapestry; shift-click to extend it across words; click a line's square for a line query (end rhyme).</div>
-        )}
-        {rows.map((q) => {
-          const ms = (matchesByQueryId.get(q.id) ?? []).filter((m) => m.type !== "anchor");
-          const c = countsOf(ms);
-          const n = ms.filter((m) => q.types.has(m.type)).length;
-          return (
-            <div
-              key={q.id}
-              role="listitem"
-              className={`ql-row ${q.id === focusedId ? "is-focused" : ""} ${q.active ? "" : "is-inactive"}`}
-              style={q.id === focusedId ? { borderLeftColor: q.color } : undefined}
-              onClick={() => focus(q.id)}
-              title="Click to open this query below"
-            >
-              <span className="ql-dot" style={{ background: q.color }} />
-              <QueryName q={q} song={songModel} />
-              <span className="ql-counts" title={RHYME_TYPES.map((t) => `${t.label}: ${c[t.key] ?? 0}`).join("\n")}>
-                <span className="ql-total">{n}</span>
-              </span>
-              <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-flex", gap: 4 }}>
-                <EyeButton on={q.active} onClick={() => toggleActive(q.id)} />
-                <button type="button" className="ui-ibtn" onClick={() => remove(q.id)} title="Remove">&times;</button>
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
       {focused && (
-        <div className="rp-body sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": tint(focused.color, 0.22) }}>
+        <div className="sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": tint(focused.color, 0.22) }}>
           <div className="sq-bar">Focused query</div>
           <div className="sq-anchor">
             <input className="ui-color-swatch" type="color" value={focused.color} onChange={(e) => setColor(focused.id, e.target.value)} aria-label="Query color" title="Query color" />
@@ -136,6 +105,7 @@ export default function QueriesView() {
               <button type="button" className={groupBy === "type" ? "is-active" : ""} onClick={() => setGroupBy("type")}>by type</button>
             </span>
           </div>
+          <div className="sq-scroll">
           {groups.map((g) => (
             <div key={g.key} className="sq-group">
               {g.label && <div className="sq-group-label"><span>{g.label}</span><b>{g.items.length}</b></div>}
@@ -157,8 +127,41 @@ export default function QueriesView() {
             </div>
           ))}
           {shown.length === 0 && <div className="rp-empty" style={{ height: "auto" }}>No matches for the selected types.</div>}
+          </div>
         </div>
       )}
+
+      <div className={`ql-list ${focused ? "is-half" : ""}`} role="list">
+        {rows.length === 0 && (
+          <div className="rp-empty" style={{ height: "auto" }}>No queries yet. Click a word in the lyrics or on the tapestry; shift-click to extend it across words; click a line's square for a line query (end rhyme).</div>
+        )}
+        {rows.map((q) => {
+          const ms = (matchesByQueryId.get(q.id) ?? []).filter((m) => m.type !== "anchor");
+          const c = countsOf(ms);
+          const n = ms.filter((m) => q.types.has(m.type)).length;
+          return (
+            <div
+              key={q.id}
+              role="listitem"
+              className={`ql-row ${q.id === focusedId ? "is-focused" : ""} ${q.active ? "" : "is-inactive"}`}
+              style={q.id === focusedId ? { borderLeftColor: q.color } : undefined}
+              onClick={() => focus(q.id)}
+              title="Click to open this query below"
+            >
+              <span className="ql-dot" style={{ background: q.color }} />
+              <QueryName q={q} song={songModel} />
+              <span className="ql-counts" title={RHYME_TYPES.map((t) => `${t.label}: ${c[t.key] ?? 0}`).join("\n")}>
+                <span className="ql-total">{n}</span>
+              </span>
+              <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-flex", gap: 4 }}>
+                <EyeButton on={q.active} onClick={() => toggleActive(q.id)} />
+                <button type="button" className="ui-ibtn" onClick={() => remove(q.id)} title="Remove">&times;</button>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
     </div>
   );
 }

@@ -28,6 +28,7 @@ export default function GlobalPanel() {
     staffTextPx, setStaffTextPx,
     staffBackgroundColor, setStaffBackgroundColor,
     staffWordColor, setStaffWordColor,
+    staffDrumHeights, setStaffDrumHeight,
     staffShowDownbeats, setStaffShowDownbeats,
     staffShowBeatLines, setStaffShowBeatLines,
   } = useParams();
@@ -118,6 +119,12 @@ export default function GlobalPanel() {
         <div className="ui-row">
           <Slider label="text" value={staffTextPx} min={8} max={20} step={1} unit=" px" onChange={setStaffTextPx} />
           <Slider label="drum glyphs" value={Math.round(staffDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setStaffDrumScale(v / 100)} />
+        </div>
+        <span className="pn-field-label">drum heights (staff %)</span>
+        <div className="pn-grid2">
+          {[["kick", "kick / low"], ["snare", "snare / mid"], ["hihat", "hi-hat / high"], ["tom", "tom"], ["cymbal", "cymbal"]].map(([k, label]) => (
+            <Slider key={k} label={label} value={staffDrumHeights[k]} min={0} max={100} step={1} unit="%" onChange={(v) => setStaffDrumHeight(k, v)} />
+          ))}
         </div>
         <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />

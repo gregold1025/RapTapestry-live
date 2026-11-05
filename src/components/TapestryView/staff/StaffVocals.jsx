@@ -18,7 +18,7 @@ import { laneY } from "../../../utils/laneLayout";
 import { f0Semitones } from "../../../utils/timingModel";
 import { timeAtEvent } from "../global/timeAtEvent";
 
-const PITCH_BAND = { lo: 30, hi: 92 };   // percent of the vocals lane the pitch range spans
+const PITCH_BAND = { lo: 63, hi: 97 };   // percent of the staff the pitch range spans: the upper third, leaving room below for the drums
 const FONT = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
 
 let measureCtx = null;

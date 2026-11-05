@@ -127,8 +127,8 @@
 .sq-match-time { font-size: 10px; color: var(--rt-muted); font-variant-numeric: tabular-nums; }
 
 /* ---- queries view: list on top (bounded), focused query below ---- */
-.rp-root .ql-list { flex: 0 1 auto; max-height: 42%; overflow-y: auto; background: var(--rt-card); border-bottom: 1px solid var(--rt-line); }
-.sq-body { flex: 1 1 0; }
+
+
 .ql-name { flex: 1 1 auto; min-width: 0; font-size: 12px; color: var(--rt-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ql-name b { font-weight: 700; }
 .ql-ctx { color: var(--rt-muted); }
@@ -146,3 +146,10 @@
 .ql-row.is-focused { background: var(--rt-card); box-shadow: inset 0 0 0 1px var(--rt-line); }
 .sq-types .rp-chip { color: var(--rt-muted); }
 .sq-types .rp-chip.is-active { font-weight: 700; }
+
+/* Queries: focused query on the top half (anchor + pills pinned, matches scroll),
+   the query list on the bottom half (scrolls) */
+.sq-body { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; background: var(--rt-card); }
+.sq-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; }
+.rp-root .ql-list { flex: 1 1 0; min-height: 0; overflow-y: auto; background: var(--rt-panel); border-top: 1px solid var(--rt-line); }
+.rp-root .ql-list.is-half { border-top: 3px solid var(--rt-line); }

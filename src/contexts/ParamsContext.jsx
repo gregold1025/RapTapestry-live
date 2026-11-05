@@ -156,7 +156,7 @@ export function ParamsProvider({ children }) {
     strokeWeight: 5,
     tilt: -80,
     fillColor: "#0011bb",
-    opacity: 0.5,
+    opacity: 1, // all drum glyphs (multiplies each row's opacity)
   });
   const [drumDetection, setDrumDetection] = useState("bands"); // "bands" | "classes"
   // Per frequency band: visible, glyph size (px), opacity, height (percent of the
@@ -188,7 +188,10 @@ export function ParamsProvider({ children }) {
   const [drumThreshold, setDrumThreshold] = useState(1);
 
   // — LINE STAFF — (its own sizes: the staff scales to be read, not to the tapestry's glyphs)
-  const [staffDrumScale, setStaffDrumScale] = useState(0.6);
+  const [staffDrumScale, setStaffDrumScale] = useState(1);
+  // Line Staff drum rows (percent of the staff height), below the text; bands map to kick / snare / hi-hat
+  const [staffDrumHeights, setStaffDrumHeights] = useState({ kick: 10, snare: 22, hihat: 33, tom: 15, cymbal: 33, other: 5 });
+  const setStaffDrumHeight = useCallback((key, v) => setStaffDrumHeights((prev) => ({ ...prev, [key]: v })), []);
   const [staffTextPx, setStaffTextPx] = useState(12);
   const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
   const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
@@ -411,6 +414,8 @@ export function ParamsProvider({ children }) {
         setDrumThreshold,
         staffDrumScale,
         setStaffDrumScale,
+        staffDrumHeights,
+        setStaffDrumHeight,
         staffTextPx,
         setStaffTextPx,
         staffBackgroundColor,
