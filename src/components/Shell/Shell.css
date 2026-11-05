@@ -2,7 +2,7 @@
 
 :root {
   --rt-header-h: 84px;
-  --rt-left-w: minmax(260px, 24%);
+  --rt-left-w: minmax(286px, 26.4%);   /* lyrics: 10% wider (Greg 2026-11-05) */
   --rt-right-w: minmax(300px, 24%);
 
   --rt-header-bg: #a3a3a3;
@@ -14,6 +14,9 @@
   --rt-line-soft: #e6e6ea;
   --rt-accent: #1a1a1a;
   --rt-radius: 6px;
+  --rt-on-ink: #ffffff;          /* text on an --rt-ink background */
+  --rt-head: #e9e9ec;            /* section header bars */
+  --rt-glyph-filter: brightness(0);
   --rt-font: ui-sans-serif, system-ui, -apple-system, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -58,7 +61,6 @@
   border-right: 1px solid var(--rt-line);
 }
 .rt-shell.left-closed .rt-left { border-right: 0; }
-.rt-left { background: #1c1d20; }
 .rt-center {
   grid-area: center;
   position: relative;
@@ -168,3 +170,19 @@
 .rt-stage-top { flex: 1 1 0; min-height: 0; position: relative; }
 .rt-stage-bottom { flex: 0 0 44%; min-height: 0; display: flex; flex-direction: column; }
 .rt-stage-bottom > * { flex: 1 1 0; min-height: 0; }
+
+/* ---- dark surfaces (Greg 2026-11-05): background rgb(53), headers rgb(71) ---- */
+.rt-right, .staff-bar {
+  --rt-panel: #353535;
+  --rt-card: #3e3e3e;
+  --rt-head: #474747;
+  --rt-ink: #f0f0f0;
+  --rt-muted: #a9a9ae;
+  --rt-line: #565656;
+  --rt-line-soft: #4a4a4a;
+  --rt-on-ink: #1a1a1a;
+  --rt-glyph-filter: brightness(0) invert(0.94);
+  color: var(--rt-ink);
+}
+.rt-right { background: var(--rt-panel); border-left-color: #2a2a2a; }
+.rt-left { background: #353535; }

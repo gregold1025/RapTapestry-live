@@ -23,7 +23,7 @@ export const WordLine = React.memo(function WordLine({ line, lineIdx, isCurrent,
     : undefined;
 
   return (
-    <div className={["line", isCurrent ? "current" : ""].join(" ").trim()} data-line-idx={dataLineIdx} style={lineStyle}>
+    <div className={["line", lineIdx % 2 ? "alt" : "", isCurrent ? "current" : ""].join(" ").replace(/\s+/g, " ").trim()} data-line-idx={dataLineIdx} style={lineStyle}>
       {/* Line query: this line, matched to other lines by the end rhyme of their last words */}
       <div
         className="line-select"

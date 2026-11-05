@@ -143,13 +143,17 @@
   text-overflow: ellipsis;
 }
 
-/* ---- dark lyrics panel (Greg 2026-11-06): very dark gray, white text ---- */
-.lyrics-container { background: #1c1d20; color: #f2f2f3; }
-.lyrics-container .line { border-bottom-color: #34363b; }
+/* ---- dark lyrics panel (Greg 2026-11-05): rgb(53), lines alternate with rgb(71), white text ---- */
+.lyrics-container { background: #353535; color: #f2f2f3; }
+.lyrics-container .line { border-bottom-color: transparent; }
+.lyrics-container .line.alt { background-color: #474747; }
 .lyrics-container .word { color: #f2f2f3; }
 .lyrics-container .word.current { color: #ff6b6b; }
 .lyrics-container .line-select,
-.lyrics-container .line-jump { color: #b8bac0; background: transparent; border-color: #44464c; }
-.lyrics-container .lyrics-footer { background: #232428; border-top-color: #34363b; }
-.lyrics-container .recenter-btn { background: #2b2d31; color: #f2f2f3; border-color: #44464c; }
-.lyrics-container .footer-hover { color: #b8bac0; }
+.lyrics-container .line-jump { color: #c4c6cc; background: transparent; border-color: #5a5c62; }
+.lyrics-container .lyrics-footer { background: #474747; border-top-color: #2a2a2a; }
+.lyrics-container .recenter-btn { background: #3e3e3e; color: #f2f2f3; border-color: #5a5c62; }
+.lyrics-container .footer-hover { color: #c4c6cc; }
+/* stripes run edge to edge */
+.lyrics-container { padding-left: 0; padding-right: 0; }
+.lyrics-container .line { padding-left: 20px; }

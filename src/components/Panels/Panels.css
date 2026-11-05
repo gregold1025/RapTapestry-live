@@ -18,6 +18,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 6px;
+  margin: -12px -12px 0;
+  padding: 10px 12px;
+  background: var(--rt-head);
 }
 .pn-title { font-size: 14px; font-weight: 700; margin: 0; line-height: 1.2; }
 .pn-subtitle { font-size: 9px; color: var(--rt-muted); margin: 2px 0 0 0; }
@@ -67,6 +70,6 @@
 .pn-stem-chev { color: var(--rt-muted); font-size: 14px; line-height: 1; }
 .pn-pane { height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--rt-panel); }
 .pn-pane-body { flex: 1 1 0; min-height: 0; }
-.pn-back { font: inherit; font-size: 11px; font-weight: 600; color: var(--rt-muted); background: var(--rt-card); border: 0; border-bottom: 1px solid var(--rt-line); text-align: left; padding: 6px 12px; cursor: pointer; }
+.pn-back { font: inherit; font-size: 11px; font-weight: 600; color: var(--rt-muted); background: var(--rt-head); border: 0; border-bottom: 1px solid var(--rt-line); text-align: left; padding: 6px 12px; cursor: pointer; }
 .pn-back:hover { color: var(--rt-ink); }
 

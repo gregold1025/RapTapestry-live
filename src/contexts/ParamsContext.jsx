@@ -157,6 +157,7 @@ export function ParamsProvider({ children }) {
     tilt: 0,
     fillColor: "#0011bb",
     opacity: 1, // all drum glyphs (multiplies each row's opacity)
+    size: 1, // all drum glyphs (multiplies each row's size)
   });
   const [drumDetection, setDrumDetection] = useState("classes"); // "bands" | "classes" (falls back to bands without classifier output)
   // Per frequency band: visible, glyph size (px), opacity, height (percent of the

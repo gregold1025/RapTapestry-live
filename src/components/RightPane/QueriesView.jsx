@@ -91,7 +91,7 @@ export default function QueriesView() {
                 className={`rp-chip ${focused.types.has(t.key) ? "is-active" : ""}`}
                 onClick={() => toggleType(t.key)}
                 title={`${t.desc}\nExample: ${t.example}`}
-                style={focused.types.has(t.key) ? { background: tint(focused.color, 0.2), borderColor: focused.color, color: "#1a1a1a" } : undefined}
+                style={focused.types.has(t.key) ? { background: tint(focused.color, 0.3), borderColor: focused.color, color: "var(--rt-ink)" } : undefined}
               >
                 {t.label} <b>{counts[t.key] ?? 0}</b>
               </button>

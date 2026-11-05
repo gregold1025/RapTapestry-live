@@ -20,7 +20,7 @@ function GlyphRowPreview({ url, height, size, color }) {
     <svg className="vs-prev" viewBox="0 0 100 100" preserveAspectRatio="none">
       {[20, 50, 80].map((x) => (
         url ? (
-          <image key={x} href={url} x={x - r} y={100 - height - r} width={r * 2} height={r * 2} preserveAspectRatio="xMidYMid meet" style={{ filter: "brightness(0)" }} />
+          <image key={x} href={url} x={x - r} y={100 - height - r} width={r * 2} height={r * 2} preserveAspectRatio="xMidYMid meet" style={{ filter: "brightness(0) invert(0.94)" }} />
         ) : (
           <circle key={x} cx={x} cy={100 - height} r={r} fill={color} />
         )
@@ -114,8 +114,12 @@ export default function DrumsPanel() {
           onChange={(c) => p.setDrumParams((d) => ({ ...d, fillColor: c }))} />
         <Slider label="tilt" value={p.drumParams.tilt ?? 0} min={-90} max={90} step={1} unit="°"
           onChange={(v) => p.setDrumParams((d) => ({ ...d, tilt: v }))} />
-        <Slider label="opacity (all glyphs)" value={Math.round((p.drumParams.opacity ?? 1) * 100)} min={0} max={100} step={1} unit="%"
-          onChange={(v) => p.setDrumParams((d) => ({ ...d, opacity: v / 100 }))} />
+        <div className="ui-row">
+          <Slider label="size (all glyphs)" value={Math.round((p.drumParams.size ?? 1) * 100)} min={10} max={300} step={5} unit="%"
+            onChange={(v) => p.setDrumParams((d) => ({ ...d, size: v / 100 }))} />
+          <Slider label="opacity (all glyphs)" value={Math.round((p.drumParams.opacity ?? 1) * 100)} min={0} max={100} step={1} unit="%"
+            onChange={(v) => p.setDrumParams((d) => ({ ...d, opacity: v / 100 }))} />
+        </div>
         <p className="ui-note">Each row below picks its own glyph from the syllable set; two rows never share one. D shuffles them.</p>
       </div>
 

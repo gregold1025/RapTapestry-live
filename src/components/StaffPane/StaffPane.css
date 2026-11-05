@@ -1,7 +1,7 @@
 .staff-pane { display: flex; flex-direction: column; min-height: 0; border-top: 1px solid var(--rt-line); background: #fff; }
 .staff-bar {
   display: flex; align-items: center; gap: 12px;
-  padding: 4px 10px; border-bottom: 1px solid var(--rt-line); background: var(--rt-panel);
+  padding: 4px 10px; border-bottom: 1px solid #2a2a2a; background: var(--rt-head);
   font-size: 11px; color: var(--rt-muted);
 }
 .staff-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--rt-ink); white-space: nowrap; }
@@ -17,3 +17,6 @@
 .staff-bar .ui-seg { width: 180px; flex-shrink: 0; }
 .staff-slot { margin-left: auto; display: inline-flex; }
 .staff-slot .scroll-toolbar { position: static; background: transparent; border: 0; padding: 0; }
+.staff-slot .scroll-where { color: var(--rt-muted); }
+.staff-slot .scroll-follow { background: var(--rt-card); color: var(--rt-ink); border-color: var(--rt-line); }
+.staff-slot .scroll-follow.is-on { color: #ff6b6b; border-color: #ff6b6b; }

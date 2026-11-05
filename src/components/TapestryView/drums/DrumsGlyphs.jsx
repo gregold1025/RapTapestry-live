@@ -46,7 +46,7 @@ export default function DrumsGlyphs() {
     const rowKey = groups?.[byClass ? hit.cls : hit.category] ? (byClass ? hit.cls : hit.category) : (byClass ? "other" : "low");
     const g = groups?.[rowKey];
     if (!g || g.visible === false) continue;
-    const size = (g.size ?? 12) * scale;
+    const size = (g.size ?? 12) * scale * (drumParams?.size ?? 1);
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
     // unnamed onsets keep their frequency band: low / mid / high sit a little below / at / above the row's height

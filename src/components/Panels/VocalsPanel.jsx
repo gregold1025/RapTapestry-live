@@ -8,7 +8,7 @@ import "./Panels.css";
 const BAND_DOTS = [[0.08, 0.1], [0.2, 0.9], [0.32, 0.4], [0.44, 1], [0.56, 0.6], [0.68, 0.2], [0.8, 0.75], [0.92, 0.35]];
 
 /** Dots inside a band, or on one line (preview for the vertical slider). */
-function DotsPreview({ lo, hi, color = "#1a1a1a" }) {
+function DotsPreview({ lo, hi, color = "#e8e8e8" }) {
   return (
     <svg className="vs-prev" viewBox="0 0 100 100" preserveAspectRatio="none">
       {BAND_DOTS.map(([fx, t], i) => {
@@ -18,7 +18,7 @@ function DotsPreview({ lo, hi, color = "#1a1a1a" }) {
     </svg>
   );
 }
-function BarsPreview({ lo, hi, thickness = 6, color = "#1a1a1a" }) {
+function BarsPreview({ lo, hi, thickness = 6, color = "#e8e8e8" }) {
   const bars = [[6, 16, 0.3], [28, 22, 0.8], [56, 12, 0.1], [74, 20, 0.6]];
   return (
     <svg className="vs-prev" viewBox="0 0 100 100" preserveAspectRatio="none">
