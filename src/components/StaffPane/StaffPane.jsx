@@ -8,24 +8,16 @@ import { useSongData } from "../../contexts/SongDataContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import TapestryView from "../TapestryView";
 import { IconClef } from "../Shell/AppHeader";
-import { Segmented } from "../ui";
 import "./StaffPane.css";
 
 export default function StaffPane({ duration }) {
   const { songId, drumTranscription } = useSongData();
-  const { staffBars, setStaffBars, staffMode, setStaffMode, toggleStaff } = useUIState();
+  const { staffBars, toggleStaff, openParamsPanel } = useUIState();
   return (
     <section className="staff-pane" aria-label="Line Staff">
       <div className="staff-bar">
         <span className="staff-title"><IconClef /> Line Staff</span>
-        <span className="staff-field">
-          <span className="staff-label">view</span>
-          <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
-        </span>
-        <span className="staff-field">
-          <span className="staff-label">show</span>
-          <Segmented value={staffMode} onChange={setStaffMode} options={[{ value: "words", label: "words" }, { value: "spelled", label: "spelled syllables" }, { value: "syllables", label: "syllables" }]} />
-        </span>
+        <button type="button" className="staff-link" onClick={() => openParamsPanel("global")} title="View width, show and sizes live in the Global panel">{staffBars} bars · settings &rsaquo;</button>
         <span className="staff-hint">drag or click to scrub · cmd-click a word to query it</span>
         <button type="button" className="staff-close" onClick={toggleStaff} title="Close the Line Staff">&times;</button>
       </div>

@@ -152,17 +152,38 @@ export function ParamsProvider({ children }) {
     fillColor: "#0011bb",
     opacity: 0.5,
   });
-  const [drumDetection, setDrumDetection] = useState("bands"); // "bands" (classes: coming soon)
-  // Per frequency band: visible, glyph size (px), opacity, height (percent of the drum lane)
+  const [drumDetection, setDrumDetection] = useState("bands"); // "bands" | "classes"
+  // Per frequency band: visible, glyph size (px), opacity, height (percent of the
+  // drum lane), glyphUrl (null = the default drum glyph)
   const [drumBands, setDrumBands] = useState({
-    high: { visible: true, size: 10, opacity: 1, height: 80 },
-    mid:  { visible: true, size: 14, opacity: 1, height: 55 },
-    low:  { visible: true, size: 16, opacity: 1, height: 20 },
+    high: { visible: true, size: 10, opacity: 1, height: 80, glyphUrl: null },
+    mid:  { visible: true, size: 14, opacity: 1, height: 55, glyphUrl: null },
+    low:  { visible: true, size: 16, opacity: 1, height: 20, glyphUrl: null },
   });
   const setDrumBand = useCallback(
     (key, patch) => setDrumBands((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
     []
   );
+  // Per classifier class (kick, snare, hi-hat, tom, cymbal, unnamed): same fields.
+  // Rows high to low like the Line Staff: hi-hat and cymbal above, snare, tom, kick, unnamed below.
+  const [drumClasses, setDrumClasses] = useState({
+    hihat:  { visible: true, size: 9,  opacity: 1, height: 88, glyphUrl: null },
+    cymbal: { visible: true, size: 11, opacity: 1, height: 88, glyphUrl: null },
+    snare:  { visible: true, size: 14, opacity: 1, height: 50, glyphUrl: null },
+    tom:    { visible: true, size: 12, opacity: 1, height: 36, glyphUrl: null },
+    kick:   { visible: true, size: 16, opacity: 1, height: 22, glyphUrl: null },
+    other:  { visible: false, size: 8, opacity: 0.6, height: 8, glyphUrl: null },
+  });
+  const setDrumClass = useCallback(
+    (key, patch) => setDrumClasses((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
+    []
+  );
+  // threshold multiplier on the classifier's published per-class thresholds
+  const [drumThreshold, setDrumThreshold] = useState(1);
+
+  // — LINE STAFF — (its own sizes: the staff scales to be read, not to the tapestry's glyphs)
+  const [staffDrumScale, setStaffDrumScale] = useState(0.6);
+  const [staffTextPx, setStaffTextPx] = useState(12);
   const [showDownbeats, setShowDownbeats] = useState(true);
   const [showBeatsLines, setShowBeatLines] = useState(true);
 
@@ -359,6 +380,15 @@ export function ParamsProvider({ children }) {
         drumBands,
         setDrumBands,
         setDrumBand,
+        drumClasses,
+        setDrumClasses,
+        setDrumClass,
+        drumThreshold,
+        setDrumThreshold,
+        staffDrumScale,
+        setStaffDrumScale,
+        staffTextPx,
+        setStaffTextPx,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

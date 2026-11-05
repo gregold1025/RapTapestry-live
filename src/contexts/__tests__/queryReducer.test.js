@@ -132,4 +132,12 @@ describe("queryReducer", () => {
     const st = click(initialQueryState, "0-1");
     expect(st.queries[0].kind).toBe("word");
   });
+
+  it("cmd-click on a word that is already a query focuses it instead of duplicating it", () => {
+    let st = click(initialQueryState, "0-1", { meta: true });
+    st = click(st, "0-3", { meta: true });
+    st = click(st, "0-1", { meta: true });
+    expect(st.queries.length).toBe(2);
+    expect(st.focusedId).toBe(st.queries[0].id);
+  });
 });

@@ -1,86 +1,89 @@
-import React, { useMemo } from "react";
+import React, { useId } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
+import { useDrumHits } from "../../../hooks/useDrumHits";
 
-// One shared <mask> + <symbol> pair serves every drum glyph; each hit is a
-// single <use>. The symbol is a 3x "safe area" box with the glyph in the
-// centre third, matching the previous per-hit mask geometry.
-const DRUM_MASK_ID = "tapestry-drum-glyph-mask";
-const DRUM_SYMBOL_ID = "tapestry-drum-glyph";
+// Each hit is one <use> of a <symbol> (a 3x "safe area" box with the glyph in
+// the centre third). One mask + symbol pair per distinct glyph url in use, so
+// every band / class can have its own glyph. Ids are per tapestry instance
+// (the Line Staff draws the drums too).
 const DRUM_NOMINAL = 300; // symbol viewBox size (glyph occupies 100..200)
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-export default function DrumsGlyphs({ drumTranscriptionData }) {
+export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumBands, glyphStyle } = useParams();
-
-  const glyphUrl = glyphStyle?.drumGlyphUrl ?? null;
-
-  const drum_hits = drumTranscriptionData?.drum_hits;
-  const hits = useMemo(() => {
-    if (!Array.isArray(drum_hits)) return [];
-    return drum_hits
-      .filter((h) => h && Number.isFinite(h.time))
-      .sort((a, b) => a.time - b.time);
-  }, [drum_hits]);
+  const { showDrums, showDrumGlyphs, drumParams, drumDetection, drumBands, drumClasses, glyphStyle, staffDrumScale } = useParams();
+  const hits = useDrumHits();
+  const instanceId = useId().replace(/:/g, "");
 
   // Hooks above; early return below (rules-of-hooks).
-  if (!layout || !drumTranscriptionData || !showDrums || !showDrumGlyphs) return null;
+  if (!layout || !showDrums || !showDrumGlyphs) return null;
 
   const { rowHeight, timeToPixels } = layout;
   const lane = laneFor("drums");
   const { fillColor = "#bbbbbb", tilt = 10 } = drumParams || {};
   const tiltDeg = clamp(tilt, -90, 90);
+  const defaultUrl = glyphStyle?.drumGlyphUrl ?? null;
+  const byClass = drumDetection === "classes";
+  const groups = byClass ? drumClasses : drumBands;
+  const scale = layout.singleRow ? staffDrumScale : 1;   // the staff scales to be read
+
+  // one symbol per distinct glyph url
+  const urls = new Map();
+  const symbolFor = (url) => {
+    if (!url) return null;
+    if (!urls.has(url)) urls.set(url, `${instanceId}-dg${urls.size}`);
+    return urls.get(url);
+  };
 
   const glyphs = [];
   for (let idx = 0; idx < hits.length; idx++) {
     const hit = hits[idx];
-    const band = drumBands?.[hit.category] ?? drumBands?.low;
-    if (!band || band.visible === false) continue;
-    const size = band.size ?? 12;
+    const key = byClass ? hit.cls : hit.category;
+    const g = groups?.[key] ?? (byClass ? groups?.other : groups?.low);
+    if (!g || g.visible === false) continue;
+    const size = (g.size ?? 12) * scale;
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
-    const cy = laneY(y, rowHeight, lane, band.height ?? 50);
-
+    const cy = laneY(y, rowHeight, lane, g.height ?? 50);
+    const sym = symbolFor(g.glyphUrl ?? defaultUrl);
+    const opacity = (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(
-      <use
-        key={`drumglyph-${idx}`}
-        href={`#${DRUM_SYMBOL_ID}`}
-        transform={`translate(${x}, ${cy}) rotate(${tiltDeg})`}
-        x={-maskBox / 2}
-        y={-maskBox / 2}
-        width={maskBox}
-        height={maskBox}
-        fill={fillColor}
-        opacity={band.opacity ?? 1}
-        pointerEvents="none"
-      />
+      sym ? (
+        <use
+          key={`drumglyph-${idx}`}
+          href={`#${sym}`}
+          transform={`translate(${x}, ${cy}) rotate(${tiltDeg})`}
+          x={-maskBox / 2}
+          y={-maskBox / 2}
+          width={maskBox}
+          height={maskBox}
+          fill={fillColor}
+          opacity={opacity}
+          pointerEvents="none"
+        />
+      ) : (
+        <circle key={`drumglyph-${idx}`} cx={x} cy={cy} r={size / 2} fill={fillColor} opacity={opacity} pointerEvents="none" />
+      )
     );
   }
 
   return (
     <>
-      {glyphUrl && (
+      {urls.size > 0 && (
         <defs>
-          <mask
-            id={DRUM_MASK_ID}
-            maskUnits="userSpaceOnUse"
-            maskContentUnits="userSpaceOnUse"
-            x={0} y={0} width={DRUM_NOMINAL} height={DRUM_NOMINAL}
-          >
-            <image
-              href={glyphUrl}
-              x={DRUM_NOMINAL / 3} y={DRUM_NOMINAL / 3}
-              width={DRUM_NOMINAL / 3} height={DRUM_NOMINAL / 3}
-              preserveAspectRatio="xMidYMid meet"
-              style={{ filter: "brightness(0) invert(1)" }}
-            />
-          </mask>
-          <symbol id={DRUM_SYMBOL_ID} viewBox={`0 0 ${DRUM_NOMINAL} ${DRUM_NOMINAL}`}>
-            <rect x={0} y={0} width={DRUM_NOMINAL} height={DRUM_NOMINAL} mask={`url(#${DRUM_MASK_ID})`} />
-          </symbol>
+          {[...urls].map(([url, id]) => (
+            <React.Fragment key={id}>
+              <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x={0} y={0} width={DRUM_NOMINAL} height={DRUM_NOMINAL}>
+                <image href={url} x={DRUM_NOMINAL / 3} y={DRUM_NOMINAL / 3} width={DRUM_NOMINAL / 3} height={DRUM_NOMINAL / 3} preserveAspectRatio="xMidYMid meet" style={{ filter: "brightness(0) invert(1)" }} />
+              </mask>
+              <symbol id={id} viewBox={`0 0 ${DRUM_NOMINAL} ${DRUM_NOMINAL}`}>
+                <rect x={0} y={0} width={DRUM_NOMINAL} height={DRUM_NOMINAL} mask={`url(#${id}-mask)`} />
+              </symbol>
+            </React.Fragment>
+          ))}
         </defs>
       )}
       {glyphs}

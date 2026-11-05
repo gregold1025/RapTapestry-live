@@ -7,6 +7,8 @@ export async function fetchSongData(songName) {
   const bassTranscriptionPath = `${basePath}/bass-transcription.json`;
   // MFA-aligned + measured copy of the lyrics (timing + F0); optional.
   const measuredPath = `${basePath}/lyric-transcription.measured.json`;
+  // the drum classifier's named hits (experiments/drums-01, mix input); optional.
+  const drumClassesPath = `${basePath}/drum-classes.json`;
 
   // Stems we expect (keys will be lowercased in the return object)
   const stems = ["Vocals", "Bass", "Drums", "Other"];
@@ -83,12 +85,13 @@ export async function fetchSongData(songName) {
     return { audioFiles, duration };
   }
 
-  const [lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, { audioFiles, duration }] =
+  const [lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, { audioFiles, duration }] =
     await Promise.all([
       loadJson(lyricTranscriptionPath, "lyric transcription", { required: true }),
       loadJson(drumTranscriptionPath, "drum transcription"),
       loadJson(bassTranscriptionPath, "bass transcription"),
       loadJson(measuredPath, "measured lyric transcription"),
+      loadJson(drumClassesPath, "drum classes"),
       loadAudio(),
     ]);
 
@@ -100,6 +103,7 @@ export async function fetchSongData(songName) {
     drumTranscription,
     bassTranscription,
     measuredTranscription,
+    drumClassesTranscription,
     duration,
   };
 }

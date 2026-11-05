@@ -24,8 +24,10 @@ export default function GlobalPanel() {
     tapestryBackgroundColor, setTapestryBackgroundColor,
     showDownbeats, setShowDownbeats,
     showBeatsLines, setShowBeatLines,
-    showHorizontalGrid, setShowHorizontalGrid,
+    staffDrumScale, setStaffDrumScale,
+    staffTextPx, setStaffTextPx,
   } = useParams();
+  const { staffBars, setStaffBars, staffMode, setStaffMode } = useUIState();
 
   return (
     <div className="pn-root">
@@ -97,10 +99,23 @@ export default function GlobalPanel() {
           <input type="checkbox" checked={!!showBeatsLines} onChange={(e) => setShowBeatLines(e.target.checked)} />
           Beat lines
         </label>
-        <label className="ui-toggle">
-          <input type="checkbox" checked={!!showHorizontalGrid} onChange={(e) => setShowHorizontalGrid(e.target.checked)} />
-          Row lines
-        </label>
+      </div>
+
+      <div className="pn-section">
+        <SectionLabel>Line Staff</SectionLabel>
+        <div className="pn-field">
+          <span className="pn-field-label">view width</span>
+          <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
+        </div>
+        <div className="pn-field">
+          <span className="pn-field-label">show</span>
+          <Segmented value={staffMode} onChange={setStaffMode} options={[{ value: "words", label: "words" }, { value: "spelled", label: "spelled" }, { value: "syllables", label: "syllables" }]} />
+        </div>
+        <div className="ui-row">
+          <Slider label="text" value={staffTextPx} min={8} max={20} step={1} unit=" px" onChange={setStaffTextPx} />
+          <Slider label="drum glyphs" value={Math.round(staffDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setStaffDrumScale(v / 100)} />
+        </div>
+        <p className="ui-note">The staff keeps its own sizes so words and hits fit its window; open it with the treble clef.</p>
       </div>
     </div>
   );

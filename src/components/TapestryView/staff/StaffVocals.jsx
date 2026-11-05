@@ -13,6 +13,7 @@ import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useQueries } from "../../../contexts/QueryContext";
 import { useAudioControls } from "../../../contexts/AudioContext";
 import { useSongData } from "../../../contexts/SongDataContext";
+import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
 import { f0Semitones } from "../../../utils/timingModel";
 import { timeAtEvent } from "../global/timeAtEvent";
@@ -49,11 +50,11 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   const { visualByWordId, click } = useQueries();
   const { seekAll } = useAudioControls();
   const { lyricTranscription, timing } = useSongData();
+  const { staffTextPx } = useParams();
 
   const lane = laneFor("vocals");
   const rowHeight = layout?.rowHeight ?? 0;
-  const pxPerBar = layout?.pxPerBar ?? 200;
-  const fs = Math.max(10, Math.min(15, pxPerBar / 26));
+  const fs = staffTextPx || 12;
   const f0Mid = timing?.f0Mid ?? null;
 
   // pitch -> y: -6 semitones at the band's bottom, +18 at its top; no pitch -> the base line

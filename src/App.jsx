@@ -108,7 +108,7 @@ export default function App() {
     );
   }
 
-  const { lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, audio, duration } = songData;
+  const { lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, audio, duration } = songData;
 
   return (
     <UIStateProvider>
@@ -123,6 +123,7 @@ export default function App() {
             drumTranscription={drumTranscription}
             bassTranscription={bassTranscription}
             measuredTranscription={measuredTranscription}
+            drumClassesTranscription={drumClassesTranscription}
           >
             <QueryProvider key={`queries-${selectedSong}`}>
                   <TapestryLayoutProvider

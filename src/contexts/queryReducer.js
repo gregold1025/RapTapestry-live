@@ -77,9 +77,10 @@ export function queryReducer(state, action, env = action.__env) {
         }
         // no focused query: fall through to a plain click
       }
+      const own = ownerOf(state, wordId, env);
+      // a word that is already a query is focused, never duplicated (cmd-click included)
+      if (own?.role === "anchor") return { ...state, focusedId: own.q.id };
       if (!meta) {
-        const own = ownerOf(state, wordId, env);
-        if (own?.role === "anchor") return { ...state, focusedId: own.q.id };
         if (own?.role === "match") {
           return {
             queries: state.queries.map((q) => (q.id === own.q.id ? { ...q, anchorIds: [wordId] } : q)),
