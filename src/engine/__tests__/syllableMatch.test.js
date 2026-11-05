@@ -88,13 +88,13 @@ describe("forms by geometry, one match per location", () => {
       expect(new Set(keys).size).toBe(keys.length);
     }
   });
-  it("wage finds engagements embedded; engagements finds stage went as a mosaic", () => {
+  it("wage finds engagements embedded; engagements finds stage went as an additive mosaic", () => {
     expect(matches(amen, "wage").find((m) => /engagements/i.test(m.text)).form).toBe("embedded");
-    // 'went' is a content word, so it keeps its stress and its EH does not reduce to the
-    // schwa of -ments (Greg 2026-11-05: only function words lose stress); 'stage' stays, as a semirhyme
-    const st = matches(amen, "engagements").find((m) => /^stage$/i.test(m.text.trim()));
-    expect(st.form).toBe("semirhyme");
-    expect(st.type).toBe("perfect");
+    // -ments (AH0 N T S) ~ went (EH1 N T): the schwa keeps its vowel against a stressed EH
+    // (Greg 2026-11-05, Hey, miss ~ famous); the extra S makes it additive
+    const st = matches(amen, "engagements").find((m) => /^stage went$/i.test(m.text.replace(/[^a-z ]/gi, "").trim()));
+    expect(st.form).toBe("mosaic");
+    expect(st.type).toBe("additive");
   });
   it("logic finds biological as an embedded perfect rhyme", () => {
     const m = matches(rld, "logic").find((x) => /biological/i.test(x.text));
@@ -173,5 +173,26 @@ describe("syllable counts settled by the aligner", () => {
   it("Unemployed 'I am not': am is one syllable (Greg's ear overrides the aligner's A.M.)", () => {
     const am = unemp.words.find((w, i) => clean(w.text) === "am" && clean(unemp.words[i + 1].text) === "not");
     expect(am.nSyllables).toBe(1);
+  });
+});
+
+describe("a schwa against a stressed AH / IH / EH (Greg, 2026-11-05: Hey, miss ~ famous)", () => {
+  it("famous ~ Hey, miss is a perfect mosaic (mous AH0 S ~ miss IH1 S keeps the reduced vowel)", () => {
+    const m = find(matches(til, "famous"), "Hey miss");
+    expect(m).toBeTruthy();
+    expect(m.type).toBe("perfect");
+    expect(m.form).toBe("mosaic");
+    expect(m.links.map((l) => l.type)).toEqual(["perfect", "perfect"]);
+  });
+  it("the reduced side still does not count toward the assonance minimum", () => {
+    // 'go miss': miss links to -mous, but go (OW) does not link to fa- (EY): no mosaic
+    const s = tiny([[["famous", "F EY1 M AH0 S"]], [["go", "G OW1"], ["miss", "M IH1 S"]]]);
+    const ms = computeMatches(s, [s.words[0].id]).filter((m) => m.type !== "anchor");
+    expect(ms.find((m) => m.form === "mosaic")).toBeFalsy();
+  });
+  it("a pickup stays unstressed on both sides: attack finds 'at', not 'flick's at'", () => {
+    const s = tiny([[["attack", "AH0 T AE1 K"]], [["flick's", "F L IH1 K S"], ["at", "AE1 T"]]]);
+    const ms = computeMatches(s, [s.words[0].id]).filter((m) => m.type !== "anchor");
+    expect(ms.map((m) => m.text.trim())).toEqual(["at"]);
   });
 });

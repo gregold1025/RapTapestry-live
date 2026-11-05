@@ -10,9 +10,10 @@
 //    additive, assonance; slant only when RULE_OPTIONS.slant). The consonants that open the
 //    next syllable are free, as the first syllable's onset is (so-so / so-lo). When the whole
 //    consonant cluster between the two vowels is identical, it matches however it splits.
-//  - Otherwise (an unstressed syllable on either side): the vowel must be the same (unstressed
-//    AH / IH / EH are one reduced vowel). Such a link holds the chain but does not set the
-//    label, except at the end: the final pair always counts.
+//  - Otherwise (an unstressed syllable on either side): the vowel must be the same (AH / IH / EH
+//    count as one reduced vowel: unstressed against unstressed, or against a stressed AH / IH /
+//    EH). Such a link holds the chain but does not set the label, except at the end: the
+//    final pair always counts.
 // The CORE of a match starts at a pair stressed on both sides; linked unstressed pairs to the
 // left of it are PICKUPS (un-til / the thrill): they lengthen the match and never change it.
 // The label is the weakest counted link. Assonance needs two full vowels (a schwa holds a
@@ -129,7 +130,9 @@ function link(q, c, qn, cn, { final, asCore }) {
     let type;
     if (full) type = classify(a.v, ca, b.v, cb);
     else {
-      const sameV = a.v === b.v || (!strong(q) && !strong(c) && REDUCED.has(a.v) && REDUCED.has(b.v));
+      // unstressed AH / IH / EH are one reduced vowel, also against a stressed AH / IH / EH
+      // (fa-mous ~ Hey, miss: AH0 S ~ IH1 S); the reduced side still does not count as a full vowel
+      const sameV = a.v === b.v || (REDUCED.has(a.v) && REDUCED.has(b.v));
       if (!sameV) continue;
       type = classify(a.v, ca, a.v, cb) ?? 'assonance';
     }
@@ -171,8 +174,15 @@ function matchAt(S, Q, e, qWords) {
     const fullVowels = core.filter(fullVowel).length;
     if (type === 'assonance' && fullVowels < 2) continue;
     if (core.length === 1 && !ONE_SYLLABLE_TYPES.has(type)) continue;
-    // pickups: only when the core starts at the leftmost linked pair's right neighbor run
-    const pickups = links.slice(0, s).every((x) => !(x.q.stress >= 1 && x.c.stress >= 1)) ? links.slice(0, s) : [];
+    // pickups: only when no pair left of the core is stressed on both sides, and only the run
+    // just left of the core that is unstressed on both sides (un-til / the thrill; a-ttack is
+    // not picked up by flick's at)
+    let pickups = [];
+    if (links.slice(0, s).every((x) => !(x.q.stress >= 1 && x.c.stress >= 1))) {
+      let p0 = s;
+      while (p0 > 0 && !strong(links[p0 - 1].q) && !strong(links[p0 - 1].c)) p0--;
+      pickups = links.slice(p0, s);
+    }
     const all = [...pickups.map((x) => ({ ...x, pickup: true, counted: false })), ...core];
     const first = all[0].c, last = all.at(-1).c;
     const words = [];
