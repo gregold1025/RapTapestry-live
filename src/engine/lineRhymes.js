@@ -18,7 +18,7 @@ export function endUnits(song, lineIdx, maxWords = END_UNIT_MAX_WORDS) {
 
 /**
  * @param matchesFor (anchorIds) => engine matches (anchor entries included or not)
- * @returns [{ lineIdx, type, form, rank, start, text, lastWordId, expected, unit }] sorted by line
+ * @returns [{ lineIdx, type, form, rank, start, text, lastWordId, expected, unit, words, match }] (words/match: the word match behind it) sorted by line
  */
 export function lineEndMatches(song, lineIdx, matchesFor, maxWords = END_UNIT_MAX_WORDS) {
   const best = new Map();
@@ -31,7 +31,7 @@ export function lineEndMatches(song, lineIdx, matchesFor, maxWords = END_UNIT_MA
       const rank = TYPE_RANK[m.type] ?? 99;
       const prev = best.get(w.li);
       if (prev && prev.rank <= rank) continue;
-      best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, expected: !!m.expected, unit: unit.length });
+      best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, expected: !!m.expected, unit: unit.length, words: m.words, match: m });
     }
   }
   return [...best.values()].sort((a, b) => a.lineIdx - b.lineIdx);

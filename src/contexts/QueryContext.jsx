@@ -6,6 +6,7 @@
 // (src/engine). Color = query identity; type and form travel with each
 // visual so layers can style them without a second lookup.
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
+import { sylRange } from "../utils/phoneMarks";
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
 import { undoable, UNDO, REDO } from "./undoable";
@@ -19,17 +20,6 @@ const QueryStoreContext = createContext(null);
 
 // Undo history over the query reducer; a change of focus alone is no step.
 const historyReducer = undoable(queryReducer, initialQueryState, { transientIf: (a, b) => a.queries === b.queries });
-
-/** Which syllables of `w` a match covers (first word from vi0, last word to vi1). */
-function sylRangeFor(m, w) {
-  const n = w.nSyllables ?? 1;
-  if (m.form === "word" || m.type === "anchor") {
-    const vi0 = m.type === "anchor" ? 0 : Math.max(0, Math.min(n - 1, m.lead ? 0 : (w.rime?.stressedSyl ?? 0)));
-    return { vi0, vi1: n - 1 };
-  }
-  const first = m.words[0] === w, last = m.words[m.words.length - 1] === w;
-  return { vi0: first ? (m.vi0 ?? 0) : 0, vi1: last ? (m.vi1 ?? n - 1) : n - 1 };
-}
 
 export function QueryProvider({ children }) {
   const { songModel } = useSongData();
@@ -98,7 +88,7 @@ export function QueryProvider({ children }) {
           const rank = TYPE_RANK[m.type] ?? 99;
           if (prev && prev.isAnchor && !isAnchor) continue;
           if (prev && !prev.isAnchor && !isAnchor && prev.rank < rank) continue;
-          const { vi0, vi1 } = sylRangeFor(m, w);
+          const { vi0, vi1 } = sylRange(m, w);
           map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, isAnchor, rank, expected: !!m.expected, text: m.text });
         }
       }

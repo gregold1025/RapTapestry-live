@@ -14,11 +14,11 @@ import "./LyricsView.css";
 import { perfMark, perfMarkAfterPaint } from "../../utils/perfMarks";
 
 export default function LyricsView({ height = "100%" }) {
-  const { lyricTranscription: transcriptionData } = useSongData();
+  const { lyricTranscription: transcriptionData, songModel } = useSongData();
   const containerRef = useRef(null); // outer container (for sizing)
   const scrollRef = useRef(null); // scrollable div (the list of all lines)
   const suppressUntilRef = useRef(0); // timestamp (ms) to ignore scroll events until
-  const { hoverData, setWordHover, clearHover } = useHoverInfo();
+  const { hoverData, setWordHover, clearHover } = useHoverInfo(songModel);
 
   const lines = transcriptionData?.lines ?? [];
 

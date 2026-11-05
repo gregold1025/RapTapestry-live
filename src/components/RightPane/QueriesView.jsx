@@ -7,6 +7,7 @@ import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 import { RHYME_TYPES, FORM_BY_KEY } from "../../engine";
 import { queryLabel } from "../../utils/queryLabel";
+import { phoneMarks, sylRange } from "../../utils/phoneMarks";
 import { EyeButton } from "../ui";
 import "./RightPane.css";
 
@@ -136,6 +137,7 @@ export default function QueriesView() {
                   </span>
                   <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}{m.expected ? " · expected" : ""}</span>
                   <span className="sq-match-time">{fmtTime(m.start)}</span>
+                  <MatchPhones m={m} />
                 </button>
               ))}
             </div>
@@ -182,6 +184,28 @@ export default function QueriesView() {
       </div>
 
     </div>
+  );
+}
+
+/** A match's phones, shown on hover; the phones that made the rhyme in bold. */
+function MatchPhones({ m }) {
+  const mm = m.match ?? m;
+  const ws = mm.words ?? [];
+  if (!ws.length) return null;
+  return (
+    <span className="sq-match-phones" aria-label="Phones (the rhyming ones in bold)">
+      {ws.map((w, i) => {
+        const { vi0, vi1 } = sylRange(mm, w);
+        return (
+          <span key={w.id ?? i}>
+            {i > 0 && <span className="sq-match-sep"> | </span>}
+            {phoneMarks(w.phones, vi0, vi1).map((x, j) => (
+              <React.Fragment key={j}>{j > 0 && " "}{x.on ? <b>{x.p}</b> : x.p}</React.Fragment>
+            ))}
+          </span>
+        );
+      })}
+    </span>
   );
 }
 

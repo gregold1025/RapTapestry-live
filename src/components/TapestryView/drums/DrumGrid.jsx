@@ -2,8 +2,9 @@
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
+import { gridStrokes } from "../../../utils/gridStroke";
 
-/** Beat and downbeat lines. The Line Staff passes variant="staff" and uses its own toggles and background. */
+/** Beat and bar lines. The Line Staff passes variant="staff" and uses its own toggles and background. */
 export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }) {
   const { layout } = useTapestryLayout();
   const p = useParams();
@@ -11,20 +12,11 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
   const showDownbeats = staff ? p.staffShowDownbeats : p.showDownbeats;
   const showBeatsLines = staff ? p.staffShowBeatLines : p.showBeatsLines;
   const background = staff ? p.staffBackgroundColor : p.tapestryBackgroundColor;
-  const { showDrums } = p;
 
   if (!layout || !drumTranscriptionData) return null;
 
-  // Compute grid stroke color: white on dark backgrounds, black on light ones.
-  // Uses WCAG relative luminance to decide.
-  const gridStroke = (() => {
-    const hex = background || "#ffffff";
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return luminance > 0.5 ? "black" : "white";
-  })();
+  // Opaque colors pushed off the background, so the grid reads on any background.
+  const strokes = gridStrokes(background);
 
   const { rowHeight, timeToPixels, gridTimes, beatsPerBar } = layout;
 
@@ -74,7 +66,7 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
   const lines = [];
 
   // Draw downbeats (full height) — using MODE A (derived) by default:
-  if (showDownbeats && showDrums && derivedDownbeats.length) {
+  if (showDownbeats && derivedDownbeats.length) {
     derivedDownbeats.forEach((t, i) => {
       const { x, y } = timeToPixels(t);
       lines.push(
@@ -84,9 +76,8 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
           y1={y + 0.5}
           x2={x}
           y2={y + rowHeight - 0.5}
-          stroke={gridStroke}
+          stroke={strokes.bar}
           strokeWidth={3}
-          opacity={0.2}
           vectorEffect="non-scaling-stroke"
         />
       );
@@ -115,7 +106,7 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
   // }
 
   // Draw beat lines (full height) from the *layout* beat grid so columns match rows
-  if (showBeatsLines && showDrums && beats && beats.length) {
+  if (showBeatsLines && beats && beats.length) {
     beats.forEach((t, i) => {
       const { x, y } = timeToPixels(t);
       lines.push(
@@ -125,9 +116,8 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
           y1={y + 0.5}
           x2={x}
           y2={y + rowHeight - 0.5}
-          stroke={gridStroke}
+          stroke={strokes.beat}
           strokeWidth={1}
-          opacity={0.2}
           vectorEffect="non-scaling-stroke"
         />
       );

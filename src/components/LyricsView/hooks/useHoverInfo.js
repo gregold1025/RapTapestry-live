@@ -1,13 +1,19 @@
 // src/components/LyricsView/hooks/useHoverInfo.js
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import { phoneMarks } from "../../../utils/phoneMarks";
 
-export function useHoverInfo() {
+/** songModel (optional): the rhyme engine's words, whose phones the matches were made from. */
+export function useHoverInfo(songModel = null) {
   const [hoverData, setHoverData] = useState(null);
+  const modelRef = useRef(songModel);
+  modelRef.current = songModel;
 
   // useCallback: WordLine/WordBlock are React.memo'd, so these must keep a
   // stable identity across LyricsView re-renders or the memo never bites.
-  const setWordHover = useCallback((word, match) => {
-    const phones = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
+  // range = { vi0, vi1 } when the word is a match: those phones are marked.
+  const setWordHover = useCallback((word, match, range = null, wordId = null) => {
+    const own = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
+    const phones = (wordId != null && modelRef.current?.byId?.get(wordId)?.phones) || own;
     // console.log("🔤 Hovered Word:", word?.text);
     // console.log("📞 Phones:", phones);
 
@@ -16,6 +22,7 @@ export function useHoverInfo() {
       text: word?.text,
       phones,
       match: match || null,
+      marks: range ? phoneMarks(phones, range.vi0, range.vi1) : null,
     });
   }, []);
 

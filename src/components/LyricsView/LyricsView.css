@@ -154,6 +154,8 @@
 .lyrics-container .lyrics-footer { background: #474747; border-top-color: #2a2a2a; }
 .lyrics-container .recenter-btn { background: #3e3e3e; color: #f2f2f3; border-color: #5a5c62; }
 .lyrics-container .footer-hover { color: #c4c6cc; }
+.lyrics-container .footer-hover .hover-phone-on { color: #ffffff; font-weight: 700; }
+.lyrics-container .footer-hover .hover-match { color: #9a9ca3; }
 /* stripes run edge to edge */
 .lyrics-container { padding-left: 0; padding-right: 0; }
 .lyrics-container .line { padding-left: 20px; }

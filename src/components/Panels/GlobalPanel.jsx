@@ -99,7 +99,7 @@ export default function GlobalPanel() {
         <ColorField label="Background" value={tapestryBackgroundColor} onChange={setTapestryBackgroundColor} />
         <label className="ui-toggle">
           <input type="checkbox" checked={!!showDownbeats} onChange={(e) => setShowDownbeats(e.target.checked)} />
-          Downbeat lines
+          Bar lines
         </label>
         <label className="ui-toggle">
           <input type="checkbox" checked={!!showBeatsLines} onChange={(e) => setShowBeatLines(e.target.checked)} />
@@ -129,7 +129,7 @@ export default function GlobalPanel() {
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />
         <label className="ui-toggle">
           <input type="checkbox" checked={!!staffShowDownbeats} onChange={(e) => setStaffShowDownbeats(e.target.checked)} />
-          Downbeat lines
+          Bar lines
         </label>
         <label className="ui-toggle">
           <input type="checkbox" checked={!!staffShowBeatLines} onChange={(e) => setStaffShowBeatLines(e.target.checked)} />
