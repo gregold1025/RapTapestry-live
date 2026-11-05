@@ -5,11 +5,11 @@ import { useParams } from "../../../contexts/ParamsContext";
 import { gridStrokes } from "../../../utils/gridStroke";
 import { gridLines } from "../../../utils/gridLines";
 
-const WIDTH = { bar: 3, beat: 1, sub: 0.6 };
+const WIDTH = { bar: 3, beat: 1, sub: 0.5 };
 
 /**
- * The vertical grid at the chosen level (none / bars / + beats / + eighths and
- * sixteenths). The Line Staff passes variant="staff" and uses its own level and
+ * The vertical grid at the chosen level (none / bars / + beats / + eighths /
+ * + sixteenths). The Line Staff passes variant="staff" and uses its own level and
  * background. Downbeats are derived by counting beats: the first beat is bar 1.
  */
 export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }) {
@@ -37,7 +37,7 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
             key={i}
             className={`grid-${kind}`}
             x1={x} y1={y + 0.5} x2={x} y2={y + rowHeight - 0.5}
-            stroke={kind === "bar" ? strokes.bar : strokes.beat}
+            stroke={strokes[kind]}
             strokeWidth={WIDTH[kind]}
             vectorEffect="non-scaling-stroke"
           />

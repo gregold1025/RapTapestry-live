@@ -5,19 +5,29 @@ const hex = (r, g, b) => "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "
 const SAMPLES = [];
 for (let v = 0; v <= 255; v += 5) SAMPLES.push(hex(v, v, v));
 SAMPLES.push("#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff", "#ff00ff", "#203040", "#f0e0d0", "#7a7a7a", "#808080", "#3a6ea5", "#c0392b");
+const lift = (s, bg) => contrastRatio(s, bg) - 1; // how far a line stands off its background
 
 describe("grid strokes stay visible on any background", () => {
-  it("beat lines keep a contrast of at least 1.5 against every background", () => {
-    for (const bg of SAMPLES) expect(contrastRatio(gridStrokes(bg).beat, bg), bg).toBeGreaterThanOrEqual(1.5);
+  it("on white, bar lines are the original 20% black (#cccccc) and beats keep their current gray", () => {
+    const s = gridStrokes("#ffffff");
+    expect(s.bar).toBe("#cccccc");
+    expect(s.beat).toBe("#b3b3b3");
   });
-  it("bar lines are stronger than beat lines", () => {
+  it("bar and beat lines keep a contrast of at least 1.5 against every background", () => {
     for (const bg of SAMPLES) {
       const s = gridStrokes(bg);
-      expect(contrastRatio(s.bar, bg), bg).toBeGreaterThan(contrastRatio(s.beat, bg));
+      expect(contrastRatio(s.bar, bg), bg).toBeGreaterThanOrEqual(1.5);
+      expect(contrastRatio(s.beat, bg), bg).toBeGreaterThanOrEqual(1.5);
+    }
+  });
+  it("eighth and sixteenth lines stand off the background at most half as much as beat lines, but still show", () => {
+    for (const bg of SAMPLES) {
+      const s = gridStrokes(bg);
+      expect(lift(s.sub, bg), bg).toBeLessThanOrEqual(lift(s.beat, bg) / 2 + 0.01);
+      expect(contrastRatio(s.sub, bg), bg).toBeGreaterThanOrEqual(1.15);
     }
   });
   it("lines darken a light background and lighten a dark one", () => {
-    expect(contrastRatio(gridStrokes("#ffffff").beat, "#000000")).toBeLessThan(21);
     expect(gridStrokes("#ffffff").beat < "#ffffff").toBe(true);
     expect(parseInt(gridStrokes("#000000").beat.slice(1, 3), 16)).toBeGreaterThan(0);
   });

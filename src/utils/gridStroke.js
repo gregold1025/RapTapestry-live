@@ -28,14 +28,28 @@ export function contrastRatio(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
+// On white, bars are the original 20% black (#cccccc) and beats #b3b3b3; on any
+// background each is pushed further until it reaches a contrast of 1.5.
+export const BAR_MIX = 0.2;
 export const BEAT_MIX = 0.3;
-export const BAR_MIX = 0.4;
+export const MIN_CONTRAST = 1.5;
+// Eighths and sixteenths stand off the background 40% as much as beats do.
+export const SUB_SHARE = 0.4;
 
-/** { beat, bar } line colors for `background`. */
+/** { beat, bar, sub } line colors for `background`. */
 export function gridStrokes(background) {
   const bg = parse(background);
   const l = luminance(bg);
   const pole = (1.05 / (l + 0.05)) > ((l + 0.05) / 0.05) ? 255 : 0;
-  const mix = (a) => toHex(bg.map((v) => v + (pole - v) * a));
-  return { beat: mix(BEAT_MIX), bar: mix(BAR_MIX) };
+  const at = (a) => bg.map((v) => Math.round(v + (pole - v) * a));
+  const ratio = (c) => { const lc = luminance(c); return (Math.max(l, lc) + 0.05) / (Math.min(l, lc) + 0.05); };
+  // the smallest push (from `from`) that reaches `target`
+  const reach = (target, from = 0) => {
+    for (let a = from; a < 1; a += 0.005) if (ratio(at(a)) >= target) return a;
+    return 1;
+  };
+  const beat = at(reach(MIN_CONTRAST, BEAT_MIX));
+  const bar = at(reach(MIN_CONTRAST, BAR_MIX));
+  const sub = at(reach(1 + (ratio(beat) - 1) * SUB_SHARE));
+  return { beat: toHex(beat), bar: toHex(bar), sub: toHex(sub) };
 }

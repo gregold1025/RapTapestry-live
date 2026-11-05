@@ -16,17 +16,22 @@ describe("gridLines: one line per position at each grid level", () => {
     expect(kinds(ls)).toEqual({ bar: 3, beat: 6 });
     expect(new Set(ls.map((l) => l.t)).size).toBe(ls.length);
   });
-  it("level 3 adds eighths and sixteenths between beats, one kind for both", () => {
+  it("level 3 adds eighths: one line halfway between beats", () => {
     const ls = gridLines(beats, 4, 3);
+    expect(kinds(ls)).toEqual({ bar: 3, beat: 6, sub: 8 });
+    expect(ls.filter((l) => l.kind === "sub" && l.t > 0 && l.t < 1).map((l) => l.t)).toEqual([0.5]);
+  });
+  it("level 4 adds sixteenths too, drawn like the eighths", () => {
+    const ls = gridLines(beats, 4, 4);
     expect(kinds(ls)).toEqual({ bar: 3, beat: 6, sub: 8 * 3 });
     expect(ls.filter((l) => l.kind === "sub" && l.t > 0 && l.t < 1).map((l) => l.t)).toEqual([0.25, 0.5, 0.75]);
     expect(new Set(ls.map((l) => l.t)).size).toBe(ls.length);
   });
   it("subdivisions follow uneven beat spacing", () => {
-    const ls = gridLines([0, 1, 3], 4, 3).filter((l) => l.kind === "sub");
-    expect(ls.map((l) => l.t)).toEqual([0.25, 0.5, 0.75, 1.5, 2, 2.5]);
+    expect(gridLines([0, 1, 3], 4, 3).filter((l) => l.kind === "sub").map((l) => l.t)).toEqual([0.5, 2]);
+    expect(gridLines([0, 1, 3], 4, 4).filter((l) => l.kind === "sub").map((l) => l.t)).toEqual([0.25, 0.5, 0.75, 1.5, 2, 2.5]);
   });
-  it("names the four positions", () => {
-    expect(GRID_LEVELS).toHaveLength(4);
+  it("names the five positions", () => {
+    expect(GRID_LEVELS).toHaveLength(5);
   });
 });

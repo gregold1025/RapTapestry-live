@@ -96,7 +96,7 @@ export default function GlobalPanel() {
       <div className="pn-section">
         <SectionLabel>Appearance</SectionLabel>
         <ColorField label="Background" value={tapestryBackgroundColor} onChange={setTapestryBackgroundColor} />
-        <Slider label="grid" value={gridLevel} min={0} max={3} step={1} format={(v) => GRID_LEVELS[v]} onChange={setGridLevel} />
+        <Slider label="grid" value={gridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setGridLevel} />
       </div>
 
       <div className="pn-section">
@@ -119,7 +119,7 @@ export default function GlobalPanel() {
         </div>
         <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />
-        <Slider label="grid" value={staffGridLevel} min={0} max={3} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
+        <Slider label="grid" value={staffGridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
         <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
       </div>
     </div>
