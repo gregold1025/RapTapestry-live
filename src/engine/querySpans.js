@@ -142,6 +142,9 @@ export function findForReference(song, ref) {
       let best = null, bestR = null;
       for (const r of [...w.rimes, ...(n > 1 ? leadChains(w) : [])]) {
         if (r.segs.length !== n) continue;
+        // the reading must land on syllables the word shows: "am" has a two-syllable
+        // reading (A.M., EY EH M) that cannot be placed on its one syllable
+        if (w.nSyllables - (r.lead ? 0 : r.stressedSyl) !== n) continue;
         const t = classifyRhyme(run.rime, r);
         if (t && t !== 'identical' && (best === null || rank(t) < rank(best))) { best = t; bestR = r; }
       }
