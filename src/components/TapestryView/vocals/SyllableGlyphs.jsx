@@ -10,6 +10,7 @@ import { useAudioControls } from "../../../contexts/AudioContext";
 import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY, syllablePitchPct } from "../../../utils/laneLayout";
 import { f0Pct } from "../../../utils/timingModel";
+import { timeAtEvent } from "../global/timeAtEvent";
 import "../TapestryView.css";
 
 const SYLLABLE_MASK_ID = "tapestry-syllable-glyph-mask";
@@ -58,8 +59,11 @@ export default function SyllableGlyphs({ transcriptionData, onGlyphHoverEnter, o
         const cy = laneY(y, rowHeight, lane, pct);
         const sid = `${id}-${si}`;
         const handlers = {
-          onClick: (e) => { e.stopPropagation(); click(id, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); },
-          onDoubleClick: (e) => { e.stopPropagation(); seekAll(s.start); },
+          onClick: (e) => {
+            e.stopPropagation();
+            if (e.metaKey || e.ctrlKey || e.altKey) click(id, { shift: e.shiftKey, meta: false, alt: e.altKey });
+            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+          },
           onMouseEnter: (e) => onGlyphHoverEnter?.(e, { wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones ?? ""), vowel: s.vowel || undefined, syllableIndex: si, totalSyllables: syls.length, f0: s.f0 }),
           onMouseLeave: onGlyphHoverLeave,
           style: { cursor: "pointer" },

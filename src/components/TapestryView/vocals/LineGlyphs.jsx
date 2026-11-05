@@ -8,6 +8,8 @@ import { useQueries } from "../../../contexts/QueryContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY } from "../../../utils/laneLayout";
+import { useAudioControls } from "../../../contexts/AudioContext";
+import { timeAtEvent } from "../global/timeAtEvent";
 
 const LINE_SHADOW_FILTER_ID = "tapestry-line-shadow";
 const HOVER_STROKE = "#00ff3b";
@@ -16,6 +18,7 @@ export default function LineGlyphs({ transcriptionData }) {
   const { layout, laneFor } = useTapestryLayout();
   const { visualByLineIdx, clickLine } = useQueries();
   const { timing } = useSongData();
+  const { seekAll } = useAudioControls();
   const { showLines, lineInactiveColor, lineInactiveOpacity, lineOpacity, lineBand, lineShadow } = useParams();
   const [hoveredLineIdx, setHoveredLineIdx] = useState(null);
 
@@ -57,10 +60,14 @@ export default function LineGlyphs({ transcriptionData }) {
           filter={shadowOn && active ? `url(#${LINE_SHADOW_FILTER_ID})` : undefined}
           style={{ cursor: "pointer" }}
           pointerEvents="visiblePainted"
-          onClick={(e) => { e.stopPropagation(); clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (e.metaKey || e.ctrlKey || e.altKey) clickLine(lineIdx, { meta: false, alt: e.altKey });
+            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+          }}
           onMouseEnter={() => setHoveredLineIdx(lineIdx)}
           onMouseLeave={() => setHoveredLineIdx(null)}
-          title={"Click: line query (end rhyme) • Cmd+Click: new query • Alt+Click: remove"}
+          title={"Click: scrub here • Cmd+Click: line query (end rhyme) • Alt+Click: remove"}
         />
       );
     }

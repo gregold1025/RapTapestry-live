@@ -15,6 +15,7 @@
 // cmd = new query, alt = remove, double-click = seek.
 
 import React, { useState, useId } from "react";
+import { timeAtEvent } from "../global/timeAtEvent";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useQueries } from "../../../contexts/QueryContext";
 import { useParams } from "../../../contexts/ParamsContext";
@@ -103,14 +104,17 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
       const events = {
         style: { cursor: "pointer" },
         pointerEvents: "visiblePainted",
-        onClick: (e) => { e.stopPropagation(); click(id, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); },
-        onDoubleClick: (e) => { e.stopPropagation(); seekAll(start); },
+        onClick: (e) => {
+          e.stopPropagation();
+          if (e.metaKey || e.ctrlKey || e.altKey) click(id, { shift: e.shiftKey, meta: false, alt: e.altKey });
+          else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+        },
         onMouseEnter: (e) => {
           setHoveredWordId(id);
           onGlyphHoverEnter?.(e, { type: "word", wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: vis ? `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}` : null });
         },
         onMouseLeave: (e) => { setHoveredWordId(null); onGlyphHoverLeave?.(e); },
-        title: "Click: query • Shift+Click: extend • Cmd+Click: new query • Alt+Click: remove • Double-click: seek",
+        title: "Click: scrub here • Cmd+Click: query this word • Cmd+Shift+Click: extend the query • Alt+Click: remove",
       };
 
       // base shape = hit target (inactive look when unqueried)

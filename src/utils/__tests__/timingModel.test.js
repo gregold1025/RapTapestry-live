@@ -61,3 +61,21 @@ describe("buildTiming", () => {
     expect(t.f0Mid).toBe(210);
   });
 });
+
+describe("buildTiming: syllable clusters and spelled chunks (Line Staff)", () => {
+  it("an aligned word carries its phone clusters, vowel spans and spelling chunks", async () => {
+    const fs = await import("node:fs");
+    const { buildTiming } = await import("../timingModel");
+    const dir = "public/data/RhymesLikeDimes/";
+    const lyrics = JSON.parse(fs.readFileSync(dir + "lyric-transcription.json"));
+    const measured = JSON.parse(fs.readFileSync(dir + "lyric-transcription.measured.json"));
+    const t = buildTiming(lyrics, measured);
+    const w = t.words.get("9-9"); // Alamo: AE1 L AH0 M OW0
+    expect(w.aligned).toBe(true);
+    expect(w.syls.map((s) => s.cluster.join(" "))).toEqual(["ae", "l ah", "m ow"]);
+    expect(w.syls.map((s) => s.vIdx)).toEqual([0, 1, 1]);
+    expect(w.syls.every((s) => s.vStart >= s.start && s.vEnd <= s.end + 1e-6)).toBe(true);
+    expect(w.syls.map((s) => s.chunk).join("")).toBe("Alamo");
+    expect(w.phones).toBe("AE1 L AH0 M OW0");
+  });
+});

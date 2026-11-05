@@ -7,10 +7,13 @@ import { useCanvasHoverInfo } from "./hooks/useCanvasHoverInfo";
 import { CanvasHoverTooltip } from "./global/CanvasHoverToolTip";
 import { useTapestryLayout } from "../../contexts/TapestryLayoutContext";
 import { useParams } from "../../contexts/ParamsContext";
+import { useAudioControls } from "../../contexts/AudioContext";
+import { isBackgroundTarget } from "./global/scrollTarget";
 import "./TapestryView.css";
 
-export default function TapestryView() {
+export default function TapestryView({ variant = "tapestry" }) {
   const { containerRef, layout } = useTapestryLayout();
+  const { seekAll } = useAudioControls();
   const contentRef = useRef(null);
   const { hoverInfo, onHoverEnter, onHoverMove, onHoverLeave } =
     useCanvasHoverInfo();
@@ -36,8 +39,15 @@ export default function TapestryView() {
         style={scroll
           ? { width: `${layout.width}px`, height: "100%" }
           : { height: contentHeight ? `${contentHeight}px` : "100%" }}
+        onClick={scroll ? undefined : (e) => {
+          // wrap: a plain click on the background scrubs to that point
+          if (!layout || !isBackgroundTarget(e.target)) return;
+          const r = e.currentTarget.getBoundingClientRect();
+          seekAll(layout.pointToTime(e.clientX - r.left, e.clientY - r.top));
+        }}
       >
         <TapestrySVG
+          variant={variant}
           onGlyphHoverEnter={onHoverEnter}
           onGlyphHoverLeave={onHoverLeave}
         />

@@ -40,3 +40,14 @@ describe("dragLoopEdge", () => {
     expect(dragLoopEdge(20, 26, 100)).toEqual({ start: 20, end: 26 });
   });
 });
+
+describe("snapToGrid", () => {
+  it("snaps a time to the nearest beat line", async () => {
+    const { snapToGrid } = await import("../loop");
+    const grid = [0, 0.5, 1.0, 1.5, 2.0];
+    expect(snapToGrid(0.7, grid)).toBe(0.5);
+    expect(snapToGrid(0.76, grid)).toBe(1.0);
+    expect(snapToGrid(-1, grid)).toBe(0);
+    expect(snapToGrid(9, grid)).toBe(2.0);
+  });
+});

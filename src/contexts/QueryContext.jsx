@@ -9,6 +9,7 @@ import React, { createContext, useCallback, useContext, useMemo, useReducer, use
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
 import { computeMatches, TYPE_RANK } from "../engine";
+import { lineEndMatches } from "../engine/lineRhymes";
 import { useSelectorStoreProvider, useSelectorStore, useStableActions } from "../utils/selectorStore";
 
 const QueryContext = createContext(null);
@@ -23,23 +24,6 @@ function sylRangeFor(m, w) {
   }
   const first = m.words[0] === w, last = m.words[m.words.length - 1] === w;
   return { vi0: first ? (m.vi0 ?? 0) : 0, vi1: last ? (m.vi1 ?? n - 1) : n - 1 };
-}
-
-/** End-rhyme matches of a line query: engine matches whose last word ends a line,
- *  one entry per line (lowest-ranked type), with the line's index and text. */
-function lineMatches(ms, song) {
-  const best = new Map();
-  for (const m of ms) {
-    if (m.type === "anchor") continue;
-    const w = m.words[m.words.length - 1];
-    const line = song?.lines?.[w.li];
-    if (!line || w.wi !== line.words.length - 1) continue;
-    const rank = TYPE_RANK[m.type] ?? 99;
-    const prev = best.get(w.li);
-    if (prev && prev.rank <= rank) continue;
-    best.set(w.li, { lineIdx: w.li, type: m.type, form: m.form, rank, start: m.start, text: line.words.map((x) => x.text).join(" "), lastWordId: w.id, expected: !!m.expected });
-  }
-  return [...best.values()].sort((a, b) => a.lineIdx - b.lineIdx);
 }
 
 export function QueryProvider({ children }) {
@@ -77,17 +61,16 @@ export function QueryProvider({ children }) {
       return n ? `${li}-${n - 1}` : null;
     },
     // lines the line query currently shows as matches
-    lineMatchesFor: (q) => lineMatches(matchesFor(q.anchorIds), songModel).filter((lm) => q.types.has(lm.type)).map((lm) => lm.lineIdx),
+    lineMatchesFor: (q) => (songModel ? lineEndMatches(songModel, q.lineIdx, matchesFor) : []).filter((lm) => q.types.has(lm.type)).map((lm) => lm.lineIdx),
   };
   const dispatch = useCallback((action) => dispatchRaw({ ...action, __env: envRef.current }), []);
 
   // Word queries: the engine's matches. Line queries: end-rhyme matches, one
-  // per line (the lowest-ranked type whose match ends on that line's last word).
+  // per line, from the line's last one to three words (engine/lineRhymes).
   const matchesByQueryId = useMemo(() => {
     const out = new Map();
     for (const q of state.queries) {
-      const ms = matchesFor(q.anchorIds);
-      out.set(q.id, q.kind === "line" ? lineMatches(ms, songModel) : ms);
+      out.set(q.id, q.kind === "line" ? (songModel ? lineEndMatches(songModel, q.lineIdx, matchesFor) : []) : matchesFor(q.anchorIds));
     }
     return out;
   }, [state.queries, matchesFor, songModel]);

@@ -5,7 +5,7 @@
 import React, { useRef } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
-import { dragLoopEdge } from "../../../utils/loop";
+import { dragLoopEdge, snapToGrid } from "../../../utils/loop";
 
 const HANDLE_W = 8;
 
@@ -47,7 +47,7 @@ export default function LoopGlyphs() {
     const rect = e.currentTarget.ownerSVGElement.getBoundingClientRect();
     const x = (e.clientX - rect.left) * d.scaleX;
     const y = (e.clientY - rect.top) * d.scaleY;
-    const t = pointToTime(x, y);
+    const t = snapToGrid(pointToTime(x, y), layout.gridTimes);   // loop edges sit on beat lines
     setLoop((prev) => ({ ...prev, ...dragLoopEdge(d.fixed, t, duration || Math.max(prev.end, t)) }));
   };
   const endDrag = (e) => {

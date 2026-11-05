@@ -9,14 +9,18 @@ import BassGlyphs from "./bass/BassGlyphs";
 import DrumGrid from "./drums/DrumGrid";
 import HorizontalGrid from "./global/HorizontalGrid";
 import LoopGlyphs from "./global/LoopGlyphs";
+import StaffVocals from "./staff/StaffVocals";
+import { useUIState } from "../../contexts/UIStateContext";
 import TapestryLayer from "./TapestryLayer";
 import "./TapestryView.css";
 
 export default function TapestrySVG({
+  variant = "tapestry",
   onGlyphHoverEnter,
   onGlyphHoverLeave,
 }) {
   const { layout } = useTapestryLayout();
+  const { staffMode } = useUIState();
   const { lyricTranscription, drumTranscription, bassTranscription } = useSongData();
 
   // Load-time KPI: when the full tapestry SVG first commits + first paints.
@@ -33,14 +37,23 @@ export default function TapestrySVG({
   // bass < lines < words < syllables < drums + grids.
   return (
     <>
-      <TapestryLayer name="bass">
-        <BassGlyphs bassTranscriptionData={bassTranscription} />
-      </TapestryLayer>
-      <VocalsGlyphs
-        lyricTranscriptionData={lyricTranscription}
-        onGlyphHoverEnter={onGlyphHoverEnter}
-        onGlyphHoverLeave={onGlyphHoverLeave}
-      />
+      {/* the Line Staff is words and drums (the prototype's pocket view); no bass there */}
+      {variant !== "staff" && (
+        <TapestryLayer name="bass">
+          <BassGlyphs bassTranscriptionData={bassTranscription} />
+        </TapestryLayer>
+      )}
+      {variant === "staff" ? (
+        <TapestryLayer name="staff-vocals">
+          <StaffVocals mode={staffMode} onGlyphHoverEnter={onGlyphHoverEnter} onGlyphHoverLeave={onGlyphHoverLeave} />
+        </TapestryLayer>
+      ) : (
+        <VocalsGlyphs
+          lyricTranscriptionData={lyricTranscription}
+          onGlyphHoverEnter={onGlyphHoverEnter}
+          onGlyphHoverLeave={onGlyphHoverLeave}
+        />
+      )}
       <TapestryLayer name="drums">
         <DrumsGlyphs drumTranscriptionData={drumTranscription} />
         <DrumGrid drumTranscriptionData={drumTranscription} />

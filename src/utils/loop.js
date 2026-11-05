@@ -29,3 +29,12 @@ export function defaultLoop(t, song, bars = 4) {
 export function dragLoopEdge(fixedEdge, t, duration) {
   return normalizeLoop({ start: fixedEdge, end: t }, duration);
 }
+
+/** The nearest beat line (grid time) to t. */
+export function snapToGrid(t, grid) {
+  if (!grid?.length) return t;
+  let lo = 0, hi = grid.length - 1;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (grid[mid] < t) lo = mid + 1; else hi = mid; }
+  const a = grid[Math.max(0, lo - 1)], b = grid[lo];
+  return Math.abs(t - a) <= Math.abs(b - t) ? a : b;
+}

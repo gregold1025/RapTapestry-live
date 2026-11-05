@@ -16,6 +16,7 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const [paramsPanel, setParamsPanel] = useState(initialParamsPanel);
   const [staffOpen, setStaffOpen] = useState(false);
   const [staffBars, setStaffBars] = useState(4);
+  const [staffMode, setStaffMode] = useState("words"); // "words" | "spelled" | "syllables"
 
   const toggleLyrics = useCallback(() => setLyricsOpen((v) => !v), []);
   const toggleStaff = useCallback(() => setStaffOpen((v) => !v), []);
@@ -23,8 +24,8 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const openParamsPanel = useCallback((p) => { setParamsPanel(p); setRightView("params"); }, []);
 
   const value = useMemo(
-    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, paramsPanel, setParamsPanel, openParamsPanel, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars }),
-    [lyricsOpen, toggleLyrics, rightView, paramsPanel, openParamsPanel, staffOpen, toggleStaff, staffBars]
+    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, paramsPanel, setParamsPanel, openParamsPanel, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode }),
+    [lyricsOpen, toggleLyrics, rightView, paramsPanel, openParamsPanel, staffOpen, toggleStaff, staffBars, staffMode]
   );
   return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }

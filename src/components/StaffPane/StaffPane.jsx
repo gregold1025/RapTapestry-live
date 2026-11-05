@@ -13,7 +13,7 @@ import "./StaffPane.css";
 
 export default function StaffPane({ duration }) {
   const { songId, drumTranscription } = useSongData();
-  const { staffBars, setStaffBars, toggleStaff } = useUIState();
+  const { staffBars, setStaffBars, staffMode, setStaffMode, toggleStaff } = useUIState();
   return (
     <section className="staff-pane" aria-label="Line Staff">
       <div className="staff-bar">
@@ -22,7 +22,11 @@ export default function StaffPane({ duration }) {
           <span className="staff-label">view</span>
           <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
         </span>
-        <span className="staff-hint">drag to scrub, click to play from there</span>
+        <span className="staff-field">
+          <span className="staff-label">show</span>
+          <Segmented value={staffMode} onChange={setStaffMode} options={[{ value: "words", label: "words" }, { value: "spelled", label: "spelled syllables" }, { value: "syllables", label: "syllables" }]} />
+        </span>
+        <span className="staff-hint">drag or click to scrub · cmd-click a word to query it</span>
         <button type="button" className="staff-close" onClick={toggleStaff} title="Close the Line Staff">&times;</button>
       </div>
       <div className="staff-body">
@@ -35,7 +39,7 @@ export default function StaffPane({ duration }) {
           downbeats={drumTranscription.downbeats}
           beats={drumTranscription.beats}
         >
-          <TapestryView />
+          <TapestryView variant="staff" />
         </TapestryLayoutProvider>
       </div>
     </section>
