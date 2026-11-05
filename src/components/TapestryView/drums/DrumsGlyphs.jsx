@@ -16,7 +16,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale, staffDrumHeights } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();   // a song without classifier output falls back to bands
   const instanceId = useId().replace(/:/g, "");
@@ -49,10 +49,7 @@ export default function DrumsGlyphs() {
     const size = (g.size ?? 12) * scale;
     const maskBox = size * 3; // generous safe area around the rotated glyph
     const { x, y } = timeToPixels(hit.time);
-    // the staff keeps its own drum heights (below its text); bands read as kick / snare / hi-hat
-    const staffKey = { low: "kick", mid: "snare", high: "hihat" }[rowKey] ?? rowKey;
-    const height = layout.singleRow ? staffDrumHeights?.[staffKey] ?? g.height : g.height;
-    const cy = laneY(y, rowHeight, lane, height ?? 50);
+    const cy = laneY(y, rowHeight, lane, g.height ?? 50);
     const sym = symbolFor(g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(rowKey, byName));   // "none" = a circle
     const opacity = (drumParams?.opacity ?? 1) * (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(

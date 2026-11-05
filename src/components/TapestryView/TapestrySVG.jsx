@@ -37,12 +37,9 @@ export default function TapestrySVG({
   // bass < lines < words < syllables < drums + grids.
   return (
     <>
-      {/* the Line Staff is words and drums (the prototype's pocket view); no bass there */}
-      {variant !== "staff" && (
-        <TapestryLayer name="bass">
-          <BassGlyphs />
-        </TapestryLayer>
-      )}
+      <TapestryLayer name="bass">
+        <BassGlyphs />
+      </TapestryLayer>
       {variant === "staff" ? (
         <TapestryLayer name="staff-vocals">
           <StaffVocals mode={staffMode} onGlyphHoverEnter={onGlyphHoverEnter} onGlyphHoverLeave={onGlyphHoverLeave} />

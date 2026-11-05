@@ -18,7 +18,7 @@ import { laneY } from "../../../utils/laneLayout";
 import { f0Semitones } from "../../../utils/timingModel";
 import { timeAtEvent } from "../global/timeAtEvent";
 
-const PITCH_BAND = { lo: 63, hi: 97 };   // percent of the staff the pitch range spans: the upper third, leaving room below for the drums
+const BAND_SPAN = 34;   // points of the staff the pitch range spans, from the text-height slider up
 const FONT = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
 
 let measureCtx = null;
@@ -49,7 +49,8 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   const { visualByWordId, click } = useQueries();
   const { seekAll } = useAudioControls();
   const { lyricTranscription, timing } = useSongData();
-  const { staffTextPx, staffWordColor } = useParams();
+  const { staffTextPx, staffWordColor, staffTextHeight } = useParams();
+  const PITCH_BAND = { lo: staffTextHeight ?? 63, hi: Math.min(100, (staffTextHeight ?? 63) + BAND_SPAN) };
   const ink = staffWordColor || "#6b6e76";   // unqueried words: text, line and dots
 
   const lane = laneFor("vocals");
@@ -113,7 +114,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
     });
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, timing, lyricTranscription, visualByWordId, mode, fs, f0Mid, rowHeight, lane, ink]);
+  }, [layout, timing, lyricTranscription, visualByWordId, mode, fs, f0Mid, rowHeight, lane, ink, staffTextHeight]);
 
   if (!layout || !layout.singleRow) return null;
 

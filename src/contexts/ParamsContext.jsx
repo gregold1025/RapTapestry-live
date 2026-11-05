@@ -154,7 +154,7 @@ export function ParamsProvider({ children }) {
   const [showDrumGlyphs, setShowDrumGlyphs] = useState(true);
   const [drumParams, setDrumParams] = useState({
     strokeWeight: 5,
-    tilt: -80,
+    tilt: 0,
     fillColor: "#0011bb",
     opacity: 1, // all drum glyphs (multiplies each row's opacity)
   });
@@ -162,9 +162,9 @@ export function ParamsProvider({ children }) {
   // Per frequency band: visible, glyph size (px), opacity, height (percent of the
   // drum lane), glyphUrl (null = the default drum glyph)
   const [drumBands, setDrumBands] = useState({
-    high: { visible: true, size: 10, opacity: 1, height: 80, glyphUrl: null },
-    mid:  { visible: true, size: 14, opacity: 1, height: 55, glyphUrl: null },
-    low:  { visible: true, size: 16, opacity: 1, height: 20, glyphUrl: null },
+    high: { visible: true, size: 10, opacity: 1, height: 30, glyphUrl: null },
+    mid:  { visible: true, size: 14, opacity: 1, height: 20, glyphUrl: null },
+    low:  { visible: true, size: 16, opacity: 1, height: 10, glyphUrl: null },
   });
   const setDrumBand = useCallback(
     (key, patch) => setDrumBands((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
@@ -173,12 +173,12 @@ export function ParamsProvider({ children }) {
   // Per classifier class (kick, snare, hi-hat, tom, cymbal, unnamed): same fields.
   // Rows high to low like the Line Staff: hi-hat and cymbal above, snare, tom, kick, unnamed below.
   const [drumClasses, setDrumClasses] = useState({
-    hihat:  { visible: true, size: 9,  opacity: 1, height: 88, glyphUrl: null },
-    cymbal: { visible: true, size: 11, opacity: 1, height: 88, glyphUrl: null },
-    snare:  { visible: true, size: 14, opacity: 1, height: 50, glyphUrl: null },
-    tom:    { visible: true, size: 12, opacity: 1, height: 36, glyphUrl: null },
-    kick:   { visible: true, size: 16, opacity: 1, height: 22, glyphUrl: null },
-    other:  { visible: false, size: 8, opacity: 0.6, height: 8, glyphUrl: null },
+    hihat:  { visible: true, size: 9,  opacity: 1, height: 33, glyphUrl: null },
+    cymbal: { visible: true, size: 11, opacity: 1, height: 33, glyphUrl: null },
+    snare:  { visible: true, size: 14, opacity: 1, height: 22, glyphUrl: null },
+    tom:    { visible: true, size: 12, opacity: 1, height: 15, glyphUrl: null },
+    kick:   { visible: true, size: 16, opacity: 1, height: 10, glyphUrl: null },
+    other:  { visible: false, size: 8, opacity: 0.6, height: 5, glyphUrl: null },
   });
   const setDrumClass = useCallback(
     (key, patch) => setDrumClasses((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } })),
@@ -189,9 +189,8 @@ export function ParamsProvider({ children }) {
 
   // — LINE STAFF — (its own sizes: the staff scales to be read, not to the tapestry's glyphs)
   const [staffDrumScale, setStaffDrumScale] = useState(1);
-  // Line Staff drum rows (percent of the staff height), below the text; bands map to kick / snare / hi-hat
-  const [staffDrumHeights, setStaffDrumHeights] = useState({ kick: 10, snare: 22, hihat: 33, tom: 15, cymbal: 33, other: 5 });
-  const setStaffDrumHeight = useCallback((key, v) => setStaffDrumHeights((prev) => ({ ...prev, [key]: v })), []);
+  // Line Staff text: the bottom of its pitch band, percent of the staff height (the band spans 34 points above it)
+  const [staffTextHeight, setStaffTextHeight] = useState(63);
   const [staffTextPx, setStaffTextPx] = useState(12);
   const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
   const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
@@ -414,8 +413,8 @@ export function ParamsProvider({ children }) {
         setDrumThreshold,
         staffDrumScale,
         setStaffDrumScale,
-        staffDrumHeights,
-        setStaffDrumHeight,
+        staffTextHeight,
+        setStaffTextHeight,
         staffTextPx,
         setStaffTextPx,
         staffBackgroundColor,

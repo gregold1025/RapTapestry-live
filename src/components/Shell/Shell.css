@@ -58,6 +58,7 @@
   border-right: 1px solid var(--rt-line);
 }
 .rt-shell.left-closed .rt-left { border-right: 0; }
+.rt-left { background: #1c1d20; }
 .rt-center {
   grid-area: center;
   position: relative;

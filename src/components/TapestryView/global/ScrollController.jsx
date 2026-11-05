@@ -4,7 +4,9 @@
 // sits two thirds across the view while following; when following and
 // playing, only what the playhead has passed is revealed; dragging freezes
 // the window and scrubs it; a plain click on the background scrubs to that point.
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
+import { StaffToolbarSlot } from "../../StaffPane/staffSlot";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
 import { followScroll, clampScroll, revealInset } from "../../../utils/scrollWindow";
@@ -17,6 +19,7 @@ export default function ScrollController({ containerRef, contentRef }) {
   const [follow, setFollow] = useState(true);
   const [where, setWhere] = useState("");
   const needleRef = useRef(null);
+  const slot = useContext(StaffToolbarSlot);   // the staff header, when there is one
 
   // Everything the per-frame update reads lives in refs: no re-render per tick.
   const st = useRef({ scrollX: 0, follow: true, playing: false, layout: null, drag: null, justDragged: false });
@@ -112,22 +115,26 @@ export default function ScrollController({ containerRef, contentRef }) {
     };
   }, [containerRef, frame, getPlayheadTime, seekAll]);
 
+  const toolbarEl = (
+<div className="scroll-toolbar">
+      <span className="scroll-where">{where}</span>
+      <button
+        type="button"
+        className={`scroll-follow ${follow ? "is-on" : ""}`}
+        onClick={(e) => { e.stopPropagation(); setFollow((f) => !f); }}
+        title={follow
+          ? "Following the playhead: the window scrolls and content appears as it is played. Click to freeze it where it is."
+          : "Frozen: the window stays put and shows everything in it. Click to follow the playhead again."}
+      >
+        {follow ? "Freeze" : "Follow"}
+      </button>
+    </div>
+  );
+
   return (
     <>
       <div ref={needleRef} className="scroll-needle" aria-hidden="true" />
-      <div className="scroll-toolbar">
-        <span className="scroll-where">{where}</span>
-        <button
-          type="button"
-          className={`scroll-follow ${follow ? "is-on" : ""}`}
-          onClick={(e) => { e.stopPropagation(); setFollow((f) => !f); }}
-          title={follow
-            ? "Following the playhead: the window scrolls and content appears as it is played. Click to freeze it where it is."
-            : "Frozen: the window stays put and shows everything in it. Click to follow the playhead again."}
-        >
-          {follow ? "Freeze" : "Follow"}
-        </button>
-      </div>
+      {slot ? createPortal(toolbarEl, slot) : toolbarEl}
     </>
   );
 }
