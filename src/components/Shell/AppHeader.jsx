@@ -39,7 +39,7 @@ export const IconClef = () => (
 );
 
 export default function AppHeader({ selectedSong, onSongChange, transport = true }) {
-  const { lyricsOpen, toggleLyrics, rightView, setRightView, staffOpen, toggleStaff } = useUIState();
+  const { lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, staffOpen, toggleStaff } = useUIState();
   return (
     <>
       <div className="rt-header-left">
@@ -64,8 +64,8 @@ export default function AppHeader({ selectedSong, onSongChange, transport = true
 
       <div className="rt-header-right">
         <div className="rt-seg rt-seg--icons" role="group" aria-label="Right pane">
-          <button type="button" className={rightView === "params" ? "is-active" : ""} aria-pressed={rightView === "params"} onClick={() => setRightView("params")} title="Parameters"><IconSliders /></button>
-          <button type="button" className={rightView === "queries" ? "is-active" : ""} aria-pressed={rightView === "queries"} onClick={() => setRightView("queries")} title="Queries"><IconList /></button>
+          <button type="button" className={rightOpen && rightView === "params" ? "is-active" : ""} aria-pressed={rightOpen && rightView === "params"} onClick={() => toggleRightView("params")} title={rightOpen && rightView === "params" ? "Hide the parameters" : "Parameters"}><IconSliders /></button>
+          <button type="button" className={rightOpen && rightView === "queries" ? "is-active" : ""} aria-pressed={rightOpen && rightView === "queries"} onClick={() => toggleRightView("queries")} title={rightOpen && rightView === "queries" ? "Hide the queries" : "Queries"}><IconList /></button>
         </div>
       </div>
     </>

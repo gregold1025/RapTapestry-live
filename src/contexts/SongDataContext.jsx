@@ -17,6 +17,7 @@ export function SongDataProvider({
   bassTranscription,
   measuredTranscription = null,
   drumClassesTranscription = null,
+  bassNotes = null,
 }) {
   const centroidSpan = useMemo(() => centroidRange(lyricTranscription), [lyricTranscription]);
   const songModel = useMemo(
@@ -26,8 +27,8 @@ export function SongDataProvider({
   const timing = useMemo(() => buildTiming(lyricTranscription, measuredTranscription), [lyricTranscription, measuredTranscription]);
 
   const value = useMemo(
-    () => ({ songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, centroidSpan, songModel, timing }),
-    [songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, centroidSpan, songModel, timing]
+    () => ({ songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, bassNotes, centroidSpan, songModel, timing }),
+    [songId, lyricTranscription, drumTranscription, bassTranscription, measuredTranscription, drumClassesTranscription, bassNotes, centroidSpan, songModel, timing]
   );
 
   return <SongDataContext.Provider value={value}>{children}</SongDataContext.Provider>;

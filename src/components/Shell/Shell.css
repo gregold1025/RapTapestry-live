@@ -34,6 +34,9 @@
 .rt-shell.left-closed {
   grid-template-columns: 0 1fr var(--rt-right-w);
 }
+.rt-shell.right-closed { grid-template-columns: var(--rt-left-w) 1fr 0; }
+.rt-shell.left-closed.right-closed { grid-template-columns: 0 1fr 0; }
+.rt-shell.right-closed .rt-right { border-left: 0; }
 
 .rt-header {
   grid-area: header;

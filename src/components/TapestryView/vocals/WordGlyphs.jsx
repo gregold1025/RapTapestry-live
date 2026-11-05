@@ -119,7 +119,7 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
 
       // base shape = hit target (inactive look when unqueried)
       if (curveD) {
-        glyphs.push(<path key={`${id}-base`} d={curveD} fill="none" stroke={active ? "transparent" : wordInactiveColor} strokeWidth={barH} strokeLinecap="round" opacity={active ? 1 : wordInactiveOpacity} {...events} />);
+        glyphs.push(<path key={`${id}-base`} d={curveD} fill="none" stroke={active ? "transparent" : wordInactiveColor} strokeWidth={barH} strokeLinecap="butt" opacity={active ? 1 : wordInactiveOpacity} {...events} />);
       } else {
         glyphs.push(<rect key={`${id}-base`} x={startX} y={rectY} width={widthPx} height={barH} fill={active ? "transparent" : wordInactiveColor} opacity={active ? 1 : wordInactiveOpacity} {...events} />);
       }
@@ -143,8 +143,8 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
           glyphs.push(
             <g key={`${id}-m`}>
               {partial && <clipPath id={clipId}><rect x={mx0} y={rowTop} width={Math.max(1, mx1 - mx0)} height={rowHeight} /></clipPath>}
-              <path d={curveD} fill="none" stroke={color} strokeWidth={barH} strokeLinecap="round" strokeDasharray={dash ?? undefined} opacity={alpha} clipPath={partial ? `url(#${clipId})` : undefined} pointerEvents="none" />
-              {vis.isAnchor && <path d={curveD} fill="none" stroke={color} strokeWidth={barH + 4} strokeLinecap="round" opacity={0.35} pointerEvents="none" />}
+              <path d={curveD} fill="none" stroke={color} strokeWidth={barH} strokeLinecap="butt" strokeDasharray={dash ?? undefined} opacity={alpha} clipPath={partial ? `url(#${clipId})` : undefined} pointerEvents="none" />
+              {vis.isAnchor && <path d={curveD} fill="none" stroke={color} strokeWidth={barH + 4} strokeLinecap="butt" opacity={0.35} pointerEvents="none" />}
             </g>
           );
         } else {

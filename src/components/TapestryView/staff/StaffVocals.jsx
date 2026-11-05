@@ -148,7 +148,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
                 const label = sy.cluster ? sy.cluster : [sy.vowel || `${sy.k + 1}`];
                 return (
                   <g key={sy.k}>
-                    <line x1={sx0} y1={y + 4} x2={sx1} y2={y + 4} stroke={col} strokeWidth={bold ? 2.4 : 1.6} strokeOpacity={sy.f0 ? 0.9 : 0.45} strokeLinecap="round" strokeDasharray={sy.estimated ? "3 3" : undefined} />
+                    <line x1={sx0} y1={y + 4} x2={sx1} y2={y + 4} stroke={col} strokeWidth={bold ? 2.4 : 1.6} strokeOpacity={sy.f0 ? 0.9 : 0.45} strokeLinecap="butt" strokeDasharray={sy.estimated ? "3 3" : undefined} />
                     <circle cx={vx} cy={y + 4} r={bold ? 3.4 : 2.6} fill={sy.f0 ? col : "none"} stroke={col} strokeWidth={1.2} />
                     <text x={sx0} y={y - 3} fontSize={fs - 1} fontWeight={bold ? 700 : 400}>
                       {label.map((ph, i) => <tspan key={i} fill={i === (sy.vIdx ?? 0) ? (sy.f0 ? "#1a1a1a" : "#9a9ca3") : "#8a8d94"}>{ph}{i < label.length - 1 ? " " : ""}</tspan>)}
@@ -173,7 +173,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
         }
         return (
           <g key={id} {...common}>
-            <path d={it.d} fill="none" stroke={col} strokeWidth={hit ? 2.4 : 1.8} strokeOpacity={it.tw.f0 ? (hit ? 1 : 0.75) : 0.45} strokeLinecap="round" strokeDasharray={dashes ?? (it.pts.length ? undefined : "1 4")} />
+            <path d={it.d} fill="none" stroke={col} strokeWidth={hit ? 2.4 : 1.8} strokeOpacity={it.tw.f0 ? (hit ? 1 : 0.75) : 0.45} strokeLinecap="butt" strokeDasharray={dashes ?? (it.pts.length ? undefined : "1 4")} />
             {it.pts.map(([px, py, p2], i) => <circle key={i} cx={px} cy={py} r={2.6} fill={p2 ? "#fff" : col} stroke={col} strokeWidth={p2 ? 1.4 : 0} />)}
             {!it.pts.length && <circle cx={it.X0} cy={yBase} r={3} fill="none" stroke={col} strokeWidth={1.2} />}
             <path id={pid} d={it.dText} fill="none" />

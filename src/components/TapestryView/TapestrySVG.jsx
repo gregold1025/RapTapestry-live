@@ -40,7 +40,7 @@ export default function TapestrySVG({
       {/* the Line Staff is words and drums (the prototype's pocket view); no bass there */}
       {variant !== "staff" && (
         <TapestryLayer name="bass">
-          <BassGlyphs bassTranscriptionData={bassTranscription} />
+          <BassGlyphs />
         </TapestryLayer>
       )}
       {variant === "staff" ? (

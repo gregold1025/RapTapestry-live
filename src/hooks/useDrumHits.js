@@ -13,12 +13,21 @@ export function useByClass() {
   return drumDetection === "classes" && !!drumClassesTranscription?.hits;
 }
 
-export function useDrumHits() {
+/** { onsets: one per stem onset (bands), named: one per (onset, class) (classes) }. */
+export function useDrumHitSets() {
   const { drumTranscription, drumClassesTranscription } = useSongData();
   const { drumThreshold } = useParams();
   return useMemo(() => {
     const onsets = (drumTranscription?.drum_hits ?? []).filter((h) => h && Number.isFinite(h.time)).sort((a, b) => a.time - b.time);
-    if (!drumClassesTranscription?.hits) return onsets.map((o) => ({ ...o, cls: "other", conf: null }));
-    return nameOnsets(onsets, drumClassesTranscription.hits, drumClassesTranscription.thresholds, drumThreshold);
+    const named = drumClassesTranscription?.hits
+      ? nameOnsets(onsets, drumClassesTranscription.hits, drumClassesTranscription.thresholds, drumThreshold)
+      : onsets.map((o) => ({ ...o, cls: "other", conf: null }));
+    return { onsets, named };
   }, [drumTranscription, drumClassesTranscription, drumThreshold]);
+}
+
+/** The marks the drum layer draws in the current detection mode. */
+export function useDrumHits() {
+  const { onsets, named } = useDrumHitSets();
+  return useByClass() ? named : onsets;
 }

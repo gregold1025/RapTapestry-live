@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import StemHeader from "./StemHeader";
+import { VocalsLanePreview } from "./LanePreview";
 import { Segmented, Slider, VSlider, EyeButton, CollapsibleRow, GlyphPicker, ColorField, SectionLabel } from "../ui";
 import "./Panels.css";
 
@@ -65,6 +66,7 @@ export default function VocalsPanel() {
   return (
     <div className="pn-root">
       <StemHeader stem="vocals" title="Vocals" subtitle={`${lines.length} lines, ${nWords} words, ${nSyl} syllables`} />
+      <VocalsLanePreview />
 
       <div className="pn-section">
         <SectionLabel right="colors come from queries">Layers</SectionLabel>

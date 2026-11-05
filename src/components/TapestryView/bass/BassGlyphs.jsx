@@ -1,204 +1,110 @@
-import React, { useMemo } from "react";
+// src/components/TapestryView/bass/BassGlyphs.jsx
+// Bass v2 (experiments/bass-01): each note a spline through its pitch contour,
+// like the words; height = pitch within the song's range, mapped into the
+// band (default: the bottom half of the bass lane). Straight-cut ends by
+// default. Toppers: the divider glyph as a strip above and below each note's
+// spline, a gap away (later: the gap will open as the playhead passes).
+// Songs without v2 data fall back to the v1 pitch-class events as flat lines.
+import React, { useId, useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
+import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY } from "../../../utils/laneLayout";
+import { bassRange, midiPct, noteSegments } from "../../../utils/bassModel";
 
-/**
- * Visualizes bass notes from a JSON file with structure:
- * {
- *   start_time: number,
- *   end_time: number,
- *   pitch_class: number (0–11),
- *   mean_rms: number (optional)
- * }
- */
+const BASS_NOMINAL = 100;
 
-// --------------------------------------
-// LOAD ALL SVG DIVIDER GLYPH URLS
-// --------------------------------------
-const dividerModules = import.meta.glob("/src/svg_dividers/*.svg", {
-  eager: true,
-  import: "default",
-});
-const BASS_DIVIDER_URLS = Object.values(dividerModules);
+function splineD(P) {
+  if (P.length < 2) return "";
+  let d = `M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}`;
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
 
-// One shared <mask> + <symbol> pair serves every divider topper; each topper
-// is a single <use>, stretched (preserveAspectRatio="none") to its own box.
-const BASS_DIVIDER_MASK_ID = "tapestry-bass-divider-mask";
-const BASS_DIVIDER_SYMBOL_ID = "tapestry-bass-divider";
-const BASS_NOMINAL = 100; // symbol viewBox size
-export default function BassGlyphs({ bassTranscriptionData }) {
+/** v1 events ({start_time, end_time, pitch_class}) as flat notes on a 0..11 scale. */
+function v1AsNotes(v1) {
+  return (Array.isArray(v1) ? v1 : []).map((n) => ({ start: n.start_time, end: n.end_time, midi: 36 + (n.pitch_class ?? 0), contour: null }));
+}
+
+export default function BassGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
   const { showBass, bassParams, glyphStyle } = useParams();
+  const { bassNotes, bassTranscription } = useSongData();
   const lane = laneFor("bass");
+  const uid = useId().replace(/[:«»]/g, "");
 
+  const notes = useMemo(() => (bassNotes?.length ? bassNotes : v1AsNotes(bassTranscription)), [bassNotes, bassTranscription]);
+  const range = useMemo(() => bassRange(notes), [notes]);
+
+  const band = bassParams.band ?? { lo: 0, hi: 50 };
+  const thickness = bassParams.thickness ?? 6;
   const topper = bassParams.topper ?? "divider";
-  const dividerUrl = topper === "none" ? null : (glyphStyle?.bassDividerUrl ?? null);
-  const band = bassParams.band ?? { lo: 10, hi: 60 };
+  const dividerUrl = topper === "none" ? null : glyphStyle?.bassDividerUrl ?? null;
+  const gap = bassParams.rectHeight ?? 0;
 
-  // Layout fields are read defensively so the hooks below can run
-  // unconditionally (rules-of-hooks); the early return comes after them.
   const rowHeight = layout?.rowHeight;
   const timeToPixels = layout?.timeToPixels;
-  const width = layout?.width;
-  const {
-    rectHeight, // now used as GAP between rect and topper
-    fillColor,
-    opacity,
-    blur = 0,
-  } = bassParams;
 
-  // unique filter id to avoid collisions if multiple instances render
-  const filterId = useMemo(
-    () => `bass-blur-${Math.random().toString(36).slice(2)}`,
-    []
-  );
-
-  // Compute geometry once (does NOT depend on playheadTime)
-  const noteGeometry = useMemo(() => {
-    if (!timeToPixels || !bassTranscriptionData) return [];
-    return bassTranscriptionData.map((note, idx) => {
-      const { start_time, end_time, pitch_class } = note;
-
-      const { x: startX, row: startRow } = timeToPixels(start_time);
-      const { x: endX, row: endRow } = timeToPixels(end_time);
-
-      // Pitch class 0 sits at band.lo, 11 at band.hi (percent of the bass lane);
-      // the rect fills from that height down to the lane bottom.
-      const bins = 12;
-      const pitchBin = Math.max(0, Math.min(bins - 1, pitch_class));
-      const pct = band.lo + ((band.hi - band.lo) * pitchBin) / (bins - 1);
-
-      const segments = [];
-      for (let row = startRow; row <= endRow; row++) {
-        const x1 = row === startRow ? startX : 0;
-        const x2 = row === endRow ? endX : width;
-        const segWidth = Math.max(1, x2 - x1);
-        const rowTop = row * rowHeight;
-        const yTop = laneY(rowTop, rowHeight, lane, pct);
-        const laneBottom = laneY(rowTop, rowHeight, lane, 0);
-        const segHeight = Math.max(1, laneBottom - yTop);
-        const rectY = laneBottom - segHeight;
-
-        segments.push({ x1, rectY, segWidth, segHeight, row, idx });
+  const shapes = useMemo(() => {
+    if (!timeToPixels || !rowHeight) return [];
+    const out = [];
+    notes.forEach((note, idx) => {
+      for (const seg of noteSegments(note, timeToPixels)) {
+        const rowTop = seg.row * rowHeight;
+        const P = seg.points.map((p) => [p.x, laneY(rowTop, rowHeight, lane, midiPct(p.midi, band, range))]);
+        const ys = P.map((p) => p[1]);
+        out.push({ key: `${idx}-${seg.row}`, d: splineD(P), x0: P[0][0], x1: P[P.length - 1][0], yMin: Math.min(...ys), yMax: Math.max(...ys) });
       }
-
-      return { start_time, end_time, idx, segments };
     });
-  }, [bassTranscriptionData, rowHeight, timeToPixels, width, lane, band.lo, band.hi]);
+    return out;
+  }, [notes, timeToPixels, rowHeight, lane, band.lo, band.hi, range]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Render: geometry is stable across playback (no playhead dependency)
-  const glyphs = useMemo(() => {
-    const gap = rectHeight != null ? rectHeight : 0;
+  if (!layout || !showBass || !notes.length) return null;
 
-    return noteGeometry.flatMap(({ idx, segments }) => {
-      const els = [];
-
-      for (const seg of segments) {
-        // Base rectangle
-        els.push(
-          <rect
-            key={`bass-rect-${idx}-r${seg.row}`}
-            x={seg.x1}
-            y={seg.rectY}
-            width={seg.segWidth}
-            height={seg.segHeight}
-            fill={fillColor}
-            opacity={opacity}
-          />
-        );
-
-        // Divider topper
-        if (dividerUrl) {
-          const baseTopperHeight = Math.max(4, rowHeight * lane.height * 0.12);
-          const h = Math.min(seg.segHeight, baseTopperHeight);
-          const bottomOfTopper = seg.rectY - gap;
-          const cx = seg.x1 + seg.segWidth / 2;
-          const cy = bottomOfTopper - h / 2;
-
-          const transform = `translate(${cx}, ${cy}) rotate(180) translate(${
-            -seg.segWidth / 2
-          }, ${-h / 2})`;
-
-          els.push(
-            <use
-              key={`bass-div-${idx}-r${seg.row}`}
-              href={`#${BASS_DIVIDER_SYMBOL_ID}`}
-              transform={transform}
-              x={0}
-              y={0}
-              width={seg.segWidth}
-              height={h}
-              fill={fillColor}
-              opacity={opacity}
-            />
-          );
-        }
-      }
-      return els;
-    });
-  }, [noteGeometry, fillColor, opacity, rectHeight, dividerUrl, rowHeight, lane.height]);
-
-  // Hooks above; early return below (rules-of-hooks).
-  if (!layout || !bassTranscriptionData || !showBass) return null;
+  const { fillColor, opacity, blur = 0, caps = "butt" } = bassParams;
+  const topperH = Math.max(3, thickness * 0.9);
+  const symId = `${uid}-bdiv`;
 
   return (
     <>
-      {/* Only inject the filter definition if blur > 0 */}
-      {blur > 0 && (
-        <defs pointerEvents="none">
-          <filter
-            id={filterId}
-            x="-50%"
-            y="-50%"
-            width="200%"
-            height="200%"
-            filterUnits="objectBoundingBox"
-          >
-            <feGaussianBlur in="SourceGraphic" stdDeviation={blur} />
+      <defs>
+        {blur > 0 && (
+          <filter id={`${uid}-blur`} x="-10%" y="-50%" width="120%" height="200%">
+            <feGaussianBlur stdDeviation={blur} />
           </filter>
-        </defs>
-      )}
-
-      {dividerUrl && (
-        <defs>
-          <mask
-            id={BASS_DIVIDER_MASK_ID}
-            maskUnits="userSpaceOnUse"
-            maskContentUnits="userSpaceOnUse"
-            x={0}
-            y={0}
-            width={BASS_NOMINAL}
-            height={BASS_NOMINAL}
-          >
-            <image
-              href={dividerUrl}
-              x={0}
-              y={0}
-              width={BASS_NOMINAL}
-              height={BASS_NOMINAL}
-              preserveAspectRatio="none"
-              style={{ filter: "brightness(0) invert(1)" }}
-            />
-          </mask>
-          <symbol
-            id={BASS_DIVIDER_SYMBOL_ID}
-            viewBox={`0 0 ${BASS_NOMINAL} ${BASS_NOMINAL}`}
-            preserveAspectRatio="none"
-          >
-            <rect
-              x={0}
-              y={0}
-              width={BASS_NOMINAL}
-              height={BASS_NOMINAL}
-              mask={`url(#${BASS_DIVIDER_MASK_ID})`}
-            />
-          </symbol>
-        </defs>
-      )}
-
-      {/* Apply blur to all bass glyphs as a group if enabled */}
-      {blur > 0 ? <g filter={`url(#${filterId})`}>{glyphs}</g> : <>{glyphs}</>}
+        )}
+        {dividerUrl && (
+          <>
+            <mask id={`${symId}-mask`} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x={0} y={0} width={BASS_NOMINAL} height={BASS_NOMINAL}>
+              <image href={dividerUrl} x={0} y={0} width={BASS_NOMINAL} height={BASS_NOMINAL} preserveAspectRatio="none" style={{ filter: "brightness(0) invert(1)" }} />
+            </mask>
+            <symbol id={symId} viewBox={`0 0 ${BASS_NOMINAL} ${BASS_NOMINAL}`} preserveAspectRatio="none">
+              <rect x={0} y={0} width={BASS_NOMINAL} height={BASS_NOMINAL} mask={`url(#${symId}-mask)`} />
+            </symbol>
+          </>
+        )}
+      </defs>
+      <g opacity={opacity} filter={blur > 0 ? `url(#${uid}-blur)` : undefined} pointerEvents="none">
+        {shapes.map((s) => {
+          const w = Math.max(1, s.x1 - s.x0);
+          return (
+            <g key={s.key}>
+              <path d={s.d} fill="none" stroke={fillColor} strokeWidth={thickness} strokeLinecap={caps} />
+              {dividerUrl && (
+                <>
+                  <use href={`#${symId}`} x={s.x0} y={s.yMin - thickness / 2 - gap - topperH} width={w} height={topperH} fill={fillColor} />
+                  <use href={`#${symId}`} x={s.x0} y={s.yMax + thickness / 2 + gap} width={w} height={topperH} fill={fillColor} transform={`rotate(180 ${s.x0 + w / 2} ${s.yMax + thickness / 2 + gap + topperH / 2})`} />
+                </>
+              )}
+            </g>
+          );
+        })}
+      </g>
     </>
   );
 }

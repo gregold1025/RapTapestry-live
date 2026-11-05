@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { useSongData } from "../../contexts/SongDataContext";
-import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
+import { useDrumHitSets, useByClass } from "../../hooks/useDrumHits";
 import { DRUM_CLASSES, DRUM_CLASS_LABELS } from "../../utils/drumClasses";
 import { defaultGlyphFor, pickUnused } from "../../utils/drumGlyphDefaults";
 import StemHeader from "./StemHeader";
+import { DrumsLanePreview } from "./LanePreview";
 import { Segmented, Slider, VSlider, EyeButton, CollapsibleRow, GlyphPicker, ColorField, SectionLabel } from "../ui";
 import "./Panels.css";
 
@@ -81,28 +82,29 @@ function GroupRows({ rows, groups, setGroup, counts, open, toggle, p }) {
 
 export default function DrumsPanel() {
   const { drumClassesTranscription } = useSongData();
-  const hits = useDrumHits();
+  const { onsets, named } = useDrumHitSets();
   const p = useParams();
   const [open, setOpen] = useState({ high: false, mid: true, low: false, snare: true });
   const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }));
 
   const bandCounts = useMemo(() => {
     const c = { high: 0, mid: 0, low: 0 };
-    for (const h of hits) if (c[h.category] != null) c[h.category] += 1;
+    for (const h of onsets) if (c[h.category] != null) c[h.category] += 1;
     return c;
-  }, [hits]);
+  }, [onsets]);
   const classCounts = useMemo(() => {
     const c = {};
-    for (const h of hits) c[h.cls] = (c[h.cls] ?? 0) + 1;
+    for (const h of named) c[h.cls] = (c[h.cls] ?? 0) + 1;
     return c;
-  }, [hits]);
-  const total = hits.length;
+  }, [named]);
+  const total = onsets.length;
   const hasClasses = !!drumClassesTranscription?.hits;
   const byClass = useByClass();
 
   return (
     <div className="pn-root">
       <StemHeader stem="drums" title="Drums" subtitle={`${total.toLocaleString("en-US")} onsets`} />
+      <DrumsLanePreview />
 
       <div className="pn-section">
         <ColorField label="Color" value={p.drumParams.fillColor} note="all glyphs"
@@ -124,7 +126,7 @@ export default function DrumsPanel() {
         />
         {byClass ? (
           <>
-            <p className="ui-note">The stem's onsets, each named by the drum classifier (ADTOF Frame_RNN on the summed stems) within 30 ms: one name per onset, the strongest class above threshold. Raise the threshold to keep only confident names; the rest are unnamed.</p>
+            <p className="ui-note">The stem's onsets, each named by the drum classifier (ADTOF Frame_RNN on the summed stems) within 30 ms: one mark per class above threshold, so a snare and hi-hat struck together are both drawn. Raise the threshold to keep only confident names; the rest are unnamed.</p>
             <Slider label="threshold" value={Math.round(p.drumThreshold * 100)} min={30} max={300} step={5} unit="%" onChange={(v) => p.setDrumThreshold(v / 100)} />
           </>
         ) : (
