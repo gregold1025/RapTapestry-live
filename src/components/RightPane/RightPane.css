@@ -160,6 +160,9 @@
 .rp-root .ql-list { flex: 1 1 0; min-height: 0; overflow-y: auto; background: var(--rt-panel); }
 
 
-/* the Query list header: a multi-color line (one section per query) over an rgb(71) bar */
+/* the focused query keeps its own one-color line on top */
+.sq-body { border-top: 3px solid var(--q, var(--rt-line)); }
+/* the Query list header: a multi-color line (one section per query) over a taller rgb(71) bar */
 .ql-head { flex: 0 0 auto; }
 .ql-stripe { height: 3px; }
+.ql-head .sq-bar { padding: 10px 12px; font-size: 10px; }
