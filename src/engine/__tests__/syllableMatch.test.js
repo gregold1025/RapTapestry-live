@@ -104,16 +104,22 @@ describe("forms by geometry, one match per location", () => {
 });
 
 describe("semirhyme", () => {
-  it("logic ~ Spock, Shock's, clock, blocks: semirhymes within a bar, not 'Spock and' mosaics", () => {
+  it("logic ~ Spock, clock: family semirhymes within a bar, not 'Spock and' mosaics", () => {
     const ms = matches(rld, "logic");
-    for (const t of ["Spock", "Shock's", "clock", "blocks"]) {
+    for (const t of ["Spock", "clock"]) {
       const m = ms.find((x) => clean(x.text) === clean(t) && x.form === "semirhyme");
       expect(m, t).toBeTruthy();
+      expect(m.type).toBe("family");
     }
     expect(ms.some((m) => /spock and|shock's a|lot of/i.test(m.text))).toBe(false);
   });
   it("is symmetric: Spock finds logic as a semirhyme", () => {
     expect(matches(rld, "Spock").some((m) => /logic/i.test(m.text) && m.form === "semirhyme")).toBe(true);
+  });
+  it("a semirhyme is never assonance (Greg 2026-11-05): vibrations finds no makes / females; logic no blocks / Shock's", () => {
+    expect(matches(til, "vibrations").filter((m) => /^(makes|females)$/i.test(clean(m.text)))).toEqual([]);
+    expect(matches(rld, "logic").filter((m) => /^(blocks|shock's)$/i.test(clean(m.text)))).toEqual([]);
+    for (const q of ["logic", "vibrations"]) for (const m of matches(q === "logic" ? rld : til, q)) if (m.form === "semirhyme") expect(m.type).not.toBe("assonance");
   });
   it("only within one bar of the query, and only on content words", () => {
     const song = rld;

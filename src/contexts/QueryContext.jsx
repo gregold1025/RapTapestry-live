@@ -6,7 +6,8 @@
 // (src/engine). Color = query identity; type and form travel with each
 // visual so layers can style them without a second lookup.
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { sylRange } from "../utils/phoneMarks";
+import { sylRange, assonantSyllables } from "../utils/phoneMarks";
+import { showsMatch } from "../utils/queryRadius";
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState } from "./queryReducer";
 import { undoable, UNDO, REDO } from "./undoable";
@@ -49,7 +50,7 @@ export function QueryProvider({ children }) {
     // words the query currently shows as matches (its rhyme types only)
     matchesFor: (q) => {
       const ids = [];
-      for (const m of matchesFor(q.anchorIds)) if (m.type !== "anchor" && q.types.has(m.type)) for (const w of m.words) ids.push(w.id);
+      for (const m of matchesFor(q.anchorIds)) if (m.type !== "anchor" && showsMatch(songModel, q, m)) for (const w of m.words) ids.push(w.id);
       return ids;
     },
     lastWordOf: (li) => {
@@ -57,7 +58,7 @@ export function QueryProvider({ children }) {
       return n ? `${li}-${n - 1}` : null;
     },
     // lines the line query currently shows as matches
-    lineMatchesFor: (q) => (songModel ? lineEndMatches(songModel, q.lineIdx, matchesFor) : []).filter((lm) => q.types.has(lm.type)).map((lm) => lm.lineIdx),
+    lineMatchesFor: (q) => (songModel ? lineEndMatches(songModel, q.lineIdx, matchesFor) : []).filter((lm) => showsMatch(songModel, q, lm)).map((lm) => lm.lineIdx),
   };
   const dispatch = useCallback((action) => dispatchRaw({ ...action, __env: envRef.current }), []);
 
@@ -82,25 +83,26 @@ export function QueryProvider({ children }) {
       if (!q.active || q.kind === "line") continue;
       for (const m of matchesByQueryId.get(q.id) ?? []) {
         const isAnchor = m.type === "anchor";
-        if (!isAnchor && !q.types.has(m.type)) continue;
+        if (!isAnchor && !showsMatch(songModel, q, m)) continue;
         for (const w of m.words) {
           const prev = map.get(w.id);
           const rank = TYPE_RANK[m.type] ?? 99;
           if (prev && prev.isAnchor && !isAnchor) continue;
           if (prev && !prev.isAnchor && !isAnchor && prev.rank < rank) continue;
           const { vi0, vi1 } = sylRange(m, w);
-          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, isAnchor, rank, text: m.text });
+          const vowelOnly = isAnchor ? [] : [...assonantSyllables(m, w.id)];
+          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, vowelOnly, isAnchor, rank, text: m.text });
         }
       }
     }
     const prev = prevVisualRef.current;
     for (const [id, v] of map) {
       const b = prev.get(id);
-      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor) map.set(id, b);
+      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.vowelOnly.join() === v.vowelOnly.join()) map.set(id, b);
     }
     prevVisualRef.current = map;
     return map;
-  }, [state.queries, matchesByQueryId]);
+  }, [state.queries, matchesByQueryId, songModel]);
 
   // Per-line visual (line queries only): the anchor line, and every matched
   // line at its lowest-ranked type; ties -> most recent query.
@@ -112,7 +114,7 @@ export function QueryProvider({ children }) {
       const prevA = map.get(q.lineIdx);
       if (!prevA || !prevA.isAnchor) map.set(q.lineIdx, { queryId: q.id, color: q.color, role: "anchor", isAnchor: true, type: "anchor", rank: -1 });
       for (const lm of matchesByQueryId.get(q.id) ?? []) {
-        if (lm.type === "anchor" || !q.types.has(lm.type)) continue;
+        if (lm.type === "anchor" || !showsMatch(songModel, q, lm)) continue;
         const prev = map.get(lm.lineIdx);
         const rank = TYPE_RANK[lm.type] ?? 99;
         if (prev && (prev.isAnchor || prev.rank < rank)) continue;
@@ -126,7 +128,7 @@ export function QueryProvider({ children }) {
     }
     prevLineRef.current = map;
     return map;
-  }, [state.queries, matchesByQueryId]);
+  }, [state.queries, matchesByQueryId, songModel]);
 
   const snapshot = useMemo(() => ({ visualByWordId, visualByLineIdx }), [visualByWordId, visualByLineIdx]);
   const store = useSelectorStoreProvider(snapshot);
@@ -139,6 +141,7 @@ export function QueryProvider({ children }) {
     redo: () => dispatch({ type: REDO }),
     toggleActive: (id) => dispatch({ type: "toggleActive", id }),
     setTypes: (id, types) => dispatch({ type: "setTypes", id, types }),
+    setRadius: (id, radius) => dispatch({ type: "setRadius", id, radius, coalesce: `radius:${id}` }),   // a drag is one undo step
     setColor: (id, color) => dispatch({ type: "setColor", id, color, coalesce: `color:${id}` }),   // a drag is one undo step
     focus: (id) => dispatch({ type: "focus", id }),
     clear: () => dispatch({ type: "clear" }),

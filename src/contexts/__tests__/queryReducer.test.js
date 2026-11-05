@@ -141,3 +141,17 @@ describe("queryReducer", () => {
     expect(st.focusedId).toBe(st.queries[0].id);
   });
 });
+
+describe("search radius (Greg 2026-11-05: per query, in bars, default whole song)", () => {
+  it("a new query searches the whole song (radius null)", () => {
+    expect(click(initialQueryState, "0-1").queries[0].radius).toBeNull();
+  });
+  it("setRadius sets one query's radius; null is the whole song again", () => {
+    let st = click(initialQueryState, "0-1");
+    const id = st.queries[0].id;
+    st = queryReducer(st, { type: "setRadius", id, radius: 4 }, env);
+    expect(st.queries[0].radius).toBe(4);
+    st = queryReducer(st, { type: "setRadius", id, radius: null }, env);
+    expect(st.queries[0].radius).toBeNull();
+  });
+});

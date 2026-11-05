@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { phoneMarks } from "../phoneMarks";
+import { phoneMarks, matchMarks } from "../phoneMarks";
 
 const on = (marks) => marks.filter((m) => m.on).map((m) => m.p).join(" ");
 
@@ -49,5 +49,25 @@ describe("linkTypeAt: the link type of a word's syllable inside a match", () => 
     expect(linkTypeAt(m, "a", 0).type).toBe("additive");
     expect(linkTypeAt(m, "b", 1).type).toBe("perfect");
     expect(linkTypeAt(m, "c", 0)).toBe(null);
+  });
+});
+
+describe("assonance marks only the vowel (Greg 2026-11-05: makes lit E Y K S for an EY match)", () => {
+  it("phoneMarks: syllables in vowelOnly mark just their vowel", () => {
+    expect(on(phoneMarks("M EY1 K S", 0, 0, new Set([0])))).toBe("EY1");
+    expect(on(phoneMarks("P OW1 AH0 T", 0, 1, new Set([0])))).toBe("OW1 AH0 T");
+    expect(on(phoneMarks("P OW1 AH0 T", 0, 1, new Set([1])))).toBe("OW1 AH0");
+  });
+  it("after an assonance syllable, the consonants before the next vowel are unlit (chill-in': the L did not match)", () => {
+    expect(on(phoneMarks("CH IH1 L IH0 NG", 0, 1, new Set([0])))).toBe("IH1 IH0 NG");
+    expect(on(phoneMarks("CH IH1 L IH0 NG", 0, 1))).toBe("IH1 L IH0 NG");
+  });
+  it("matchMarks: a match's assonance links mark only the vowel; each marked phone carries its link", () => {
+    const w = { id: "x", phones: "F IY1 M EY2 L Z", nSyllables: 2 };
+    const m = { type: "assonance", form: "mosaic", words: [w, { id: "y" }], vi0: 0, vi1: 1,
+      links: [{ wordId: "x", k: 0, type: "perfect", counted: true }, { wordId: "x", k: 1, type: "assonance", counted: true }] };
+    const ms = matchMarks(m, w);
+    expect(on(ms)).toBe("IY1 EY2");
+    expect(ms.filter((x) => x.on).map((x) => x.link?.type)).toEqual(["perfect", "assonance"]);
   });
 });

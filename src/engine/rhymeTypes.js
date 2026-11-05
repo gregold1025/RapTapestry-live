@@ -41,7 +41,7 @@ export const RHYME_TYPES = [
     desc: 'A neighboring stressed vowel (formant similarity >= 0.75, both plain vowels or both glides), with consonants that would be perfect, family or additive. "Slant" is used loosely in the literature; this is our operational definition.',
     sources: ['poetics', 'design'] },
   { key: 'assonance', label: 'Assonance', color: '#4dc3ff', on: true, example: 'dizziness / silly bitch; seen / feel (same line)',
-    desc: 'The same vowels with consonants that differ beyond family or additive: a vowel chain. Needs two or more full vowels (dizziness / silly bitch); a schwa can hold a chain together but does not count, since a one-vowel match is mostly a measure of how common the vowel is. A single shared vowel shows only as a semirhyme.',
+    desc: 'The same vowels with consonants that differ beyond family or additive: a vowel chain. Needs two or more full vowels (dizziness / silly bitch); a schwa can hold a chain together but does not count, since a one-vowel match is mostly a measure of how common the vowel is. A single shared vowel is not a rhyme (a semirhyme is perfect, family or additive).',
     sources: ['pattison', 'poetics', 'malmi', 'design'] },
 ];
 

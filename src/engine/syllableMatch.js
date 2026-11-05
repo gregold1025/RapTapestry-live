@@ -23,14 +23,16 @@
 // end), mosaic (across words, ending at a word's end), semirhyme (below). One match per place.
 // Semirhyme: a content word within one bar of the query whose stressed syllable matches the
 // query's last word on its stressed syllable alone, one of the two words carrying an
-// unstressed ending the other lacks (logic ~ Spock; Spock ~ logic).
+// unstressed ending the other lacks (logic ~ Spock; Spock ~ logic); perfect, family or additive.
 import { parseRime, classifyRhyme, isFunctionWord, REDUCED, RULE_OPTIONS } from './rhymeTypes.js';
 import { syllabify, bare } from '../utils/syllabify.js';
 
 const ORDER = ['identical', 'perfect', 'family', 'additive', 'slant', 'assonance'];
 const rank = (t) => (t == null ? 99 : ORDER.indexOf(t));
 const ONE_SYLLABLE_TYPES = new Set(['perfect', 'family', 'additive', 'slant']);
-const SEMIRHYME_TYPES = new Set(['perfect', 'family', 'additive', 'slant', 'assonance']);
+// a semirhyme compares one syllable, so like any one-syllable match it is never assonance
+// (Greg 2026-11-05: vibrations ~ makes / females meant only the shared EY)
+const SEMIRHYME_TYPES = ONE_SYLLABLE_TYPES;
 const VOWEL = /^(AA|AE|AH|AO|AW|AY|EH|ER|EY|IH|IY|OW|OY|UH|UW)\d?$/;
 
 /** A word's syllables, one entry per syllable, each with its readings (`alts`). */

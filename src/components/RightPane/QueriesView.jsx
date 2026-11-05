@@ -7,8 +7,9 @@ import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 import { RHYME_TYPES, FORM_BY_KEY, TYPE_BY_KEY } from "../../engine";
 import { queryLabel } from "../../utils/queryLabel";
-import { phoneMarks, sylRange, linkTypeAt } from "../../utils/phoneMarks";
+import { matchMarks } from "../../utils/phoneMarks";
 import { EyeButton } from "../ui";
+import { withinRadius } from "../../utils/queryRadius";
 import "./RightPane.css";
 
 function fmtTime(t) {
@@ -54,12 +55,13 @@ function countsOf(ms) {
 }
 
 export default function QueriesView() {
-  const { queries, focusedId, focused, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setColor, undo, redo, canUndo, canRedo } = useQueries();
+  const { queries, focusedId, focused, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
   const { seekAll } = useAudioControls();
   const [groupBy, setGroupBy] = useState("time");
 
   const rows = [...queries].sort((a, b) => b.createdAt - a.createdAt);
-  const all = focused ? (matchesByQueryId.get(focused.id) ?? []).filter((m) => m.type !== "anchor") : [];
+  // the focused query's matches inside its search radius (the chips count these)
+  const all = focused ? (matchesByQueryId.get(focused.id) ?? []).filter((m) => m.type !== "anchor" && withinRadius(songModel, focused, m.start)) : [];
   const counts = useMemo(() => countsOf(all), [all]);
   const shown = focused ? all.filter((m) => focused.types.has(m.type)) : [];
   const words = useMemo(() => (focused ? focused.anchorIds.map((id) => songModel?.byId.get(id)).filter(Boolean) : []), [focused, songModel]);
@@ -108,6 +110,7 @@ export default function QueriesView() {
                 {t.label} <b>{counts[t.key] ?? 0}</b>
               </button>
             ))}
+            <RadiusSlider q={focused} numBars={songModel?.numBars ?? 1} onChange={(r) => setRadius(focused.id, r)} />
           </div>
 
           <div className="sq-list-head">
@@ -160,7 +163,7 @@ export default function QueriesView() {
           <div className="rp-empty" style={{ height: "auto" }}>No queries yet. Click a word in the lyrics or on the tapestry; shift-click to extend it across words; click a line's square for a line query (end rhyme).</div>
         )}
         {rows.map((q) => {
-          const ms = (matchesByQueryId.get(q.id) ?? []).filter((m) => m.type !== "anchor");
+          const ms = (matchesByQueryId.get(q.id) ?? []).filter((m) => m.type !== "anchor" && withinRadius(songModel, q, m.start));
           const c = countsOf(ms);
           const n = ms.filter((m) => q.types.has(m.type)).length;
           return (
@@ -212,7 +215,8 @@ function LinkStrip({ m }) {
   );
 }
 
-/** A match's phones, shown on hover; the phones that made the rhyme in bold, colored by their syllable's type. */
+/** A match's phones, shown on hover; the phones that made the rhyme in bold, colored by their syllable's type
+ *  (an assonance syllable: only its vowel). */
 function MatchPhones({ m }) {
   const mm = m.match ?? m;
   const ws = mm.words ?? [];
@@ -220,12 +224,11 @@ function MatchPhones({ m }) {
   return (
     <span className="sq-match-phones" aria-label="Phones (the rhyming ones in bold)">
       {ws.map((w, i) => {
-        const { vi0, vi1 } = sylRange(mm, w);
         return (
           <span key={w.id ?? i}>
             {i > 0 && <span className="sq-match-sep"> | </span>}
-            {phoneMarks(w.phones, vi0, vi1).map((x, j) => {
-              const l = x.on ? linkTypeAt(mm, w.id, x.k) : null;
+            {matchMarks(mm, w).map((x, j) => {
+              const l = x.link;
               return <React.Fragment key={j}>{j > 0 && " "}{x.on ? <b style={l ? { color: typeColor(l.type), opacity: l.counted ? 1 : 0.6 } : undefined}>{x.p}</b> : x.p}</React.Fragment>;
             })}
           </span>
@@ -239,4 +242,23 @@ function MatchPhones({ m }) {
 function LineText({ text }) {
   const i = text.lastIndexOf(" ");
   return i < 0 ? <b>{text}</b> : <><span className="ql-ctx">{text.slice(0, i + 1)}</span><b>{text.slice(i + 1)}</b></>;
+}
+
+/** Search radius: bars either way from the query; the last step is the whole song (null). */
+function RadiusSlider({ q, numBars, onChange }) {
+  const max = Math.max(2, numBars);
+  const v = q.radius ?? max;
+  return (
+    <div className="sq-radius">
+      <span className="ui-section-label">Search radius</span>
+      <input
+        type="range" min={1} max={max} step={1} value={Math.min(v, max)}
+        onChange={(e) => { const n = +e.target.value; onChange(n >= max ? null : n); }}
+        aria-label="Search radius in bars"
+        title="Show matches within this many bars of the query, either way"
+        style={{ accentColor: q.color }}
+      />
+      <span className="sq-radius-value">{q.radius == null ? "whole song" : `\u00b1 ${q.radius} bar${q.radius === 1 ? "" : "s"}`}</span>
+    </div>
+  );
 }

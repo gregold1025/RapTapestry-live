@@ -53,6 +53,7 @@ function newQuery(state, anchorIds, extra = {}) {
     active: true,
     createdAt: Date.now(),
     types: new Set(DEFAULT_TYPES),
+    radius: null,   // search radius in bars either way; null = the whole song
   };
 }
 
@@ -123,6 +124,8 @@ export function queryReducer(state, action, env = action.__env) {
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, active: !q.active } : q)) };
     case "setTypes":
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, types: new Set(action.types) } : q)) };
+    case "setRadius":
+      return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, radius: action.radius ?? null } : q)) };
     case "setColor":
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, color: action.color } : q)) };
     case "focus":

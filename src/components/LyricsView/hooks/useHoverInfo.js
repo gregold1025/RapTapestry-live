@@ -10,7 +10,8 @@ export function useHoverInfo(songModel = null) {
 
   // useCallback: WordLine/WordBlock are React.memo'd, so these must keep a
   // stable identity across LyricsView re-renders or the memo never bites.
-  // range = { vi0, vi1 } when the word is a match: those phones are marked.
+  // range = { vi0, vi1, vowelOnly } when the word is a match: those phones are marked
+  // (vowelOnly: syllables matched by assonance, only their vowel).
   const setWordHover = useCallback((word, match, range = null, wordId = null) => {
     const own = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
     const phones = (wordId != null && modelRef.current?.byId?.get(wordId)?.phones) || own;
@@ -22,7 +23,7 @@ export function useHoverInfo(songModel = null) {
       text: word?.text,
       phones,
       match: match || null,
-      marks: range ? phoneMarks(phones, range.vi0, range.vi1) : null,
+      marks: range ? phoneMarks(phones, range.vi0, range.vi1, range.vowelOnly?.length ? new Set(range.vowelOnly) : null) : null,
     });
   }, []);
 
