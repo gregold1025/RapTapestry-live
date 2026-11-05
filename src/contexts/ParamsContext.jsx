@@ -191,6 +191,7 @@ export function ParamsProvider({ children }) {
   const [staffDrumScale, setStaffDrumScale] = useState(0.6);
   const [staffTextPx, setStaffTextPx] = useState(12);
   const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
+  const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
   const [staffShowDownbeats, setStaffShowDownbeats] = useState(true);
   const [staffShowBeatLines, setStaffShowBeatLines] = useState(true);
   const [showDownbeats, setShowDownbeats] = useState(true);
@@ -414,6 +415,8 @@ export function ParamsProvider({ children }) {
         setStaffTextPx,
         staffBackgroundColor,
         setStaffBackgroundColor,
+        staffWordColor,
+        setStaffWordColor,
         staffShowDownbeats,
         setStaffShowDownbeats,
         staffShowBeatLines,

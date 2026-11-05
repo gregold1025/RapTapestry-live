@@ -27,6 +27,7 @@ export default function GlobalPanel() {
     staffDrumScale, setStaffDrumScale,
     staffTextPx, setStaffTextPx,
     staffBackgroundColor, setStaffBackgroundColor,
+    staffWordColor, setStaffWordColor,
     staffShowDownbeats, setStaffShowDownbeats,
     staffShowBeatLines, setStaffShowBeatLines,
   } = useParams();
@@ -119,6 +120,7 @@ export default function GlobalPanel() {
           <Slider label="drum glyphs" value={Math.round(staffDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setStaffDrumScale(v / 100)} />
         </div>
         <ColorField label="Background" value={staffBackgroundColor} onChange={setStaffBackgroundColor} />
+        <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />
         <label className="ui-toggle">
           <input type="checkbox" checked={!!staffShowDownbeats} onChange={(e) => setStaffShowDownbeats(e.target.checked)} />
           Downbeat lines

@@ -101,13 +101,20 @@
 .ql-total { font-weight: 700; color: var(--rt-ink); }
 
 /* ---- single query ---- */
-.sq-anchor { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-left: 4px solid; background: var(--rt-panel); border-bottom: 1px solid var(--rt-line); }
+.sq-anchor { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-left: 4px solid var(--q); background: var(--q-tint); border-bottom: 1px solid var(--rt-line); }
 .sq-anchor-text { font-size: 15px; font-weight: 700; color: var(--rt-ink); }
 .sq-anchor-phones { font-size: 10px; color: var(--rt-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin: 2px 0 4px 0; word-break: break-word; }
 .sq-types { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--rt-line); }
 .sq-types .rp-chip b { font-weight: 700; margin-left: 2px; }
 .sq-list-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 4px 12px; }
-.sq-group-label { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rt-muted); padding: 8px 12px 2px 12px; }
+.sq-group-label {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--rt-ink);
+  padding: 6px 12px; margin-top: 6px;
+  background: var(--q-soft, var(--rt-panel)); border-left: 3px solid var(--q, var(--rt-ink));
+}
+.sq-group-label b { font-size: 10px; font-weight: 700; color: var(--rt-muted); }
 .sq-match {
   display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: baseline;
   width: 100%; text-align: left;
@@ -127,3 +134,15 @@
 .ql-ctx { color: var(--rt-muted); }
 .ql-kind { font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rt-muted); border: 1px solid var(--rt-line); border-radius: 3px; padding: 0 3px; margin-right: 5px; vertical-align: 1px; }
 .sq-anchor-text .ql-name { white-space: normal; font-size: 14px; }
+
+/* the focused query reads as its own section below the list */
+.sq-body { border-top: 3px solid var(--q, var(--rt-line)); }
+.sq-bar {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--rt-ink); background: var(--q-soft, var(--rt-panel)); padding: 4px 12px;
+}
+.rp-root .ql-list { background: var(--rt-panel); }
+.ql-row { background: var(--rt-card); }
+.ql-row.is-focused { background: var(--rt-card); box-shadow: inset 0 0 0 1px var(--rt-line); }
+.sq-types .rp-chip { color: var(--rt-muted); }
+.sq-types .rp-chip.is-active { font-weight: 700; }

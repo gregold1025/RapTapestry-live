@@ -18,7 +18,6 @@ import { laneY } from "../../../utils/laneLayout";
 import { f0Semitones } from "../../../utils/timingModel";
 import { timeAtEvent } from "../global/timeAtEvent";
 
-const WORD_GRAY = "#6b6e76";
 const PITCH_BAND = { lo: 30, hi: 92 };   // percent of the vocals lane the pitch range spans
 const FONT = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
 
@@ -50,7 +49,8 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   const { visualByWordId, click } = useQueries();
   const { seekAll } = useAudioControls();
   const { lyricTranscription, timing } = useSongData();
-  const { staffTextPx } = useParams();
+  const { staffTextPx, staffWordColor } = useParams();
+  const ink = staffWordColor || "#6b6e76";   // unqueried words: text, line and dots
 
   const lane = laneFor("vocals");
   const rowHeight = layout?.rowHeight ?? 0;
@@ -81,7 +81,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
         const text = String(word.text ?? "").replace(/\n/g, "").trim();
         const X0 = x(tw.start), X1 = x(tw.end);
         const vis = visualByWordId.get(id) ?? null;
-        const col = vis ? vis.color : WORD_GRAY;
+        const col = vis ? vis.color : ink;
         const hit = !!vis;
         const syls = tw.syls;
         const item = { id, text, word, tw, X0, X1, col, hit, vis, syls, mode };
@@ -113,7 +113,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
     });
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, timing, lyricTranscription, visualByWordId, mode, fs, f0Mid, rowHeight, lane]);
+  }, [layout, timing, lyricTranscription, visualByWordId, mode, fs, f0Mid, rowHeight, lane, ink]);
 
   if (!layout || !layout.singleRow) return null;
 
@@ -140,8 +140,8 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
         if (it.mode === "syllables") {
           return (
             <g key={id} {...common}>
-              <text x={it.X0} y={yTop - 4} fill={hit ? col : "#9a9ca3"} fontSize={fs - 2}>{text}</text>
-              <line x1={it.X0} y1={yTop - 1} x2={it.X1} y2={yTop - 1} stroke="#d6d6db" strokeWidth={1} />
+              <text x={it.X0} y={yTop - 4} fill={col} fillOpacity={hit ? 1 : 0.7} fontSize={fs - 2}>{text}</text>
+              <line x1={it.X0} y1={yTop - 1} x2={it.X1} y2={yTop - 1} stroke={col} strokeOpacity={0.25} strokeWidth={1} />
               {syls.map((sy) => {
                 const sx0 = x(sy.start), sx1 = x(sy.end), vx = x(sy.vStart ?? sy.start), y = yF0(sy.f0);
                 const bold = sy.stress === 1;
@@ -151,7 +151,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
                     <line x1={sx0} y1={y + 4} x2={sx1} y2={y + 4} stroke={col} strokeWidth={bold ? 2.4 : 1.6} strokeOpacity={sy.f0 ? 0.9 : 0.45} strokeLinecap="butt" strokeDasharray={sy.estimated ? "3 3" : undefined} />
                     <circle cx={vx} cy={y + 4} r={bold ? 3.4 : 2.6} fill={sy.f0 ? col : "none"} stroke={col} strokeWidth={1.2} />
                     <text x={sx0} y={y - 3} fontSize={fs - 1} fontWeight={bold ? 700 : 400}>
-                      {label.map((ph, i) => <tspan key={i} fill={i === (sy.vIdx ?? 0) ? (sy.f0 ? "#1a1a1a" : "#9a9ca3") : "#8a8d94"}>{ph}{i < label.length - 1 ? " " : ""}</tspan>)}
+                      {label.map((ph, i) => <tspan key={i} fill={col} fillOpacity={i === (sy.vIdx ?? 0) ? (sy.f0 ? 1 : 0.55) : 0.6}>{ph}{i < label.length - 1 ? " " : ""}</tspan>)}
                     </text>
                     <rect x={sx0 - 4} y={y - fs - 4} width={Math.max(sx1 - sx0 + 8, 22)} height={fs + 14} fill="transparent" />
                   </g>
@@ -178,13 +178,13 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
             {!it.pts.length && <circle cx={it.X0} cy={yBase} r={3} fill="none" stroke={col} strokeWidth={1.2} />}
             <path id={pid} d={it.dText} fill="none" />
             {!spelled ? (
-              <text fontSize={fs} dy={it.dy} fill={it.tw.f0 ? col : "#9a9ca3"} fontWeight={hit ? 600 : 400}>
+              <text fontSize={fs} dy={it.dy} fill={col} fillOpacity={it.tw.f0 ? 1 : 0.55} fontWeight={hit ? 600 : 400}>
                 <textPath href={`#${pid}`}>{text}</textPath>
               </text>
             ) : chunks.map((c, k) => {
               // each chunk is centered on its vowel at the curve's height there (the prototype also bends it along the curve)
               const py = (c.sy.f0 ? yF0(c.sy.f0) + 4 : yBase) + it.dy;
-              return <text key={k} x={c.cx} y={py} textAnchor="middle" fontSize={fs} fill={c.sy.f0 ? col : "#9a9ca3"} fontWeight={c.sy.stress === 1 || hit ? 600 : 400}>{c.sy.chunk}</text>;
+              return <text key={k} x={c.cx} y={py} textAnchor="middle" fontSize={fs} fill={col} fillOpacity={c.sy.f0 ? 1 : 0.55} fontWeight={c.sy.stress === 1 || hit ? 600 : 400}>{c.sy.chunk}</text>;
             })}
             <path d={it.dText} stroke="transparent" strokeWidth={fs + 14} fill="none" />
           </g>

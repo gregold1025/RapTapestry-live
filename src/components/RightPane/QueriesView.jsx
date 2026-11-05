@@ -26,6 +26,12 @@ export function QueryName({ q, song, chars = 40, className = "" }) {
   );
 }
 
+/** "#rrggbb" + alpha (0..1) as an 8-digit hex color. */
+function tint(hex, a) {
+  const h = /^#[0-9a-f]{6}$/i.test(hex) ? hex : "#888888";
+  return h + Math.round(a * 255).toString(16).padStart(2, "0");
+}
+
 function countsOf(ms) {
   const c = {};
   for (const m of ms) if (m.type !== "anchor") c[m.type] = (c[m.type] ?? 0) + 1;
@@ -95,8 +101,9 @@ export default function QueriesView() {
       </div>
 
       {focused && (
-        <div className="rp-body sq-body">
-          <div className="sq-anchor" style={{ borderLeftColor: focused.color }}>
+        <div className="rp-body sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": tint(focused.color, 0.22) }}>
+          <div className="sq-bar">Focused query</div>
+          <div className="sq-anchor">
             <input className="ui-color-swatch" type="color" value={focused.color} onChange={(e) => setColor(focused.id, e.target.value)} aria-label="Query color" title="Query color" />
             <div style={{ minWidth: 0 }}>
               <div className="sq-anchor-text"><QueryName q={focused} song={songModel} chars={60} /></div>
@@ -115,7 +122,7 @@ export default function QueriesView() {
                 className={`rp-chip ${focused.types.has(t.key) ? "is-active" : ""}`}
                 onClick={() => toggleType(t.key)}
                 title={`${t.desc}\nExample: ${t.example}`}
-                style={focused.types.has(t.key) ? { background: focused.color, borderColor: focused.color, color: "#1a1a1a" } : undefined}
+                style={focused.types.has(t.key) ? { background: tint(focused.color, 0.2), borderColor: focused.color, color: "#1a1a1a" } : undefined}
               >
                 {t.label} <b>{counts[t.key] ?? 0}</b>
               </button>
@@ -131,7 +138,7 @@ export default function QueriesView() {
           </div>
           {groups.map((g) => (
             <div key={g.key} className="sq-group">
-              {g.label && <div className="sq-group-label">{g.label}</div>}
+              {g.label && <div className="sq-group-label"><span>{g.label}</span><b>{g.items.length}</b></div>}
               {g.items.map((m, i) => (
                 <button
                   key={`${g.key}-${i}`}
