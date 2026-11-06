@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { BASS_DEFAULTS, DRUM_DEFAULTS } from "./paramDefaults";
 
 const ParamsContext = createContext();
 
@@ -139,26 +140,12 @@ export function ParamsProvider({ children }) {
 
   // — BASS —
   const [showBass, setShowBass] = useState(true);
-  const [bassParams, setBassParams] = useState({
-    rectHeight: 0, // gap (px) between the line and its toppers
-    fillColor: "#670079",
-    opacity: 0.7,
-    blur: 0,
-    thickness: 6, // spline stroke (px)
-    band: { lo: 0, hi: 50 }, // the song's pitch range lands in the bottom half of the bass lane
-    topper: "none", // "divider" | "none": a glyph strip above and below each note
-  });
+  const [bassParams, setBassParams] = useState(BASS_DEFAULTS);
 
   // — DRUMS —
   const [showDrums, setShowDrums] = useState(true);
   const [showDrumGlyphs, setShowDrumGlyphs] = useState(true);
-  const [drumParams, setDrumParams] = useState({
-    strokeWeight: 5,
-    tilt: 0,
-    fillColor: "#0011bb",
-    opacity: 1, // all drum glyphs (multiplies each row's opacity)
-    size: 1, // all drum glyphs (multiplies each row's size)
-  });
+  const [drumParams, setDrumParams] = useState(DRUM_DEFAULTS);
   const [drumDetection, setDrumDetection] = useState("classes"); // "bands" | "classes" (falls back to bands without classifier output)
   // Per frequency band: visible, glyph size (px), opacity, height (percent of the
   // drum lane), glyphUrl (null = the default drum glyph)
