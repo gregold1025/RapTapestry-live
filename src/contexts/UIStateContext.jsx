@@ -31,10 +31,12 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const toggleStaff = useCallback(() => setStaffOpen((v) => !v), []);
   // Opening a stem's panel also brings the parameters view forward.
   const openParamsPanel = useCallback((p) => { setParamsPanel(p); setRightView("params"); setRightOpen(true); }, []);
+  // A click that makes or opens a query brings the Queries view forward.
+  const openQueries = useCallback(() => { setRightView("queries"); setRightOpen(true); }, []);
 
   const value = useMemo(
-    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode }),
-    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, staffOpen, toggleStaff, staffBars, staffMode]
+    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, openQueries, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode }),
+    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, openQueries, staffOpen, toggleStaff, staffBars, staffMode]
   );
   return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }

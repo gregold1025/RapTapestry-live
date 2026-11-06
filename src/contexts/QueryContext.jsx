@@ -6,11 +6,13 @@
 // words) is drawn on lines only. Matches come from the typed rhyme engine
 // (src/engine). Color = query identity; type and form travel with each
 // visual so layers can style them without a second lookup.
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { sylRange, assonantSyllables } from "../utils/phoneMarks";
 import { showsMatch } from "../utils/queryRadius";
 import { useSongData } from "./SongDataContext";
-import { queryReducer, initialQueryState } from "./queryReducer";
+import { queryReducer, initialQueryState, clickFocuses } from "./queryReducer";
+import { visibleQueries, wordQueryInfo } from "../utils/queryView";
+import { useUIState } from "./UIStateContext";
 import { undoable, UNDO, REDO } from "./undoable";
 import { isTypingTarget } from "../utils/isTypingTarget";
 import { computeMatches, TYPE_RANK } from "../engine";
@@ -27,6 +29,12 @@ export function QueryProvider({ children }) {
   const { songModel } = useSongData();
   const [history, dispatchRaw] = useReducer(historyReducer, undefined, () => historyReducer(undefined, { type: "@init" }));
   const state = history.present;
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const { openQueries } = useUIState();
+  // Solo: the focused-query panel's switch; while on, only the focused query is drawn.
+  const [solo, setSolo] = useState(false);
+  const visible = useMemo(() => visibleQueries(state.queries, state.focusedId, solo), [state.queries, state.focusedId, solo]);
 
   // Match cache per anchor run (engine results do not depend on query options).
   const cacheRef = useRef(new Map());
@@ -43,23 +51,18 @@ export function QueryProvider({ children }) {
     },
     [songModel]
   );
-  // The reducer wants plain word-id lists for "is this word a match".
+  // The reducer asks which query a matched word (or line) is drawn in: a click opens what the eye sees.
+  const drawnRef = useRef({ words: new Map(), lines: new Map() });
   const envRef = useRef(null);
   envRef.current = {
     flatOf: (id) => songModel?.byId.get(id)?.flat ?? -1,
     idAt: (f) => songModel?.words[f]?.id,
-    // words the query currently shows as matches (its rhyme types only)
-    matchesFor: (q) => {
-      const ids = [];
-      for (const m of matchesFor(q.anchorIds)) if (m.type !== "anchor" && showsMatch(songModel, q, m)) for (const w of m.words) ids.push(w.id);
-      return ids;
-    },
     lastWordOf: (li) => {
       const n = songModel?.lines?.[li]?.words?.length ?? 0;
       return n ? `${li}-${n - 1}` : null;
     },
-    // lines the line query currently shows as matches
-    lineMatchesFor: (q) => (songModel ? lineEndMatches(songModel, q.lineIdx, matchesFor) : []).filter((lm) => showsMatch(songModel, q, lm)).map((lm) => lm.lineIdx),
+    drawnOwner: (wordId) => drawnRef.current.words.get(wordId)?.queryId ?? null,
+    drawnLineOwner: (li) => drawnRef.current.lines.get(li)?.queryId ?? null,
   };
   const dispatch = useCallback((action) => dispatchRaw({ ...action, __env: envRef.current }), []);
 
@@ -80,8 +83,8 @@ export function QueryProvider({ children }) {
   const prevVisualRef = useRef(new Map());
   const visualByWordId = useMemo(() => {
     const map = new Map();
-    for (const q of state.queries) {
-      if (!q.active || q.kind === "line") continue;
+    for (const q of visible) {
+      if (q.kind === "line") continue;
       for (const m of matchesByQueryId.get(q.id) ?? []) {
         const isAnchor = m.type === "anchor";
         if (!isAnchor && !showsMatch(songModel, q, m)) continue;
@@ -103,15 +106,15 @@ export function QueryProvider({ children }) {
     }
     prevVisualRef.current = map;
     return map;
-  }, [state.queries, matchesByQueryId, songModel]);
+  }, [visible, matchesByQueryId, songModel]);
 
   // Per-line visual (line queries only): the anchor line, and every matched
   // line at its lowest-ranked type; ties -> most recent query.
   const prevLineRef = useRef(new Map());
   const visualByLineIdx = useMemo(() => {
     const map = new Map();
-    for (const q of state.queries) {
-      if (!q.active || q.kind !== "line") continue;
+    for (const q of visible) {
+      if (q.kind !== "line") continue;
       const prevA = map.get(q.lineIdx);
       if (!prevA || !prevA.isAnchor) map.set(q.lineIdx, { queryId: q.id, color: q.color, role: "anchor", isAnchor: true, type: "anchor", rank: -1 });
       for (const lm of matchesByQueryId.get(q.id) ?? []) {
@@ -129,14 +132,28 @@ export function QueryProvider({ children }) {
     }
     prevLineRef.current = map;
     return map;
-  }, [state.queries, matchesByQueryId, songModel]);
+  }, [visible, matchesByQueryId, songModel]);
+  drawnRef.current = { words: visualByWordId, lines: visualByLineIdx };
 
   const snapshot = useMemo(() => ({ visualByWordId, visualByLineIdx }), [visualByWordId, visualByLineIdx]);
   const store = useSelectorStoreProvider(snapshot);
 
+  const clickAndOpen = (action) => {
+    const opens = clickFocuses(stateRef.current, action, envRef.current);
+    dispatch(action);
+    if (opens) openQueries();
+  };
+  // What the tapestry and Line Staff hover says about a word (the queries drawn only).
+  const wordInfo = useCallback(
+    (wordId) => wordQueryInfo(wordId, visible, matchesByQueryId, songModel, visualByWordId.get(wordId)?.queryId ?? null),
+    [visible, matchesByQueryId, songModel, visualByWordId]
+  );
+
   const actions = useStableActions({
-    click: (wordId, mods = {}) => dispatch({ type: "click", wordId, shift: !!mods.shift, meta: !!mods.meta, alt: !!mods.alt }),
-    clickLine: (lineIdx, mods = {}) => dispatch({ type: "clickLine", lineIdx, meta: !!mods.meta, alt: !!mods.alt }),
+    // a click that leaves a query focused (made or opened) also opens the Queries view
+    click: (wordId, mods = {}) => clickAndOpen({ type: "click", wordId, shift: !!mods.shift, meta: !!mods.meta, alt: !!mods.alt, reveal: !!mods.reveal }),
+    clickLine: (lineIdx, mods = {}) => clickAndOpen({ type: "clickLine", lineIdx, meta: !!mods.meta, alt: !!mods.alt, reveal: !!mods.reveal }),
+    toggleSolo: () => setSolo((v) => !v),
     remove: (id) => dispatch({ type: "remove", id }),
     undo: () => dispatch({ type: UNDO }),
     redo: () => dispatch({ type: REDO }),
@@ -145,6 +162,7 @@ export function QueryProvider({ children }) {
     setRadius: (id, radius) => dispatch({ type: "setRadius", id, radius, coalesce: `radius:${id}` }),   // a drag is one undo step
     setColor: (id, color) => dispatch({ type: "setColor", id, color, coalesce: `color:${id}` }),   // a drag is one undo step
     focus: (id) => dispatch({ type: "focus", id }),
+    selectMatch: (h) => dispatch({ type: "highlight", highlight: h }),   // { wordId } or { lineIdx }
     clear: () => dispatch({ type: "clear" }),
   });
 
@@ -164,8 +182,8 @@ export function QueryProvider({ children }) {
   }, [dispatch]);
 
   const value = useMemo(
-    () => ({ queries: state.queries, focusedId: state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, canUndo: history.canUndo, canRedo: history.canRedo, ...actions }),
-    [state.queries, state.focusedId, focused, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, history.canUndo, history.canRedo, actions]
+    () => ({ queries: state.queries, focusedId: state.focusedId, focused, highlight: state.highlight, solo, wordInfo, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, canUndo: history.canUndo, canRedo: history.canRedo, ...actions }),
+    [state.queries, state.focusedId, focused, state.highlight, solo, wordInfo, matchesByQueryId, visualByWordId, visualByLineIdx, songModel, history.canUndo, history.canRedo, actions]
   );
   const storeValue = useMemo(() => ({ store, actions }), [store, actions]);
 

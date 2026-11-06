@@ -1,9 +1,15 @@
 // src/components/TapestryView/CanvasHoverTooltip.jsx
+// The tapestry and Line Staff hover: the word, its phones, and its queries: "Query · n matches"
+// on a query's word, "Matches <query word> (type)" for every query it is a match of (the one
+// it is drawn in, which a click opens, first).
 import React from "react";
+import { useQueries } from "../../../contexts/QueryContext";
 
 export function CanvasHoverTooltip({ hoverInfo }) {
+  const { wordInfo } = useQueries();
   if (!hoverInfo) return null;
   const { metadata, x, y } = hoverInfo;
+  const info = metadata.wordId ? wordInfo(metadata.wordId) : null;
 
   const style = {
     position: "fixed", // so it stays above everything
@@ -48,6 +54,18 @@ export function CanvasHoverTooltip({ hoverInfo }) {
           <br />
         </>
       )}
+      {info?.query && (
+        <>
+          <strong>Query</strong> · {info.query.count} match{info.query.count === 1 ? "" : "es"}
+          <br />
+        </>
+      )}
+      {info?.matchOf.map((m) => (
+        <React.Fragment key={m.id}>
+          Matches <strong>{m.word}</strong> ({m.type})
+          <br />
+        </React.Fragment>
+      ))}
     </div>
   );
 }

@@ -2,7 +2,10 @@
 // Every query in one view: the list (color, its words inside the line, counts
 // per type, show / hide, remove) and, under it, the focused query opened up
 // (phones, identity chips with counts, the matches with their tags; click a match to seek).
-import React, { useMemo, useState } from "react";
+// The focused query's header: a click (not on its color or solo button) scrubs to the query;
+// solo hides the other queries. A click on a match in the lyrics or the tapestry opens its query
+// here with that match highlighted.
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 import { RHYME_TYPES, TYPE_BY_KEY } from "../../engine";
@@ -10,7 +13,8 @@ import { matchLabel, tagsText } from "../../utils/matchLabel";
 import { queryLabel } from "../../utils/queryLabel";
 import { matchMarks } from "../../utils/phoneMarks";
 import { EyeButton } from "../ui";
-import { withinRadius } from "../../utils/queryRadius";
+import { withinRadius, queryOrigin } from "../../utils/queryRadius";
+import { isHighlit } from "../../utils/queryView";
 import "./RightPane.css";
 
 function fmtTime(t) {
@@ -56,7 +60,7 @@ function countsOf(ms) {
 }
 
 export default function QueriesView() {
-  const { queries, focusedId, focused, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
+  const { queries, focusedId, focused, highlight, selectMatch, solo, toggleSolo, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
   const { seekAll } = useAudioControls();
   const [groupBy, setGroupBy] = useState("time");
 
@@ -66,6 +70,17 @@ export default function QueriesView() {
   const counts = useMemo(() => countsOf(all), [all]);
   const shown = focused ? all.filter((m) => focused.types.has(m.type)) : [];
   const words = useMemo(() => (focused ? focused.anchorIds.map((id) => songModel?.byId.get(id)).filter(Boolean) : []), [focused, songModel]);
+
+  // bring the highlighted match into view when a click opens the query on it
+  const scrollRef = useRef(null);
+  useEffect(() => {
+    scrollRef.current?.querySelector(".sq-match.is-highlit")?.scrollIntoView({ block: "nearest" });
+  }, [highlight, focusedId, groupBy]);
+  const seekQuery = (e) => {
+    if (e.target.closest("button, input")) return;   // the color swatch and the solo button
+    const t = queryOrigin(songModel, focused);
+    if (t != null) seekAll(t);
+  };
 
   const toggleType = (key) => {
     const next = new Set(focused.types);
@@ -90,12 +105,13 @@ export default function QueriesView() {
       {focused && (
         <div className="sq-body" style={{ "--q": focused.color, "--q-tint": tint(focused.color, 0.1), "--q-soft": mixOver(focused.color, 0.35) }}>
           <div className="sq-bar">Focused query</div>
-          <div className="sq-anchor">
+          <div className="sq-anchor" onClick={seekQuery} title="Click to scrub to this query">
             <input className="ui-color-swatch" type="color" value={focused.color} onChange={(e) => setColor(focused.id, e.target.value)} aria-label="Query color" title="Query color" />
-            <div style={{ minWidth: 0 }}>
+            <div style={{ minWidth: 0, flex: "1 1 auto" }}>
               <div className="sq-anchor-text"><QueryName q={focused} song={songModel} chars={60} /></div>
               <div className="sq-anchor-phones">{words.map((w) => w.phones).join("  |  ")}</div>
             </div>
+            <SoloButton on={solo} onClick={toggleSolo} />
           </div>
 
           <div className="sq-types" role="group" aria-label="Rhyme types shown">
@@ -121,7 +137,7 @@ export default function QueriesView() {
               <button type="button" className={groupBy === "type" ? "is-active" : ""} onClick={() => setGroupBy("type")}>by type</button>
             </span>
           </div>
-          <div className="sq-scroll">
+          <div className="sq-scroll" ref={scrollRef}>
           {groups.map((g) => (
             <div key={g.key} className="sq-group">
               {g.label && <div className="sq-group-label"><span>{g.label}</span><b>{g.items.length}</b></div>}
@@ -129,8 +145,8 @@ export default function QueriesView() {
                 <button
                   key={`${g.key}-${i}`}
                   type="button"
-                  className="sq-match"
-                  onClick={() => seekAll(m.start)}
+                  className={`sq-match ${isHighlit(m, highlight) ? "is-highlit" : ""}`}
+                  onClick={() => { seekAll(m.start); selectMatch(focused.kind === "line" ? { lineIdx: m.lineIdx } : { wordId: m.words?.[0]?.id }); }}
                   title={`${matchLabel(m.match ?? m)} • click to seek`}
                 >
                   <span className="sq-match-main">
@@ -191,6 +207,19 @@ export default function QueriesView() {
       </div>
       </div>
     </div>
+  );
+}
+
+/** Solo: show only the focused query (a focus-target icon). */
+function SoloButton({ on, onClick }) {
+  return (
+    <button type="button" className={`ui-ibtn sq-solo ${on ? "is-on" : ""}`} onClick={onClick} aria-pressed={on} title={on ? "Solo on: only this query is shown (click to show all)" : "Solo: show only this query"}>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+        <circle cx="12" cy="12" r="3" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" />
+        <path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </button>
   );
 }
 

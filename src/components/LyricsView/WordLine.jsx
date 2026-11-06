@@ -28,7 +28,7 @@ export const WordLine = React.memo(function WordLine({ line, lineIdx, isCurrent,
       <div
         className="line-select"
         onClick={(e) => clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey })}
-        title={vis?.role === "anchor" ? "This line is a line query (alt-click: remove)" : vis?.role === "match" ? "This line rhymes with a line query (click: move the query here)" : "Line query: lines whose last word rhymes with this one"}
+        title={vis?.role === "anchor" ? "This line is a line query (alt-click: remove)" : vis?.role === "match" ? "This line rhymes with a line query (click: open it; cmd-click: a new line query)" : "Line query: lines whose last word rhymes with this one"}
         aria-pressed={vis?.role === "anchor"}
         role="button"
       >
