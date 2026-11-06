@@ -9,7 +9,10 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG, ringCount, clockGeo } from "./clockGeometry";
+import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText } from "./clockGeometry";
+import { wordMarks } from "./clockMarks";
+import ClockWords from "./ClockWords";
+import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
 import ClockFace from "./ClockFace";
 import "./ClockPane.css";
@@ -33,17 +36,30 @@ function useStageSize(ref) {
 }
 
 export default function ClockPane({ duration }) {
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex } = useParams();
-  const { drumTranscription, songModel } = useSongData();
+  const paneRef = useRef(null);
+  const side = useStageSize(paneRef);
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex, clockWords, clockWordColor, clockTextPx } = useParams();
+  const { drumTranscription, songModel, timing, lyricTranscription } = useSongData();
+  const { visualByWordId } = useQueries();
   const cycles = useMemo(
     () => makeCycles(drumTranscription?.downbeats ?? [], clockCycleBars, duration || songModel?.duration || 0),
     [drumTranscription, clockCycleBars, duration, songModel]
   );
   const rings = ringCount(clockRings, cycles.count);
   const beatsPerBar = songModel?.beatsPerBar || 4;
+  const W = 0;   // the window (Task 7 moves it)
+  const texts = useMemo(() => {
+    const m = new Map();
+    (lyricTranscription?.lines ?? []).forEach((line, li) => (line.words ?? []).forEach((w, wi) => m.set(`${li}-${wi}`, String(w.text ?? "").replace(/\n/g, "").trim())));
+    return m;
+  }, [lyricTranscription]);
+  const marks = useMemo(
+    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
+    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
+  );
+  const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
+  const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
-  const paneRef = useRef(null);
-  const side = useStageSize(paneRef);
   return (
     <section ref={paneRef} className="clock-pane" aria-label="Rhyme Clock" style={{ width: side || undefined }}>
       <div className="clock-bar">
@@ -59,7 +75,10 @@ export default function ClockPane({ duration }) {
           {cycles.count === 0 ? (
             <text className="clock-note" x={side / 2} y={side / 2} textAnchor="middle" fill="#888">No bar grid for this song</text>
           ) : (
-            <ClockFace geo={clockGeo(side, rings)} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={Math.min(clockIndex, rings - 1)} />
+            <>
+              <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={Math.min(clockIndex, rings - 1)} />
+              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} />
+            </>
           )}
         </svg>
       )}
