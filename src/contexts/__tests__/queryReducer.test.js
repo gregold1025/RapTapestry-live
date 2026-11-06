@@ -80,6 +80,15 @@ describe("queryReducer", () => {
     expect(st.highlight).toBeNull();
   });
 
+  it("selecting a match in the list takes the highlight from the clicked one", () => {
+    let st = click(initialQueryState, "0-1");
+    st = click(st, "0-4");
+    expect(st.highlight).toEqual({ wordId: "0-4" });
+    st = queryReducer(st, { type: "highlight", highlight: { wordId: "0-5" } }, env);
+    expect(st.highlight).toEqual({ wordId: "0-5" });
+    expect(queryReducer(st, { type: "highlight", highlight: { wordId: "0-5" } }, env)).toBe(st);
+  });
+
   it("clickFocuses: a click focuses a query unless it removes, or reveals a free word", () => {
     const st = click(initialQueryState, "0-1");
     const act = (wordId, mods = {}) => ({ type: "click", wordId, ...mods });

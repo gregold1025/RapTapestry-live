@@ -127,6 +127,8 @@ export function queryReducer(state, action, env = action.__env) {
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, color: action.color } : q)) };
     case "focus":
       return state.queries.some((q) => q.id === action.id) ? focusOn(state, action.id) : state;
+    case "highlight":   // a match picked in the focused query's list
+      return state.focusedId == null ? state : focusOn(state, state.focusedId, action.highlight ?? null);
     case "clear":
       return initialQueryState;
     default:

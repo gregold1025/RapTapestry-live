@@ -162,6 +162,7 @@ export function QueryProvider({ children }) {
     setRadius: (id, radius) => dispatch({ type: "setRadius", id, radius, coalesce: `radius:${id}` }),   // a drag is one undo step
     setColor: (id, color) => dispatch({ type: "setColor", id, color, coalesce: `color:${id}` }),   // a drag is one undo step
     focus: (id) => dispatch({ type: "focus", id }),
+    selectMatch: (h) => dispatch({ type: "highlight", highlight: h }),   // { wordId } or { lineIdx }
     clear: () => dispatch({ type: "clear" }),
   });
 

@@ -160,8 +160,10 @@
 .sq-match { background: var(--rt-panel); }
 .sq-match:nth-of-type(even) { background: var(--rt-head); }
 .sq-match:hover { background: #575757; }
-/* the match a click in the lyrics or the tapestry opened the query on */
-.sq-match.is-highlit { background: var(--q-soft); box-shadow: inset 3px 0 0 var(--q); }
+/* the selected match (clicked in the lyrics, the tapestry or this list): a white border, one at a
+   time; the browser's own focus ring is off so it never marks a second row */
+.sq-match:focus { outline: none; }
+.sq-match.is-highlit { outline: 2px solid #fff; outline-offset: -2px; }
 .sq-types .rp-chip { color: var(--rt-muted); }
 .sq-types .rp-chip.is-active { font-weight: 700; }
 

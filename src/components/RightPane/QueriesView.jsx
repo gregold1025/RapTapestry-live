@@ -60,7 +60,7 @@ function countsOf(ms) {
 }
 
 export default function QueriesView() {
-  const { queries, focusedId, focused, highlight, solo, toggleSolo, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
+  const { queries, focusedId, focused, highlight, selectMatch, solo, toggleSolo, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
   const { seekAll } = useAudioControls();
   const [groupBy, setGroupBy] = useState("time");
 
@@ -146,7 +146,7 @@ export default function QueriesView() {
                   key={`${g.key}-${i}`}
                   type="button"
                   className={`sq-match ${isHighlit(m, highlight) ? "is-highlit" : ""}`}
-                  onClick={() => seekAll(m.start)}
+                  onClick={() => { seekAll(m.start); selectMatch(focused.kind === "line" ? { lineIdx: m.lineIdx } : { wordId: m.words?.[0]?.id }); }}
                   title={`${matchLabel(m.match ?? m)} • click to seek`}
                 >
                   <span className="sq-match-main">
