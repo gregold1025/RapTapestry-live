@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { queryReducer, initialQueryState } from "../queryReducer";
+import { queryReducer, initialQueryState, clickFocuses } from "../queryReducer";
 
 // A tiny song: flat order 0..5, ids "0-0".."0-5"
 const flat = ["0-0", "0-1", "0-2", "0-3", "0-4", "0-5"];
@@ -7,7 +7,10 @@ const flatOf = (id) => flat.indexOf(id);
 // matches: query on 0-1 matches 0-4 (an assonance); everything else matches nothing.
 // The env receives the query itself so the context can honor the query's shown types.
 const matchesFor = (q) => (q.anchorIds.includes("0-1") && q.types.has("assonance") ? ["0-4"] : []);
-const env = { flatOf, idAt: (i) => flat[i], matchesFor };
+// drawnOwner: the query whose color a matched word is drawn in (the context reads it from the
+// per-word visuals); here the most recent active query that shows the word.
+const drawnOwner = (wordId, st) => [...st.queries].reverse().find((q) => q.active && q.kind !== "line" && matchesFor(q).includes(wordId))?.id ?? null;
+const env = { flatOf, idAt: (i) => flat[i], drawnOwner };
 
 const click = (st, wordId, mods = {}) => queryReducer(st, { type: "click", wordId, ...mods }, env);
 
@@ -32,13 +35,60 @@ describe("queryReducer", () => {
     expect(st.queries[0].anchorIds).toEqual(["0-1", "0-2", "0-3"]);
   });
 
-  it("clicking a match of query A adopts A: its anchor moves to the clicked word", () => {
+  it("a plain click on a match of A focuses A and highlights that match; nothing moves", () => {
     let st = click(initialQueryState, "0-1");
     const id = st.queries[0].id;
+    st = click(st, "0-3");
     st = click(st, "0-4");
-    expect(st.queries.length).toBe(1);
-    expect(st.queries[0].id).toBe(id);
-    expect(st.queries[0].anchorIds).toEqual(["0-4"]);
+    expect(st.queries.length).toBe(2);
+    expect(st.queries[0].anchorIds).toEqual(["0-1"]);
+    expect(st.focusedId).toBe(id);
+    expect(st.highlight).toEqual({ wordId: "0-4" });
+  });
+
+  it("a word matched by two queries opens the one it is drawn in", () => {
+    let st = click(initialQueryState, "0-1");
+    st = click(st, "0-3");
+    const [a, b] = st.queries.map((q) => q.id);
+    const drawnInB = { ...env, drawnOwner: (w) => (w === "0-5" ? b : null) };
+    st = queryReducer({ ...st, focusedId: a }, { type: "click", wordId: "0-5" }, drawnInB);
+    expect(st.focusedId).toBe(b);
+    expect(st.highlight).toEqual({ wordId: "0-5" });
+  });
+
+  it("a reveal click (tapestry, Line Staff) opens the query of a match or an anchor, and never makes one", () => {
+    let st = click(initialQueryState, "0-1");
+    const id = st.queries[0].id;
+    st = click(st, "0-3");
+    expect(click(st, "0-2", { reveal: true })).toBe(st);
+    const m = click(st, "0-4", { reveal: true });
+    expect(m.focusedId).toBe(id);
+    expect(m.highlight).toEqual({ wordId: "0-4" });
+    const a = click(st, "0-1", { reveal: true });
+    expect(a.focusedId).toBe(id);
+    expect(a.highlight).toBeNull();
+  });
+
+  it("focusing a query clears the highlighted match", () => {
+    let st = click(initialQueryState, "0-1");
+    const id = st.queries[0].id;
+    st = click(st, "0-3");
+    st = click(st, "0-4");
+    st = queryReducer(st, { type: "focus", id: st.queries[1].id }, env);
+    expect(st.highlight).toBeNull();
+    st = queryReducer(st, { type: "focus", id }, env);
+    expect(st.highlight).toBeNull();
+  });
+
+  it("clickFocuses: a click focuses a query unless it removes, or reveals a free word", () => {
+    const st = click(initialQueryState, "0-1");
+    const act = (wordId, mods = {}) => ({ type: "click", wordId, ...mods });
+    expect(clickFocuses(st, act("0-2"), env)).toBe(true);
+    expect(clickFocuses(st, act("0-4", { meta: true }), env)).toBe(true);
+    expect(clickFocuses(st, act("0-4", { alt: true }), env)).toBe(false);
+    expect(clickFocuses(st, act("0-2", { reveal: true }), env)).toBe(false);
+    expect(clickFocuses(st, act("0-4", { reveal: true }), env)).toBe(true);
+    expect(clickFocuses(st, act("0-1", { reveal: true }), env)).toBe(true);
   });
 
   it("clicking an anchor of A focuses A without changing it", () => {
@@ -93,7 +143,7 @@ describe("queryReducer", () => {
   const lineEnv = {
     ...env,
     lastWordOf: (li) => (li === 0 ? "0-5" : li === 1 ? "1-2" : null),
-    lineMatchesFor: (q) => (q.kind === "line" && q.lineIdx === 0 ? [1] : []),
+    drawnLineOwner: (li, st) => (li === 1 ? [...st.queries].reverse().find((q) => q.active && q.kind === "line" && q.lineIdx === 0)?.id ?? null : null),
   };
   const clickLine = (st, lineIdx, mods = {}) => queryReducer(st, { type: "clickLine", lineIdx, ...mods }, lineEnv);
 
@@ -105,16 +155,29 @@ describe("queryReducer", () => {
     expect(st.queries[0].anchorIds).toEqual(["0-5"]);
     expect(st.focusedId).toBe(st.queries[0].id);
   });
-  it("clicking a matched line adopts the line query; clicking its own line focuses it", () => {
+  it("clicking a matched line focuses its line query and highlights that line; nothing moves", () => {
     let st = clickLine(initialQueryState, 0);
     const id = st.queries[0].id;
+    st = click(st, "0-2");
     st = clickLine(st, 1);
-    expect(st.queries.length).toBe(1);
-    expect(st.queries[0].id).toBe(id);
-    expect(st.queries[0].lineIdx).toBe(1);
-    expect(st.queries[0].anchorIds).toEqual(["1-2"]);
-    st = clickLine(st, 1);
-    expect(st.queries.length).toBe(1);
+    expect(st.queries.length).toBe(2);
+    expect(st.queries[0].lineIdx).toBe(0);
+    expect(st.focusedId).toBe(id);
+    expect(st.highlight).toEqual({ lineIdx: 1 });
+  });
+  it("a reveal click on a line opens its line query, never makes one", () => {
+    let st = clickLine(initialQueryState, 0);
+    const id = st.queries[0].id;
+    st = click(st, "0-2");
+    expect(clickLine(st, 2, { reveal: true })).toBe(st);
+    expect(clickLine(st, 1, { reveal: true }).focusedId).toBe(id);
+    expect(clickLine(st, 0, { reveal: true }).focusedId).toBe(id);
+  });
+  it("cmd-click on a matched line makes a new line query", () => {
+    let st = clickLine(initialQueryState, 0);
+    st = clickLine(st, 1, { meta: true });
+    expect(st.queries.length).toBe(2);
+    expect(st.queries[1].lineIdx).toBe(1);
   });
   it("word clicks never adopt a line query, even on the line's last word", () => {
     let st = clickLine(initialQueryState, 0);

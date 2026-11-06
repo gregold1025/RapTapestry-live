@@ -5,42 +5,61 @@
 //         on lines only. Its anchorIds hold the line's last word for the engine.
 // Both carry a color and the rhyme types they show.
 //
-// Click rules (env.matchesFor(q) tells us which words a query currently SHOWS as
-// matches, i.e. filtered by the query's rhyme types, so adopt follows what is drawn):
+// Click rules (env.drawnOwner(wordId, state) names the query whose color a matched word is
+// drawn in, so a click opens what the eye sees; env.drawnLineOwner the same for lines):
 //   plain click on a free word        -> new query, focused
 //   plain click on a query's anchor   -> focus that query
-//   plain click on a query's match    -> adopt: that query's anchor moves here (rhyme gravity)
+//   plain click on a query's match    -> focus that query and highlight the match (nothing moves)
 //   shift-click                       -> extend the focused query to the contiguous run
 //                                        (no focused query: behaves like a plain click)
-//   meta (cmd/ctrl in the lyrics)     -> a new query, unless the word is already one (then focus)
+//   meta (cmd/ctrl)                   -> a new query, even on a match, unless the word is
+//                                        already a query's anchor (then focus it)
 //   alt-click                         -> remove the query that owns the word (anchor or match)
-// On the tapestry and the Line Staff a plain click scrubs instead; there cmd-click
-// sends the plain-click rules above (meta: false), cmd-shift extends, alt removes.
+//   reveal (a plain click on the tapestry or the Line Staff, which also scrubs)
+//                                     -> the plain-click rules, but never a new query
+// The same rules hold for a line (clickLine) and its line queries.
 import { nanoid } from "nanoid";
 import { generateDistinctColor } from "../utils/selectionColors.js";
 import { RHYME_TYPES } from "../engine/rhymeTypes.js";
 
 export const DEFAULT_TYPES = RHYME_TYPES.filter((t) => t.on).map((t) => t.key);
 
-export const initialQueryState = { queries: [], focusedId: null };
+// highlight: the match a click opened the focused query on ({ wordId } or { lineIdx }), or null
+export const initialQueryState = { queries: [], focusedId: null, highlight: null };
 
 function ownerOf(state, wordId, env) {
-  // most recent WORD query first, anchors before matches
-  const rev = [...state.queries].reverse().filter((q) => q.kind !== "line");
-  const anchor = rev.find((q) => q.anchorIds.includes(wordId));
+  // a word query's anchor first (most recent), else the query the word is drawn in
+  const anchor = [...state.queries].reverse().find((q) => q.kind !== "line" && q.anchorIds.includes(wordId));
   if (anchor) return { q: anchor, role: "anchor" };
-  const match = rev.find((q) => q.active && env.matchesFor(q).includes(wordId));
-  if (match) return { q: match, role: "match" };
-  return null;
+  const id = env.drawnOwner(wordId, state);
+  const match = id != null && state.queries.find((q) => q.id === id);
+  return match ? { q: match, role: "match" } : null;
 }
 
 function ownerOfLine(state, lineIdx, env) {
-  const rev = [...state.queries].reverse().filter((q) => q.kind === "line");
-  const anchor = rev.find((q) => q.lineIdx === lineIdx);
+  const anchor = [...state.queries].reverse().find((q) => q.kind === "line" && q.lineIdx === lineIdx);
   if (anchor) return { q: anchor, role: "anchor" };
-  const match = rev.find((q) => q.active && env.lineMatchesFor(q).includes(lineIdx));
-  if (match) return { q: match, role: "match" };
-  return null;
+  const id = env.drawnLineOwner(lineIdx, state);
+  const match = id != null && state.queries.find((q) => q.id === id);
+  return match ? { q: match, role: "match" } : null;
+}
+
+function focusOn(state, id, highlight = null) {
+  const same = (a, b) => a === b || (a && b && a.wordId === b.wordId && a.lineIdx === b.lineIdx);
+  return state.focusedId === id && same(state.highlight, highlight) ? state : { ...state, focusedId: id, highlight };
+}
+
+function removeQuery(state, id) {
+  const queries = state.queries.filter((q) => q.id !== id);
+  const focusedId = state.focusedId === id ? (queries.length ? queries[queries.length - 1].id : null) : state.focusedId;
+  return { queries, focusedId, highlight: focusedId === state.focusedId ? state.highlight : null };
+}
+
+/** Does this click (click or clickLine) leave a query focused? Not an alt-click, nor a reveal on a free word. */
+export function clickFocuses(state, action, env) {
+  if (action.alt) return false;
+  if (!action.reveal) return true;
+  return action.type === "clickLine" ? !!ownerOfLine(state, action.lineIdx, env) : !!ownerOf(state, action.wordId, env);
 }
 
 function newQuery(state, anchorIds, extra = {}) {
@@ -60,14 +79,12 @@ function newQuery(state, anchorIds, extra = {}) {
 export function queryReducer(state, action, env = action.__env) {
   switch (action.type) {
     case "click": {
-      const { wordId, shift, meta, alt } = action;
+      const { wordId, shift, meta, alt, reveal } = action;
       if (alt) {
         const own = ownerOf(state, wordId, env);
-        if (!own) return state;
-        const queries = state.queries.filter((q) => q.id !== own.q.id);
-        return { queries, focusedId: queries.length ? queries[queries.length - 1].id : null };
+        return own ? removeQuery(state, own.q.id) : state;
       }
-      if (shift) {
+      if (shift && !reveal) {
         const focused = state.queries.find((q) => q.id === state.focusedId);
         if (focused) {
           const flats = [...focused.anchorIds, wordId].map(env.flatOf).filter((f) => f >= 0);
@@ -80,46 +97,26 @@ export function queryReducer(state, action, env = action.__env) {
       }
       const own = ownerOf(state, wordId, env);
       // a word that is already a query is focused, never duplicated (cmd-click included)
-      if (own?.role === "anchor") return state.focusedId === own.q.id ? state : { ...state, focusedId: own.q.id };
-      if (!meta) {
-        if (own?.role === "match") {
-          return {
-            queries: state.queries.map((q) => (q.id === own.q.id ? { ...q, anchorIds: [wordId] } : q)),
-            focusedId: own.q.id,
-          };
-        }
-      }
+      if (own?.role === "anchor") return focusOn(state, own.q.id);
+      if (own?.role === "match" && !meta) return focusOn(state, own.q.id, { wordId });
+      if (reveal) return state;
       const q = newQuery(state, [wordId]);
-      return { queries: [...state.queries, q], focusedId: q.id };
+      return { queries: [...state.queries, q], focusedId: q.id, highlight: null };
     }
     case "clickLine": {
-      const { lineIdx, meta, alt } = action;
+      const { lineIdx, meta, alt, reveal } = action;
       const last = env.lastWordOf(lineIdx);
       if (last == null) return state;
-      if (alt) {
-        const own = ownerOfLine(state, lineIdx, env);
-        if (!own) return state;
-        const queries = state.queries.filter((q) => q.id !== own.q.id);
-        return { queries, focusedId: state.focusedId === own.q.id ? (queries.length ? queries[queries.length - 1].id : null) : state.focusedId };
-      }
-      if (!meta) {
-        const own = ownerOfLine(state, lineIdx, env);
-        if (own?.role === "anchor") return state.focusedId === own.q.id ? state : { ...state, focusedId: own.q.id };
-        if (own?.role === "match") {
-          return {
-            queries: state.queries.map((q) => (q.id === own.q.id ? { ...q, lineIdx, anchorIds: [last] } : q)),
-            focusedId: own.q.id,
-          };
-        }
-      }
+      const own = ownerOfLine(state, lineIdx, env);
+      if (alt) return own ? removeQuery(state, own.q.id) : state;
+      if (own?.role === "anchor") return focusOn(state, own.q.id);
+      if (own?.role === "match" && !meta) return focusOn(state, own.q.id, { lineIdx });
+      if (reveal) return state;
       const q = newQuery(state, [last], { kind: "line", lineIdx });
-      return { queries: [...state.queries, q], focusedId: q.id };
+      return { queries: [...state.queries, q], focusedId: q.id, highlight: null };
     }
-    case "remove": {
-      const queries = state.queries.filter((q) => q.id !== action.id);
-      const focusedId = state.focusedId === action.id ? (queries.length ? queries[queries.length - 1].id : null) : state.focusedId;
-      return { queries, focusedId };
-    }
+    case "remove":
+      return removeQuery(state, action.id);
     case "toggleActive":
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, active: !q.active } : q)) };
     case "setTypes":
@@ -129,7 +126,7 @@ export function queryReducer(state, action, env = action.__env) {
     case "setColor":
       return { ...state, queries: state.queries.map((q) => (q.id === action.id ? { ...q, color: action.color } : q)) };
     case "focus":
-      return state.focusedId !== action.id && state.queries.some((q) => q.id === action.id) ? { ...state, focusedId: action.id } : state;
+      return state.queries.some((q) => q.id === action.id) ? focusOn(state, action.id) : state;
     case "clear":
       return initialQueryState;
     default:

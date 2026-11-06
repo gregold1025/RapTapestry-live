@@ -11,8 +11,8 @@
 //   pitched     - the word's median F0 inside wordBand (centroid when unmeasured)
 //   perSyllable - a curve through every syllable's F0 (stroke = thickness)
 //
-// Clicks: click = query (adopt / focus / new), shift = extend the focused query,
-// Clicks: plain = scrub to that point; cmd = query (new / focus / adopt); cmd-shift = extend; alt = remove.
+// Clicks: plain = scrub to that point and open the query the word belongs to; cmd = a new
+// query (focus when it is one already); cmd-shift = extend; alt = remove.
 
 import React, { useState, useId } from "react";
 import { timeAtEvent } from "../global/timeAtEvent";
@@ -107,15 +107,16 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
         pointerEvents: "visiblePainted",
         onClick: (e) => {
           e.stopPropagation();
-          if (e.metaKey || e.ctrlKey || e.altKey) click(id, { shift: e.shiftKey, meta: false, alt: e.altKey });
-          else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+          if (e.altKey) click(id, { alt: true });
+          else if (e.metaKey || e.ctrlKey) click(id, { shift: e.shiftKey, meta: true });
+          else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); click(id, { reveal: true }); }
         },
         onMouseEnter: (e) => {
           setHoveredWordId(id);
-          onGlyphHoverEnter?.(e, { type: "word", wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: matchLabel(vis) });
+          onGlyphHoverEnter?.(e, { type: "word", wordId: id, wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: matchLabel(vis) });
         },
         onMouseLeave: (e) => { setHoveredWordId(null); onGlyphHoverLeave?.(e); },
-        title: "Click: scrub here • Cmd+Click: query this word • Cmd+Shift+Click: extend the query • Alt+Click: remove",
+        title: "Click: scrub here (and open its query) • Cmd+Click: query this word • Cmd+Shift+Click: extend the query • Alt+Click: remove",
       };
 
       // base shape = hit target (inactive look when unqueried)

@@ -37,7 +37,7 @@ export const WordBlock = React.memo(function WordBlock({ word, lineIdx, wordIdx,
         onMouseEnter={() => onWordHover?.(word, label, vis && !vis.isAnchor ? { vi0: vis.vi0, vi1: vis.vi1, vowelOnly: vis.vowelOnly } : null, wordId)}
         onMouseLeave={onHoverEnd}
         style={style}
-        title={label ? `${label} • click: adopt/focus • shift: extend • alt: remove` : "Click: query this word • Shift+Click: extend the focused query • Cmd+Click: new query"}
+        title={label ? `${label} • click: open its query • cmd: new query • shift: extend • alt: remove` : "Click: query this word • Shift+Click: extend the focused query • Cmd+Click: new query"}
       >
         {word.text}
       </span>

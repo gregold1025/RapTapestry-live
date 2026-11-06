@@ -122,11 +122,12 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   const x = (t) => layout.timeToPixels(t).x;
   const onClick = (id) => (e) => {
     e.stopPropagation();
-    if (e.metaKey || e.ctrlKey || e.altKey) click(id, { shift: e.shiftKey, meta: false, alt: e.altKey });
-    else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+    if (e.altKey) click(id, { alt: true });
+    else if (e.metaKey || e.ctrlKey) click(id, { shift: e.shiftKey, meta: true });
+    else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); click(id, { reveal: true }); }
   };
   const hover = (it) => (e) => onGlyphHoverEnter?.(e, {
-    type: "word", wordText: it.text, phones: it.tw.phones ?? (Array.isArray(it.word.phones) ? it.word.phones[0] : String(it.word.phones ?? "")),
+    type: "word", wordId: it.id, wordText: it.text, phones: it.tw.phones ?? (Array.isArray(it.word.phones) ? it.word.phones[0] : String(it.word.phones ?? "")),
     match: matchLabel(it.vis),
     f0: it.tw.f0, syllables: it.syls.map((sy) => (sy.cluster ? sy.cluster.join(" ") : sy.vowel)).join("  |  "),
   });

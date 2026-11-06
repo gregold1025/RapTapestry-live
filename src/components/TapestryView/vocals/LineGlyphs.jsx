@@ -62,12 +62,13 @@ export default function LineGlyphs({ transcriptionData }) {
           pointerEvents="visiblePainted"
           onClick={(e) => {
             e.stopPropagation();
-            if (e.metaKey || e.ctrlKey || e.altKey) clickLine(lineIdx, { meta: false, alt: e.altKey });
-            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+            if (e.altKey) clickLine(lineIdx, { alt: true });
+            else if (e.metaKey || e.ctrlKey) clickLine(lineIdx, { meta: true });
+            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); clickLine(lineIdx, { reveal: true }); }
           }}
           onMouseEnter={() => setHoveredLineIdx(lineIdx)}
           onMouseLeave={() => setHoveredLineIdx(null)}
-          title={"Click: scrub here • Cmd+Click: line query (end rhyme) • Alt+Click: remove"}
+          title={"Click: scrub here (and open its line query) • Cmd+Click: line query (end rhyme) • Alt+Click: remove"}
         />
       );
     }

@@ -61,10 +61,11 @@ export default function SyllableGlyphs({ transcriptionData, onGlyphHoverEnter, o
         const handlers = {
           onClick: (e) => {
             e.stopPropagation();
-            if (e.metaKey || e.ctrlKey || e.altKey) click(id, { shift: e.shiftKey, meta: false, alt: e.altKey });
-            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); }
+            if (e.altKey) click(id, { alt: true });
+            else if (e.metaKey || e.ctrlKey) click(id, { shift: e.shiftKey, meta: true });
+            else { const t = timeAtEvent(e, layout); if (t != null) seekAll(t); click(id, { reveal: true }); }
           },
-          onMouseEnter: (e) => onGlyphHoverEnter?.(e, { wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones ?? ""), vowel: s.vowel || undefined, syllableIndex: si, totalSyllables: syls.length, f0: s.f0 }),
+          onMouseEnter: (e) => onGlyphHoverEnter?.(e, { wordId: id, wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones ?? ""), vowel: s.vowel || undefined, syllableIndex: si, totalSyllables: syls.length, f0: s.f0 }),
           onMouseLeave: onGlyphHoverLeave,
           style: { cursor: "pointer" },
           pointerEvents: "visiblePainted",

@@ -101,7 +101,10 @@
 .ql-total { font-weight: 700; color: var(--rt-ink); }
 
 /* ---- single query ---- */
-.sq-anchor { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-left: 4px solid var(--q); background: var(--q-tint); border-bottom: 1px solid var(--rt-line); }
+.sq-anchor { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-left: 4px solid var(--q); background: var(--q-tint); border-bottom: 1px solid var(--rt-line); cursor: pointer; }
+.sq-anchor:hover { background: var(--q-soft); }
+.sq-solo { flex: 0 0 auto; }
+.sq-anchor .sq-solo.is-on { color: var(--rt-ink); background: var(--q); border-color: var(--q); }
 .sq-anchor-text { font-size: 15px; font-weight: 700; color: var(--rt-ink); }
 .sq-anchor-phones { font-size: 10px; color: var(--rt-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin: 2px 0 4px 0; word-break: break-word; }
 .sq-types { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--rt-line); }
@@ -157,6 +160,8 @@
 .sq-match { background: var(--rt-panel); }
 .sq-match:nth-of-type(even) { background: var(--rt-head); }
 .sq-match:hover { background: #575757; }
+/* the match a click in the lyrics or the tapestry opened the query on */
+.sq-match.is-highlit { background: var(--q-soft); box-shadow: inset 3px 0 0 var(--q); }
 .sq-types .rp-chip { color: var(--rt-muted); }
 .sq-types .rp-chip.is-active { font-weight: 700; }
 
