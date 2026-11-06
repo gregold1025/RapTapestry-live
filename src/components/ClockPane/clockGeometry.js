@@ -143,3 +143,9 @@ export function revealOpacity({ follow, playing, ring, current, start, t }) {
   if (ring === current && start > t) return FAINT;
   return 1;
 }
+
+/** What a drag does: move the current ring, pan through the song, or nothing (whole song). */
+export function dragMode({ onCurrentRing, wholeSong, rings }) {
+  if (wholeSong) return null;
+  return onCurrentRing && rings > 1 ? "ring" : "pan";
+}

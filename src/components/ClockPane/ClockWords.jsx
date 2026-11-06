@@ -31,7 +31,7 @@ function ClockWords({ marks, geo, textPx, showLabels, hitWidth, onWord, onHover,
         const first = m.segments[0];
         const pid = `clk-w-${m.id}`;
         return (
-          <g key={m.id} data-start={m.start} data-ring={first.ring} style={{ cursor: "pointer" }}
+          <g key={m.id} data-word={m.id} data-start={m.start} data-ring={first.ring} style={{ cursor: "pointer" }}
             onClick={onWord ? (e) => onWord(e, m) : undefined}
             onMouseEnter={onHover ? (e) => onHover(e, m) : undefined}
             onMouseLeave={onLeave}>

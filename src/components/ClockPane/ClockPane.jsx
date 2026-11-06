@@ -3,7 +3,7 @@
 // or 4 bars (angle = position in the cycle; outer rings earlier, inner rings
 // later), one cycle of drum glyphs on the rim, and a sweeping playhead. For
 // now it floats over the center stage, opened by the clock icon in the header.
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Segmented } from "../ui";
 import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
@@ -16,8 +16,14 @@ import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import ClockWords from "./ClockWords";
 import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
-import ClockFace from "./ClockFace";
+import ClockFace, { CurrentRingHandle } from "./ClockFace";
 import { useClockWindow } from "./useClockWindow";
+import { useClockPointer } from "./useClockPointer";
+import { useQueryActions } from "../../contexts/QueryContext";
+import { useAudioControls } from "../../contexts/AudioContext";
+import { useCanvasHoverInfo } from "../TapestryView/hooks/useCanvasHoverInfo";
+import { CanvasHoverTooltip } from "../TapestryView/global/CanvasHoverToolTip";
+import { matchLabel } from "../../utils/matchLabel";
 import "./ClockPane.css";
 
 const BAR_H = 30;     // the header bar's height (px)
@@ -76,9 +82,28 @@ export default function ClockPane({ duration }) {
     [clockShowDrums, hits, cycles, W, current, byClass, drumClasses, drumBands]
   );
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
+  useClockPointer({ svgRef, geo, cycles, win, wholeSong, active: side > 0 });
+
+  // words: the shared click rules; a plain click seeks to the word without moving the rings
+  const { click } = useQueryActions();
+  const { seekAll } = useAudioControls();
+  const winRef = useRef(win);
+  winRef.current = win;
+  const onWord = useCallback((e, m) => {
+    e.stopPropagation();
+    if (e.altKey) click(m.id, { alt: true });
+    else if (e.metaKey || e.ctrlKey) click(m.id, { shift: e.shiftKey, meta: true });
+    else { winRef.current.freeze(); seekAll(m.start); click(m.id, { reveal: true }); }
+  }, [click, seekAll]);
+  const { hoverInfo, onHoverEnter, onHoverLeave } = useCanvasHoverInfo();
+  const onHover = useCallback((e, m) => {
+    const tw = timing?.words.get(m.id);
+    onHoverEnter(e, { type: "word", wordId: m.id, wordText: m.text, phones: tw?.phones ?? "", match: matchLabel(visualByWordId.get(m.id) ?? null) });
+  }, [timing, visualByWordId, onHoverEnter]);
   const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
   return (
+    <>
     <section ref={paneRef} className="clock-pane" aria-label="Rhyme Clock" style={{ width: side || undefined }}>
       <div className="clock-bar">
         <span className="clock-title"><IconClock /> Rhyme Clock</span>
@@ -102,12 +127,16 @@ export default function ClockPane({ duration }) {
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} />}
-              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} />
+              <CurrentRingHandle geo={geo} currentRing={current} enabled={!wholeSong && rings > 1} />
+              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>
           )}
         </svg>
       )}
     </section>
+    {/* outside the pane: its transform would anchor the tooltip's fixed position */}
+    <CanvasHoverTooltip hoverInfo={hoverInfo} />
+    </>
   );
 }

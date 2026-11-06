@@ -130,3 +130,18 @@ describe("reveal while following", () => {
     expect(revealOpacity({ follow: true, playing: false, ring: 3, current: 2, start: 10, t: 9 })).toBe(1);
   });
 });
+
+import { dragMode } from "../clockGeometry";
+
+describe("dragMode", () => {
+  it("grabs the current ring when it can move", () => {
+    expect(dragMode({ onCurrentRing: true, wholeSong: false, rings: 8 })).toBe("ring");
+  });
+  it("pans when there is only one ring or the drag starts elsewhere", () => {
+    expect(dragMode({ onCurrentRing: true, wholeSong: false, rings: 1 })).toBe("pan");
+    expect(dragMode({ onCurrentRing: false, wholeSong: false, rings: 8 })).toBe("pan");
+  });
+  it("does nothing in whole-song mode", () => {
+    expect(dragMode({ onCurrentRing: true, wholeSong: true, rings: 37 })).toBe(null);
+  });
+});
