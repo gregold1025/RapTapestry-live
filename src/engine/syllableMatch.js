@@ -1,39 +1,37 @@
 // src/engine/syllableMatch.js
-// The rhyme hierarchy agreed with Greg on 2026-11-05 (one matcher for word, run and line
-// queries). A query is the syllables of its words. Every place in the song is tried as the
-// END of a match: the query's last syllable is paired with it, then the pairing walks
-// leftward, one syllable at a time, for as long as the syllables link.
+// The protocol engine (Greg, 2026-11-05 and 11-06; spec: docs/superpowers/specs/2026-11-06-rhyme-protocol-design.md).
 //
-// Linking, per pair of syllables:
-//  - Both stressed (dictionary stress, one-syllable function words count as unstressed):
-//    the vowel and the consonants that CLOSE the syllable are classified (perfect, family,
-//    additive, assonance; slant only when RULE_OPTIONS.slant). The consonants that open the
-//    next syllable are free, as the first syllable's onset is (so-so / so-lo). When the whole
-//    consonant cluster between the two vowels is identical, it matches however it splits.
-//  - Otherwise (an unstressed syllable on either side): the vowel must be the same (AH / IH / EH
-//    count as one reduced vowel: unstressed against unstressed, or against a stressed AH / IH /
-//    EH). Such a link holds the chain but does not set the label, except at the end: the
-//    final pair always counts.
-// The CORE of a match starts at a pair stressed on both sides; linked unstressed pairs to the
-// left of it are PICKUPS (un-til / the thrill): they lengthen the match and never change it.
-// The label is the weakest counted link. Assonance needs two full vowels (a schwa holds a
-// chain, it does not count). A one-syllable match must be perfect, family or additive; inside
-// a longer word, only perfect on a closed syllable (engage / engage-ments).
-// Forms by geometry: word (inside one word, to its end), embedded (inside one word, before its
-// end), mosaic (across words, ending at a word's end), semirhyme (below). One match per place.
-// Semirhyme: a content word within one bar of the query whose stressed syllable matches the
-// query's last word on its stressed syllable alone, one of the two words carrying an
-// unstressed ending the other lacks (logic ~ Spock; Spock ~ logic); perfect, family or additive.
-import { parseRime, classifyRhyme, isFunctionWord, REDUCED, RULE_OPTIONS } from './rhymeTypes.js';
+// Units. A syllable has an onset, a vowel and a coda (syllabify.js, maximal onset); every
+// dictionary reading of a word stays available (`alts`). A FOOT is a stressed syllable of the
+// QUERY plus the unstressed syllables after it; unstressed syllables before the first stress are
+// PICKUPS. One-syllable function words count as unstressed (`weak`).
+//
+// A match. Every candidate syllable is tried as the END of a match. The query's FINAL foot is
+// compared first with as many candidate syllables (protocol.js: rows perfect / loosened /
+// shifted); its row is the match's IDENTITY. Then the feet to the left are compared in turn and
+// join while they pass (any row); the chain stops at the first that fails. A candidate syllable
+// that is unstressed where the query is stressed holds the chain on its vowel alone (soft link:
+// so- so ~ so-lo; we just chill ~ '93 un-til) and never sets the identity. Pickups link on the
+// vowel, unstressed on both sides.
+//
+// Tail cases, one rule both ways. Query has a tail the candidate lacks: SEMIRHYME (lo-gic ~
+// Spock), the stressed syllables are compared alone, content words only. Candidate has a tail
+// (the match ends inside its word): EMBEDDED (wage ~ en-gage-ments). On the tailed side, CREDIT
+// WHERE CREDIT IS DUE: its whole cluster up to the next vowel counts as the coda when that makes
+// the coda axis 1 or F, else its syllabified coda. Both only within 4 bars of the query.
+//
+// Assonance is a second pass, where no rhyme match ends: vowels only, three syllables or more,
+// at least one pair stressed on both sides, only content-word syllables count toward three.
+//
+// Forms by geometry: word (one word, to its end), embedded (one word, before its end), mosaic
+// (several words, ending at a word end), semirhyme. Identical: the whole query repeats.
+import { isFunctionWord } from './rhymeTypes.js';
 import { syllabify, bare } from '../utils/syllabify.js';
+import { footRow, sameNucleus } from './protocol.js';
 
-const ORDER = ['identical', 'perfect', 'family', 'additive', 'slant', 'assonance'];
-const rank = (t) => (t == null ? 99 : ORDER.indexOf(t));
-const ONE_SYLLABLE_TYPES = new Set(['perfect', 'family', 'additive', 'slant']);
-// a semirhyme compares one syllable, so like any one-syllable match it is never assonance
-// (Greg 2026-11-05: vibrations ~ makes / females meant only the shared EY)
-const SEMIRHYME_TYPES = ONE_SYLLABLE_TYPES;
-const VOWEL = /^(AA|AE|AH|AO|AW|AY|EH|ER|EY|IH|IY|OW|OY|UH|UW)\d?$/;
+export const ROW_TYPE = { 1: 'perfect', 2: 'loosened', 3: 'shifted' };
+export const TAIL_BARS = 4;
+export const ASSONANCE_MIN = 3;
 
 /** A word's syllables, one entry per syllable, each with its readings (`alts`). */
 function wordSyllables(w) {
@@ -82,112 +80,150 @@ export function songSyllables(song) {
 }
 
 const strong = (s) => s.stress >= 1 && !s.weak;
-// a schwa: an unstressed (or function-word) syllable that can be read with a reduced vowel
-const schwa = (s) => !strong(s) && s.alts.some((a) => REDUCED.has(a.v));
-// The consonants that close a syllable. Ambisyllabic consonant: an OPEN stressed syllable
-// before a schwa in the same word takes the next consonant (lo-gic is heard lodge-ic,
-// di-gits didge-its); a stressed short vowel does not end a syllable. Otherwise the next
-// syllable's onset is free (so-lo, en-gage-ments).
-function closing(alt, syl, next) {
-  if (alt.coda.length || !next || next.w !== syl.w || !schwa(next) || !(syl.stress >= 1)) return alt.coda;
-  return alt.follow.slice(0, 1);
+// b follows a directly in the song (same word, or the next word with phones)
+const adjacent = (a, b) => a.w === b.w || b.w.flat === a.w.flat + 1;
+const stepOf = (syl, alt, coda) => ({ v: alt.v, stress: alt.stress, on: alt.on, coda: coda ?? alt.coda, weak: syl.weak });
+const barOf = (song, t) => (song.barPosition ? song.barPosition(t).bar : 0);
+const withinBars = (song, a, b, n = TAIL_BARS) => Math.abs(barOf(song, a.start) - barOf(song, b.start)) <= n;
+
+/** Two syllables share a nucleus in some reading (weak vowels interchangeable, protocol.js). */
+function vowelLink(q, c) {
+  for (const a of q.alts) for (const b of c.alts) if (sameNucleus(stepOf(q, a), stepOf(c, b))) return true;
+  return false;
 }
-const sameCons = (a, b) => a.join() === b.join();
-function classify(v1, c1, v2, c2) {
-  const t = classifyRhyme(parseRime([v1 + '1', ...c1].join(' ')), parseRime([v2 + '1', ...c2].join(' ')));
-  if (t === 'identical') return 'perfect';
-  if (t === 'slant' && !RULE_OPTIONS.slant) return null;
-  return t;
+
+/** The codas a syllable may close with: its own, and (credit) its whole cluster to the next vowel inside its word. */
+function codaOptions(S, syl, alt, credit) {
+  const opts = [{ coda: alt.coda, credit: false }];
+  const next = S[syl.i + 1];
+  if (credit && next && next.w === syl.w && alt.follow.length > alt.coda.length) opts.push({ coda: alt.follow, credit: true });
+  return opts;
+}
+
+// the stressed step (j === 0) is compared through the readings that stress its vowel, when any do
+const stressedAlts = (syl, j) => { if (j !== 0) return syl.alts; const st = syl.alts.filter((a) => a.stress >= 1); return st.length ? st : syl.alts; };
+const better = (a, b) => (a.row !== b.row ? a.row < b.row : a.tags.length !== b.tags.length ? a.tags.length < b.tags.length : a.credit && !b.credit);
+
+/**
+ * Compare query syllables q with candidate syllables c (same count) over every reading pair;
+ * `credit`: the last step on either side may close on its whole cluster when that gives coda 1 / F.
+ * -> { row, axes, tags, credit } | null
+ */
+function compareFoot(S, q, c, { credit = false } = {}) {
+  const n = q.length;
+  let best = null;
+  const qa = [], ca = [];
+  const rec = (j) => {
+    if (j === n) {
+      for (const qo of codaOptions(S, q[n - 1], qa[n - 1], credit)) for (const co of codaOptions(S, c[n - 1], ca[n - 1], credit)) {
+        const r = footRow(qa.map((a, i) => stepOf(q[i], a, i === n - 1 ? qo.coda : undefined)), ca.map((b, i) => stepOf(c[i], b, i === n - 1 ? co.coda : undefined)));
+        if (!r) continue;
+        const credited = qo.credit || co.credit;
+        if (credited && r.axes.coda !== '1' && r.axes.coda !== 'F') continue;
+        const cand = { ...r, credit: credited };
+        if (!best || better(cand, best)) best = cand;
+      }
+      return;
+    }
+    for (const a of stressedAlts(q[j], j)) for (const b of stressedAlts(c[j], j)) { qa[j] = a; ca[j] = b; rec(j + 1); }
+  };
+  rec(0);
+  return best;
+}
+
+/** The query's feet (left to right) and its pickups, by dictionary stress (the user chose the words: so- so, we just chill are feet). */
+export function queryFeet(Q) {
+  const feet = [], pickups = [];
+  let cur = null;
+  for (const s of Q) {
+    if (s.stress >= 1) { cur = [s]; feet.push(cur); } else if (cur) cur.push(s); else pickups.push(s);
+  }
+  return { feet, pickups };
+}
+// candidate under a query foot: compared in full when dictionary-stressed; a function word or an
+// unstressed syllable that fails (or has no stress) may still hold the chain on its vowel (soft)
+function footLink(S, F, sp, opts) {
+  let r = sp[0].stress >= 1 ? compareFoot(S, F, sp, opts) : null;
+  if (!r && (sp[0].stress < 1 || sp[0].weak) && sp.every((x, j) => vowelLink(F[j], x))) r = { soft: true };
+  return r;
 }
 
 /**
- * One pair: query syllable q against candidate syllable c. `qn`, `cn`: the syllables to their
- * right inside the stretch (null at the end). `asCore`: classify fully even if a side is weak.
- * -> { type, counted } | null
+ * The longest match ending at candidate syllable e, or null.
+ * `covered`: syllable indices already taken by an earlier (later-ending) match.
  */
-function link(q, c, qn, cn, { final, asCore }) {
-  const full = asCore ? q.stress >= 1 && c.stress >= 1 : strong(q) && strong(c);
-  let best = null;
-  // classified as stressed: only readings that stress the vowel (to as T UW1, not T IH0)
-  const pick = (s) => { if (!full) return s.alts; const st = s.alts.filter((x) => x.stress >= 1); return st.length ? st : s.alts; };
-  for (const a of pick(q)) for (const b of pick(c)) {
-    let ca = a.coda, cb = b.coda;
-    if (final) {
-      // the query ends at its word's end; a candidate ending mid-word may close on its
-      // whole following cluster (chill / chill-ing) or on its coda alone
-      if (!c.final && sameCons(ca, b.follow)) cb = ca;
-    } else if (qn && cn) {
-      const qa = [...a.coda, ...(qn.alts[0]?.on ?? [])], cbb = [...b.coda, ...(cn.alts[0]?.on ?? [])];
-      if (sameCons(qa, cbb)) cb = ca;
-      else { ca = closing(a, q, qn); cb = closing(b, c, cn); }
+function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
+  const Ff = feet[feet.length - 1];
+  const k = Ff.length;
+  const c0 = S[e];
+  if (!c0 || qWords.has(c0.w.id) || covered.has(e)) return null;
+  const usable = (s) => s && !qWords.has(s.w.id) && !covered.has(s.i);
+  // candidate syllables for a foot of n steps ending at index end, contiguous in the song
+  const span = (end, n) => {
+    const out = [];
+    for (let j = 0; j < n; j++) {
+      const s = S[end - j];
+      if (!usable(s) || (out.length && !adjacent(s, out[0]))) return null;
+      out.unshift(s);
     }
-    let type;
-    if (full) type = classify(a.v, ca, b.v, cb);
-    else {
-      // unstressed AH / IH / EH are one reduced vowel, also against a stressed AH / IH / EH
-      // (fa-mous ~ Hey, miss: AH0 S ~ IH1 S); the reduced side still does not count as a full vowel
-      const sameV = a.v === b.v || (REDUCED.has(a.v) && REDUCED.has(b.v));
-      if (!sameV) continue;
-      type = classify(a.v, ca, a.v, cb) ?? 'assonance';
+    return out;
+  };
+  const all = [];   // [{ c, type, counted, pickup }] right to left, reversed at the end
+  const footsUsed = [];
+  let form = null;
+  // final foot: same shape ('full' pass), or the query's tail left over ('semi' pass: semirhyme)
+  let r = null, cs = null;
+  if (mode === 'full') {
+    cs = span(e, k);
+    if (cs) r = footLink(S, Ff, cs, { credit: true });
+    // a vowel-only final foot only as a word's own unstressed tail (so- so ~ so-lo), with a full foot to its left
+    if (r?.soft && (feet.length < 2 || cs[0].k === 0)) r = null;
+    // the query's tail filled by a function word (Spock and, Shock's a): the semirhyme on the stressed
+    // word is the match when it passes (Greg 2026-11-05: logic ~ Spock, not 'Spock and')
+    if (r && !r.soft && k >= 2 && cs.slice(1).some((x) => x.weak) && cs[0].final && cs[0].stress >= 1 && !cs[0].weak && !isFunctionWord(cs[0].w.text) && compareFoot(S, [Ff[0]], [cs[0]], { credit: true })) r = null;
+  } else if (k >= 2 && c0.stress >= 1 && !c0.weak && c0.final && !isFunctionWord(c0.w.text)) {
+    r = compareFoot(S, [Ff[0]], [c0], { credit: true });
+    if (r) { cs = [c0]; form = 'semirhyme'; }
+  }
+  if (!r) return null;
+  let identity = r.soft ? null : r;
+  for (let j = cs.length - 1; j >= 0; j--) all.push({ c: cs[j], row: r.soft ? null : r.row, counted: !r.soft, pickup: false });
+  if (!r.soft) footsUsed.push({ row: r.row, axes: r.axes, tags: r.tags, i0: cs[0].i, i1: cs[cs.length - 1].i });
+  // feet to the left join while they pass; an unstressed candidate holds on the vowel
+  let left = cs[0].i;
+  for (let f = feet.length - 2; f >= 0; f--) {
+    const F = feet[f];
+    const sp = span(left - 1, F.length);
+    if (!sp || !adjacent(sp[sp.length - 1], S[left])) break;
+    const rr = footLink(S, F, sp);
+    if (!rr) break;
+    for (let j = sp.length - 1; j >= 0; j--) all.push({ c: sp[j], row: rr.soft ? null : rr.row, counted: !rr.soft, pickup: false });
+    if (!rr.soft) { footsUsed.unshift({ row: rr.row, axes: rr.axes, tags: rr.tags, i0: sp[0].i, i1: sp[sp.length - 1].i }); if (!identity) identity = rr; }
+    left = sp[0].i;
+  }
+  if (!identity) return null;   // every foot held on vowels only: no rhyme
+  // pickups: unstressed on both sides, linked on the vowel
+  if (all.length === Ff.length + feet.slice(0, -1).reduce((n, F) => n + F.length, 0) || form === null) {
+    for (let p = pickups.length - 1; p >= 0 && footsUsed.length === feet.length; p--) {
+      const s = S[left - 1];
+      if (!usable(s) || !adjacent(s, S[left]) || strong(s) || !vowelLink(pickups[p], s)) break;
+      all.push({ c: s, row: null, counted: false, pickup: true });
+      left = s.i;
     }
-    if (type && rank(type) < rank(best?.type)) best = { type };
   }
-  if (!best) return null;
-  return { type: best.type, counted: full || final };
-}
-
-const fullVowel = (x) => !schwa(x.q) && !schwa(x.c);
-
-/** The longest valid match ending at candidate syllable index e, or null. */
-function matchAt(S, Q, e, qWords) {
-  const pairs = [];
-  for (let k = 1; k <= Q.length; k++) {
-    const q = Q[Q.length - k], c = S[e - k + 1];
-    if (!c || qWords.has(c.w.id)) break;
-    // syllables must be contiguous in the song (no gaps from words without phones)
-    if (k > 1 && (S[e - k + 2].i - c.i !== 1)) break;
-    pairs.unshift({ q, c, qn: Q[Q.length - k + 1] ?? null, cn: k > 1 ? S[e - k + 2] : null, final: k === 1 });
-  }
-  // walk from the right: each pair must link (soft); stop at the first that does not
-  const links = [];
-  for (let j = pairs.length - 1; j >= 0; j--) {
-    const p = pairs[j];
-    const l = link(p.q, p.c, p.final ? null : p.qn, p.final ? null : p.cn, { final: p.final });
-    if (!l) break;
-    links.unshift({ ...p, ...l });
-  }
-  if (!links.length) return null;
-  // core starts: pairs stressed (dictionary) on both sides; try the leftmost first
-  for (let s = 0; s < links.length; s++) {
-    const P = links[s];
-    if (!(P.q.stress >= 1 && P.c.stress >= 1)) continue;
-    const core = links.slice(s).map((x, j) => (j === 0 ? { ...x, ...(link(x.q, x.c, x.final ? null : x.qn, x.final ? null : x.cn, { final: x.final, asCore: true }) ?? { type: null }), counted: true } : x));
-    if (core[0].type == null) continue;
-    const counted = core.filter((x) => x.counted);
-    const type = counted.reduce((w, x) => (rank(x.type) > rank(w) ? x.type : w), 'perfect');
-    const fullVowels = core.filter(fullVowel).length;
-    if (type === 'assonance' && fullVowels < 2) continue;
-    if (core.length === 1 && !ONE_SYLLABLE_TYPES.has(type)) continue;
-    // pickups: only when no pair left of the core is stressed on both sides, and only the run
-    // just left of the core that is unstressed on both sides (un-til / the thrill; a-ttack is
-    // not picked up by flick's at)
-    let pickups = [];
-    if (links.slice(0, s).every((x) => !(x.q.stress >= 1 && x.c.stress >= 1))) {
-      let p0 = s;
-      while (p0 > 0 && !strong(links[p0 - 1].q) && !strong(links[p0 - 1].c)) p0--;
-      pickups = links.slice(p0, s);
-    }
-    const all = [...pickups.map((x) => ({ ...x, pickup: true, counted: false })), ...core];
-    const first = all[0].c, last = all.at(-1).c;
-    const words = [];
-    for (const x of all) if (words.at(-1) !== x.c.w) words.push(x.c.w);
-    let form;
-    if (words.length > 1) { if (!last.final) continue; form = 'mosaic'; }
+  all.reverse();
+  const type = ROW_TYPE[identity.row];
+  for (const x of all) x.type = x.row ? ROW_TYPE[x.row] : type;
+  const first = all[0].c, last = all[all.length - 1].c;
+  const words = [];
+  for (const x of all) if (words[words.length - 1] !== x.c.w) words.push(x.c.w);
+  if (!form) {
+    if (words.length > 1) { if (!last.final) return null; form = 'mosaic'; }
     else form = last.final ? 'word' : 'embedded';
-    if (form === 'embedded' && core.length === 1 && !(type === 'perfect' && core[0].q.alts.some((a) => a.coda.length))) continue;
-    return { all, type, form, words, first, last };
   }
-  return null;
+  // tail cases within 4 bars of the query
+  if ((form === 'semirhyme' || form === 'embedded') && !withinBars(song, first.w, feet[0][0].w)) return null;
+  return { all, type, tags: identity.tags, feet: footsUsed, form, words, first, last };
 }
 
 const isIdentical = (Q, m, qWordList) =>
@@ -195,9 +231,9 @@ const isIdentical = (Q, m, qWordList) =>
   m.words.every((w, i) => (w.phones ?? '').replace(/\d/g, '') === (qWordList[i].phones ?? '').replace(/\d/g, ''));
 
 function toMatch(m, type) {
-  const w0 = m.words[0], w1 = m.words.at(-1);
+  const w0 = m.words[0], w1 = m.words[m.words.length - 1];
   return {
-    type, form: m.form, words: m.words, word: w0, text: m.words.map((w) => w.text).join(' '),
+    type, form: m.form, tags: m.tags ?? [], feet: m.feet ?? [], words: m.words, word: w0, text: m.words.map((w) => w.text).join(' '),
     start: w0.start,
     end: m.form === 'embedded' ? w1.start + ((m.last.kEnd + 1) * (w1.end - w1.start)) / w1.nSyllables : w1.end,
     vi0: m.first.k, vi1: m.last.kEnd,
@@ -206,39 +242,25 @@ function toMatch(m, type) {
   };
 }
 
-/** Semirhyme candidates for the query's last word (see header). */
-function semirhymes(song, S, qWordList, taken) {
-  const wq = qWordList.at(-1);
-  const qs = S.filter((s) => s.w === wq);
-  if (!qs.length) return [];
-  const bar = (song.beatsPerBar * 60) / song.bpm;
-  const qWords = new Set(qWordList.map((w) => w.id));
-  const lastStressed = (syls) => { for (let k = syls.length - 1; k >= 0; k--) if (syls[k].stress >= 1) return k; return -1; };
-  const qt = lastStressed(qs);
-  if (qt < 0) return [];
-  const qTail = qt < qs.length - 1;   // the query word has an unstressed ending
-  const out = [];
-  const byWord = new Map();
-  for (const s of S) (byWord.get(s.w) ?? byWord.set(s.w, []).get(s.w)).push(s);
-  for (const [w, cs] of byWord) {
-    if (qWords.has(w.id) || taken.has(w.id) || isFunctionWord(w.text)) continue;
-    if (Math.abs(w.start - wq.start) > bar + 1e-9) continue;
-    const ct = lastStressed(cs);
-    if (ct < 0) continue;
-    const cTail = ct < cs.length - 1;
-    if (qTail === cTail) continue;   // exactly one side carries the extra unstressed ending
-    const q = qs[qt], c = cs[ct];
-    let best = null;
-    for (const a of q.alts) for (const b of c.alts) {
-      // the side with the unstressed ending closes as in a longer match (closing())
-      const t = classify(a.v, qTail ? closing(a, q, qs[qt + 1]) : a.coda, b.v, cTail ? closing(b, c, cs[ct + 1]) : b.coda);
-      if (t && SEMIRHYME_TYPES.has(t) && rank(t) < rank(best)) best = t;
-    }
-    if (!best) continue;
-    out.push({ type: best, form: 'semirhyme', words: [w], word: w, text: w.text, start: w.start, end: w.end, vi0: c.k, vi1: c.kEnd,
-      links: [{ wordId: w.id, k: c.k, kEnd: c.kEnd, type: best, counted: true, pickup: false }] });
+/** Rule D: a vowel chain ending at e where no rhyme match ends. */
+function assonanceAt(S, Q, e, qWords, covered) {
+  const all = [];
+  for (let k = 1; k <= Q.length; k++) {
+    const q = Q[Q.length - k], c = S[e - k + 1];
+    if (!c || qWords.has(c.w.id) || covered.has(c.i)) break;
+    if (all.length && !adjacent(c, all[0].c)) break;
+    if (!vowelLink(q, c)) break;
+    all.unshift({ q, c, type: 'assonance', counted: true, pickup: false });
   }
-  return out;
+  if (all.length < ASSONANCE_MIN) return null;
+  if (!all.some((x) => strong(x.q) && strong(x.c))) return null;
+  if (all.filter((x) => !x.q.weak && !x.c.weak).length < ASSONANCE_MIN) return null;
+  const words = [];
+  for (const x of all) if (words[words.length - 1] !== x.c.w) words.push(x.c.w);
+  const last = all[all.length - 1].c;
+  let form;
+  if (words.length > 1) { if (!last.final) return null; form = 'mosaic'; } else form = last.final ? 'word' : 'embedded';
+  return { all, type: 'assonance', tags: [], feet: [], form, words, first: all[0].c, last };
 }
 
 /** All matches for a query of one or more consecutive words (ids in song order). */
@@ -249,15 +271,16 @@ export function matchQuery(song, anchorIds) {
   const qWords = new Set(anchorIds);
   const Q = S.filter((s) => qWords.has(s.w.id));
   if (!Q.length) return [];
+  const { feet, pickups } = queryFeet(Q);
   const out = [];
-  const taken = new Set();
-  for (let e = 0; e < S.length; e++) {
-    if (qWords.has(S[e].w.id)) continue;
-    const m = matchAt(S, Q, e, qWords);
-    if (!m) continue;
-    out.push(toMatch(m, isIdentical(Q, m, qWordList) ? 'identical' : m.type));
-    for (const w of m.words) taken.add(w.id);
-  }
-  out.push(...semirhymes(song, S, qWordList, taken));
+  const covered = new Set();
+  const take = (m) => { for (const x of m.all) covered.add(x.c.i); };
+  // three passes, each only where the earlier ones left syllables free: full rhyme matches, then
+  // assonance chains (three vowels are more evidence than one open syllable), then semirhymes.
+  // Later ends first, so the longest chain at a place wins and shorter ones inside it are skipped.
+  const pass = (fn) => { for (let e = S.length - 1; e >= 0; e--) { if (qWords.has(S[e].w.id) || covered.has(e)) continue; const m = fn(e); if (!m) continue; take(m); out.push(toMatch(m, m.type === 'assonance' ? 'assonance' : isIdentical(Q, m, qWordList) ? 'identical' : m.type)); } };
+  if (feet.length) pass((e) => matchAt(song, S, feet, pickups, e, qWords, covered, 'full'));
+  pass((e) => assonanceAt(S, Q, e, qWords, covered));
+  if (feet.length) pass((e) => matchAt(song, S, feet, pickups, e, qWords, covered, 'semi'));
   return out.sort((a, b) => a.start - b.start);
 }

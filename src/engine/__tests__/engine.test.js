@@ -30,12 +30,10 @@ describe("song model", () => {
 });
 
 describe("regression cases", () => {
-  it("handball reaches 'all' (whole word) and 'man's all' (mosaic over both syllables)", () => {
+  it("handball reaches 'all' (whole word, perfect); 'man's' does not join (N D ~ N Z is a wildcard coda under the protocol)", () => {
     const ms = others(til, [byText("handball", til)[0].id]);
-    expect(ms.some((m) => m.text.toLowerCase() === "all" && m.form === "word")).toBe(true);
-    const ma = ms.find((m) => /man's all/i.test(m.text));
-    expect(ma.form).toBe("mosaic");
-    expect(ma.links).toHaveLength(2);
+    expect(ms.some((m) => m.text.toLowerCase().trim() === "all" && m.form === "word" && m.type === "perfect")).toBe(true);
+    expect(ms.find((m) => /man's all/i.test(m.text))).toBeUndefined();
   });
   it("tree trunk finds we funk and weak luck as mosaics", () => {
     const tree = byText("tree", amen).find((w) => amen.words[w.flat + 1]?.text.toLowerCase().startsWith("trunk"));

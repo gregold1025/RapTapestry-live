@@ -26,22 +26,21 @@ export const SOURCES = {
 };
 
 export const RHYME_TYPES = [
+  // The protocol (Greg, 2026-11-06): the identity of a match is the ROW of its final foot. The
+  // names loosened / shifted are working names; the table is the one place to rename them.
   { key: 'identical', label: 'Identical', color: '#9aa3ad', on: true, example: 'crew / crew',
-    desc: 'Same sounds including the onset: a repeated word or a homophone.', sources: ['poetics'] },
-  { key: 'perfect', label: 'Perfect', color: '#ffc94d', on: true, example: 'clock / Spock; Bridgette / midget',
-    desc: 'Identical from the last stressed vowel to the end, with a different onset. Covers masculine (stress on the final syllable) and feminine (one unstressed syllable after it) rhyme.',
-    sources: ['pattison', 'poetics', 'rhymedesign'] },
-  { key: 'family', label: 'Family', color: '#ff5fa2', on: true, example: 'clock / stop; Bridgette / frigid',
-    desc: 'Perfect, except the consonants after the vowel differ within a phonetic family: plosives (p b t d k g), fricatives incl. affricates (f v th s z sh zh ch j), or nasals (m n ng). Voicing does not matter. L, R, W, Y belong to no family.',
-    sources: ['pattison'] },
-  { key: 'additive', label: 'Additive / subtractive', color: '#ff8f4d', on: true, example: 'clock / blocks; quick / think; Bridgette / digits',
-    desc: 'Perfect, except one side has exactly one extra consonant, anywhere in the consonant cluster after the vowel: at the end (clock / blocks, the plural S) or inside it (quick / think, the NG before K). A one-slot wildcard; which side has the extra sound (additive vs subtractive) is not distinguished. In rap, leftovers are most common at the end (S, Z, T, D) and at the start of the cluster (R, L, S). Only one loosening at a time: hot / rocks (K for T and an extra S) is not additive.',
-    sources: ['pattison', 'hirjee'] },
-  { key: 'slant', label: 'Slant (near vowel)', color: '#b28dff', on: false, example: 'beat / bit',
-    desc: 'A neighboring stressed vowel (formant similarity >= 0.75, both plain vowels or both glides), with consonants that would be perfect, family or additive. "Slant" is used loosely in the literature; this is our operational definition.',
-    sources: ['poetics', 'design'] },
-  { key: 'assonance', label: 'Assonance', color: '#4dc3ff', on: true, example: 'dizziness / silly bitch; seen / feel (same line)',
-    desc: 'The same vowels with consonants that differ beyond family or additive: a vowel chain. Needs two or more full vowels (dizziness / silly bitch); a schwa can hold a chain together but does not count, since a one-vowel match is mostly a measure of how common the vowel is. A single shared vowel is not a rhyme (a semirhyme is perfect, family or additive).',
+    desc: 'The whole query repeats, onset included: a repeated word or a homophone.', sources: ['poetics'] },
+  { key: 'perfect', label: 'Perfect', color: '#ffc94d', on: true, example: 'block / glock; cooler / ruler; famous / Hey, miss',
+    desc: 'Every axis the same: nucleus and coda; in a longer foot also the cluster between the vowels and a same or weak final vowel (unstressed AH / IH / EH count as one). The onset is free.',
+    sources: ['pattison', 'poetics', 'design'] },
+  { key: 'loosened', label: 'Loosened', color: '#ff8f4d', on: true, example: 'clock / stop; clock / blocks; hot / rocks; later / flavor; digits / frigid',
+    desc: 'Same stressed vowel, the consonants loosened: within a family (plosive, fricative, nasal; voicing free), by one consonant added or dropped anywhere, both at once, or a wildcard in the cluster between the vowels. The coda is never a wildcard. The tags say which.',
+    sources: ['pattison', 'hirjee', 'design'] },
+  { key: 'shifted', label: 'Shifted vowel', color: '#ff5fa2', on: true, example: 'ever / over; Cali / Maui; later / theater',
+    desc: 'The stressed vowel differs and the rest of the foot repeats: the cluster between the vowels the same or loosened (never a wildcard), the final vowel the same or weak, the coda exactly the same.',
+    sources: ['design'] },
+  { key: 'assonance', label: 'Assonance', color: '#4dc3ff', on: true, example: 'dizziness / silly bitch',
+    desc: 'Vowels only, where no rhyme was found: a chain of three syllables or more with the same vowels (weak vowels interchangeable), at least one pair stressed on both sides; function words hold the chain but do not count toward three.',
     sources: ['pattison', 'poetics', 'malmi', 'design'] },
 ];
 
@@ -54,10 +53,10 @@ export const FORMS = [
     desc: 'The rhyming syllables are spread across two or more words, ending at the end of a word. One-syllable function words (the, a, and) count as unstressed.',
     sources: ['poetics', 'hirjee', 'design'] },
   { key: 'embedded', label: 'Embedded', dash: '1.5 3', example: 'logic / bio-logic-al',
-    desc: 'The rhyming syllables sit inside a longer word and stop before its end. A single syllable only when it is a perfect, closed one (engage / engage-ments).',
+    desc: 'The rhyming syllables sit inside a longer word and stop before its end (wage / en-gage-ments; logic / bio-logic-al): the candidate carries an unstressed tail the query lacks. Within 4 bars of the query.',
     sources: ['meter', 'design'] },
   { key: 'semirhyme', label: 'Semirhyme', dash: '0.5 2.5', example: 'logic / Spock; ending / bend',
-    desc: 'One word carries an unstressed ending the other lacks; the stressed syllables match (lo-gic / Spock). Shown only for content words within one bar of the query.',
+    desc: 'The query carries an unstressed ending the candidate lacks; the stressed syllables match, the tail is left over (lo-gic / Spock). Content words within 4 bars of the query.',
     sources: ['poetics', 'design'] },
 ];
 export const FORM_BY_KEY = Object.fromEntries(FORMS.map((f) => [f.key, f]));

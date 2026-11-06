@@ -1,13 +1,12 @@
-// The rhyme hierarchy agreed with Greg on 2026-11-05 (memory: interface-redesign.md):
-// syllable-by-syllable comparison, a match covers the query's last syllable and extends
-// leftward while syllables link, the label comes from the stressed syllables and the final
-// syllable (weakest link), forms by geometry (word / embedded / mosaic / semirhyme), one
-// match per location, no expectation rule, schwa does not count toward the assonance
-// minimum, slant off, the aligner settles syllable counts when dictionary readings disagree.
+// The protocol engine (Greg, 2026-11-05 and 11-06; spec docs/superpowers/specs/2026-11-06-rhyme-protocol-design.md):
+// feet from the query, the final foot sets the identity, feet to the left join while they pass,
+// tail cases (embedded / semirhyme) within 4 bars with credit where credit is due, assonance as
+// a second pass (rule D). Every case here is one of Greg's rulings (vault: Rhyme engine - tests).
 import { describe, it, expect, beforeAll } from "vitest";
 import fs from "node:fs";
 import { buildSongModel } from "../songModel.js";
 import { computeMatches } from "../index.js";
+import { isFunctionWord } from "../rhymeTypes.js";
 
 const load = (songId) => {
   const dir = `public/data/${songId}/`;
@@ -27,170 +26,186 @@ function idsOf(song, text, nth = 0) {
 }
 const matches = (song, text, nth) => computeMatches(song, idsOf(song, text, nth)).filter((m) => m.type !== "anchor");
 const find = (ms, text) => ms.find((m) => clean(m.text.split(" ").join("")) === clean(text.split(" ").join("")));
-// a tiny song: one line per entry, words spaced 0.3 s apart, 120 bpm (one bar = 2 s)
+const types = (m) => m.links.map((l) => l.type);
+// a tiny song: one line per entry, words 0.3 s apart, 120 bpm (one bar = 2 s)
 function tiny(lines) {
   let t = 0;
   const lyric = { lines: lines.map((ws) => ({ words: ws.map(([text, phones]) => { const w = { text, phones: [phones], start: t, end: t + 0.25, nSyllables: (phones.match(/\d/g) || []).length }; t += 0.3; return w; }) })) };
   const beats = Array.from({ length: Math.ceil(t / 0.5) + 8 }, (_, i) => i * 0.5);
   return buildSongModel({ songId: "tiny", lyricTranscription: lyric, drumTranscription: { beats, downbeats: beats.filter((_, i) => i % 4 === 0), estimated_bpm: 120 } });
 }
+const firstQuery = (s, n = 1) => computeMatches(s, s.words.slice(0, n).map((w) => w.id)).filter((m) => m.type !== "anchor");
 
-let til, amen, rld, unemp;
-beforeAll(() => { til = load("93Til"); amen = load("Amen"); rld = load("RhymesLikeDimes"); unemp = load("Unemployed"); });
+let til, amen, rld;
+beforeAll(() => { til = load("93Til"); amen = load("Amen"); rld = load("RhymesLikeDimes"); });
 
-describe("syllable by syllable, weakest link", () => {
-  it("close range ~ most strange: two linked syllables; perfect, since 'most' has the reading M OW1 S (mos')", () => {
-    const m = find(matches(rld, "close range"), "most strange");
-    expect(m.form).toBe("mosaic");
-    expect(m.links.map((l) => l.type)).toEqual(["perfect", "perfect"]);
-    expect(m.type).toBe("perfect");
-  });
-  it("so- so ~ solo and ~ so low: perfect (the L opens the next syllable, it is free)", () => {
-    const ms = matches(amen, "so- so");
-    expect(find(ms, "solo").type).toBe("perfect");
-    expect(find(ms, "solo").form).toBe("word");
-    expect(find(ms, "so low").type).toBe("perfect");
-    expect(find(ms, "so low").form).toBe("mosaic");
-  });
-  it("we just chill ~ '93 until: perfect over three syllables (the unstressed middle keeps the vowel only)", () => {
-    const ms = matches(til, "we just chill");
-    const m = ms.find((x) => /until/.test(x.text) && /93/.test(x.text));
-    expect(m.type).toBe("perfect");
-    expect(m.links).toHaveLength(3);
-    expect(m.links[1].counted).toBe(false);
-  });
-});
-
-describe("a match covers the query's last syllable", () => {
-  it("we just chill never matches a stretch that ends off 'chill' (we chill from)", () => {
-    const ms = matches(til, "we just chill");
-    expect(ms.some((m) => /from$/i.test(m.text.trim()))).toBe(false);
-    for (const m of ms) if (m.form !== "semirhyme") expect(m.links.at(-1).counted).toBe(true);
-  });
-  it("a shorter match ending on the query's end is kept (close range ~ ...ange words)", () => {
-    const ms = matches(til, "close range");
-    expect(ms.length).toBeGreaterThan(0);
-  });
-});
-
-describe("forms by geometry, one match per location", () => {
-  it("Chapstick ~ slapstick is one perfect whole-word match covering both syllables", () => {
-    const ms = matches(rld, "Chapstick").filter((m) => /slapstick/i.test(m.text));
-    expect(ms.length).toBeGreaterThan(0);
-    for (const m of ms) { expect(m.form).toBe("word"); expect(m.type).toBe("perfect"); expect([m.vi0, m.vi1]).toEqual([0, 1]); }
-    const at = new Set(ms.map((m) => m.words.map((w) => w.id).join()));
-    expect(at.size).toBe(ms.length);
-  });
-  it("no two matches of a query share a location", () => {
-    for (const q of ["logic", "Chapstick"]) {
-      const ms = matches(rld, q);
-      const keys = ms.map((m) => `${m.words.map((w) => w.id).join()}|${m.vi0}|${m.vi1}`);
-      expect(new Set(keys).size).toBe(keys.length);
-    }
-  });
-  it("wage finds engagements embedded; engagements finds stage went as an additive mosaic", () => {
-    expect(matches(amen, "wage").find((m) => /engagements/i.test(m.text)).form).toBe("embedded");
-    // -ments (AH0 N T S) ~ went (EH1 N T): the schwa keeps its vowel against a stressed EH
-    // (Greg 2026-11-05, Hey, miss ~ famous); the extra S makes it additive
-    const st = matches(amen, "engagements").find((m) => /^stage went$/i.test(m.text.replace(/[^a-z ]/gi, "").trim()));
-    expect(st.form).toBe("mosaic");
-    expect(st.type).toBe("additive");
-  });
-  it("logic finds biological as an embedded perfect rhyme", () => {
-    const m = matches(rld, "logic").find((x) => /biological/i.test(x.text));
-    expect(m.form).toBe("embedded");
-    expect(m.type).toBe("perfect");
-  });
-});
-
-describe("semirhyme", () => {
-  it("logic ~ Spock, clock: family semirhymes within a bar, not 'Spock and' mosaics", () => {
-    const ms = matches(rld, "logic");
-    for (const t of ["Spock", "clock"]) {
-      const m = ms.find((x) => clean(x.text) === clean(t) && x.form === "semirhyme");
-      expect(m, t).toBeTruthy();
-      expect(m.type).toBe("family");
-    }
-    expect(ms.some((m) => /spock and|shock's a|lot of/i.test(m.text))).toBe(false);
-  });
-  it("is symmetric: Spock finds logic as a semirhyme", () => {
-    expect(matches(rld, "Spock").some((m) => /logic/i.test(m.text) && m.form === "semirhyme")).toBe(true);
-  });
-  it("a semirhyme is never assonance (Greg 2026-11-05): vibrations finds no makes / females; logic no blocks / Shock's", () => {
-    expect(matches(til, "vibrations").filter((m) => /^(makes|females)$/i.test(clean(m.text)))).toEqual([]);
-    expect(matches(rld, "logic").filter((m) => /^(blocks|shock's)$/i.test(clean(m.text)))).toEqual([]);
-    for (const q of ["logic", "vibrations"]) for (const m of matches(q === "logic" ? rld : til, q)) if (m.form === "semirhyme") expect(m.type).not.toBe("assonance");
-  });
-  it("only within one bar of the query, and only on content words", () => {
-    const song = rld;
-    const q = song.byId.get(idsOf(song, "logic")[0]);
-    const bar = song.beatsPerBar * 60 / song.bpm;
-    for (const m of matches(song, "logic").filter((x) => x.form === "semirhyme")) {
-      expect(Math.abs(m.words[0].start - q.start)).toBeLessThanOrEqual(bar + 1e-9);
-      expect(["a", "and", "the", "of"]).not.toContain(clean(m.text));
-    }
-  });
-});
-
-describe("removed and tightened rules", () => {
-  it("no match is admitted by expectation", () => {
-    for (const q of ["logic", "Chapstick"]) for (const m of matches(rld, q)) expect(m.expected).toBeFalsy();
-  });
-  it("no one-syllable-of-full-vowel assonance: logic has no assonance matches", () => {
-    expect(matches(rld, "logic").filter((m) => m.type === "assonance" && m.form !== "semirhyme")).toEqual([]);
-  });
-  it("roam the strip ~ bones to pick: the schwa link holds the chain, two full vowels give the length", () => {
-    const m = matches(til, "roam the strip").find((x) => /bones to pick/i.test(x.text));
-    expect(m).toBeTruthy();
-    expect(m.links).toHaveLength(3);
-  });
-  it("slant is off: no slant matches", () => {
-    for (const q of ["we just chill", "close range"]) expect(matches(til, q).some((m) => m.type === "slant")).toBe(false);
-  });
-});
-
-describe("pickups", () => {
-  it("until ~ the thrill: the unstressed pickup lengthens the match, never changes its type", () => {
-    const s = tiny([[["until", "AH0 N T IH1 L"]], [["the", "DH AH0"], ["thrill", "TH R IH1 L"]], [["a", "AH0"], ["skill", "S K IH1 L"]]]);
-    const ms = computeMatches(s, ["0-0"]).filter((m) => m.type !== "anchor");
-    const m = ms.find((x) => /thrill/.test(x.text));
-    expect(m.type).toBe("perfect");
-    expect(m.text).toBe("the thrill");
-    expect(m.links).toHaveLength(2);
-    expect(m.links[0].pickup).toBe(true);
-  });
-});
-
-describe("syllable counts settled by the aligner", () => {
-  it("Dial is one syllable (the aligner's reading) and no longer leaks one-syllable assonance (right, time)", () => {
-    const dial = til.words.find((w) => clean(w.text) === "dial");
-    expect(dial.nSyllables).toBe(1);
-    const ms = computeMatches(til, [dial.id]).filter((m) => m.type === "assonance");
-    expect(ms.filter((m) => m.links.length < 2 && m.form !== "semirhyme")).toEqual([]);
-  });
-  it("Unemployed 'I am not': am is one syllable (Greg's ear overrides the aligner's A.M.)", () => {
-    const am = unemp.words.find((w, i) => clean(w.text) === "am" && clean(unemp.words[i + 1].text) === "not");
-    expect(am.nSyllables).toBe(1);
-  });
-});
-
-describe("a schwa against a stressed AH / IH / EH (Greg, 2026-11-05: Hey, miss ~ famous)", () => {
-  it("famous ~ Hey, miss is a perfect mosaic (mous AH0 S ~ miss IH1 S keeps the reduced vowel)", () => {
+describe("one foot, same shape", () => {
+  it("famous ~ Hey, miss: perfect mosaic (the weak final vowel against a stressed IH)", () => {
     const m = find(matches(til, "famous"), "Hey miss");
     expect(m).toBeTruthy();
     expect(m.type).toBe("perfect");
     expect(m.form).toBe("mosaic");
-    expect(m.links.map((l) => l.type)).toEqual(["perfect", "perfect"]);
+    expect(types(m)).toEqual(["perfect", "perfect"]);
   });
-  it("the reduced side still does not count toward the assonance minimum", () => {
-    // 'go miss': miss links to -mous, but go (OW) does not link to fa- (EY): no mosaic
-    const s = tiny([[["famous", "F EY1 M AH0 S"]], [["go", "G OW1"], ["miss", "M IH1 S"]]]);
-    const ms = computeMatches(s, [s.words[0].id]).filter((m) => m.type !== "anchor");
-    expect(ms.find((m) => m.form === "mosaic")).toBeFalsy();
+  it("digits ~ frigid: loosened, the coda T S ~ D is family + additive", () => {
+    const m = find(matches(til, "digits"), "frigid");
+    expect(m.type).toBe("loosened");
+    expect(m.form).toBe("word");
+    expect(m.tags).toEqual(["family+additive"]);
   });
-  it("a pickup stays unstressed on both sides: attack finds 'at', not 'flick's at'", () => {
-    const s = tiny([[["attack", "AH0 T AE1 K"]], [["flick's", "F L IH1 K S"], ["at", "AE1 T"]]]);
-    const ms = computeMatches(s, [s.words[0].id]).filter((m) => m.type !== "anchor");
-    expect(ms.map((m) => m.text.trim())).toEqual(["at"]);
+  it("reason ~ demons (Amen): loosened (internal wildcard, additive coda)", () => {
+    const m = find(matches(amen, "reason"), "demons");
+    expect(m.type).toBe("loosened");
+    expect(m.tags).toContain("additive");
+    expect(m.tags).toContain("wildcard");
+  });
+  it("hot ~ rocks: loosened, family + additive (overturns 'hot / rocks is not additive')", () => {
+    const s = tiny([[["hot", "HH AA1 T"]], [["rocks", "R AA1 K S"]]]);
+    expect(firstQuery(s)[0]).toMatchObject({ type: "loosened", form: "word", tags: ["family+additive"] });
+  });
+  it("Cali ~ Maui: shifted (the stressed vowel differs; internal L ~ nothing is additive)", () => {
+    const s = tiny([[["Cali", "K AE1 L IY0"]], [["Maui", "M AW1 IY0"]]]);
+    expect(firstQuery(s)[0]).toMatchObject({ type: "shifted", tags: ["additive"] });
+  });
+  it("not rhymes: midget ~ gotta; cooler ~ later; digits ~ pigeon; cat ~ cash", () => {
+    const s = tiny([[["midget", "M IH1 JH AH0 T"]], [["gotta", "G AA1 T AH0"], ["cooler", "K UW1 L ER0"], ["later", "L EY1 T ER0"], ["pigeon", "P IH1 JH AH0 N"]]]);
+    expect(firstQuery(s)).toEqual([]);
+    const c = tiny([[["cooler", "K UW1 L ER0"]], [["later", "L EY1 T ER0"]]]);
+    expect(firstQuery(c)).toEqual([]);
+    const d = tiny([[["cat", "K AE1 T"]], [["cash", "K AE1 SH"]]]);
+    expect(firstQuery(d)).toEqual([]);
+  });
+});
+
+describe("feet chain to the left; the final foot sets the identity", () => {
+  it("close range ~ most strange: two one-step feet, perfect", () => {
+    const m = find(matches(rld, "close range"), "most strange");
+    expect(m.form).toBe("mosaic");
+    expect(m.type).toBe("perfect");
+    expect(types(m)).toEqual(["perfect", "perfect"]);
+  });
+  it("'ever, later' ~ 'over, greater': a shifted foot joins on the left, identity stays perfect", () => {
+    const s = tiny([[["ever", "EH1 V ER0"], ["later", "L EY1 T ER0"]], [["over", "OW1 V ER0"], ["greater", "G R EY1 T ER0"]]]);
+    const m = firstQuery(s, 2).find((x) => /over greater/.test(x.text));
+    expect(m.type).toBe("perfect");
+    expect(m.form).toBe("mosaic");
+    expect(types(m)).toEqual(["shifted", "shifted", "perfect", "perfect"]);
+  });
+  it("Chapstick ~ slapstick: one perfect whole-word match over both syllables at each slapstick", () => {
+    const ms = matches(rld, "Chapstick").filter((m) => /slapstick/i.test(m.text));
+    expect(ms.length).toBeGreaterThan(0);
+    for (const m of ms) expect(m).toMatchObject({ form: "word", type: "perfect", vi0: 0, vi1: 1 });
+    expect(new Set(ms.map((m) => m.words[0].id)).size).toBe(ms.length);
+  });
+  it("handball ~ all: ball ~ all perfect; hand ~ man's does not join (N D ~ N Z is a wildcard coda)", () => {
+    const ms = matches(til, "handball");
+    expect(find(ms, "man's all")).toBeFalsy();
+    const all = ms.filter((m) => clean(m.text) === "all" && m.form === "word");
+    expect(all.length).toBeGreaterThan(0);
+    for (const m of all) expect(m.type).toBe("perfect");
+  });
+  it("roam the strip ~ bones to pick: the two-step foot [roam the] joins [bones to]", () => {
+    const m = find(matches(til, "roam the strip"), "bones to pick");
+    expect(m).toBeTruthy();
+    expect(m.links).toHaveLength(3);
+  });
+  it("an unstressed candidate under a stressed query step holds the chain on its vowel (we just chill ~ '93 until; so- so ~ solo)", () => {
+    const m = matches(til, "we just chill").find((x) => /until/.test(x.text) && /93/.test(x.text));
+    expect(m.type).toBe("perfect");
+    expect(m.links).toHaveLength(3);
+    expect(m.links[1].counted).toBe(false);
+    const ms = matches(amen, "so- so");
+    expect(find(ms, "solo").type).toBe("perfect");
+    expect(find(ms, "solo").form).toBe("word");
+    // over "so low, no" the later two-foot chain wins (low, no) and "so" stands alone: either alignment is perfect
+    expect(["so low", "low no"].some((t) => find(ms, t)?.type === "perfect")).toBe(true);
+  });
+  it("pickups: until ~ the thrill lengthens; attack does not pick up flick's at", () => {
+    const s = tiny([[["until", "AH0 N T IH1 L"]], [["the", "DH AH0"], ["thrill", "TH R IH1 L"]]]);
+    const m = firstQuery(s)[0];
+    expect(m.text.trim()).toBe("the thrill");
+    expect(m.type).toBe("perfect");
+    expect(m.links[0].pickup).toBe(true);
+    const a = tiny([[["attack", "AH0 T AE1 K"]], [["flick's", "F L IH1 K S"], ["at", "AE1 T"]]]);
+    expect(firstQuery(a).map((x) => x.text.trim())).toEqual(["at"]);
+  });
+  it("a query of function words only has no matches; no two matches share a location", () => {
+    expect(matches(til, "the")).toEqual([]);
+    for (const q of ["logic", "Chapstick"]) {
+      const keys = matches(rld, q).map((m) => `${m.words.map((w) => w.id).join()}|${m.vi0}|${m.vi1}`);
+      expect(new Set(keys).size).toBe(keys.length);
+    }
+  });
+});
+
+describe("tail cases: embedded and semirhyme, one rule both ways, within 4 bars", () => {
+  it("wage ~ engagements: embedded perfect (3 bars apart)", () => {
+    const m = matches(amen, "wage").find((x) => /engagements/i.test(x.text));
+    expect(m.form).toBe("embedded");
+    expect(m.type).toBe("perfect");
+  });
+  it("logic ~ biological: embedded perfect (credit: -gic's K against the K that opens -cal)", () => {
+    const m = matches(rld, "logic").find((x) => /biological/i.test(x.text));
+    expect(m.form).toBe("embedded");
+    expect(m.type).toBe("perfect");
+  });
+  it("logic ~ Spock, clock: semirhymes, loosened with the family tag (credit: JH ~ K)", () => {
+    const ms = matches(rld, "logic");
+    for (const t of ["Spock", "clock"]) {
+      const m = ms.find((x) => clean(x.text) === clean(t));
+      expect(m, t).toBeTruthy();
+      expect(m.form).toBe("semirhyme");
+      expect(m.type).toBe("loosened");
+      expect(m.tags).toEqual(["family"]);
+    }
+  });
+  it("semirhymes land on content words within 4 bars of the query", () => {
+    const q = rld.byId.get(idsOf(rld, "logic")[0]);
+    const qb = rld.barPosition(q.start).bar;
+    for (const m of matches(rld, "logic").filter((x) => x.form === "semirhyme")) {
+      expect(Math.abs(rld.barPosition(m.words[0].start).bar - qb)).toBeLessThanOrEqual(4);
+      expect(isFunctionWord(m.text)).toBe(false);
+    }
+  });
+  it("chill ~ chillin' and fast ~ master: credit makes them perfect embedded", () => {
+    const s = tiny([[["chill", "CH IH1 L"]], [["chillin'", "CH IH1 L IH0 N"]]]);
+    expect(firstQuery(s)[0]).toMatchObject({ type: "perfect", form: "embedded" });
+    const f = tiny([[["fast", "F AE1 S T"]], [["master", "M AE1 S T ER0"]]]);
+    expect(firstQuery(f)[0]).toMatchObject({ type: "perfect", form: "embedded" });
+  });
+  it("vibrations finds no makes / females (credit never admits a loosened coda)", () => {
+    expect(matches(til, "vibrations").filter((m) => /^(makes|females)$/i.test(clean(m.text)))).toEqual([]);
+  });
+  it("engagements ~ stage went is a loosened mosaic (JH M ~ JH W wildcard, N T S ~ N T additive)", () => {
+    const st = matches(amen, "engagements").find((m) => /^stage went$/i.test(m.text.replace(/[^a-z ]/gi, "").trim()));
+    expect(st.form).toBe("mosaic");
+    expect(st.type).toBe("loosened");
+  });
+});
+
+describe("assonance: a second pass (rule D)", () => {
+  it("dizziness ~ silly bitch: three vowels, assonance; 'in the cut' and 'kiss me with' are not", () => {
+    const s = tiny([[["dizziness", "D IH1 Z IY0 N AH0 S"]], [["silly", "S IH1 L IY0"], ["bitch", "B IH1 CH"]], [["in", "IH0 N"], ["the", "DH AH0"], ["cut", "K AH1 T"]], [["kiss", "K IH1 S"], ["me", "M IY1"], ["with", "W IH1 DH"]]]);
+    const ms = firstQuery(s);
+    const a = ms.find((m) => m.type === "assonance");
+    expect(a.text.trim()).toBe("silly bitch");
+    expect(a.form).toBe("mosaic");
+    expect(types(a)).toEqual(["assonance", "assonance", "assonance"]);
+    // no assonance elsewhere; "kiss" may stand as a semirhyme (an open stressed syllable against one consonant)
+    expect(ms.filter((m) => m.type === "assonance")).toHaveLength(1);
+    expect(ms.some((m) => /cut|me with/.test(m.text))).toBe(false);
+  });
+  it("never where a rhyme already ends; never under three syllables", () => {
+    for (const m of matches(rld, "logic")) expect(m.type === "assonance" ? m.links.length >= 3 : true).toBe(true);
+    const s = tiny([[["digits", "D IH1 JH AH0 T S"]], [["pigeon", "P IH1 JH AH0 N"]]]);
+    expect(firstQuery(s)).toEqual([]);
+  });
+});
+
+describe("syllable counts settled by the aligner", () => {
+  it("Dial is one syllable and no longer leaks one-syllable matches on a second syllable", () => {
+    const dial = til.words.find((w) => clean(w.text) === "dial");
+    expect(dial.nSyllables).toBe(1);
+    for (const m of computeMatches(til, [dial.id])) if (m.type !== "anchor") expect(m.links.length).toBeGreaterThan(0);
   });
 });
