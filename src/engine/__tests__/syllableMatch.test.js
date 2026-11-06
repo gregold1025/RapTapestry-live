@@ -158,6 +158,21 @@ describe("feet chain to the left; the final foot sets the identity", () => {
   });
 });
 
+describe("credit where credit is due: every foot, and it may produce 1, F or A (Greg 2026-11-06)", () => {
+  it("left foot: scream cluck ~ weak luck (M K L ~ K L = A once scream keeps its cluster); perfect, the left foot loosened", () => {
+    const m = find(matches(amen, "scream cluck"), "weak luck");
+    expect(m).toMatchObject({ type: "perfect", form: "mosaic" });
+    expect(types(m)).toEqual(["loosened", "perfect"]);
+  });
+  it("final foot: Timbs ~ bu-syness (M Z ~ Z once -bus- keeps its Z) is a loosened embedded rhyme", () => {
+    const s = tiny([[["Timbs", "T IH1 M Z"]], [["busyness", "B IH1 Z IY0 N AH0 S"]]]);
+    expect(firstQuery(s)[0]).toMatchObject({ type: "loosened", form: "embedded", tags: ["additive"] });
+  });
+  it("credit never produces family + additive (vibrations stays apart from makes / females)", () => {
+    expect(matches(til, "vibrations").filter((m) => /^(makes|females)$/i.test(clean(m.text)))).toEqual([]);
+  });
+});
+
 describe("tail cases: embedded and semirhyme, one rule both ways, within 4 bars", () => {
   it("wage ~ engagements: embedded perfect (3 bars apart)", () => {
     const m = matches(amen, "wage").find((x) => /engagements/i.test(x.text));

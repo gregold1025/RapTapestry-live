@@ -96,13 +96,21 @@ function vowelLink(q, c) {
   return false;
 }
 
-/** The codas a syllable may close with: its own, and (credit) its whole cluster to the next vowel inside its word. */
+/**
+ * The codas a syllable may close with: its own, and (credit where credit is due) its whole cluster
+ * up to the next vowel. `credit`: true = only inside its word (the final foot: the match ends
+ * there); 'cross' = also across a word boundary (a left foot, whose next vowel is the next foot's).
+ */
 function codaOptions(S, syl, alt, credit) {
   const opts = [{ coda: alt.coda, credit: false }];
   const next = S[syl.i + 1];
-  if (credit && next && next.w === syl.w && alt.follow.length > alt.coda.length) opts.push({ coda: alt.follow, credit: true });
+  if (!credit || !next) return opts;
+  const cluster = next.w === syl.w ? alt.follow : credit === 'cross' ? [...alt.coda, ...(next.alts[0]?.on ?? [])] : null;
+  if (cluster && cluster.length > alt.coda.length) opts.push({ coda: cluster, credit: true });
   return opts;
 }
+// what a credited coda may produce (Greg 2026-11-06): 1, F or A; never FA (vibrations ~ makes stays out)
+export const CREDIT_ALLOWS = ['1', 'F', 'A'];
 
 // the stressed step (j === 0) is compared through the readings that stress its vowel, when any do
 const stressedAlts = (syl, j) => { if (j !== 0) return syl.alts; const st = syl.alts.filter((a) => a.stress >= 1); return st.length ? st : syl.alts; };
@@ -110,7 +118,7 @@ const better = (a, b) => (a.row !== b.row ? a.row < b.row : a.tags.length !== b.
 
 /**
  * Compare query syllables q with candidate syllables c (same count) over every reading pair;
- * `credit`: the last step on either side may close on its whole cluster when that gives coda 1 / F.
+ * `credit`: the last step on either side may close on its whole cluster when that gives coda 1, F or A.
  * -> { row, axes, tags, credit } | null
  */
 function compareFoot(S, q, c, { credit = false, truncated = false } = {}) {
@@ -123,7 +131,7 @@ function compareFoot(S, q, c, { credit = false, truncated = false } = {}) {
         const r = footRow(qa.map((a, i) => stepOf(q[i], a, i === n - 1 ? qo.coda : undefined)), ca.map((b, i) => stepOf(c[i], b, i === n - 1 ? co.coda : undefined)), { truncated });
         if (!r) continue;
         const credited = qo.credit || co.credit;
-        if (credited && r.axes.coda !== '1' && r.axes.coda !== 'F') continue;
+        if (credited && !CREDIT_ALLOWS.includes(r.axes.coda)) continue;
         const cand = { ...r, credit: credited };
         if (!best || better(cand, best)) best = cand;
       }
@@ -212,7 +220,7 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     const F = feet[f];
     const sp = span(left - 1, F.length);
     if (!sp || !adjacent(sp[sp.length - 1], S[left])) break;
-    const rr = footLink(S, F, sp);
+    const rr = footLink(S, F, sp, { credit: 'cross' });   // credit for left feet (Greg 2026-11-06)
     if (!rr) break;
     for (let j = sp.length - 1; j >= 0; j--) all.push({ c: sp[j], row: rr.soft ? null : rr.row, counted: !rr.soft, pickup: false });
     if (!rr.soft) { footsUsed.unshift({ head: sp[0].stress >= 1, row: rr.row, axes: rr.axes, tags: rr.tags, i0: sp[0].i, i1: sp[sp.length - 1].i }); if (!identity) identity = rr; }
