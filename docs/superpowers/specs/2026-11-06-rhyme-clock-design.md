@@ -175,3 +175,8 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 
 - The rings are one spiral, a turn per cycle: radius = rOuter − (ring + frac) × (rOuter − rInner) / rings, so a turn ends where the next begins and bar lines and words run on across 12 o'clock. One ring alone stays a circle on the rim. The nearest turn under the pointer is found at its angle.
 - The Line Staff and Rhyme Clock header bars are both 35 px tall.
+
+## Line queries (Greg, 2026-11-06)
+
+- Not made on the clock, but shown: each queried or matched line (visualByLineIdx) colors its stretch of the spiral (first word's start to last word's end; width 70% of the turn gap, 1.5–4 px, 60% opacity, under the words).
+- Its rhyming end comes up as query words: the query line's last three words (engine endUnits, the extent of a line query), a matched line's matched words with the match's form dash and rhyme-vowel dots (sylRange). Word-query visuals win over line-query words.

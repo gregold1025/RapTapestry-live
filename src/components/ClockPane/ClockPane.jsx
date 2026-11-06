@@ -11,7 +11,8 @@ import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
 import { RINGS_SEG, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
-import { wordMarks, drumMarks } from "./clockMarks";
+import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
+import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import ClockWords from "./ClockWords";
@@ -61,7 +62,10 @@ export default function ClockPane({ duration }) {
   const hits = useDrumHits();
   const byClass = useByClass();
   const { songModel, timing, lyricTranscription } = useSongData();
-  const { visualByWordId } = useQueries();
+  const { visualByWordId, visualByLineIdx, matchesByQueryId } = useQueries();
+  // line queries: the lines take their query's color; their rhyming end words come up like query words (word queries win)
+  const lineQ = useMemo(() => lineMarks({ visualByLineIdx, matchesByQueryId, songModel }), [visualByLineIdx, matchesByQueryId, songModel]);
+  const visuals = useMemo(() => (lineQ.words.size ? new Map([...lineQ.words, ...visualByWordId]) : visualByWordId), [lineQ, visualByWordId]);
   // bar starts = every beatsPerBar-th beat of the song model's grid (the tapestry's bars and bar numbers)
   const barStarts = useMemo(() => {
     const grid = songModel?.grid ?? [];
@@ -85,8 +89,12 @@ export default function ClockPane({ duration }) {
     return m;
   }, [lyricTranscription]);
   const marks = useMemo(
-    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
-    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
+    () => wordMarks({ timingWords: timing?.words, visuals, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
+    [timing, visuals, cycles, W, rings, clockWords, clockWordColor, texts]
+  );
+  const spans = useMemo(
+    () => lineSpans({ lines: lineQ.lines, timingWords: timing?.words, songModel, cycles, W, rings }),
+    [lineQ, timing, songModel, cycles, W, rings]
   );
   const drums = useMemo(
     () => (clockShowDrums && current != null ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
@@ -108,8 +116,8 @@ export default function ClockPane({ duration }) {
   const { hoverInfo, onHoverEnter, onHoverLeave } = useCanvasHoverInfo();
   const onHover = useCallback((e, m) => {
     const tw = timing?.words.get(m.id);
-    onHoverEnter(e, { type: "word", wordId: m.id, wordText: m.text, phones: tw?.phones ?? "", match: matchLabel(visualByWordId.get(m.id) ?? null) });
-  }, [timing, visualByWordId, onHoverEnter]);
+    onHoverEnter(e, { type: "word", wordId: m.id, wordText: m.text, phones: tw?.phones ?? "", match: matchLabel(visuals.get(m.id) ?? null) });
+  }, [timing, visuals, onHoverEnter]);
   const spacing = ringPitch(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
   const labels = showText(spacing, clockTextPx);
@@ -142,6 +150,7 @@ export default function ClockPane({ duration }) {
           ) : (
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
+              <ClockLines spans={spans} geo={geo} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />

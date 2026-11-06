@@ -69,3 +69,42 @@ describe("drumMarks", () => {
   });
 });
 
+
+import { lineMarks, lineSpans } from "../clockMarks";
+
+describe("line queries on the clock", () => {
+  const w = (n) => Array.from({ length: n }, (_, i) => ({ text: `w${i}` }));
+  const songModel = { lines: [{ words: w(5) }, { words: w(3) }] };
+  const mw = { id: "1-2", li: 1, wi: 2, nSyllables: 2, rime: { stressedSyl: 1 } };
+  const lm = { lineIdx: 1, type: "perfect", form: "word", words: [mw], match: { type: "perfect", form: "word", words: [mw], vi0: 1, vi1: 1 } };
+  const visualByLineIdx = new Map([
+    [0, { queryId: "q", color: "#e00", role: "anchor", isAnchor: true, type: "anchor" }],
+    [1, { queryId: "q", color: "#e00", role: "match", isAnchor: false, type: "perfect", form: "word" }],
+  ]);
+  const matchesByQueryId = new Map([["q", [lm]]]);
+
+  it("colors every queried and matched line", () => {
+    expect(lineMarks({ visualByLineIdx, matchesByQueryId, songModel }).lines).toEqual([{ li: 0, color: "#e00" }, { li: 1, color: "#e00" }]);
+  });
+  it("brings up the query line's last three words", () => {
+    const { words } = lineMarks({ visualByLineIdx, matchesByQueryId, songModel });
+    expect(["0-2", "0-3", "0-4"].map((id) => words.get(id)?.color)).toEqual(["#e00", "#e00", "#e00"]);
+    expect(words.has("0-1")).toBe(false);
+    expect(words.get("0-4")).toMatchObject({ isAnchor: true, vi0: 0 });
+  });
+  it("brings up a matched line's matched words, with the match's form and rhyme vowels", () => {
+    const { words } = lineMarks({ visualByLineIdx, matchesByQueryId, songModel });
+    expect(words.get("1-2")).toMatchObject({ color: "#e00", form: "word", vi0: 1, vi1: 1, isAnchor: false });
+    expect(words.has("1-1")).toBe(false);
+  });
+
+  it("places a line on the spiral from its first word's start to its last word's end, inside the window", () => {
+    const c = makeCycles([0, 2, 4, 6, 8], 1, 8);
+    const timingWords = new Map([["0-0", { start: 0.5, end: 1 }], ["0-1", { start: 2.5, end: 3 }]]);
+    const sm = { lines: [{ words: w(2) }] };
+    const lines = [{ li: 0, color: "#e00" }];
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 0, rings: 4 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 0.25, u1: 1.5 }]);
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 1, rings: 4 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 0, u1: 0.5 }]);
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 2, rings: 2 })).toEqual([]);
+  });
+});

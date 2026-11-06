@@ -4,6 +4,8 @@
 // dot at the middle of each vowel of the rhyme (syllables vi0..vi1). Pitch
 // plays no part.
 import { wordSegments } from "./clockGeometry";
+import { endUnits } from "../../engine/lineRhymes";
+import { sylRange } from "../../utils/phoneMarks";
 
 /** Line style by rhyme form, as in the Line Staff. */
 export const FORM_DASH = Object.freeze({ word: null, mosaic: "7 4", embedded: "1.5 4", semirhyme: "0.5 3" });
@@ -56,6 +58,58 @@ export function drumMarks({ hits, cycles, cycle, groups, byClass }) {
     if (!g || g.visible === false) continue;
     const bandOffset = rowKey === "other" ? ({ low: -4, mid: 0, high: 4 }[hit.category] ?? 0) : 0;
     out.push({ frac: cycles.fracOf(hit.time), rowKey, height: Math.max(0, Math.min(100, (g.height ?? 50) + bandOffset)), time: hit.time, conf: hit.conf ?? null });
+  }
+  return out;
+}
+
+/**
+ * Line queries on the clock (none are made here; the clock shows them): every
+ * queried or matched line (visualByLineIdx) takes its query's color, and only
+ * the line's rhyming end comes up as words: the query line's last three words
+ * (the extent of a line query), a matched line's matched words, with the
+ * match's form and rhyme vowels.
+ * @returns {{ lines: {li, color}[], words: Map<string, {queryId, color, type, form, vi0, vi1, isAnchor}> }}
+ */
+export function lineMarks({ visualByLineIdx, matchesByQueryId, songModel }) {
+  const lines = [], words = new Map();
+  if (!visualByLineIdx) return { lines, words };
+  for (const [li, v] of [...visualByLineIdx].sort((a, b) => a[0] - b[0])) {
+    lines.push({ li, color: v.color });
+    if (v.isAnchor) {
+      for (const id of endUnits(songModel, li).at(-1) ?? []) {
+        words.set(id, { queryId: v.queryId, color: v.color, type: "anchor", form: null, vi0: 0, vi1: Infinity, isAnchor: true });
+      }
+      continue;
+    }
+    const lm = (matchesByQueryId?.get(v.queryId) ?? []).find((x) => x.lineIdx === li);
+    for (const w of lm?.words ?? []) {
+      const { vi0, vi1 } = sylRange(lm.match ?? lm, w);
+      words.set(w.id, { queryId: v.queryId, color: v.color, type: lm.type, form: lm.form, vi0, vi1, isAnchor: false });
+    }
+  }
+  return { lines, words };
+}
+
+/**
+ * Where each line lies on the spiral: u = ring + frac from its first word's
+ * start to its last word's end (the spiral is continuous, so one stretch),
+ * clipped to the rings in view. The intro (before the first bar) is dropped.
+ * @returns {{ li, color, start, u0, u1 }[]}
+ */
+export function lineSpans({ lines, timingWords, songModel, cycles, W, rings }) {
+  const out = [];
+  if (!lines?.length || !timingWords || !cycles || cycles.count === 0) return out;
+  const u = (t) => {
+    const tt = Math.max(t, cycles.start(0));
+    return cycles.cycleOf(tt) - W + cycles.fracOf(tt);
+  };
+  for (const { li, color } of lines) {
+    const n = songModel?.lines?.[li]?.words?.length ?? 0;
+    const first = timingWords.get(`${li}-0`), last = timingWords.get(`${li}-${n - 1}`);
+    if (!n || !first || !last) continue;
+    const u0 = Math.max(0, u(first.start)), u1 = Math.min(rings, u(last.end));
+    if (!(u1 > u0)) continue;
+    out.push({ li, color, start: first.start, u0, u1 });
   }
   return out;
 }
