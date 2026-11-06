@@ -11,7 +11,7 @@
 // does not click it.
 import { useEffect, useRef } from "react";
 import { useAudioControls } from "../../contexts/AudioContext";
-import { pointerToClock, unwrapDelta, ringRadius, dragMode } from "./clockGeometry";
+import { pointerToClock, unwrapDelta, ringRadius, ringSpacing, dragMode, clickCycle, grabTolerance } from "./clockGeometry";
 
 const MOVE_PX = 4;
 
@@ -37,7 +37,8 @@ export function useClockPointer({ svgRef, geo, cycles, win, wholeSong, active })
       if (e.button !== 0) return;
       const { geo: g, win: w } = S.current;
       const p = at(e);
-      const onCurrentRing = w.current != null && Math.abs(p.r - ringRadius(w.current, g.rings, g.rOuter, g.rInner)) <= 5;
+      const tol = grabTolerance(ringSpacing(g.rings, g.rOuter, g.rInner));
+      const onCurrentRing = w.current != null && Math.abs(p.r - ringRadius(w.current, g.rings, g.rOuter, g.rInner)) <= tol;
       S.current.drag = { x: e.clientX, y: e.clientY, mode: dragMode({ onCurrentRing, wholeSong: S.current.wholeSong, rings: g.rings }), frac: p.frac, turns: 0, moved: false };
     };
     const onMove = (e) => {
@@ -74,9 +75,9 @@ export function useClockPointer({ svgRef, geo, cycles, win, wholeSong, active })
       if (e.target.closest?.("[data-word]")) return;   // a word's own click
       const { geo: g, cycles: c, win: w } = S.current;
       const p = at(e);
-      if (!c || c.count === 0 || p.r > g.rOuter + g.drumBand) return;
-      const cycle = w.W + p.ring;
-      if (cycle < 0 || cycle >= c.count) return;
+      if (!c || c.count === 0) return;
+      const cycle = clickCycle({ r: p.r, ring: p.ring, W: w.W, current: w.current, rOuter: g.rOuter, drumBand: g.drumBand });
+      if (cycle == null || cycle < 0 || cycle >= c.count) return;
       w.freeze();
       seekAll(c.timeAt(cycle, p.frac));
     };

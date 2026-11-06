@@ -4,13 +4,15 @@ import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { Segmented, Slider, ColorField, SectionLabel } from "../ui";
 import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
+import { useClockIndex } from "./clockIndexStore";
 
 export default function ClockSettings() {
   const {
-    clockCycleBars, setClockCycleBars, clockRings, setClockRings, clockIndex, setClockIndex,
+    clockCycleBars, setClockCycleBars, clockRings, setClockRings,
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
     clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockDrumScale, setClockDrumScale,
   } = useParams();
+  const [clockIndex, setClockIndex] = useClockIndex();
   const movable = typeof clockRings === "number" && clockRings > 1;
   return (
     <div className="pn-section">

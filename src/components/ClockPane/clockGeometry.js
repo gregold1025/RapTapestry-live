@@ -149,3 +149,32 @@ export function dragMode({ onCurrentRing, wholeSong, rings }) {
   if (wholeSong) return null;
   return onCurrentRing && rings > 1 ? "ring" : "pan";
 }
+
+/** The window kept on the song: at least one ring still holds a cycle of it. */
+export function clampWindow(W, rings, count) {
+  return Math.max(-(rings - 1), Math.min(Math.max(0, count - 1), W));
+}
+
+/**
+ * The window after the cycle length or whole-song mode changes while frozen:
+ * leaving whole song puts the playhead's ring at the chosen index; a new cycle
+ * length keeps the outermost ring at the same place in the song.
+ */
+export function reanchorWindow({ W, oldCycles, newCycles, P, index, rings, leftWholeSong }) {
+  if (leftWholeSong) return windowForIndex(P, clampIndex(index, rings));
+  if (!oldCycles || !newCycles || newCycles.count === 0) return W;
+  const t = oldCycles.start(Math.max(0, W));
+  return clampWindow(Math.max(0, newCycles.cycleOf(t)), rings, newCycles.count);
+}
+
+/** The cycle a background click seeks in: its ring's, or in the drum band the drums' (the current ring's). */
+export function clickCycle({ r, ring, W, current, rOuter, drumBand }) {
+  if (r > rOuter + drumBand) return null;
+  if (r > rOuter + 3) return current == null ? null : W + current;
+  return W + ring;
+}
+
+/** How near the current ring a drag must start to grab it: 5 px, at most half the gap to its neighbors. */
+export function grabTolerance(spacing) {
+  return Math.min(5, spacing / 2);
+}

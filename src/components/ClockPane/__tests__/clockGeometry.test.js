@@ -145,3 +145,40 @@ describe("dragMode", () => {
     expect(dragMode({ onCurrentRing: true, wholeSong: true, rings: 37 })).toBe(null);
   });
 });
+
+import { clampWindow, reanchorWindow, clickCycle, grabTolerance } from "../clockGeometry";
+
+describe("final review fixes", () => {
+  it("a pan cannot run the window off the song", () => {
+    expect(clampWindow(-50, 8, 40)).toBe(-7);
+    expect(clampWindow(90, 8, 40)).toBe(39);
+    expect(clampWindow(10, 8, 40)).toBe(10);
+  });
+
+  it("a frozen window keeps its place in the song when the cycle length changes", () => {
+    const one = makeCycles([0, 2, 4, 6, 8, 10, 12, 14, 16], 1, 16);   // 8 one-bar cycles
+    const four = makeCycles([0, 2, 4, 6, 8, 10, 12, 14, 16], 4, 16);  // 2 four-bar cycles
+    // W = 5 (bar 6) in one-bar cycles -> the four-bar cycle holding bar 6 is cycle 1
+    expect(reanchorWindow({ W: 5, oldCycles: one, newCycles: four, P: 0, index: 0, rings: 8, leftWholeSong: false })).toBe(1);
+    // and back: cycle 1 of four bars starts at bar 4 -> one-bar cycle 4
+    expect(reanchorWindow({ W: 1, oldCycles: four, newCycles: one, P: 0, index: 0, rings: 8, leftWholeSong: false })).toBe(4);
+  });
+
+  it("leaving whole song while frozen puts the playhead's ring at the chosen index", () => {
+    const c = makeCycles([0, 2, 4, 6, 8, 10, 12, 14, 16], 1, 16);
+    expect(reanchorWindow({ W: 0, oldCycles: c, newCycles: c, P: 6, index: 2, rings: 4, leftWholeSong: true })).toBe(4);
+  });
+
+  it("a click in the drum band seeks in the drums' cycle (the current ring's)", () => {
+    const g = { rOuter: 100, drumBand: 12 };
+    expect(clickCycle({ r: 105, ring: 0, W: 10, current: 3, ...g })).toBe(13);
+    expect(clickCycle({ r: 105, ring: 0, W: 10, current: null, ...g })).toBe(null);
+    expect(clickCycle({ r: 80, ring: 1, W: 10, current: 3, ...g })).toBe(11);
+    expect(clickCycle({ r: 120, ring: 0, W: 10, current: 3, ...g })).toBe(null);
+  });
+
+  it("the current ring's grab zone never reaches past half the gap to its neighbors", () => {
+    expect(grabTolerance(40)).toBe(5);
+    expect(grabTolerance(7)).toBe(3.5);
+  });
+});

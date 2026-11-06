@@ -8,12 +8,12 @@
 // boundary is crossed or the user acts.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
-import { useParams } from "../../contexts/ParamsContext";
-import { syncWindow, windowForIndex, clampIndex, revealOpacity } from "./clockGeometry";
+import { useClockIndex } from "./clockIndexStore";
+import { syncWindow, windowForIndex, clampIndex, revealOpacity, clampWindow, reanchorWindow } from "./clockGeometry";
 
 export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
   const { subscribePlayhead, getPlayheadTime, isPlaying } = useAudioEngine();
-  const { clockIndex, setClockIndex } = useParams();
+  const [clockIndex, setClockIndex] = useClockIndex();
   const [follow, setFollow] = useState(true);
   const [win, setWin] = useState({ W: 0, current: null });
 
@@ -53,6 +53,18 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
     }
   }, [svgRef, setClockIndex]);
 
+  // a new cycle length, or leaving whole song, while frozen: keep the window's place in the song
+  const prev = useRef({ cycles, wholeSong });
+  useEffect(() => {
+    const p = prev.current, s = S.current;
+    prev.current = { cycles, wholeSong };
+    if (p.cycles === cycles && p.wholeSong === wholeSong) return;
+    if (s.follow || wholeSong) return;   // Follow and whole song set the window themselves
+    const P = cycles.cycleOf(getPlayheadTime());
+    const W = reanchorWindow({ W: s.W, oldCycles: p.cycles, newCycles: cycles, P, index: s.index, rings, leftWholeSong: p.wholeSong && !wholeSong });
+    if (W !== s.W) { s.W = W; setWin((w) => ({ ...w, W })); }
+  }, [cycles, wholeSong, rings, getPlayheadTime]);
+
   useEffect(() => subscribePlayhead(frame), [subscribePlayhead, frame]);
   // after every render (new marks, new window, mode changes): bring the DOM up to date
   useEffect(() => { frame(getPlayheadTime()); });
@@ -78,7 +90,7 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
     const s = S.current;
     s.follow = false;
     setFollow(false);
-    s.W += k;
+    s.W = clampWindow(s.W + k, s.rings, s.cycles?.count ?? 0);
     setWin((w) => ({ ...w, W: s.W }));
     frame(getPlayheadTime());
   }, [frame, getPlayheadTime]);
