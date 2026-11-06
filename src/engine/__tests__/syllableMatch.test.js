@@ -67,11 +67,12 @@ describe("one foot, same shape", () => {
     const s = tiny([[["Cali", "K AE1 L IY0"]], [["Maui", "M AW1 IY0"]]]);
     expect(firstQuery(s)[0]).toMatchObject({ type: "shifted", tags: ["additive"] });
   });
-  it("not rhymes: midget ~ gotta; cooler ~ later; digits ~ pigeon; cat ~ cash", () => {
+  it("not rhymes in rows 1-3: midget ~ gotta; cooler ~ later (truncated only, the tentative pass); digits ~ pigeon; cat ~ cash", () => {
+    const notTrunc = (ms) => ms.filter((m) => m.type !== "truncated");
     const s = tiny([[["midget", "M IH1 JH AH0 T"]], [["gotta", "G AA1 T AH0"], ["cooler", "K UW1 L ER0"], ["later", "L EY1 T ER0"], ["pigeon", "P IH1 JH AH0 N"]]]);
-    expect(firstQuery(s)).toEqual([]);
+    expect(notTrunc(firstQuery(s))).toEqual([]);
     const c = tiny([[["cooler", "K UW1 L ER0"]], [["later", "L EY1 T ER0"]]]);
-    expect(firstQuery(c)).toEqual([]);
+    expect(firstQuery(c).map((m) => m.type)).toEqual(["truncated"]);
     const d = tiny([[["cat", "K AE1 T"]], [["cash", "K AE1 SH"]]]);
     expect(firstQuery(d)).toEqual([]);
   });
@@ -207,5 +208,26 @@ describe("syllable counts settled by the aligner", () => {
     const dial = til.words.find((w) => clean(w.text) === "dial");
     expect(dial.nSyllables).toBe(1);
     for (const m of computeMatches(til, [dial.id])) if (m.type !== "anchor") expect(m.links.length).toBeGreaterThan(0);
+  });
+});
+
+describe("truncated (tentative, its own last pass; Greg 2026-11-06 evening)", () => {
+  it("pencil ~ simple (Amen): truncated word match", () => {
+    const m = find(matches(amen, "pencil"), "simple");
+    expect(m).toMatchObject({ type: "truncated", form: "word" });
+  });
+  it("limbo ~ so- so (Amen): truncated mosaic (OW ~ OW at the end, no coda)", () => {
+    const m = find(matches(amen, "limbo"), "so- so");
+    expect(m).toMatchObject({ type: "truncated" });
+  });
+  it("runs last: with the pass off, every other match is exactly what it was", async () => {
+    const { RULES } = await import("../syllableMatch.js");
+    for (const [song, q] of [[til, "famous"], [rld, "logic"], [amen, "limbo"], [amen, "pencil"]]) {
+      const withT = matches(song, q).filter((m) => m.type !== "truncated").map((m) => `${m.text}|${m.type}|${m.form}`);
+      RULES.truncated = false;
+      const without = matches(song, q).map((m) => `${m.text}|${m.type}|${m.form}`);
+      RULES.truncated = true;
+      expect(withT).toEqual(without);
+    }
   });
 });

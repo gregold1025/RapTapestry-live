@@ -10,6 +10,7 @@
 //   2, 3  | 1 perfect    | same           | 1               | same / weak | 1
 //   2, 3  | 2 loosened   | same           | 1, F, A, FA, W  | same / weak | 1, F, A, FA
 //   2, 3  | 3 shifted    | W              | 1, F, A, FA     | same / weak | 1
+//   2, 3  | 4 truncated  | W              | W               | same / weak | 1, F, A, FA   (only with { truncated: true })
 //
 // Anything else is not a rhyme. A three-step foot adds a middle step whose vowel must be the
 // same or weak and whose cluster is at most FA. At most one wildcard per foot.
@@ -55,9 +56,10 @@ const cluster = (s0, s1) => [...s0.coda, ...s1.on];
 
 /**
  * Compare a query foot with the same number of candidate steps.
- * -> { row: 1 | 2 | 3, axes: { v1, internal?, mid?, v2?, coda }, tags: string[] } | null
+ * `truncated`: also accept row 4 (stressed vowel and internal both wildcards; Greg 2026-11-06, tentative).
+ * -> { row: 1 | 2 | 3 | 4, axes: { v1, internal?, mid?, v2?, coda }, tags: string[] } | null
  */
-export function footRow(q, c) {
+export function footRow(q, c, { truncated = false } = {}) {
   const n = q.length;
   if (!n || n !== c.length || n > 3) return null;
   const v1 = q[0].v === c[0].v ? '1' : 'W';
@@ -75,9 +77,11 @@ export function footRow(q, c) {
     mid = consAxis(cluster(q[1], q[2]), cluster(c[1], c[2]));
     if (mid === 'W') return null;
   }
-  if (v1 === 'W' && internal === 'W') return null;   // two wildcards: truncated, not a rhyme
   let row;
-  if (v1 === 'W') {
+  if (v1 === 'W' && internal === 'W') {
+    if (!truncated) return null;   // two wildcards: truncated, only when asked for
+    row = 4;
+  } else if (v1 === 'W') {
     if (coda !== '1') return null;
     row = 3;
   } else row = internal === '1' && coda === '1' && (mid == null || mid === '1') ? 1 : 2;

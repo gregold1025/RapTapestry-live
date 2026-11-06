@@ -87,3 +87,20 @@ describe("three-syllable foot", () => {
     expect(row("S IH1 | N AH0 | M AH0", "S IH1 | N AH0 | L AH0")).toBeNull();
   });
 });
+
+describe("truncated (row 4, tentative; Greg 2026-11-06 evening): stressed vowel AND internal differ, the rest repeats", () => {
+  it("pencil / simple: row 4 only when asked for (footRow(q, c, { truncated: true }))", () => {
+    expect(row("P EH1 N | S AH0 L", "S IH1 M | P AH0 L")).toBeNull();
+    expect(footRow(steps("P EH1 N | S AH0 L"), steps("S IH1 M | P AH0 L"), { truncated: true })).toMatchObject({ row: 4, axes: { v1: "W", internal: "W", coda: "1" } });
+  });
+  it("limbo / so- so: the final vowel repeats (OW ~ OW), no coda on either side", () => {
+    expect(footRow(steps("L IH1 M | B OW0"), steps("S OW1 | S OW1"), { truncated: true })).toMatchObject({ row: 4 });
+  });
+  it("the coda still may not be a wildcard, and the final vowel must still match", () => {
+    expect(footRow(steps("P EH1 N | S AH0 L"), steps("S IH1 M | P AH0 T"), { truncated: true })).toBeNull();
+    expect(footRow(steps("P EH1 N | S AH0 L"), steps("S IH1 M | P IY0 L"), { truncated: true })).toBeNull();
+  });
+  it("a foot that passes rows 1-3 keeps its row", () => {
+    expect(footRow(steps("K AE1 | L IY0"), steps("M AW1 | IY0"), { truncated: true })).toMatchObject({ row: 3 });
+  });
+});

@@ -6,7 +6,7 @@ export { buildSongModel } from './songModel.js';
 export { matchQuery, songSyllables } from './syllableMatch.js';
 export { RHYME_TYPES, FORMS, FORM_BY_KEY, TYPE_BY_KEY, parseRime, classifyRhyme, RULE_OPTIONS } from './rhymeTypes.js';
 
-export const TYPE_RANK = Object.fromEntries(['anchor', 'identical', 'perfect', 'loosened', 'shifted', 'assonance'].map((k, i) => [k, i]));
+export const TYPE_RANK = Object.fromEntries(['anchor', 'identical', 'perfect', 'loosened', 'shifted', 'assonance', 'truncated'].map((k, i) => [k, i]));
 
 /**
  * Every match for a query made of one word or a contiguous run of words (ids in

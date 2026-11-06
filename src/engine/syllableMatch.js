@@ -29,7 +29,11 @@ import { isFunctionWord } from './rhymeTypes.js';
 import { syllabify, bare } from '../utils/syllabify.js';
 import { footRow, sameNucleus } from './protocol.js';
 
-export const ROW_TYPE = { 1: 'perfect', 2: 'loosened', 3: 'shifted' };
+export const ROW_TYPE = { 1: 'perfect', 2: 'loosened', 3: 'shifted', 4: 'truncated' };
+// Tentative rules that run as their own pass, so switching one off leaves every other match as it was.
+// truncated (Greg 2026-11-06 evening): a two- or three-step final foot whose stressed vowel AND
+// internal cluster differ, the final vowel and coda repeating (pencil ~ simple, limbo ~ so- so).
+export const RULES = { truncated: true };
 export const TAIL_BARS = 4;
 export const ASSONANCE_MIN = 3;
 
@@ -109,14 +113,14 @@ const better = (a, b) => (a.row !== b.row ? a.row < b.row : a.tags.length !== b.
  * `credit`: the last step on either side may close on its whole cluster when that gives coda 1 / F.
  * -> { row, axes, tags, credit } | null
  */
-function compareFoot(S, q, c, { credit = false } = {}) {
+function compareFoot(S, q, c, { credit = false, truncated = false } = {}) {
   const n = q.length;
   let best = null;
   const qa = [], ca = [];
   const rec = (j) => {
     if (j === n) {
       for (const qo of codaOptions(S, q[n - 1], qa[n - 1], credit)) for (const co of codaOptions(S, c[n - 1], ca[n - 1], credit)) {
-        const r = footRow(qa.map((a, i) => stepOf(q[i], a, i === n - 1 ? qo.coda : undefined)), ca.map((b, i) => stepOf(c[i], b, i === n - 1 ? co.coda : undefined)));
+        const r = footRow(qa.map((a, i) => stepOf(q[i], a, i === n - 1 ? qo.coda : undefined)), ca.map((b, i) => stepOf(c[i], b, i === n - 1 ? co.coda : undefined)), { truncated });
         if (!r) continue;
         const credited = qo.credit || co.credit;
         if (credited && r.axes.coda !== '1' && r.axes.coda !== 'F') continue;
@@ -181,9 +185,16 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     // the query's tail filled by a function word (Spock and, Shock's a): the semirhyme on the stressed
     // word is the match when it passes (Greg 2026-11-05: logic ~ Spock, not 'Spock and')
     if (r && !r.soft && k >= 2 && cs.slice(1).some((x) => x.weak) && cs[0].final && cs[0].stress >= 1 && !cs[0].weak && !isFunctionWord(cs[0].w.text) && withinBars(song, cs[0].w, feet[0][0].w) && compareFoot(S, [Ff[0]], [cs[0]], { credit: true })) r = null;
-  } else if (k >= 2 && c0.stress >= 1 && !c0.weak && c0.final && !isFunctionWord(c0.w.text)) {
-    r = compareFoot(S, [Ff[0]], [c0], { credit: true });
-    if (r) { cs = [c0]; form = 'semirhyme'; }
+  } else if (mode === 'semi') {
+    if (k >= 2 && c0.stress >= 1 && !c0.weak && c0.final && !isFunctionWord(c0.w.text)) {
+      r = compareFoot(S, [Ff[0]], [c0], { credit: true });
+      if (r) { cs = [c0]; form = 'semirhyme'; }
+    }
+  } else if (mode === 'trunc' && k >= 2) {
+    // the last pass: only row 4, only where nothing else matched
+    cs = span(e, k);
+    if (cs && cs[0].stress >= 1) r = compareFoot(S, Ff, cs, { credit: true, truncated: true });
+    if (r && r.row !== 4) r = null;
   }
   if (!r) return null;
   let identity = r.soft ? null : r;
@@ -282,5 +293,6 @@ export function matchQuery(song, anchorIds) {
   if (feet.length) pass((e) => matchAt(song, S, feet, pickups, e, qWords, covered, 'full'));
   pass((e) => assonanceAt(S, Q, e, qWords, covered));
   if (feet.length) pass((e) => matchAt(song, S, feet, pickups, e, qWords, covered, 'semi'));
+  if (feet.length && RULES.truncated) pass((e) => matchAt(song, S, feet, pickups, e, qWords, covered, 'trunc'));
   return out.sort((a, b) => a.start - b.start);
 }
