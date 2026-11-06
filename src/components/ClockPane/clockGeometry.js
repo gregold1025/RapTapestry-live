@@ -131,3 +131,15 @@ export function clockGeo(side, rings) {
   const rOuter = Math.max(20, (side / 2 - 8) / 1.12);
   return { cx, cy, rOuter, rInner: 0.18 * rOuter, drumBand: 0.12 * rOuter, rings };
 }
+
+/** The faint preview's opacity (later rings, and the unplayed part of the current ring, while following). */
+export const FAINT = 0.18;
+
+/** A mark's opacity: faint while following and playing if the playhead has not reached it yet. */
+export function revealOpacity({ follow, playing, ring, current, start, t }) {
+  if (!follow || !playing) return 1;
+  if (current == null) return FAINT;
+  if (ring > current) return FAINT;
+  if (ring === current && start > t) return FAINT;
+  return 1;
+}

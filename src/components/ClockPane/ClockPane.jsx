@@ -17,6 +17,7 @@ import ClockWords from "./ClockWords";
 import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
 import ClockFace from "./ClockFace";
+import { useClockWindow } from "./useClockWindow";
 import "./ClockPane.css";
 
 const BAR_H = 30;     // the header bar's height (px)
@@ -40,18 +41,27 @@ function useStageSize(ref) {
 export default function ClockPane({ duration }) {
   const paneRef = useRef(null);
   const side = useStageSize(paneRef);
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockDrumScale, drumClasses, drumBands } = useParams();
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockDrumScale, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();
-  const { drumTranscription, songModel, timing, lyricTranscription } = useSongData();
+  const { songModel, timing, lyricTranscription } = useSongData();
   const { visualByWordId } = useQueries();
+  // bar starts = every beatsPerBar-th beat of the song model's grid (the tapestry's bars and bar numbers)
+  const barStarts = useMemo(() => {
+    const grid = songModel?.grid ?? [];
+    const bpb = songModel?.beatsPerBar || 4;
+    return grid.filter((_, j) => j % bpb === 0);
+  }, [songModel]);
   const cycles = useMemo(
-    () => makeCycles(drumTranscription?.downbeats ?? [], clockCycleBars, duration || songModel?.duration || 0),
-    [drumTranscription, clockCycleBars, duration, songModel]
+    () => makeCycles(barStarts, clockCycleBars, duration || songModel?.duration || 0),
+    [barStarts, clockCycleBars, duration, songModel]
   );
   const rings = ringCount(clockRings, cycles.count);
   const beatsPerBar = songModel?.beatsPerBar || 4;
-  const W = 0;   // the window (Task 7 moves it)
+  const wholeSong = clockRings === "all";
+  const svgRef = useRef(null);
+  const win = useClockWindow({ cycles, rings, wholeSong, svgRef });
+  const { W, current, follow } = win;
   const texts = useMemo(() => {
     const m = new Map();
     (lyricTranscription?.lines ?? []).forEach((line, li) => (line.words ?? []).forEach((w, wi) => m.set(`${li}-${wi}`, String(w.text ?? "").replace(/\n/g, "").trim())));
@@ -61,9 +71,8 @@ export default function ClockPane({ duration }) {
     () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
     [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
   );
-  const current = Math.min(clockIndex, rings - 1);   // the current ring (Task 7: the playhead's)
   const drums = useMemo(
-    () => (clockShowDrums ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
+    () => (clockShowDrums && current != null ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
     [clockShowDrums, hits, cycles, W, current, byClass, drumClasses, drumBands]
   );
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
@@ -74,12 +83,18 @@ export default function ClockPane({ duration }) {
       <div className="clock-bar">
         <span className="clock-title"><IconClock /> Rhyme Clock</span>
         <Segmented size="sm" value={clockRings} onChange={setClockRings} options={RINGS_SEG} ariaLabel="Rings shown" />
-        <span className="clock-where" />
+        <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, W + 1)}–${Math.min(cycles.count, W + rings)}${follow ? "" : " · frozen"}` : ""}</span>
+        <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
+          title={follow
+            ? "Following the playhead: the rings shift with it and words appear as they are played. Click to freeze the rings where they are."
+            : "Frozen: the rings stay put and show everything in them. Click to follow the playhead again."}>
+          {follow ? "Freeze" : "Follow"}
+        </button>
         <button type="button" className="clock-link" onClick={() => openParamsPanel("global")} title="The clock's settings live in the Global panel">settings &rsaquo;</button>
         <button type="button" className="clock-close" onClick={toggleClock} title="Close the Rhyme Clock">&times;</button>
       </div>
       {side > 0 && (
-        <svg className="clock-svg" width={side} height={side} viewBox={`0 0 ${side} ${side}`}>
+        <svg ref={svgRef} className="clock-svg" width={side} height={side} viewBox={`0 0 ${side} ${side}`}>
           <rect width={side} height={side} fill={clockBackgroundColor} />
           {cycles.count === 0 ? (
             <text className="clock-note" x={side / 2} y={side / 2} textAnchor="middle" fill="#888">No bar grid for this song</text>
@@ -88,6 +103,7 @@ export default function ClockPane({ duration }) {
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} />
+              <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>
           )}
         </svg>

@@ -23,3 +23,5 @@
 .clock-close:hover { color: var(--rt-ink); }
 .clock-svg { display: block; user-select: none; touch-action: none; }
 .clock-note { font: 12px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+.clock-follow { font: inherit; font-size: 11px; background: var(--rt-card); color: var(--rt-ink); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.clock-follow.is-on { color: #ff6b6b; border-color: #ff6b6b; }

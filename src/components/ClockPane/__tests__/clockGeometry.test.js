@@ -109,3 +109,24 @@ describe("the face", () => {
     expect(faceStrokes("#111111").beat).not.toBe(faceStrokes("#ffffff").beat);
   });
 });
+
+import { revealOpacity, FAINT } from "../clockGeometry";
+
+describe("reveal while following", () => {
+  const on = { follow: true, playing: true };
+  it("shows later rings faintly", () => {
+    expect(revealOpacity({ ...on, ring: 3, current: 2, start: 0, t: 9 })).toBe(FAINT);
+    expect(FAINT).toBe(0.18);
+  });
+  it("shows the unplayed part of the current ring faintly and the played part in full", () => {
+    expect(revealOpacity({ ...on, ring: 2, current: 2, start: 10, t: 9 })).toBe(FAINT);
+    expect(revealOpacity({ ...on, ring: 2, current: 2, start: 8, t: 9 })).toBe(1);
+  });
+  it("shows earlier rings in full", () => {
+    expect(revealOpacity({ ...on, ring: 1, current: 2, start: 20, t: 9 })).toBe(1);
+  });
+  it("shows everything in full when frozen or paused", () => {
+    expect(revealOpacity({ follow: false, playing: true, ring: 3, current: 2, start: 10, t: 9 })).toBe(1);
+    expect(revealOpacity({ follow: true, playing: false, ring: 3, current: 2, start: 10, t: 9 })).toBe(1);
+  });
+});
