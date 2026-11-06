@@ -182,9 +182,6 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     if (cs) r = footLink(S, Ff, cs, { credit: true });
     // a vowel-only final foot only as a word's own unstressed tail (so- so ~ so-lo), with a full foot to its left
     if (r?.soft && (feet.length < 2 || cs[0].k === 0)) r = null;
-    // the query's tail filled by a function word (Spock and, Shock's a): the semirhyme on the stressed
-    // word is the match when it passes (Greg 2026-11-05: logic ~ Spock, not 'Spock and')
-    if (r && !r.soft && k >= 2 && cs.slice(1).some((x) => x.weak) && cs[0].final && cs[0].stress >= 1 && !cs[0].weak && !isFunctionWord(cs[0].w.text) && withinBars(song, cs[0].w, feet[0][0].w) && compareFoot(S, [Ff[0]], [cs[0]], { credit: true })) r = null;
   } else if (mode === 'semi') {
     if (k >= 2 && c0.stress >= 1 && !c0.weak && c0.final && !isFunctionWord(c0.w.text)) {
       r = compareFoot(S, [Ff[0]], [c0], { credit: true });

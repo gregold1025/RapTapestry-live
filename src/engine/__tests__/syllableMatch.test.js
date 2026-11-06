@@ -150,15 +150,15 @@ describe("tail cases: embedded and semirhyme, one rule both ways, within 4 bars"
     expect(m.form).toBe("embedded");
     expect(m.type).toBe("perfect");
   });
-  it("logic ~ Spock, clock: semirhymes, loosened with the family tag (credit: JH ~ K)", () => {
-    const ms = matches(rld, "logic");
-    for (const t of ["Spock", "clock"]) {
-      const m = ms.find((x) => clean(x.text) === clean(t));
-      expect(m, t).toBeTruthy();
-      expect(m.form).toBe("semirhyme");
-      expect(m.type).toBe("loosened");
-      expect(m.tags).toEqual(["family"]);
-    }
+  it("logic ~ clock: semirhyme, loosened with the family tag (credit: JH ~ K)", () => {
+    const m = matches(rld, "logic").find((x) => clean(x.text) === "clock");
+    expect(m).toMatchObject({ form: "semirhyme", type: "loosened", tags: ["family"] });
+  });
+  it("a function word may fill the tail (Greg 2026-11-06: no exception, 'Spock and' wins): logic ~ Spock and; digits ~ dig it, Swig it", () => {
+    const sa = find(matches(rld, "logic"), "Spock and");
+    expect(sa).toMatchObject({ form: "mosaic", type: "loosened" });
+    const ms = matches(til, "digits");
+    for (const t of ["dig it", "Swig it"]) expect(find(ms, t), t).toMatchObject({ form: "mosaic", type: "loosened" });
   });
   it("semirhymes land on content words within 4 bars of the query", () => {
     const q = rld.byId.get(idsOf(rld, "logic")[0]);
