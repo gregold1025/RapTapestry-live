@@ -90,3 +90,22 @@ describe("pointer", () => {
     expect(unwrapDelta(0.05, 0.95)).toBeCloseTo(-0.1);
   });
 });
+
+import { spokes, faceStrokes } from "../clockGeometry";
+import { gridStrokes } from "../../../utils/gridStroke";
+
+describe("the face", () => {
+  it("puts a spoke on every beat and marks where bars start", () => {
+    const s = spokes(2, 4);
+    expect(s).toHaveLength(8);
+    expect(s[0].kind).toBe("bar");
+    expect(s[1].kind).toBe("beat");
+    expect(s[4]).toEqual({ frac: 0.5, kind: "bar" });
+  });
+  it("colors spokes and rings from the background, like bar and beat lines", () => {
+    expect(faceStrokes("#ffffff").bar).toBe(gridStrokes("#ffffff").bar);
+    expect(faceStrokes("#ffffff").current).toBe(gridStrokes("#ffffff").bar);
+    expect(faceStrokes("#ffffff").ring).toBe(gridStrokes("#ffffff").beat);
+    expect(faceStrokes("#111111").beat).not.toBe(faceStrokes("#ffffff").beat);
+  });
+});

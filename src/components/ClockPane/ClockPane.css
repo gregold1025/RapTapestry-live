@@ -15,7 +15,7 @@
 .clock-bar > * { flex-shrink: 0; }
 .clock-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; white-space: nowrap; }
 .clock-title svg { width: 16px; height: 16px; }
-.clock-bar .ui-seg { width: auto; }
+.clock-bar .ui-seg { width: 190px; }
 .clock-where { margin-left: auto; color: var(--rt-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
 .clock-link { font: inherit; font-size: 11px; color: var(--rt-muted); background: transparent; border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
 .clock-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }

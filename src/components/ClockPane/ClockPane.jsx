@@ -3,12 +3,15 @@
 // or 4 bars (angle = position in the cycle; outer rings earlier, inner rings
 // later), one cycle of drum glyphs on the rim, and a sweeping playhead. For
 // now it floats over the center stage, opened by the clock icon in the header.
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Segmented } from "../ui";
 import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
+import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG } from "./clockGeometry";
+import { RINGS_SEG, ringCount, clockGeo } from "./clockGeometry";
+import { makeCycles } from "./clockCycles";
+import ClockFace from "./ClockFace";
 import "./ClockPane.css";
 
 const BAR_H = 30;     // the header bar's height (px)
@@ -29,8 +32,15 @@ function useStageSize(ref) {
   return side;
 }
 
-export default function ClockPane() {
-  const { clockRings, setClockRings, clockBackgroundColor } = useParams();
+export default function ClockPane({ duration }) {
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex } = useParams();
+  const { drumTranscription, songModel } = useSongData();
+  const cycles = useMemo(
+    () => makeCycles(drumTranscription?.downbeats ?? [], clockCycleBars, duration || songModel?.duration || 0),
+    [drumTranscription, clockCycleBars, duration, songModel]
+  );
+  const rings = ringCount(clockRings, cycles.count);
+  const beatsPerBar = songModel?.beatsPerBar || 4;
   const { toggleClock, openParamsPanel } = useUIState();
   const paneRef = useRef(null);
   const side = useStageSize(paneRef);
@@ -46,6 +56,11 @@ export default function ClockPane() {
       {side > 0 && (
         <svg className="clock-svg" width={side} height={side} viewBox={`0 0 ${side} ${side}`}>
           <rect width={side} height={side} fill={clockBackgroundColor} />
+          {cycles.count === 0 ? (
+            <text className="clock-note" x={side / 2} y={side / 2} textAnchor="middle" fill="#888">No bar grid for this song</text>
+          ) : (
+            <ClockFace geo={clockGeo(side, rings)} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={Math.min(clockIndex, rings - 1)} />
+          )}
         </svg>
       )}
     </section>

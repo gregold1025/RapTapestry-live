@@ -4,6 +4,8 @@
 // ring), the current ring (the playhead's), arcs, and pointer hits.
 // Fractions of a turn start at 12 o'clock and run clockwise.
 
+import { gridStrokes } from "../../utils/gridStroke";
+
 export const RINGS_OPTIONS = [1, 2, 4, 8, 16, 32, "all"];
 export const CYCLE_OPTIONS = [1, 2, 4];
 /** Segmented options for the rings-shown lever. */
@@ -109,4 +111,23 @@ export function unwrapDelta(prevFrac, frac) {
   if (d > 0.5) d -= 1;
   if (d <= -0.5) d += 1;
   return d;
+}
+
+/** One spoke per beat of the cycle; "bar" where a bar starts. */
+export function spokes(cycleBars, beatsPerBar) {
+  const bpb = Math.max(1, beatsPerBar | 0), n = Math.max(1, cycleBars | 0) * bpb;
+  return Array.from({ length: n }, (_, j) => ({ frac: j / n, kind: j % bpb === 0 ? "bar" : "beat" }));
+}
+
+/** Spoke and ring colors for a background, the same pushes as bar and beat lines. */
+export function faceStrokes(background) {
+  const g = gridStrokes(background);
+  return { bar: g.bar, beat: g.beat, ring: g.beat, current: g.bar };
+}
+
+/** The clock's radii for a square of `side` px: rim, inner hole, drum band. */
+export function clockGeo(side, rings) {
+  const cx = side / 2, cy = side / 2;
+  const rOuter = Math.max(20, (side / 2 - 8) / 1.12);
+  return { cx, cy, rOuter, rInner: 0.18 * rOuter, drumBand: 0.12 * rOuter, rings };
 }
