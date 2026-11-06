@@ -56,3 +56,12 @@ export const PHONE_OVERRIDES = {
 };
 
 export const normalizeWord = (t = '') => t.toLowerCase().trim().replace(/^[^a-z']+|[^a-z']+$/g, '');
+
+// Readings by hand that REPLACE the dictionary's, by normalized word text in every song.
+// Greg (2026-11-06) hears admire and perspire as two syllables, like desire (D IH0 Z AY1 ER0);
+// the dictionary's one-syllable AY1 R readings made a special "-ire" rule necessary, and
+// data is the right place for the fix, not a rule.
+export const READINGS = {
+  admire: 'AE0 D M AY1 ER0',
+  perspire: 'P ER0 S P AY1 ER0',
+};

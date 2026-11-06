@@ -47,14 +47,6 @@ function wordSyllables(w) {
     if (seen.has(key)) continue; seen.add(key);
     const sy = syllabify(toks.map((p) => ({ p }))).map((x, k) => ({ phones: x.phones.map((y) => y.p), v: x.v, k, kEnd: k }));
     if (sy.length !== w.nSyllables || sy.some((x) => x.v < 0)) continue;
-    // "-ire" / "-our" words are said with one syllable or two (admire AY1 R, desire AY1 ER0):
-    // a final ER after an open AY / AW is read as R closing that syllable, so both compare
-    // alike (the rule parseRime applies to rimes); the merged syllable spans both indices.
-    const L = sy.length;
-    if (L >= 2 && sy[L - 1].v === 0 && bare(sy[L - 1].phones[0]) === 'ER' && /^(AY|AW)$/.test(bare(sy[L - 2].phones[sy[L - 2].v])) && sy[L - 2].phones.length === sy[L - 2].v + 1) {
-      sy[L - 2] = { ...sy[L - 2], phones: [...sy[L - 2].phones, 'R', ...sy[L - 1].phones.slice(1)], kEnd: L - 1 };
-      sy.pop();
-    }
     if (target == null) target = sy.length; else if (sy.length !== target) continue;
     sy.forEach((x, j) => {
       const ph2 = x.phones;

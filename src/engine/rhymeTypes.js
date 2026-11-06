@@ -147,9 +147,6 @@ const strip = (t) => t.replace(/\d/g, '').toUpperCase();
 // Returns { full, segs: [{ v, cons[] }], stressedSyl, lastStress }.
 export function parseRime(phones = '') {
   const toks = phones.trim().split(/\s+/).filter(Boolean);
-  // "-ire" / "-our" words appear both as two syllables (desire: AY1 ER0) and one
-  // (admire: AY1 R). Read a final glide + R as glide + ER so they compare alike.
-  if (toks.length >= 2 && toks.at(-1) === 'R' && /^(AY|AW)\d$/.test(toks.at(-2))) toks[toks.length - 1] = 'ER0';
   const vIdx = toks.map((t, i) => (VOWELS.has(strip(t)) ? i : -1)).filter((i) => i >= 0);
   if (!vIdx.length) return null;
     // last stressed vowel, primary OR secondary: compounds rhyme on their final

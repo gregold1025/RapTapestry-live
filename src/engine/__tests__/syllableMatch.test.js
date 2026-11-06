@@ -149,14 +149,6 @@ describe("removed and tightened rules", () => {
   });
 });
 
-describe("-ire / -our words", () => {
-  it("desire (AY1 ER0, two syllables at the end) ~ admire (AY1 R, one): perfect, lighting admire to its end", () => {
-    const m = matches(til, "desire").find((x) => /admire/i.test(x.text));
-    expect(m.type).toBe("perfect");
-    expect(m.vi1).toBe(m.words[0].nSyllables - 1);
-  });
-});
-
 describe("pickups", () => {
   it("until ~ the thrill: the unstressed pickup lengthens the match, never changes its type", () => {
     const s = tiny([[["until", "AH0 N T IH1 L"]], [["the", "DH AH0"], ["thrill", "TH R IH1 L"]], [["a", "AH0"], ["skill", "S K IH1 L"]]]);

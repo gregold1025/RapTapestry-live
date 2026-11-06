@@ -4,7 +4,7 @@
 // rhymeTypes.js (named types, not a score). computeLayout gives the tapestry's beat grid.
 import { computeLayout } from '../utils/computeLayout.js';
 import { parseRime, RULE_OPTIONS } from './rhymeTypes.js';
-import { PHONE_OVERRIDES, normalizeWord } from './phoneOverrides.js';
+import { PHONE_OVERRIDES, READINGS, normalizeWord } from './phoneOverrides.js';
 import { SYLLABLE_COUNTS } from './syllableCounts.js';
 
 const vowelCount = (v) => v.trim().split(/\s+/).filter((t) => VOWEL_TOKEN.test(t)).length;
@@ -55,6 +55,9 @@ export function buildSongModel({ songId, lyricTranscription, drumTranscription, 
         const keep = variants.filter((v) => vowelCount(v) === settled);
         if (keep.length) variants = keep; else settled = null;
       }
+      // a reading by hand (phoneOverrides READINGS) replaces every dictionary reading
+      const byHand = READINGS[normalizeWord(w.text)];
+      if (byHand) { variants = [byHand]; settled = vowelCount(byHand); }
       let phones = variants[0] ?? String((Array.isArray(w.phones) ? w.phones[0] : w.phones) ?? '');
       let n = Math.max(1, settled ?? w.nSyllables ?? 1);
       // The pipeline stores the word's text when its dictionary lookup fails;

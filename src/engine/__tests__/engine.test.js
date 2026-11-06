@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildSongModel } from "../songModel";
 import { computeMatches } from "../index";
+import { songSyllables } from "../syllableMatch";
 
 const DATA = path.resolve(__dirname, "../../../public/data");
 function load(songId) {
@@ -54,5 +55,22 @@ describe("computeMatches (what the app calls)", () => {
   });
   it("returns an empty list for an unknown word id", () => {
     expect(computeMatches(amen, ["999-999"])).toEqual([]);
+  });
+});
+
+describe("readings by hand (Greg, 2026-11-06: admire and perspire are two syllables; no -ire rule)", () => {
+  it("admire reads AE0 D M AY1 ER0 (-ire as two syllables, three in all, like desire)", () => {
+    const admire = til.words.find((w) => /^admire/i.test(w.text.trim()));
+    expect(admire.phones).toBe("AE0 D M AY1 ER0");
+    expect(admire.nSyllables).toBe(3);
+    expect(admire.variants).toEqual(["AE0 D M AY1 ER0"]);
+    const desire = til.words.find((w) => /^desire/i.test(w.text.trim()));
+    expect(desire.nSyllables).toBe(3);
+  });
+  it("flyer is two syllables in the syllable stream (no merge of AY + ER)", () => {
+    const flyer = til.words.find((w) => /^flyer/i.test(w.text.trim()));
+    const syls = songSyllables(til).filter((s) => s.w === flyer);
+    expect(syls).toHaveLength(2);
+    expect(syls.map((s) => s.kEnd)).toEqual([0, 1]);
   });
 });
