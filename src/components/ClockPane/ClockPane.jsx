@@ -10,7 +10,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText } from "./clockGeometry";
+import { RINGS_SEG, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
 import { wordMarks, drumMarks } from "./clockMarks";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
@@ -110,7 +110,7 @@ export default function ClockPane({ duration }) {
     const tw = timing?.words.get(m.id);
     onHoverEnter(e, { type: "word", wordId: m.id, wordText: m.text, phones: tw?.phones ?? "", match: matchLabel(visualByWordId.get(m.id) ?? null) });
   }, [timing, visualByWordId, onHoverEnter]);
-  const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
+  const spacing = ringPitch(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
   const labels = showText(spacing, clockTextPx);
   return (

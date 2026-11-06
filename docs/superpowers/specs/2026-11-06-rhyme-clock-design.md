@@ -170,3 +170,8 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 - The hand runs from the center through the drum band again. The ring glide is dropped (to be discussed later); labels stay clockwise along the ring.
 - The band under the tapestry is the Line Staff's original 44% of the stage; the clock is a square of that height in the bottom-right corner.
 - Line Staff: default background `#1c1c1c`, words white; while following, only glyph layers are revealed with the playhead (the grid and loop always show); drums that would vanish on its background take its word color.
+
+## Fourth round (Greg, 2026-11-06)
+
+- The rings are one spiral, a turn per cycle: radius = rOuter − (ring + frac) × (rOuter − rInner) / rings, so a turn ends where the next begins and bar lines and words run on across 12 o'clock. One ring alone stays a circle on the rim. The nearest turn under the pointer is found at its angle.
+- The Line Staff and Rhyme Clock header bars are both 35 px tall.

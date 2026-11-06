@@ -10,7 +10,7 @@
 // does not click it.
 import { useEffect, useRef } from "react";
 import { useAudioControls } from "../../contexts/AudioContext";
-import { pointerToClock, ringSpacing, dragMode, clickCycle, radialPan } from "./clockGeometry";
+import { pointerToClock, ringPitch, dragMode, clickCycle, radialPan } from "./clockGeometry";
 
 const MOVE_PX = 4;
 
@@ -49,7 +49,7 @@ export function useClockPointer({ svgRef, geo, cycles, win, wholeSong, active })
       }
       const g = S.current.geo;
       const [x, y] = local(e);
-      const k = radialPan({ cx: g.cx, cy: g.cy, x0: d.x0, y0: d.y0, x, y, spacing: ringSpacing(g.rings, g.rOuter, g.rInner) });
+      const k = radialPan({ cx: g.cx, cy: g.cy, x0: d.x0, y0: d.y0, x, y, spacing: ringPitch(g.rings, g.rOuter, g.rInner) });
       if (k !== d.applied) { w.panBy(k - d.applied); d.applied = k; }
     };
     const onUp = () => {

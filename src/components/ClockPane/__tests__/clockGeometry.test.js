@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { makeCycles } from "../clockCycles";
 import {
-  RINGS_OPTIONS, CYCLE_OPTIONS, ringCount, clampIndex, ringRadius, ringSpacing, showText, polar, arcPath,
+  RINGS_OPTIONS, CYCLE_OPTIONS, ringCount, clampIndex, ringPitch, spiralRadius, spiralPath, showText, polar,
   wordSegments, syncWindow, windowForIndex, pointerToClock,
 } from "../clockGeometry";
 
@@ -22,12 +22,18 @@ describe("rings", () => {
     expect(clampIndex(7, 4)).toBe(3);
     expect(clampIndex(-1, 4)).toBe(0);
   });
-  it("spaces rings from the rim (index 0) to the inner radius", () => {
-    expect(ringRadius(0, 5, 100, 20)).toBe(100);
-    expect(ringRadius(4, 5, 100, 20)).toBe(20);
-    expect(ringRadius(0, 1, 100, 20)).toBe(100);
-    expect(ringSpacing(5, 100, 20)).toBe(20);
-    expect(ringSpacing(1, 100, 20)).toBe(80);
+  it("winds the rings into one spiral from the rim to the inner radius, a turn per ring", () => {
+    expect(ringPitch(5, 100, 20)).toBe(16);
+    expect(spiralRadius(0, 0, 5, 100, 20)).toBe(100);
+    expect(spiralRadius(2, 0.5, 5, 100, 20)).toBe(60);
+    expect(spiralRadius(4, 1, 5, 100, 20)).toBe(20);
+  });
+  it("ends each turn where the next one starts, so bar lines and words run on across 12 o'clock", () => {
+    expect(spiralRadius(1, 1, 5, 100, 20)).toBe(spiralRadius(2, 0, 5, 100, 20));
+  });
+  it("keeps a single ring a circle on the rim", () => {
+    expect(spiralRadius(0, 0.7, 1, 100, 20)).toBe(100);
+    expect(ringPitch(1, 100, 20)).toBe(80);
   });
   it("shows text only while rings are at least two text heights apart", () => {
     expect(showText(30, 12)).toBe(true);
@@ -41,9 +47,10 @@ describe("drawing", () => {
     expect(a.x).toBeCloseTo(0); expect(a.y).toBeCloseTo(-10);
     expect(b.x).toBeCloseTo(10); expect(b.y).toBeCloseTo(0);
   });
-  it("draws arcs clockwise with the large-arc flag past half a turn", () => {
-    expect(arcPath(0, 0, 10, 0, 0.75)).toContain(" 1 1 ");
-    expect(arcPath(0, 0, 10, 0, 0.25)).toContain(" 0 1 ");
+  it("draws a stretch of the spiral clockwise, from one ring and frac to another", () => {
+    const d = spiralPath(0, 0, 0, 0.25, 5, 100, 20);
+    expect(d.startsWith("M0.00,-100.00")).toBe(true);
+    expect(d.endsWith("L96.00,0.00")).toBe(true);
   });
   it("splits a word that crosses a cycle boundary", () => {
     const c = makeCycles([0, 2, 4, 6], 1, 6);
@@ -84,6 +91,10 @@ describe("pointer", () => {
     const p = pointerToClock(60, 0, 0, 0, 5, 100, 20);
     expect(p.ring).toBe(2);
     expect(p.frac).toBeCloseTo(0.25);
+  });
+  it("finds the turn of the spiral nearest the pointer at its angle", () => {
+    // at 9 o'clock (frac 0.75) ring 1 sits at 100 − 1.75 × 16 = 72; ring 2 at 56
+    expect(pointerToClock(-68, 0, 0, 0, 5, 100, 20).ring).toBe(1);
   });
 });
 
@@ -205,12 +216,13 @@ describe("drumInk", () => {
   });
 });
 
-import { labelArc, followIndex } from "../clockGeometry";
+import { labelPath, followIndex } from "../clockGeometry";
 
 describe("word labels", () => {
-  it("run clockwise along the ring everywhere, upside down on the lower half", () => {
-    const d = labelArc(0, 0, 100, 0.45, 0.5, "abc", 12);
-    expect(d).toContain("A103.00,103.00 0 0 1 ");
+  it("run clockwise along the spiral just outside the word, upside down on the lower half", () => {
+    const d = labelPath(0, 0, 0, 0.5, 0.55, "abc", 12, 1, 100, 20);
+    expect(d.startsWith("M0.00,103.00")).toBe(true);
+    expect(d).toMatch(/L-[\d.]+,[\d.]+$/);
   });
 });
 

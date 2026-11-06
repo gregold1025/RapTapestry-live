@@ -1,7 +1,8 @@
 .staff-pane { display: flex; flex-direction: column; min-height: 0; border-top: 1px solid var(--rt-line); background: #fff; container-type: inline-size; }
 .staff-bar {
   display: flex; align-items: center; gap: 12px;
-  padding: 4px 10px; border-bottom: 1px solid #2a2a2a; background: var(--rt-head);
+  padding: 0 10px; height: 35px; box-sizing: border-box;   /* the Rhyme Clock bar matches it */
+  border-bottom: 1px solid #2a2a2a; background: var(--rt-head);
   font-size: 11px; color: var(--rt-muted);
 }
 .staff-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--rt-ink); white-space: nowrap; }

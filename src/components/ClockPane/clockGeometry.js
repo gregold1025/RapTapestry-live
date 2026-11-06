@@ -1,6 +1,7 @@
 // src/components/ClockPane/clockGeometry.js
 // The Rhyme Clock's geometry: rings (index 0 is the outermost, later cycles
-// further in), the window of cycles shown (W = the cycle on the outermost
+// further in) wound into one spiral, a turn per ring, so each turn ends where
+// the next begins (one ring stays a circle), the window of cycles shown (W = the cycle on the outermost
 // ring), the current ring (the playhead's), arcs, and pointer hits.
 // Fractions of a turn start at 12 o'clock and run clockwise.
 
@@ -23,15 +24,30 @@ export function clampIndex(index, rings) {
   return Math.max(0, Math.min(Math.max(0, rings - 1), Math.round(index) || 0));
 }
 
-/** Radius of ring i: the rim at 0, rInner at rings − 1. */
-export function ringRadius(i, rings, rOuter, rInner) {
-  if (rings <= 1) return rOuter;
-  return rOuter - (i * (rOuter - rInner)) / (rings - 1);
+/** How far the spiral moves in per turn (one ring alone: the whole face). */
+export function ringPitch(rings, rOuter, rInner) {
+  return rings <= 1 ? rOuter - rInner : (rOuter - rInner) / rings;
 }
 
-/** The gap between neighboring rings. */
-export function ringSpacing(rings, rOuter, rInner) {
-  return rings <= 1 ? rOuter - rInner : (rOuter - rInner) / (rings - 1);
+/** The spiral's radius at ring `ring`, `frac` of the way round: the rim at 0, rInner at the end of the last ring. */
+export function spiralRadius(ring, frac, rings, rOuter, rInner) {
+  if (rings <= 1) return rOuter;
+  return rOuter - (ring + frac) * ringPitch(rings, rOuter, rInner);
+}
+
+const STEP = 1 / 180;   // the spiral is drawn in 2° steps
+
+/** The spiral, clockwise, from ring + frac u0 to u1 (u1 may run over several turns), pushed out by `offset` px. */
+export function spiralPath(cx, cy, u0, u1, rings, rOuter, rInner, offset = 0) {
+  const n = Math.max(1, Math.ceil((u1 - u0) / STEP));
+  let d = "";
+  for (let j = 0; j <= n; j++) {
+    const u = u0 + ((u1 - u0) * j) / n;
+    const ring = Math.floor(u), frac = u - ring;
+    const p = polar(cx, cy, spiralRadius(ring, frac, rings, rOuter, rInner) + offset, frac);
+    d += `${j ? "L" : "M"}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+  }
+  return d;
 }
 
 /** Words carry text only while the rings are at least two text heights apart. */
@@ -42,15 +58,6 @@ export function showText(spacing, textPx) {
 export function polar(cx, cy, r, frac) {
   const a = TAU * frac - Math.PI / 2;
   return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
-}
-
-/** A clockwise SVG arc from frac f0 to f1 (f0 < f1 ≤ f0 + 1). */
-export function arcPath(cx, cy, r, f0, f1) {
-  const a = polar(cx, cy, r, f0);
-  const span = Math.min(0.9999, f1 - f0);
-  const b = polar(cx, cy, r, f0 + span);
-  const large = span > 0.5 ? 1 : 0;
-  return `M${a.x.toFixed(2)},${a.y.toFixed(2)} A${r.toFixed(2)},${r.toFixed(2)} 0 ${large} 1 ${b.x.toFixed(2)},${b.y.toFixed(2)}`;
 }
 
 /** A word's time span cut at cycle boundaries: [{ cycle, f0, f1 }]. The intro (cycle −1) is dropped. */
@@ -100,8 +107,8 @@ export function pointerToClock(x, y, cx, cy, rings, rOuter, rInner) {
   let frac = (Math.atan2(dy, dx) + Math.PI / 2) / TAU;
   frac = ((frac % 1) + 1) % 1;
   if (frac > 1 - 1e-9) frac = 0;
-  const sp = ringSpacing(rings, rOuter, rInner);
-  const ring = rings <= 1 ? 0 : clampIndex((rOuter - r) / sp, rings);
+  // the turn of the spiral nearest the pointer at its angle
+  const ring = rings <= 1 ? 0 : clampIndex((rOuter - r) / ringPitch(rings, rOuter, rInner) - frac, rings);
   return { frac, ring, r };
 }
 
@@ -199,10 +206,11 @@ export function drumInk(fill, background, fallback) {
   return inkOn(fill, background, fallback);
 }
 
-/** A word label's path: clockwise along the ring just outside it, from the word's start (upside down on the lower half). */
-export function labelArc(cx, cy, r, f0, f1, text, fs) {
+/** A word label's path: clockwise along the spiral just outside the word, from its start (upside down on the lower half). */
+export function labelPath(cx, cy, ring, f0, f1, text, fs, rings, rOuter, rInner) {
+  const r = spiralRadius(ring, f0, rings, rOuter, rInner);
   const span = Math.min(0.5, Math.max(f1 - f0, (text.length * fs * 0.6 + 4) / (TAU * r)));
-  return arcPath(cx, cy, r + 3, f0, f0 + span);
+  return spiralPath(cx, cy, ring + f0, ring + f0 + span, rings, rOuter, rInner, 3);
 }
 
 
