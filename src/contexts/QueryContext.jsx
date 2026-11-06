@@ -1,6 +1,7 @@
 // src/contexts/QueryContext.jsx
 // One query model for every layer. Two kinds of query, each its own thing:
 // a WORD query (a word or a contiguous run) is drawn on words and syllables;
+// (matches come from the protocol engine: identity in `type`, loosenings in `tags`)
 // a LINE query (a line, matched to other lines by the end rhyme of their last
 // words) is drawn on lines only. Matches come from the typed rhyme engine
 // (src/engine). Color = query identity; type and form travel with each
@@ -91,14 +92,14 @@ export function QueryProvider({ children }) {
           if (prev && !prev.isAnchor && !isAnchor && prev.rank < rank) continue;
           const { vi0, vi1 } = sylRange(m, w);
           const vowelOnly = isAnchor ? [] : [...assonantSyllables(m, w.id)];
-          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, vi0, vi1, vowelOnly, isAnchor, rank, text: m.text });
+          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, tags: m.tags ?? [], vi0, vi1, vowelOnly, isAnchor, rank, text: m.text });
         }
       }
     }
     const prev = prevVisualRef.current;
     for (const [id, v] of map) {
       const b = prev.get(id);
-      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.vowelOnly.join() === v.vowelOnly.join()) map.set(id, b);
+      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.vowelOnly.join() === v.vowelOnly.join() && b.tags.join() === v.tags.join()) map.set(id, b);
     }
     prevVisualRef.current = map;
     return map;

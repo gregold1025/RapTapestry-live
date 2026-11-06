@@ -9,6 +9,7 @@
 // Color = the query's color when the word is queried or matched, gray otherwise.
 // This view does not follow the tapestry's glyph sizes: it scales to be read.
 import React, { useMemo } from "react";
+import { matchLabel } from "../../../utils/matchLabel";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useQueries } from "../../../contexts/QueryContext";
 import { useAudioControls } from "../../../contexts/AudioContext";
@@ -126,7 +127,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   };
   const hover = (it) => (e) => onGlyphHoverEnter?.(e, {
     type: "word", wordText: it.text, phones: it.tw.phones ?? (Array.isArray(it.word.phones) ? it.word.phones[0] : String(it.word.phones ?? "")),
-    match: it.vis ? (it.vis.isAnchor ? "query" : `${it.vis.type}${it.vis.form !== "word" ? " " + it.vis.form : ""}`) : null,
+    match: matchLabel(it.vis),
     f0: it.tw.f0, syllables: it.syls.map((sy) => (sy.cluster ? sy.cluster.join(" ") : sy.vowel)).join("  |  "),
   });
 

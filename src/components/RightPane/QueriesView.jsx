@@ -1,11 +1,12 @@
 // src/components/RightPane/QueriesView.jsx
 // Every query in one view: the list (color, its words inside the line, counts
 // per type, show / hide, remove) and, under it, the focused query opened up
-// (phones, rhyme-type chips with counts, the matches; click a match to seek).
+// (phones, identity chips with counts, the matches with their tags; click a match to seek).
 import React, { useMemo, useState } from "react";
 import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
-import { RHYME_TYPES, FORM_BY_KEY, TYPE_BY_KEY } from "../../engine";
+import { RHYME_TYPES, TYPE_BY_KEY } from "../../engine";
+import { matchLabel, tagsText } from "../../utils/matchLabel";
 import { queryLabel } from "../../utils/queryLabel";
 import { matchMarks } from "../../utils/phoneMarks";
 import { EyeButton } from "../ui";
@@ -130,7 +131,7 @@ export default function QueriesView() {
                   type="button"
                   className="sq-match"
                   onClick={() => seekAll(m.start)}
-                  title={`${m.type}${m.form && m.form !== "word" ? " " + (FORM_BY_KEY[m.form]?.label ?? m.form).toLowerCase() : ""} • click to seek`}
+                  title={`${matchLabel(m.match ?? m)} • click to seek`}
                 >
                   <span className="sq-match-main">
                     <LinkStrip m={m.match ?? m} />
@@ -139,7 +140,7 @@ export default function QueriesView() {
                     </span>
                     <MatchPhones m={m} />
                   </span>
-                  <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}</span>
+                  <span className="sq-match-meta">{groupBy === "time" ? m.type : ""}{(m.match ?? m).tags?.length ? ` ${tagsText((m.match ?? m).tags)}` : ""}{m.form && m.form !== "word" ? ` ${m.form}` : ""}</span>
                   <span className="sq-match-time">{fmtTime(m.start)}</span>
                 </button>
               ))}

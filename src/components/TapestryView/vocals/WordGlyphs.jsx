@@ -22,6 +22,7 @@ import { useParams } from "../../../contexts/ParamsContext";
 import { useAudioControls } from "../../../contexts/AudioContext";
 import { useSongData } from "../../../contexts/SongDataContext";
 import { laneY, wordPitchCenter, syllablePitchPct } from "../../../utils/laneLayout";
+import { matchLabel } from "../../../utils/matchLabel";
 import { f0Pct } from "../../../utils/timingModel";
 import { FORM_BY_KEY } from "../../../engine";
 
@@ -111,7 +112,7 @@ export default function WordGlyphs({ transcriptionData, onGlyphHoverEnter, onGly
         },
         onMouseEnter: (e) => {
           setHoveredWordId(id);
-          onGlyphHoverEnter?.(e, { type: "word", wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: vis ? `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}` : null });
+          onGlyphHoverEnter?.(e, { type: "word", wordText: word.text, phones: Array.isArray(word.phones) ? word.phones[0] : String(word.phones || ""), match: matchLabel(vis) });
         },
         onMouseLeave: (e) => { setHoveredWordId(null); onGlyphHoverLeave?.(e); },
         title: "Click: scrub here • Cmd+Click: query this word • Cmd+Shift+Click: extend the query • Alt+Click: remove",

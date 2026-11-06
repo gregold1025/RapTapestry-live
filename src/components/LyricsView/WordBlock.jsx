@@ -2,6 +2,7 @@
 import React from "react";
 import { useWordVisual, useQueryActions } from "../../contexts/QueryContext";
 import { useParams } from "../../contexts/ParamsContext";
+import { matchLabel } from "../../utils/matchLabel";
 import "./LyricsView.css";
 
 function hexToRgba(hex, alpha = 1) {
@@ -26,7 +27,7 @@ export const WordBlock = React.memo(function WordBlock({ word, lineIdx, wordIdx,
     if (vis.form === "semirhyme") { style.textDecorationLine = "underline"; style.textDecorationStyle = "wavy"; style.textDecorationColor = vis.color; }
   }
 
-  const label = vis ? (vis.isAnchor ? "query" : `${vis.type}${vis.form !== "word" ? " " + vis.form : ""}`) : null;
+  const label = matchLabel(vis);
 
   return (
     <div className="word-wrapper">
