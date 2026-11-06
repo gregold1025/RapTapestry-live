@@ -4,7 +4,7 @@
 // ring), the current ring (the playhead's), arcs, and pointer hits.
 // Fractions of a turn start at 12 o'clock and run clockwise.
 
-import { gridStrokes, contrastRatio } from "../../utils/gridStroke";
+import { gridStrokes, contrastRatio, inkOn } from "../../utils/gridStroke";
 
 export const RINGS_OPTIONS = [1, 2, 4, 8, 16, 32, "all"];
 export const CYCLE_OPTIONS = [1, 2, 4];
@@ -196,7 +196,7 @@ export function clickCycle({ r, ring, W, current, rOuter, drumBand }) {
 
 /** The drum glyphs' color on the clock: the Drums panel's, unless it would vanish on the background (contrast < 2). */
 export function drumInk(fill, background, fallback) {
-  return contrastRatio(fill, background) < 2 ? fallback : fill;
+  return inkOn(fill, background, fallback);
 }
 
 /** A word label's path: clockwise along the ring just outside it, from the word's start (upside down on the lower half). */

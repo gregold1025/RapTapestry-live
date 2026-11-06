@@ -3,8 +3,9 @@
 // prototype (new-prototypes/line-staff): everything in content pixels.
 //   - following: the window scrolls so the playhead sits LEAD across it
 //   - frozen: the window stays where the user left it (drag to scrub)
-//   - reveal: while following and playing, only what the playhead has
-//     passed is shown (an inset from the right edge of the content)
+//   - reveal: while following and playing, only the glyphs the playhead has
+//     passed are shown (an inset from the right edge of the content); the
+//     bar and beat grid and the loop are always shown on both sides
 
 export const LEAD = 2 / 3;
 
@@ -20,4 +21,12 @@ export function followScroll(xPlayhead, viewWidth, contentWidth) {
 export function revealInset({ follow, playing, xPlayhead, contentWidth }) {
   if (!follow || !playing) return 0;
   return Math.max(0, contentWidth - xPlayhead);
+}
+
+/** Layers that are always shown, on both sides of the playhead (Greg, 2026-11-06): the grid and the loop. */
+const ALWAYS_SHOWN = new Set(["grid", "loop"]);
+
+/** Whether a layer (TapestryLayer's name) appears with the playhead while following and playing. */
+export function revealsLayer(name) {
+  return !ALWAYS_SHOWN.has(name);
 }

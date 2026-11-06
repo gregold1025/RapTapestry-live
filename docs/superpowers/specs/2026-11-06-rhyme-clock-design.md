@@ -163,3 +163,10 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 - The rings glide instead of snapping when the window moves: each ring's marks scale about the center from where their cycle was drawn to its new ring (time constant 70 ms, at most one ring behind); a margin ring on each side fades in or out past the rim and the inner ring. Ring lines stay put.
 - Labels run clockwise along the ring everywhere (upside down on the lower half).
 - Placement: a band under the tapestry, height = half its width (capped so the tapestry keeps at least 30% of the stage, 140 px minimum). The clock takes a square in the bottom-right corner, the Line Staff the rest; the clock keeps its corner without the Line Staff (the left half stays empty, so the tapestry does not reflow), and the Line Staff takes the whole band without the clock. A header button next to × makes the clock full size over the whole stage, and back.
+
+## Third round (Greg, 2026-11-06)
+
+- Follow keeps the playhead's ring in the middle: with an even count of rings, the larger (outer) of the two middle rings (index ceil(n/2) − 1). The current-ring slider is gone; Freeze still lets the current ring move, and Follow brings it back.
+- The hand runs from the center through the drum band again. The ring glide is dropped (to be discussed later); labels stay clockwise along the ring.
+- The band under the tapestry is the Line Staff's original 44% of the stage; the clock is a square of that height in the bottom-right corner.
+- Line Staff: default background `#1c1c1c`, words white; while following, only glyph layers are revealed with the playhead (the grid and loop always show); drums that would vanish on its background take its word color.

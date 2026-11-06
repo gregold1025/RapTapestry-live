@@ -2,6 +2,7 @@ import React, { useId } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
+import { inkOn } from "../../../utils/gridStroke";
 import { useDrumHits, useByClass } from "../../../hooks/useDrumHits";
 import { defaultGlyphFor } from "../../../utils/drumGlyphDefaults";
 
@@ -16,7 +17,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale, staffBackgroundColor, staffWordColor } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();   // a song without classifier output falls back to bands
   const instanceId = useId().replace(/:/g, "");
@@ -26,7 +27,9 @@ export default function DrumsGlyphs() {
 
   const { rowHeight, timeToPixels } = layout;
   const lane = laneFor("drums");
-  const { fillColor = "#bbbbbb", tilt = 10 } = drumParams || {};
+  const { fillColor: panelFill = "#bbbbbb", tilt = 10 } = drumParams || {};
+  // the Line Staff has its own background: drums that would vanish on it (black on #1c1c1c) take its word color
+  const fillColor = layout.singleRow ? inkOn(panelFill, staffBackgroundColor, staffWordColor) : panelFill;
   const tiltDeg = clamp(tilt, -90, 90);
   const byName = glyphAssets.syllableGlyphByName;   // drums draw from the same set as the syllables
   const groups = byClass ? drumClasses : drumBands;

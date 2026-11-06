@@ -183,8 +183,8 @@ export function ParamsProvider({ children }) {
   // Line Staff text: the bottom of its pitch band, percent of the staff height (the band spans 34 points above it)
   const [staffTextHeight, setStaffTextHeight] = useState(63);
   const [staffTextPx, setStaffTextPx] = useState(12);
-  const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
-  const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
+  const [staffBackgroundColor, setStaffBackgroundColor] = useState("#1c1c1c");
+  const [staffWordColor, setStaffWordColor] = useState("#ffffff"); // unqueried words: text, line, dots
   // grid level: 0 none, 1 bar lines, 2 + beat lines, 3 + eighths, 4 + sixteenths (utils/gridLines.js)
   const [staffGridLevel, setStaffGridLevel] = useState(2);
   const [gridLevel, setGridLevel] = useState(2);

@@ -46,3 +46,15 @@ describe("computeLayout singleRow", () => {
     expect(lay.rowBoundaries).toEqual([lay.gridTimes[0], 16]);
   });
 });
+
+import { revealsLayer } from "../scrollWindow";
+
+describe("revealsLayer (what appears with the playhead while following)", () => {
+  it("reveals the glyph layers", () => {
+    for (const name of ["bass", "staff-vocals", "drums"]) expect(revealsLayer(name)).toBe(true);
+  });
+  it("always shows the bar and beat grid and the loop", () => {
+    expect(revealsLayer("grid")).toBe(false);
+    expect(revealsLayer("loop")).toBe(false);
+  });
+});
