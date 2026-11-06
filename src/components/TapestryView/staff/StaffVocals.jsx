@@ -18,6 +18,7 @@ import { useParams } from "../../../contexts/ParamsContext";
 import { laneY } from "../../../utils/laneLayout";
 import { f0Semitones } from "../../../utils/timingModel";
 import { timeAtEvent } from "../global/timeAtEvent";
+import { STAFF_DEFAULTS } from "../../../contexts/paramDefaults";
 
 const BAND_SPAN = 34;   // points of the staff the pitch range spans, from the text-height slider up
 const FONT = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
@@ -51,7 +52,7 @@ export default function StaffVocals({ mode = "words", onGlyphHoverEnter, onGlyph
   const { seekAll } = useAudioControls();
   const { lyricTranscription, timing } = useSongData();
   const { staffTextPx, staffWordColor, staffTextHeight } = useParams();
-  const PITCH_BAND = { lo: staffTextHeight ?? 63, hi: Math.min(100, (staffTextHeight ?? 63) + BAND_SPAN) };
+  const PITCH_BAND = { lo: staffTextHeight ?? STAFF_DEFAULTS.textHeight, hi: Math.min(100, (staffTextHeight ?? STAFF_DEFAULTS.textHeight) + BAND_SPAN) };
   const ink = staffWordColor || "#6b6e76";   // unqueried words: text, line and dots
 
   const lane = laneFor("vocals");

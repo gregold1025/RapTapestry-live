@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { BASS_DEFAULTS, DRUM_DEFAULTS } from "./paramDefaults";
+import { BASS_DEFAULTS, DRUM_DEFAULTS, STAFF_DEFAULTS } from "./paramDefaults";
 
 const ParamsContext = createContext();
 
@@ -180,7 +180,7 @@ export function ParamsProvider({ children }) {
   const [staffDrumScale, setStaffDrumScale] = useState(1);
   const [staffBassThickness, setStaffBassThickness] = useState(6); // bass line thickness in the Line Staff (px)
   // Line Staff text: the bottom of its pitch band, percent of the staff height (the band spans 34 points above it)
-  const [staffTextHeight, setStaffTextHeight] = useState(63);
+  const [staffTextHeight, setStaffTextHeight] = useState(STAFF_DEFAULTS.textHeight);
   const [staffTextPx, setStaffTextPx] = useState(12);
   const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
   const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots

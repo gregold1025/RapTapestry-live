@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DRUM_DEFAULTS, BASS_DEFAULTS } from "../paramDefaults";
+import { DRUM_DEFAULTS, BASS_DEFAULTS, STAFF_DEFAULTS } from "../paramDefaults";
 
 describe("Greg's defaults (2026-11-06)", () => {
   it("drums: black, 40% opacity, 80% size for all glyphs", () => {
@@ -12,5 +12,8 @@ describe("Greg's defaults (2026-11-06)", () => {
     expect(BASS_DEFAULTS.thickness).toBe(10);
     expect(BASS_DEFAULTS.blur).toBe(1);
     expect(BASS_DEFAULTS.fillColor).toBe("#404b77");
+  });
+  it("Line Staff: text height 50%", () => {
+    expect(STAFF_DEFAULTS.textHeight).toBe(50);
   });
 });

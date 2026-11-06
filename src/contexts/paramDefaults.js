@@ -18,3 +18,7 @@ export const DRUM_DEFAULTS = {
   opacity: 0.4, // all drum glyphs (multiplies each row's opacity)
   size: 0.8, // all drum glyphs (multiplies each row's size)
 };
+
+export const STAFF_DEFAULTS = {
+  textHeight: 50, // bottom of the Line Staff text's pitch band, percent of the staff height (Greg, 2026-11-06)
+};
