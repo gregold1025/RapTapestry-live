@@ -4,7 +4,7 @@
 // ring), the current ring (the playhead's), arcs, and pointer hits.
 // Fractions of a turn start at 12 o'clock and run clockwise.
 
-import { gridStrokes } from "../../utils/gridStroke";
+import { gridStrokes, contrastRatio } from "../../utils/gridStroke";
 
 export const RINGS_OPTIONS = [1, 2, 4, 8, 16, 32, "all"];
 export const CYCLE_OPTIONS = [1, 2, 4];
@@ -105,24 +105,31 @@ export function pointerToClock(x, y, cx, cy, rings, rOuter, rInner) {
   return { frac, ring, r };
 }
 
-/** The change from one frac to the next, taking the short way round (−0.5, 0.5]. */
-export function unwrapDelta(prevFrac, frac) {
-  let d = frac - prevFrac;
-  if (d > 0.5) d -= 1;
-  if (d <= -0.5) d += 1;
-  return d;
-}
-
 /** One spoke per beat of the cycle; "bar" where a bar starts. */
 export function spokes(cycleBars, beatsPerBar) {
   const bpb = Math.max(1, beatsPerBar | 0), n = Math.max(1, cycleBars | 0) * bpb;
   return Array.from({ length: n }, (_, j) => ({ frac: j / n, kind: j % bpb === 0 ? "bar" : "beat" }));
 }
 
-/** Spoke and ring colors for a background, the same pushes as bar and beat lines. */
+const hex2 = (v) => Math.round(v).toString(16).padStart(2, "0");
+/** The background pushed toward black or white (whichever contrasts more) until it reaches `target` contrast. */
+function pushed(background, target) {
+  let h = String(background ?? "").trim();
+  if (/^#[0-9a-f]{3}$/i.test(h)) h = "#" + [...h.slice(1)].map((c) => c + c).join("");
+  if (!/^#[0-9a-f]{6}$/i.test(h)) h = "#ffffff";
+  const bg = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const pole = contrastRatio(h, "#ffffff") >= contrastRatio(h, "#000000") ? 255 : 0;
+  for (let a = 0; a <= 1.0001; a += 0.01) {
+    const c = "#" + bg.map((v) => hex2(v + (pole - v) * Math.min(1, a))).join("");
+    if (contrastRatio(c, h) >= target) return c;
+  }
+  return pole ? "#ffffff" : "#000000";
+}
+
+/** Spoke and ring colors for a background, the same pushes as bar and beat lines; the current ring also glows. */
 export function faceStrokes(background) {
   const g = gridStrokes(background);
-  return { bar: g.bar, beat: g.beat, ring: g.beat, current: g.bar };
+  return { bar: g.bar, beat: g.beat, ring: g.beat, current: g.bar, glow: pushed(background, 4.5) };
 }
 
 /** The clock's radii for a square of `side` px: rim, inner hole, drum band. */
@@ -144,15 +151,28 @@ export function revealOpacity({ follow, playing, ring, current, start, t }) {
   return 1;
 }
 
-/** What a drag does: move the current ring, pan through the song, or nothing (whole song). */
-export function dragMode({ onCurrentRing, wholeSong, rings }) {
-  if (wholeSong) return null;
-  return onCurrentRing && rings > 1 ? "ring" : "pan";
+/** What a drag does: pan through the song, or nothing in whole-song mode (every cycle has its ring). */
+export function dragMode({ wholeSong }) {
+  return wholeSong ? null : "pan";
 }
 
-/** The window kept on the song: at least one ring still holds a cycle of it. */
+/**
+ * A radial drag in cycles: the pointer's travel along the line from the
+ * center through where the drag started, one cycle per ring gap. Outward is
+ * later in the song (+), inward earlier (−), and it keeps counting past the
+ * center, so one long inward drag can reach the start of the song.
+ */
+export function radialPan({ cx, cy, x0, y0, x, y, spacing }) {
+  let ux = x0 - cx, uy = y0 - cy;
+  const len = Math.hypot(ux, uy);
+  if (len < 1e-6) { ux = 0; uy = -1; } else { ux /= len; uy /= len; }
+  const d = (x - x0) * ux + (y - y0) * uy;
+  return Math.round(d / Math.max(1, spacing)) || 0;
+}
+
+/** The window kept on the song with every ring full: from the first cycle on the rim to the last on the innermost ring. */
 export function clampWindow(W, rings, count) {
-  return Math.max(-(rings - 1), Math.min(Math.max(0, count - 1), W));
+  return Math.max(0, Math.min(Math.max(0, count - rings), W));
 }
 
 /**
@@ -174,7 +194,7 @@ export function clickCycle({ r, ring, W, current, rOuter, drumBand }) {
   return W + ring;
 }
 
-/** How near the current ring a drag must start to grab it: 5 px, at most half the gap to its neighbors. */
-export function grabTolerance(spacing) {
-  return Math.min(5, spacing / 2);
+/** The drum glyphs' color on the clock: the Drums panel's, unless it would vanish on the background (contrast < 2). */
+export function drumInk(fill, background, fallback) {
+  return contrastRatio(fill, background) < 2 ? fallback : fill;
 }

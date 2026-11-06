@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { makeCycles } from "../clockCycles";
 import {
   RINGS_OPTIONS, CYCLE_OPTIONS, ringCount, clampIndex, ringRadius, ringSpacing, showText, polar, arcPath,
-  wordSegments, syncWindow, windowForIndex, pointerToClock, unwrapDelta,
+  wordSegments, syncWindow, windowForIndex, pointerToClock,
 } from "../clockGeometry";
 
 describe("options", () => {
@@ -85,14 +85,10 @@ describe("pointer", () => {
     expect(p.ring).toBe(2);
     expect(p.frac).toBeCloseTo(0.25);
   });
-  it("unwraps an angle change across 12 o'clock", () => {
-    expect(unwrapDelta(0.95, 0.05)).toBeCloseTo(0.1);
-    expect(unwrapDelta(0.05, 0.95)).toBeCloseTo(-0.1);
-  });
 });
 
 import { spokes, faceStrokes } from "../clockGeometry";
-import { gridStrokes } from "../../../utils/gridStroke";
+import { gridStrokes, contrastRatio } from "../../../utils/gridStroke";
 
 describe("the face", () => {
   it("puts a spoke on every beat and marks where bars start", () => {
@@ -107,6 +103,11 @@ describe("the face", () => {
     expect(faceStrokes("#ffffff").current).toBe(gridStrokes("#ffffff").bar);
     expect(faceStrokes("#ffffff").ring).toBe(gridStrokes("#ffffff").beat);
     expect(faceStrokes("#111111").beat).not.toBe(faceStrokes("#ffffff").beat);
+  });
+  it("gives the current ring a glow that stands well off the background", () => {
+    for (const bg of ["#000000", "#f7f7f9", "#777777"]) {
+      expect(contrastRatio(faceStrokes(bg).glow, bg)).toBeGreaterThanOrEqual(4);
+    }
   });
 });
 
@@ -134,34 +135,47 @@ describe("reveal while following", () => {
 import { dragMode } from "../clockGeometry";
 
 describe("dragMode", () => {
-  it("grabs the current ring when it can move", () => {
-    expect(dragMode({ onCurrentRing: true, wholeSong: false, rings: 8 })).toBe("ring");
-  });
-  it("pans when there is only one ring or the drag starts elsewhere", () => {
-    expect(dragMode({ onCurrentRing: true, wholeSong: false, rings: 1 })).toBe("pan");
-    expect(dragMode({ onCurrentRing: false, wholeSong: false, rings: 8 })).toBe("pan");
+  it("pans anywhere on the clock", () => {
+    expect(dragMode({ wholeSong: false })).toBe("pan");
   });
   it("does nothing in whole-song mode", () => {
-    expect(dragMode({ onCurrentRing: true, wholeSong: true, rings: 37 })).toBe(null);
+    expect(dragMode({ wholeSong: true })).toBe(null);
   });
 });
 
-import { clampWindow, reanchorWindow, clickCycle, grabTolerance } from "../clockGeometry";
+import { radialPan } from "../clockGeometry";
+
+describe("radialPan", () => {
+  const base = { cx: 0, cy: 0, x0: 100, y0: 0, spacing: 20 };
+  it("an outward drag moves later in the song, a cycle per ring gap", () => {
+    expect(radialPan({ ...base, x: 141, y: 0 })).toBe(2);
+  });
+  it("an inward drag moves earlier, and keeps going past the center", () => {
+    expect(radialPan({ ...base, x: 60, y: 0 })).toBe(-2);
+    expect(radialPan({ ...base, x: -100, y: 0 })).toBe(-10);
+  });
+  it("only the radial part of the drag counts", () => {
+    expect(radialPan({ ...base, x: 100, y: 300 })).toBe(0);
+  });
+});
+
+import { clampWindow, reanchorWindow, clickCycle } from "../clockGeometry";
 
 describe("final review fixes", () => {
-  it("a pan cannot run the window off the song", () => {
-    expect(clampWindow(-50, 8, 40)).toBe(-7);
-    expect(clampWindow(90, 8, 40)).toBe(39);
+  it("a pan stops with every ring still on the song: the first cycle on the rim, the last on the innermost ring", () => {
+    expect(clampWindow(-50, 8, 40)).toBe(0);
+    expect(clampWindow(90, 8, 40)).toBe(32);
     expect(clampWindow(10, 8, 40)).toBe(10);
+    expect(clampWindow(5, 8, 4)).toBe(0);
   });
 
   it("a frozen window keeps its place in the song when the cycle length changes", () => {
     const one = makeCycles([0, 2, 4, 6, 8, 10, 12, 14, 16], 1, 16);   // 8 one-bar cycles
     const four = makeCycles([0, 2, 4, 6, 8, 10, 12, 14, 16], 4, 16);  // 2 four-bar cycles
     // W = 5 (bar 6) in one-bar cycles -> the four-bar cycle holding bar 6 is cycle 1
-    expect(reanchorWindow({ W: 5, oldCycles: one, newCycles: four, P: 0, index: 0, rings: 8, leftWholeSong: false })).toBe(1);
+    expect(reanchorWindow({ W: 5, oldCycles: one, newCycles: four, P: 0, index: 0, rings: 1, leftWholeSong: false })).toBe(1);
     // and back: cycle 1 of four bars starts at bar 4 -> one-bar cycle 4
-    expect(reanchorWindow({ W: 1, oldCycles: four, newCycles: one, P: 0, index: 0, rings: 8, leftWholeSong: false })).toBe(4);
+    expect(reanchorWindow({ W: 1, oldCycles: four, newCycles: one, P: 0, index: 0, rings: 1, leftWholeSong: false })).toBe(4);
   });
 
   it("leaving whole song while frozen puts the playhead's ring at the chosen index", () => {
@@ -177,8 +191,16 @@ describe("final review fixes", () => {
     expect(clickCycle({ r: 120, ring: 0, W: 10, current: 3, ...g })).toBe(null);
   });
 
-  it("the current ring's grab zone never reaches past half the gap to its neighbors", () => {
-    expect(grabTolerance(40)).toBe(5);
-    expect(grabTolerance(7)).toBe(3.5);
+});
+
+import { drumInk } from "../clockGeometry";
+
+describe("drumInk", () => {
+  it("keeps the Drums panel color when it shows on the clock's background", () => {
+    expect(drumInk("#000000", "#f7f7f9", "#9a9da5")).toBe("#000000");
+  });
+  it("falls back to the clock's word color when the drums would vanish", () => {
+    expect(drumInk("#000000", "#000000", "#9a9da5")).toBe("#9a9da5");
+    expect(drumInk("#111111", "#000000", "#9a9da5")).toBe("#9a9da5");
   });
 });

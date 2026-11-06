@@ -84,7 +84,6 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
     frame(getPlayheadTime());
   }, [clockIndex, frame, getPlayheadTime]);
 
-  const setIndexFromDrag = useCallback((i) => setClockIndex(clampIndex(i, S.current.rings)), [setClockIndex]);
   const panBy = useCallback((k) => {
     if (!k) return;
     const s = S.current;
@@ -96,5 +95,5 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
   }, [frame, getPlayheadTime]);
   const freeze = useCallback(() => { S.current.follow = false; setFollow(false); }, []);
 
-  return { W: win.W, current: win.current, follow, setFollow, freeze, setIndexFromDrag, panBy };
+  return { W: win.W, current: win.current, follow, setFollow, freeze, panBy };
 }

@@ -145,3 +145,14 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 - A chaotic picture: the pocket clock (rhymes and drums on one groove) was "very chaotic". Drums
   stay on their own outer band, one cycle only.
 - Interaction rules that differ from the tapestry and Line Staff.
+
+## Changes after the first build (Greg, 2026-11-06)
+
+- Defaults: background black (`#000000`), words a light gray (`#9a9da5`).
+- The current ring has a soft glow (a blurred stroke in the background pushed to 4.5:1 contrast).
+- Dragging replaces both the current-ring drag and the circular pan: drag anywhere; inward = earlier in
+  the song, outward = later, one cycle per ring gap, measured along the line through the center so it
+  keeps going past it. It moves the rings, not the playhead, and freezes. It stops while every ring
+  still holds song (first cycle on the rim, last cycle on the innermost ring) **(builder's call)**.
+- Drum glyphs whose Drums-panel color would vanish on the clock's background (contrast < 2) take the
+  clock's word color **(builder's call)**.

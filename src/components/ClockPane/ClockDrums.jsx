@@ -6,16 +6,17 @@
 import React, { useId } from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { defaultGlyphFor } from "../../utils/drumGlyphDefaults";
-import { polar } from "./clockGeometry";
+import { polar, drumInk } from "./clockGeometry";
 
 const DRUM_NOMINAL = 300; // symbol viewBox size (glyph occupies 100..200)
 
-export default function ClockDrums({ marks, geo, scale = 1, byClass }) {
+export default function ClockDrums({ marks, geo, scale = 1, byClass, background, fallbackInk }) {
   const { drumParams, drumBands, drumClasses, glyphAssets } = useParams();
   const instanceId = `clock-${useId().replace(/:/g, "")}`;
   const { cx, cy, rOuter, drumBand } = geo;
   const groups = byClass ? drumClasses : drumBands;
-  const { fillColor = "#bbbbbb", tilt = 10 } = drumParams || {};
+  const { fillColor: panelFill = "#bbbbbb", tilt = 10 } = drumParams || {};
+  const fillColor = drumInk(panelFill, background, fallbackInk);   // black drums on a black clock: the word color
   const byName = glyphAssets?.syllableGlyphByName;
 
   const urls = new Map();

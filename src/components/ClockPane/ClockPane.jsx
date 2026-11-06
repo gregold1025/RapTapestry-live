@@ -16,7 +16,7 @@ import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import ClockWords from "./ClockWords";
 import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
-import ClockFace, { CurrentRingHandle } from "./ClockFace";
+import ClockFace from "./ClockFace";
 import { useClockWindow } from "./useClockWindow";
 import { useClockPointer } from "./useClockPointer";
 import { useQueryActions } from "../../contexts/QueryContext";
@@ -126,8 +126,7 @@ export default function ClockPane({ duration }) {
           ) : (
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
-              {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} />}
-              <CurrentRingHandle geo={geo} currentRing={current} enabled={!wholeSong && rings > 1} />
+              {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>
