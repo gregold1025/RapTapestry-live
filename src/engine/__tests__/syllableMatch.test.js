@@ -79,6 +79,14 @@ describe("one foot, same shape", () => {
 });
 
 describe("feet chain to the left; the final foot sets the identity", () => {
+  it("the final foot must pass the protocol: no vowel-only final foot (Greg 2026-11-06: hit blunts !~ lit-tle, weak luck !~ Seek-in')", () => {
+    expect(matches(til, "hit blunts").filter((m) => /little|gettin/i.test(m.text))).toEqual([]);
+    expect(matches(amen, "weak luck").filter((m) => /seekin/i.test(m.text))).toEqual([]);
+    for (const m of [...matches(til, "hit blunts"), ...matches(amen, "weak luck"), ...matches(til, "we just chill")]) {
+      if (m.type === "assonance") continue;
+      expect(m.links.at(-1).counted, m.text).toBe(true);
+    }
+  });
   it("close range ~ most strange: two one-step feet, perfect", () => {
     const m = find(matches(rld, "close range"), "most strange");
     expect(m.form).toBe("mosaic");

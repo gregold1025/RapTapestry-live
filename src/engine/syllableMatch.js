@@ -8,10 +8,10 @@
 //
 // A match. Every candidate syllable is tried as the END of a match. The query's FINAL foot is
 // compared first with as many candidate syllables (protocol.js: rows perfect / loosened /
-// shifted); its row is the match's IDENTITY. Then the feet to the left are compared in turn and
-// join while they pass (any row); the chain stops at the first that fails. A candidate syllable
-// that is unstressed where the query is stressed holds the chain on its vowel alone (soft link:
-// so- so ~ so-lo; we just chill ~ '93 un-til) and never sets the identity. Pickups link on the
+// shifted); its row is the match's IDENTITY and it must pass the protocol. Then the feet to the left
+// are compared in turn and join while they pass (any row); the chain stops at the first that fails.
+// Inside the chain only, a candidate syllable that is unstressed where the query is stressed holds
+// the chain on its vowel alone (soft link: we just chill ~ '93 un-til) and never sets the identity. Pickups link on the
 // vowel, unstressed on both sides.
 //
 // Tail cases, one rule both ways. Query has a tail the candidate lacks: SEMIRHYME (lo-gic ~
@@ -180,8 +180,9 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
   if (mode === 'full') {
     cs = span(e, k);
     if (cs) r = footLink(S, Ff, cs, { credit: true });
-    // a vowel-only final foot only as a word's own unstressed tail (so- so ~ so-lo), with a full foot to its left
-    if (r?.soft && (feet.length < 2 || cs[0].k === 0)) r = null;
+    // the final foot must pass the protocol: a vowel-only (soft) link never ends a match (Greg 2026-11-06;
+    // soft links only hold a chain in the middle: we just chill ~ '93 un-til)
+    if (r?.soft) r = null;
   } else if (mode === 'semi') {
     // the mirror of embedded: the candidate's whole foot (a stressed content-word syllable and the
     // unstressed syllables after it, to its word's end) against the START of the query's longer
