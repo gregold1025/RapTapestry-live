@@ -227,3 +227,10 @@ describe("search radius (Greg 2026-11-05: per query, in bars, default whole song
     expect(st.queries[0].radius).toBeNull();
   });
 });
+
+describe("default pills (Greg 2026-11-06)", () => {
+  it("shifted vowel and truncated start off; identical, perfect, loosened and assonance on", async () => {
+    const { DEFAULT_TYPES } = await import("../queryReducer.js");
+    expect([...DEFAULT_TYPES].sort()).toEqual(["assonance", "identical", "loosened", "perfect"]);
+  });
+});

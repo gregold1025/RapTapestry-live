@@ -36,7 +36,8 @@ export const RHYME_TYPES = [
   { key: 'loosened', label: 'Loosened', color: '#ff8f4d', on: true, example: 'clock / stop; clock / blocks; hot / rocks; later / flavor; digits / frigid',
     desc: 'Same stressed vowel, the consonants loosened: within a family (plosive, fricative, nasal; voicing free), by one consonant added or dropped anywhere, both at once, or a wildcard in the cluster between the vowels. The coda is never a wildcard. The tags say which.',
     sources: ['pattison', 'hirjee', 'design'] },
-  { key: 'shifted', label: 'Shifted vowel', color: '#ff5fa2', on: true, example: 'ever / over; Cali / Maui; later / theater',
+  // shifted: off by default (Greg 2026-11-06)
+  { key: 'shifted', label: 'Shifted vowel', color: '#ff5fa2', on: false, example: 'ever / over; Cali / Maui; later / theater',
     desc: 'The stressed vowel differs and the rest of the foot repeats: the cluster between the vowels the same or loosened (never a wildcard), the final vowel the same or weak, the coda exactly the same.',
     sources: ['design'] },
   { key: 'truncated', label: 'Truncated', color: '#7fd17f', on: false, example: 'pencil / simple; limbo / so-so',
