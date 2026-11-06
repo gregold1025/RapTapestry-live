@@ -4,7 +4,6 @@ import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { Segmented, Slider, ColorField, SectionLabel } from "../ui";
 import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
-import { useClockIndex } from "./clockIndexStore";
 
 export default function ClockSettings() {
   const {
@@ -12,8 +11,6 @@ export default function ClockSettings() {
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
     clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockDrumScale, setClockDrumScale,
   } = useParams();
-  const [clockIndex, setClockIndex] = useClockIndex();
-  const movable = typeof clockRings === "number" && clockRings > 1;
   return (
     <div className="pn-section">
       <SectionLabel>Rhyme Clock</SectionLabel>
@@ -25,9 +22,6 @@ export default function ClockSettings() {
         <span className="pn-field-label">rings</span>
         <Segmented value={clockRings} onChange={setClockRings} options={RINGS_SEG} />
       </div>
-      {movable && (
-        <Slider label="current ring" value={Math.min(clockIndex, clockRings - 1)} min={0} max={clockRings - 1} step={1} format={(v) => (v === 0 ? "0 (rim)" : String(v))} onChange={setClockIndex} />
-      )}
       <div className="pn-field">
         <span className="pn-field-label">words</span>
         <Segmented value={clockWords} onChange={setClockWords} options={[{ value: "all", label: "all words" }, { value: "query", label: "query words" }]} />

@@ -205,50 +205,17 @@ describe("drumInk", () => {
   });
 });
 
-import { handSpan, glideRing, stepGlide, labelArc } from "../clockGeometry";
-
-describe("the playhead hand (one ring long, on the current ring)", () => {
-  it("runs from just under the ring's arc to the top of its text", () => {
-    expect(handSpan({ ring: 2, rings: 5, rOuter: 100, rInner: 20, textPx: 12, showLabels: true })).toEqual({ r0: 56, r1: 75 });
-  });
-  it("covers the ring's own band when the rings are packed", () => {
-    const h = handSpan({ ring: 0, rings: 33, rOuter: 100, rInner: 20, textPx: 12, showLabels: false });
-    expect(h.r0).toBeCloseTo(99.25);
-    expect(h.r1).toBeCloseTo(101.25);
-  });
-});
-
-describe("gliding rings", () => {
-  const g = { rings: 5, rOuter: 100, rInner: 20 };
-  it("draws a ring at rest where it is", () => {
-    expect(glideRing({ ...g, i: 2, delta: 0 })).toEqual({ k: 1, alpha: 1 });
-  });
-  it("scales a ring from where its cycle was toward its new ring", () => {
-    const r = glideRing({ ...g, i: 2, delta: 1 });
-    expect(r.k).toBeCloseTo(40 / 60);
-    expect(r.alpha).toBe(1);
-  });
-  it("fades a ring out as it leaves past the rim, and in as it enters at the center", () => {
-    const out = glideRing({ ...g, i: -1, delta: 0.5 });
-    expect(out.k).toBeCloseTo(1.1);
-    expect(out.alpha).toBeCloseTo(0.5);
-    const inn = glideRing({ ...g, i: 5, delta: -0.5 });
-    expect(inn.k).toBeCloseTo(0.5);
-    expect(inn.alpha).toBeCloseTo(0.5);
-    expect(glideRing({ ...g, i: -1, delta: 0 }).alpha).toBe(0);
-    expect(glideRing({ ...g, i: 5, delta: 0 }).alpha).toBe(0);
-  });
-  it("eases the drawn window toward the real one, at most one ring behind", () => {
-    expect(stepGlide(2, 6, 0)).toBe(5);
-    expect(stepGlide(9, 6, 0)).toBe(7);
-    expect(stepGlide(5, 6, 70)).toBeCloseTo(5 + (1 - Math.exp(-1)));
-    expect(stepGlide(5, 6, 1000)).toBe(6);
-  });
-});
+import { labelArc, followIndex } from "../clockGeometry";
 
 describe("word labels", () => {
   it("run clockwise along the ring everywhere, upside down on the lower half", () => {
     const d = labelArc(0, 0, 100, 0.45, 0.5, "abc", 12);
     expect(d).toContain("A103.00,103.00 0 0 1 ");
+  });
+});
+
+describe("followIndex (where Follow keeps the playhead's ring)", () => {
+  it("is the middle ring, or with an even count the larger of the two middle rings", () => {
+    expect([1, 2, 4, 5, 8, 16, 32].map(followIndex)).toEqual([0, 0, 1, 2, 3, 7, 15]);
   });
 });

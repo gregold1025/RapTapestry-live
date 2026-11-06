@@ -199,45 +199,14 @@ export function drumInk(fill, background, fallback) {
   return contrastRatio(fill, background) < 2 ? fallback : fill;
 }
 
-/**
- * The playhead hand's radii: one ring long, on the current ring, from just
- * under its arc to the top of its text (or, when the rings are packed and
- * carry no text, across the ring's own band).
- */
-export function handSpan({ ring, rings, rOuter, rInner, textPx, showLabels }) {
-  const r = ringRadius(ring, rings, rOuter, rInner);
-  if (showLabels) return { r0: r - 4, r1: r + 3 + textPx };
-  const sp = ringSpacing(rings, rOuter, rInner);
-  return { r0: r - sp * 0.3, r1: r + sp * 0.5 };
-}
-
-/**
- * A ring while the window glides: ring i (counted from the real window) is
- * drawn where its cycle sits in the drawn window, i + delta (delta = real W −
- * drawn W). k scales the ring's marks about the center from ring i's radius
- * (the nearest real ring for the margin rings −1 and `rings`) to that place;
- * alpha fades the marks out past the rim and inside the innermost ring.
- */
-export function glideRing({ i, delta, rings, rOuter, rInner }) {
-  const p = i + delta;
-  const base = ringRadius(Math.max(0, Math.min(rings - 1, i)), rings, rOuter, rInner);
-  const rp = Math.max(rInner * 0.5, rOuter - p * ringSpacing(rings, rOuter, rInner));
-  const alpha = Math.max(0, Math.min(1, 1 - Math.max(0, -p, p - (rings - 1))));
-  return { k: delta === 0 && i >= 0 && i < rings ? 1 : rp / base, alpha };
-}
-
-/** One step of the drawn window easing toward the real one (time constant tau ms), never more than a ring behind. */
-export function stepGlide(Wv, W, dt, tau = 70) {
-  let v = W - Math.max(-1, Math.min(1, W - Wv));
-  v += (W - v) * (1 - Math.exp(-Math.max(0, dt) / tau));
-  return Math.abs(W - v) < 0.002 ? W : v;
-}
-
 /** A word label's path: clockwise along the ring just outside it, from the word's start (upside down on the lower half). */
 export function labelArc(cx, cy, r, f0, f1, text, fs) {
   const span = Math.min(0.5, Math.max(f1 - f0, (text.length * fs * 0.6 + 4) / (TAU * r)));
   return arcPath(cx, cy, r + 3, f0, f0 + span);
 }
 
-/** The CSS variable suffix of a ring's glide transform and opacity (ring −1 → "m1"). */
-export const glideKey = (ring) => (ring < 0 ? `m${-ring}` : String(ring));
+
+/** Where Follow keeps the playhead's ring: the middle ring, or with an even count the larger (outer) of the two middle rings. */
+export function followIndex(rings) {
+  return Math.max(0, Math.ceil(Math.max(1, rings | 0) / 2) - 1);
+}

@@ -1,8 +1,8 @@
 // src/components/ClockPane/ClockPane.jsx
 // The Rhyme Clock: the song on concentric rings, one ring per cycle of 1, 2
 // or 4 bars (angle = position in the cycle; outer rings earlier, inner rings
-// later), one cycle of drum glyphs on the rim, and a playhead hand on the
-// current ring. It sits in the bottom-right corner of the stage, beside the
+// later), one cycle of drum glyphs on the rim, and a playhead hand from the
+// center through the rim. It sits in the bottom-right corner of the stage, beside the
 // Line Staff (CenterStage), or, at full size, over the whole stage.
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Segmented } from "../ui";
@@ -10,7 +10,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText, handSpan } from "./clockGeometry";
+import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText } from "./clockGeometry";
 import { wordMarks, drumMarks } from "./clockMarks";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
@@ -77,7 +77,7 @@ export default function ClockPane({ duration }) {
   const wholeSong = clockRings === "all";
   const svgRef = useRef(null);
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
-  const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo });
+  const win = useClockWindow({ cycles, rings, wholeSong, svgRef });
   const { W, current, follow } = win;
   const texts = useMemo(() => {
     const m = new Map();
@@ -85,8 +85,8 @@ export default function ClockPane({ duration }) {
     return m;
   }, [lyricTranscription]);
   const marks = useMemo(
-    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts, margin: wholeSong ? 0 : 1 }),
-    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts, wholeSong]
+    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
+    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
   );
   const drums = useMemo(
     () => (clockShowDrums && current != null ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
@@ -113,7 +113,6 @@ export default function ClockPane({ duration }) {
   const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
   const labels = showText(spacing, clockTextPx);
-  const hand = current == null ? null : handSpan({ ring: current, rings, rOuter: geo.rOuter, rInner: geo.rInner, textPx: clockTextPx, showLabels: labels });
   return (
     <>
     <section className={`clock-pane${full ? " is-full" : ""}`} aria-label="Rhyme Clock">
@@ -145,7 +144,7 @@ export default function ClockPane({ duration }) {
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
-              {hand && <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy - hand.r0} x2={geo.cx} y2={geo.cy - hand.r1} stroke="#e03131" strokeWidth={2.5} strokeLinecap="round" visibility="hidden" pointerEvents="none" />}
+              <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>
           )}
         </svg>

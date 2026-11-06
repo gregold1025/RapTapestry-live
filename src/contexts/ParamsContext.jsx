@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import { BASS_DEFAULTS, DRUM_DEFAULTS } from "./paramDefaults";
 import { CLOCK_DEFAULTS } from "../components/ClockPane/clockDefaults";
-import { clockIndexStore } from "../components/ClockPane/clockIndexStore";
 
 const ParamsContext = createContext();
 
@@ -192,19 +191,13 @@ export function ParamsProvider({ children }) {
 
   // — RHYME CLOCK — (its own settings; defaults in ClockPane/clockDefaults.js)
   const [clockCycleBars, setClockCycleBars] = useState(CLOCK_DEFAULTS.cycleBars);
-  const [clockRings, setClockRingsRaw] = useState(CLOCK_DEFAULTS.rings);
+  const [clockRings, setClockRings] = useState(CLOCK_DEFAULTS.rings);
   const [clockWords, setClockWords] = useState(CLOCK_DEFAULTS.words);
   const [clockBackgroundColor, setClockBackgroundColor] = useState(CLOCK_DEFAULTS.backgroundColor);
   const [clockWordColor, setClockWordColor] = useState(CLOCK_DEFAULTS.wordColor);
   const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
   const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
   const [clockDrumScale, setClockDrumScale] = useState(CLOCK_DEFAULTS.drumScale);
-  // fewer rings than the current ring's position: the position moves in
-  // (the position itself lives in ClockPane/clockIndexStore: it changes every bar while frozen)
-  const setClockRings = useCallback((r) => {
-    setClockRingsRaw(r);
-    if (typeof r === "number") clockIndexStore.clampTo(r);
-  }, []);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
