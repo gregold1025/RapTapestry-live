@@ -79,6 +79,17 @@ describe("one foot, same shape", () => {
 });
 
 describe("feet chain to the left; the final foot sets the identity", () => {
+  it("rule 1: the final foot is compared by the protocol even on an unstressed syllable (dig it ~ dig-its; Hey, miss ~ fa-mous; tap her ~ dap-per)", () => {
+    expect(find(matches(til, "dig it"), "digits")).toMatchObject({ type: "loosened", form: "word" });
+    expect(find(matches(til, "Hey miss"), "famous")).toMatchObject({ type: "perfect", form: "word" });
+    expect(find(matches(til, "tap her"), "dapper")).toMatchObject({ type: "perfect" });
+  });
+  it("rule 2: a match needs one foot stressed on both sides (chill !~ ta-ble; we !~ the)", () => {
+    const s = tiny([[["chill", "CH IH1 L"]], [["table", "T EY1 B AH0 L"]], [["we", "W IY1"]], [["the", "DH IY0"]]]);
+    expect(firstQuery(s).filter((m) => /table/.test(m.text))).toEqual([]);
+    const w = computeMatches(s, [s.words[2].id]).filter((m) => m.type !== "anchor");
+    expect(w.filter((m) => m.text === "the")).toEqual([]);
+  });
   it("the final foot must pass the protocol: no vowel-only final foot (Greg 2026-11-06: hit blunts !~ lit-tle, weak luck !~ Seek-in')", () => {
     expect(matches(til, "hit blunts").filter((m) => /little|gettin/i.test(m.text))).toEqual([]);
     expect(matches(amen, "weak luck").filter((m) => /seekin/i.test(m.text))).toEqual([]);

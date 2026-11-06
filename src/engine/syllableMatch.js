@@ -179,10 +179,9 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
   let r = null, cs = null;
   if (mode === 'full') {
     cs = span(e, k);
-    if (cs) r = footLink(S, Ff, cs, { credit: true });
-    // the final foot must pass the protocol: a vowel-only (soft) link never ends a match (Greg 2026-11-06;
-    // soft links only hold a chain in the middle: we just chill ~ '93 un-til)
-    if (r?.soft) r = null;
+    // rule 1 (Greg 2026-11-06): the final foot is always compared by the protocol, the candidate
+    // syllable under it stressed or not (dig it ~ dig-its; Hey, miss ~ fa-mous)
+    if (cs) r = compareFoot(S, Ff, cs, { credit: true });
   } else if (mode === 'semi') {
     // the mirror of embedded: the candidate's whole foot (a stressed content-word syllable and the
     // unstressed syllables after it, to its word's end) against the START of the query's longer
@@ -206,7 +205,7 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
   if (!r) return null;
   let identity = r.soft ? null : r;
   for (let j = cs.length - 1; j >= 0; j--) all.push({ c: cs[j], row: r.soft ? null : r.row, counted: !r.soft, pickup: false });
-  if (!r.soft) footsUsed.push({ row: r.row, axes: r.axes, tags: r.tags, i0: cs[0].i, i1: cs[cs.length - 1].i });
+  if (!r.soft) footsUsed.push({ head: cs[0].stress >= 1, row: r.row, axes: r.axes, tags: r.tags, i0: cs[0].i, i1: cs[cs.length - 1].i });
   // feet to the left join while they pass; an unstressed candidate holds on the vowel
   let left = cs[0].i;
   for (let f = feet.length - 2; f >= 0; f--) {
@@ -216,10 +215,13 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     const rr = footLink(S, F, sp);
     if (!rr) break;
     for (let j = sp.length - 1; j >= 0; j--) all.push({ c: sp[j], row: rr.soft ? null : rr.row, counted: !rr.soft, pickup: false });
-    if (!rr.soft) { footsUsed.unshift({ row: rr.row, axes: rr.axes, tags: rr.tags, i0: sp[0].i, i1: sp[sp.length - 1].i }); if (!identity) identity = rr; }
+    if (!rr.soft) { footsUsed.unshift({ head: sp[0].stress >= 1, row: rr.row, axes: rr.axes, tags: rr.tags, i0: sp[0].i, i1: sp[sp.length - 1].i }); if (!identity) identity = rr; }
     left = sp[0].i;
   }
   if (!identity) return null;   // every foot held on vowels only: no rhyme
+  // rule 2 (Greg 2026-11-06): at least one foot stressed on both sides, query and candidate
+  // (dig it ~ DIG-its yes; chill ~ ta-ble no)
+  if (!footsUsed.some((f) => f.head)) return null;
   // pickups: unstressed on both sides, linked on the vowel
   if (all.length === Ff.length + feet.slice(0, -1).reduce((n, F) => n + F.length, 0) || form === null) {
     for (let p = pickups.length - 1; p >= 0 && footsUsed.length === feet.length; p--) {

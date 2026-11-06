@@ -104,3 +104,12 @@ describe("truncated (row 4, tentative; Greg 2026-11-06 evening): stressed vowel 
     expect(footRow(steps("K AE1 | L IY0"), steps("M AW1 | IY0"), { truncated: true })).toMatchObject({ row: 3 });
   });
 });
+
+describe("the head's nucleus (Greg 2026-11-06): weak vowels relax only against a truly unstressed syllable", () => {
+  it("miss ~ -mous (IH1 ~ AH0): one-step perfect", () => {
+    expect(row("M IH1 S", "M AH0 S")).toMatchObject({ row: 1 });
+  });
+  it("Plus ~ this (AH1 ~ IH1 of a function word): not a rhyme", () => {
+    expect(footRow([step("P L AH1 S")], [step("DH IH1 S", true)])).toBeNull();
+  });
+});

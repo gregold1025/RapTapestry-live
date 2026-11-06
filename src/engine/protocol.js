@@ -62,7 +62,9 @@ const cluster = (s0, s1) => [...s0.coda, ...s1.on];
 export function footRow(q, c, { truncated = false } = {}) {
   const n = q.length;
   if (!n || n !== c.length || n > 3) return null;
-  const v1 = q[0].v === c[0].v ? '1' : 'W';
+  // the head's nucleus: the same vowel, or weak vowels (AH / IH / EH) against a truly unstressed
+  // syllable (miss ~ -mous); never relaxed against a function word (Plus ~ this)
+  const v1 = q[0].v === c[0].v || (REDUCED.has(q[0].v) && REDUCED.has(c[0].v) && (q[0].stress === 0 || c[0].stress === 0)) ? '1' : 'W';
   const coda = consAxis(q[n - 1].coda, c[n - 1].coda);
   if (coda === 'W') return null;
   if (n === 1) {
