@@ -4,6 +4,7 @@ import { useStemMix } from "../../contexts/StemMixContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { Segmented, Slider, EyeButton, MuteButton, SoloButton, ColorField, SectionLabel } from "../ui";
 import { GRID_LEVELS } from "../../utils/gridLines";
+import ClockSettings from "../ClockPane/ClockSettings";
 import "./Panels.css";
 
 const STEM_ROWS = [
@@ -122,6 +123,8 @@ export default function GlobalPanel() {
         <Slider label="grid" value={staffGridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
         <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
       </div>
+
+      <ClockSettings />
     </div>
   );
 }

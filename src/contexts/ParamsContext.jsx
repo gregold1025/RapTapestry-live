@@ -9,6 +9,8 @@ import React, {
   useState,
 } from "react";
 import { BASS_DEFAULTS, DRUM_DEFAULTS } from "./paramDefaults";
+import { CLOCK_DEFAULTS } from "../components/ClockPane/clockDefaults";
+import { clampIndex } from "../components/ClockPane/clockGeometry";
 
 const ParamsContext = createContext();
 
@@ -187,6 +189,22 @@ export function ParamsProvider({ children }) {
   // grid level: 0 none, 1 bar lines, 2 + beat lines, 3 + eighths, 4 + sixteenths (utils/gridLines.js)
   const [staffGridLevel, setStaffGridLevel] = useState(2);
   const [gridLevel, setGridLevel] = useState(2);
+
+  // — RHYME CLOCK — (its own settings; defaults in ClockPane/clockDefaults.js)
+  const [clockCycleBars, setClockCycleBars] = useState(CLOCK_DEFAULTS.cycleBars);
+  const [clockRings, setClockRingsRaw] = useState(CLOCK_DEFAULTS.rings);
+  const [clockIndex, setClockIndex] = useState(CLOCK_DEFAULTS.index);
+  const [clockWords, setClockWords] = useState(CLOCK_DEFAULTS.words);
+  const [clockBackgroundColor, setClockBackgroundColor] = useState(CLOCK_DEFAULTS.backgroundColor);
+  const [clockWordColor, setClockWordColor] = useState(CLOCK_DEFAULTS.wordColor);
+  const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
+  const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
+  const [clockDrumScale, setClockDrumScale] = useState(CLOCK_DEFAULTS.drumScale);
+  // fewer rings than the current ring's position: the position moves in
+  const setClockRings = useCallback((r) => {
+    setClockRingsRaw(r);
+    if (typeof r === "number") setClockIndex((i) => clampIndex(i, r));
+  }, []);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -412,6 +430,15 @@ export function ParamsProvider({ children }) {
         setStaffWordColor,
         staffGridLevel,
         setStaffGridLevel,
+        clockCycleBars, setClockCycleBars,
+        clockRings, setClockRings,
+        clockIndex, setClockIndex,
+        clockWords, setClockWords,
+        clockBackgroundColor, setClockBackgroundColor,
+        clockWordColor, setClockWordColor,
+        clockTextPx, setClockTextPx,
+        clockShowDrums, setClockShowDrums,
+        clockDrumScale, setClockDrumScale,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

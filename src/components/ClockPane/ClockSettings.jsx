@@ -1,0 +1,46 @@
+// src/components/ClockPane/ClockSettings.jsx
+// The Rhyme Clock's section of the Global panel.
+import React from "react";
+import { useParams } from "../../contexts/ParamsContext";
+import { Segmented, Slider, ColorField, SectionLabel } from "../ui";
+import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
+
+export default function ClockSettings() {
+  const {
+    clockCycleBars, setClockCycleBars, clockRings, setClockRings, clockIndex, setClockIndex,
+    clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
+    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockDrumScale, setClockDrumScale,
+  } = useParams();
+  const movable = typeof clockRings === "number" && clockRings > 1;
+  return (
+    <div className="pn-section">
+      <SectionLabel>Rhyme Clock</SectionLabel>
+      <div className="pn-field">
+        <span className="pn-field-label">cycle</span>
+        <Segmented value={clockCycleBars} onChange={setClockCycleBars} options={CYCLE_OPTIONS.map((b) => ({ value: b, label: `${b} bar` }))} />
+      </div>
+      <div className="pn-field">
+        <span className="pn-field-label">rings</span>
+        <Segmented value={clockRings} onChange={setClockRings} options={RINGS_SEG} />
+      </div>
+      {movable && (
+        <Slider label="current ring" value={Math.min(clockIndex, clockRings - 1)} min={0} max={clockRings - 1} step={1} format={(v) => (v === 0 ? "0 (rim)" : String(v))} onChange={setClockIndex} />
+      )}
+      <div className="pn-field">
+        <span className="pn-field-label">words</span>
+        <Segmented value={clockWords} onChange={setClockWords} options={[{ value: "all", label: "all words" }, { value: "query", label: "query words" }]} />
+      </div>
+      <div className="ui-row">
+        <Slider label="text" value={clockTextPx} min={8} max={20} step={1} unit=" px" onChange={setClockTextPx} />
+        <Slider label="drum glyphs" value={Math.round(clockDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setClockDrumScale(v / 100)} disabled={!clockShowDrums} />
+      </div>
+      <div className="pn-field">
+        <span className="pn-field-label">drums</span>
+        <Segmented value={clockShowDrums} onChange={setClockShowDrums} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
+      </div>
+      <ColorField label="Background" value={clockBackgroundColor} onChange={setClockBackgroundColor} />
+      <ColorField label="Words" note="words not in a query" value={clockWordColor} onChange={setClockWordColor} />
+      <p className="ui-note">Open the clock with the clock icon in the header.</p>
+    </div>
+  );
+}

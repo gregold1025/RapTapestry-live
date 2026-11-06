@@ -24,19 +24,21 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const [staffOpen, setStaffOpen] = useState(false);
   const [staffBars, setStaffBars] = useState(4);
   const [staffMode, setStaffMode] = useState("words"); // "words" | "spelled" | "syllables"
+  const [clockOpen, setClockOpen] = useState(false);   // the Rhyme Clock overlay
 
   const rightViewRef = useRef(rightView);
   rightViewRef.current = rightView;
   const toggleLyrics = useCallback(() => setLyricsOpen((v) => !v), []);
   const toggleStaff = useCallback(() => setStaffOpen((v) => !v), []);
+  const toggleClock = useCallback(() => setClockOpen((v) => !v), []);
   // Opening a stem's panel also brings the parameters view forward.
   const openParamsPanel = useCallback((p) => { setParamsPanel(p); setRightView("params"); setRightOpen(true); }, []);
   // A click that makes or opens a query brings the Queries view forward.
   const openQueries = useCallback(() => { setRightView("queries"); setRightOpen(true); }, []);
 
   const value = useMemo(
-    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, openQueries, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode }),
-    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, openQueries, staffOpen, toggleStaff, staffBars, staffMode]
+    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, openQueries, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode, clockOpen, setClockOpen, toggleClock }),
+    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, openQueries, staffOpen, toggleStaff, staffBars, staffMode, clockOpen, toggleClock]
   );
   return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }

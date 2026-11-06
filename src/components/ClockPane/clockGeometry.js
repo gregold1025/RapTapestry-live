@@ -6,6 +6,8 @@
 
 export const RINGS_OPTIONS = [1, 2, 4, 8, 16, 32, "all"];
 export const CYCLE_OPTIONS = [1, 2, 4];
+/** Segmented options for the rings-shown lever. */
+export const RINGS_SEG = RINGS_OPTIONS.map((r) => ({ value: r, label: String(r) }));
 
 const TAU = Math.PI * 2;
 
