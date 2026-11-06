@@ -156,3 +156,10 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
   still holds song (first cycle on the rim, last cycle on the innermost ring) **(builder's call)**.
 - Drum glyphs whose Drums-panel color would vanish on the clock's background (contrast < 2) take the
   clock's word color **(builder's call)**.
+
+## Second round of changes (Greg, 2026-11-06)
+
+- The playhead is one ring long, on the current ring: from just under its arc to the top of its text (packed rings: across the ring's band).
+- The rings glide instead of snapping when the window moves: each ring's marks scale about the center from where their cycle was drawn to its new ring (time constant 70 ms, at most one ring behind); a margin ring on each side fades in or out past the rim and the inner ring. Ring lines stay put.
+- Labels run clockwise along the ring everywhere (upside down on the lower half).
+- Placement: a band under the tapestry, height = half its width (capped so the tapestry keeps at least 30% of the stage, 140 px minimum). The clock takes a square in the bottom-right corner, the Line Staff the rest; the clock keeps its corner without the Line Staff (the left half stays empty, so the tapestry does not reflow), and the Line Staff takes the whole band without the clock. A header button next to × makes the clock full size over the whole stage, and back.

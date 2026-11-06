@@ -1,15 +1,16 @@
 // src/components/ClockPane/ClockPane.jsx
 // The Rhyme Clock: the song on concentric rings, one ring per cycle of 1, 2
 // or 4 bars (angle = position in the cycle; outer rings earlier, inner rings
-// later), one cycle of drum glyphs on the rim, and a sweeping playhead. For
-// now it floats over the center stage, opened by the clock icon in the header.
+// later), one cycle of drum glyphs on the rim, and a playhead hand on the
+// current ring. It sits in the bottom-right corner of the stage, beside the
+// Line Staff (CenterStage), or, at full size, over the whole stage.
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Segmented } from "../ui";
 import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText } from "./clockGeometry";
+import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText, handSpan } from "./clockGeometry";
 import { wordMarks, drumMarks } from "./clockMarks";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
@@ -26,27 +27,36 @@ import { CanvasHoverTooltip } from "../TapestryView/global/CanvasHoverToolTip";
 import { matchLabel } from "../../utils/matchLabel";
 import "./ClockPane.css";
 
-const BAR_H = 30;     // the header bar's height (px)
-const MARGIN = 32;    // space kept around the overlay (px)
-
-/** The overlay's side: the smaller of the stage's width and height, less a margin. */
-function useStageSize(ref) {
+/** The clock's side: the largest square that fits the pane's body. */
+function useBodySide(ref) {
   const [side, setSide] = useState(0);
   useLayoutEffect(() => {
-    const stage = ref.current?.parentElement;
-    if (!stage) return;
-    const measure = () => setSide(Math.max(160, Math.min(stage.clientWidth, stage.clientHeight - BAR_H) - MARGIN));
+    const body = ref.current;
+    if (!body) return;
+    const measure = () => setSide(Math.max(0, Math.floor(Math.min(body.clientWidth, body.clientHeight))));
     measure();
     const ro = new ResizeObserver(measure);
-    ro.observe(stage);
+    ro.observe(body);
     return () => ro.disconnect();
   }, [ref]);
   return side;
 }
 
+const IconExpand = () => (
+  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M10 2.5h3.5V6M6 13.5H2.5V10M13.5 2.5 9 7M2.5 13.5 7 9" />
+  </svg>
+);
+const IconShrink = () => (
+  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M13 7H9V3M3 9h4v4M9 7l4.5-4.5M7 9l-4.5 4.5" />
+  </svg>
+);
+
 export default function ClockPane({ duration }) {
-  const paneRef = useRef(null);
-  const side = useStageSize(paneRef);
+  const bodyRef = useRef(null);
+  const side = useBodySide(bodyRef);
+  const [full, setFull] = useState(false);
   const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockDrumScale, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();
@@ -66,7 +76,8 @@ export default function ClockPane({ duration }) {
   const beatsPerBar = songModel?.beatsPerBar || 4;
   const wholeSong = clockRings === "all";
   const svgRef = useRef(null);
-  const win = useClockWindow({ cycles, rings, wholeSong, svgRef });
+  const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
+  const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo });
   const { W, current, follow } = win;
   const texts = useMemo(() => {
     const m = new Map();
@@ -74,14 +85,13 @@ export default function ClockPane({ duration }) {
     return m;
   }, [lyricTranscription]);
   const marks = useMemo(
-    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
-    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
+    () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts, margin: wholeSong ? 0 : 1 }),
+    [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts, wholeSong]
   );
   const drums = useMemo(
     () => (clockShowDrums && current != null ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
     [clockShowDrums, hits, cycles, W, current, byClass, drumClasses, drumBands]
   );
-  const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
   useClockPointer({ svgRef, geo, cycles, win, wholeSong, active: side > 0 });
 
   // words: the shared click rules; a plain click seeks to the word without moving the rings
@@ -102,11 +112,13 @@ export default function ClockPane({ duration }) {
   }, [timing, visualByWordId, onHoverEnter]);
   const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
   const { toggleClock, openParamsPanel } = useUIState();
+  const labels = showText(spacing, clockTextPx);
+  const hand = current == null ? null : handSpan({ ring: current, rings, rOuter: geo.rOuter, rInner: geo.rInner, textPx: clockTextPx, showLabels: labels });
   return (
     <>
-    <section ref={paneRef} className="clock-pane" aria-label="Rhyme Clock" style={{ width: side || undefined }}>
+    <section className={`clock-pane${full ? " is-full" : ""}`} aria-label="Rhyme Clock">
       <div className="clock-bar">
-        <span className="clock-title"><IconClock /> Rhyme Clock</span>
+        <span className="clock-title"><IconClock /><span className="clock-title-text"> Rhyme Clock</span></span>
         <Segmented size="sm" value={clockRings} onChange={setClockRings} options={RINGS_SEG} ariaLabel="Rings shown" />
         <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, W + 1)}–${Math.min(cycles.count, W + rings)}${follow ? "" : " · frozen"}` : ""}</span>
         <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
@@ -116,8 +128,13 @@ export default function ClockPane({ duration }) {
           {follow ? "Freeze" : "Follow"}
         </button>
         <button type="button" className="clock-link" onClick={() => openParamsPanel("global")} title="The clock's settings live in the Global panel">settings &rsaquo;</button>
+        <button type="button" className="clock-size" onClick={() => setFull(!full)} aria-pressed={full}
+          title={full ? "Make the Rhyme Clock smaller (back to its corner)" : "Make the Rhyme Clock full size (over the tapestry and the Line Staff)"}>
+          {full ? <IconShrink /> : <IconExpand />}
+        </button>
         <button type="button" className="clock-close" onClick={toggleClock} title="Close the Rhyme Clock">&times;</button>
       </div>
+      <div ref={bodyRef} className="clock-body" style={{ background: clockBackgroundColor }}>
       {side > 0 && (
         <svg ref={svgRef} className="clock-svg" width={side} height={side} viewBox={`0 0 ${side} ${side}`}>
           <rect width={side} height={side} fill={clockBackgroundColor} />
@@ -127,12 +144,13 @@ export default function ClockPane({ duration }) {
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
-              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
-              <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
+              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
+              {hand && <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy - hand.r0} x2={geo.cx} y2={geo.cy - hand.r1} stroke="#e03131" strokeWidth={2.5} strokeLinecap="round" visibility="hidden" pointerEvents="none" />}
             </>
           )}
         </svg>
       )}
+      </div>
     </section>
     {/* outside the pane: its transform would anchor the tooltip's fixed position */}
     <CanvasHoverTooltip hoverInfo={hoverInfo} />

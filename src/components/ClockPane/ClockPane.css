@@ -1,10 +1,18 @@
-/* The Rhyme Clock: a square overlay centered on the stage (for now). */
+/* The Rhyme Clock: a square in the stage's bottom-right corner (CenterStage
+   sizes its slot), or at full size over the whole stage. */
 .rt-stage { position: relative; }
 .clock-pane {
-  position: absolute; z-index: 20; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  display: flex; flex-direction: column; border: 1px solid #2a2a2a; border-radius: 6px; overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  width: 100%; height: 100%; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; border-top: 1px solid var(--rt-line, #2a2a2a); border-left: 1px solid #2a2a2a; overflow: hidden;
+  container-type: inline-size;
 }
+.clock-pane.is-full { position: absolute; inset: 0; z-index: 20; width: auto; height: auto; border: 0; }
+.clock-body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.clock-size { font: inherit; line-height: 0; color: var(--rt-muted); background: transparent; border: 0; cursor: pointer; padding: 2px; }
+.clock-size:hover { color: var(--rt-ink); }
+/* docked at half the stage's width: drop the title text, narrow the rings lever */
+@container (max-width: 600px) { .clock-title-text { display: none; } .clock-bar .ui-seg { width: 150px; } .clock-bar { gap: 6px; } }
+@container (max-width: 400px) { .clock-where { display: none; } }
 .clock-bar {
   --rt-panel: #353535; --rt-card: #3e3e3e; --rt-head: #474747; --rt-ink: #f0f0f0; --rt-muted: #a9a9ae;
   --rt-line: #565656; --rt-line-soft: #4a4a4a; --rt-on-ink: #1a1a1a;

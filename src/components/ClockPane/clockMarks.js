@@ -9,12 +9,13 @@ import { wordSegments } from "./clockGeometry";
 export const FORM_DASH = Object.freeze({ word: null, mosaic: "7 4", embedded: "1.5 4", semirhyme: "0.5 3" });
 
 /**
- * @returns {{ id, text, color, dash, hit, form, segments: {ring, f0, f1}[], dots: {ring, frac}[], start }[]}
+ * @returns {{ id, labelRing, text, color, dash, hit, form, segments: {ring, f0, f1}[], dots: {ring, frac}[], start }[]}
  */
-export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkColor, texts }) {
+export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkColor, texts, margin = 0 }) {
   const out = [];
   if (!timingWords || !cycles || cycles.count === 0) return out;
-  const inView = (cycle) => cycle - W >= 0 && cycle - W < rings;
+  // margin: extra rings outside the window (−margin … rings − 1 + margin), drawn while the rings glide
+  const inView = (cycle) => cycle - W >= -margin && cycle - W < rings + margin;
   for (const [id, tw] of timingWords) {
     const vis = visuals?.get(id) ?? null;
     if (words === "query" && !vis) continue;
@@ -31,8 +32,9 @@ export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkCo
         if (c >= 0 && inView(c)) dots.push({ ring: c - W, frac: cycles.fracOf(t) });
       }
     }
+    const labelRing = (segments.find((s) => s.ring >= 0 && s.ring < rings) ?? segments[0]).ring;
     out.push({
-      id, text: texts?.get(id) ?? "", color: vis ? vis.color : inkColor, dash: vis ? FORM_DASH[vis.form] ?? null : null,
+      id, labelRing, text: texts?.get(id) ?? "", color: vis ? vis.color : inkColor, dash: vis ? FORM_DASH[vis.form] ?? null : null,
       hit: !!vis, form: vis?.form ?? null, segments, dots, start: tw.start,
     });
   }

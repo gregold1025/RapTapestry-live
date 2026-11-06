@@ -68,3 +68,14 @@ describe("drumMarks", () => {
     expect(m[0]).toMatchObject({ rowKey: "high", height: 50 });
   });
 });
+
+describe("wordMarks margin (rings gliding in and out)", () => {
+  it("adds the ring just outside the rim and just inside the innermost ring", () => {
+    const m = wordMarks({ ...base, W: 1, rings: 1, margin: 1 });
+    expect(m.map((x) => [x.id, x.segments[0].ring])).toEqual([["0-0", -1], ["0-1", 0]]);
+  });
+  it("puts the label on the first ring in view", () => {
+    const m = wordMarks({ ...base, W: 1, rings: 1, margin: 1 });
+    expect(m.map((x) => x.labelRing)).toEqual([-1, 0]);
+  });
+});
