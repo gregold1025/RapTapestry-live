@@ -38,3 +38,24 @@ export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkCo
   }
   return out;
 }
+
+/**
+ * One cycle of drum hits, grouped as the drum layer groups them (classes, or
+ * bands when the song has no classifier output). Unnamed onsets ("other")
+ * keep their frequency band as a small height nudge, as in DrumsGlyphs.
+ * @returns {{ frac, rowKey, height, time, conf }[]}
+ */
+export function drumMarks({ hits, cycles, cycle, groups, byClass }) {
+  const out = [];
+  if (!hits || !cycles || cycles.count === 0 || cycle == null || cycle < 0) return out;
+  for (const hit of hits) {
+    if (cycles.cycleOf(hit.time) !== cycle) continue;
+    const key = byClass ? hit.cls : hit.category;
+    const rowKey = groups?.[key] ? key : byClass ? "other" : "low";
+    const g = groups?.[rowKey];
+    if (!g || g.visible === false) continue;
+    const bandOffset = rowKey === "other" ? ({ low: -4, mid: 0, high: 4 }[hit.category] ?? 0) : 0;
+    out.push({ frac: cycles.fracOf(hit.time), rowKey, height: Math.max(0, Math.min(100, (g.height ?? 50) + bandOffset)), time: hit.time, conf: hit.conf ?? null });
+  }
+  return out;
+}

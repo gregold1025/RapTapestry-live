@@ -10,7 +10,9 @@ import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
 import { RINGS_SEG, ringCount, clockGeo, ringSpacing, showText } from "./clockGeometry";
-import { wordMarks } from "./clockMarks";
+import { wordMarks, drumMarks } from "./clockMarks";
+import ClockDrums from "./ClockDrums";
+import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
 import ClockWords from "./ClockWords";
 import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
@@ -38,7 +40,9 @@ function useStageSize(ref) {
 export default function ClockPane({ duration }) {
   const paneRef = useRef(null);
   const side = useStageSize(paneRef);
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex, clockWords, clockWordColor, clockTextPx } = useParams();
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockIndex, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockDrumScale, drumClasses, drumBands } = useParams();
+  const hits = useDrumHits();
+  const byClass = useByClass();
   const { drumTranscription, songModel, timing, lyricTranscription } = useSongData();
   const { visualByWordId } = useQueries();
   const cycles = useMemo(
@@ -56,6 +60,11 @@ export default function ClockPane({ duration }) {
   const marks = useMemo(
     () => wordMarks({ timingWords: timing?.words, visuals: visualByWordId, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
     [timing, visualByWordId, cycles, W, rings, clockWords, clockWordColor, texts]
+  );
+  const current = Math.min(clockIndex, rings - 1);   // the current ring (Task 7: the playhead's)
+  const drums = useMemo(
+    () => (clockShowDrums ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
+    [clockShowDrums, hits, cycles, W, current, byClass, drumClasses, drumBands]
   );
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
   const spacing = ringSpacing(rings, geo.rOuter, geo.rInner);
@@ -76,7 +85,8 @@ export default function ClockPane({ duration }) {
             <text className="clock-note" x={side / 2} y={side / 2} textAnchor="middle" fill="#888">No bar grid for this song</text>
           ) : (
             <>
-              <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={Math.min(clockIndex, rings - 1)} />
+              <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
+              {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={showText(spacing, clockTextPx)} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} />
             </>
           )}

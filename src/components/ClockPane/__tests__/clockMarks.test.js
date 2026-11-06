@@ -43,3 +43,28 @@ describe("wordMarks", () => {
     expect(FORM_DASH).toEqual({ word: null, mosaic: "7 4", embedded: "1.5 4", semirhyme: "0.5 3" });
   });
 });
+
+import { drumMarks } from "../clockMarks";
+
+describe("drumMarks", () => {
+  const dc = makeCycles([0, 2, 4], 1, 4);
+  const hits = [{ time: 0.5, cls: "kick" }, { time: 2.5, cls: "kick" }, { time: 2.7, cls: "snare" }];
+  const groups = { kick: { visible: true, height: 20 }, snare: { visible: false, height: 60 } };
+
+  it("keeps the visible hits of one cycle, at their angle", () => {
+    const m = drumMarks({ hits, cycles: dc, cycle: 1, groups, byClass: true });
+    expect(m).toHaveLength(1);
+    expect(m[0].rowKey).toBe("kick");
+    expect(m[0].frac).toBeCloseTo(0.25);
+    expect(m[0].height).toBe(20);
+  });
+
+  it("shows only the asked-for cycle", () => {
+    expect(drumMarks({ hits, cycles: dc, cycle: 0, groups, byClass: true })).toHaveLength(1);
+  });
+
+  it("nudges unnamed band hits by their frequency band", () => {
+    const m = drumMarks({ hits: [{ time: 0.5, category: "high" }], cycles: dc, cycle: 0, groups: { high: { visible: true, height: 50 } }, byClass: false });
+    expect(m[0]).toMatchObject({ rowKey: "high", height: 50 });
+  });
+});
