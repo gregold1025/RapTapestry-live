@@ -160,6 +160,11 @@ describe("tail cases: embedded and semirhyme, one rule both ways, within 4 bars"
     const ms = matches(til, "digits");
     for (const t of ["dig it", "Swig it"]) expect(find(ms, t), t).toMatchObject({ form: "mosaic", type: "loosened" });
   });
+  it("symmetric in shape (Greg 2026-11-06): bio-logic-al -> logic is a semirhyme, as logic -> bio-logic-al is embedded", () => {
+    const m = matches(rld, "biological").find((x) => clean(x.text) === "logic");
+    expect(m).toMatchObject({ form: "semirhyme", type: "perfect" });
+    expect(m.links).toHaveLength(2);
+  });
   it("semirhymes land on content words within 4 bars of the query", () => {
     const q = rld.byId.get(idsOf(rld, "logic")[0]);
     const qb = rld.barPosition(q.start).bar;

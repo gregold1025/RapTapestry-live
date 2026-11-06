@@ -15,7 +15,7 @@
 // vowel, unstressed on both sides.
 //
 // Tail cases, one rule both ways. Query has a tail the candidate lacks: SEMIRHYME (lo-gic ~
-// Spock), the stressed syllables are compared alone, content words only. Candidate has a tail
+// Spock; bio-lo-gi-cal ~ lo-gic): the candidate's whole foot against the start of the query's, content words only. Candidate has a tail
 // (the match ends inside its word): EMBEDDED (wage ~ en-gage-ments). On the tailed side, CREDIT
 // WHERE CREDIT IS DUE: its whole cluster up to the next vowel counts as the coda when that makes
 // the coda axis 1 or F, else its syllabified coda. Both only within 4 bars of the query.
@@ -183,9 +183,18 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     // a vowel-only final foot only as a word's own unstressed tail (so- so ~ so-lo), with a full foot to its left
     if (r?.soft && (feet.length < 2 || cs[0].k === 0)) r = null;
   } else if (mode === 'semi') {
-    if (k >= 2 && c0.stress >= 1 && !c0.weak && c0.final && !isFunctionWord(c0.w.text)) {
-      r = compareFoot(S, [Ff[0]], [c0], { credit: true });
-      if (r) { cs = [c0]; form = 'semirhyme'; }
+    // the mirror of embedded: the candidate's whole foot (a stressed content-word syllable and the
+    // unstressed syllables after it, to its word's end) against the START of the query's longer
+    // final foot, whose tail is left over (lo-gic ~ Spock; bio-lo-gi-cal ~ lo-gic)
+    if (k >= 2 && c0.final && !isFunctionWord(c0.w.text)) {
+      let h = e;
+      while (h > 0 && S[h].w === c0.w && S[h].stress < 1) h--;
+      const m = e - h + 1;
+      const sp = S[h].w === c0.w && m < k ? span(e, m) : null;
+      if (sp && sp[0].stress >= 1 && !sp[0].weak) {
+        r = compareFoot(S, Ff.slice(0, m), sp, { credit: true });
+        if (r) { cs = sp; form = 'semirhyme'; }
+      }
     }
   } else if (mode === 'trunc' && k >= 2) {
     // the last pass: only row 4, only where nothing else matched
