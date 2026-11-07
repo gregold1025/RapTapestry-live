@@ -9,7 +9,7 @@ export default function ClockSettings() {
   const {
     clockCycleBars, setClockCycleBars, clockRings, setClockRings,
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
-    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockDrumScale, setClockDrumScale,
+    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums,
   } = useParams();
   return (
     <div className="pn-section">
@@ -26,10 +26,7 @@ export default function ClockSettings() {
         <span className="pn-field-label">words</span>
         <Segmented value={clockWords} onChange={setClockWords} options={[{ value: "all", label: "all words" }, { value: "query", label: "query words" }]} />
       </div>
-      <div className="ui-row">
-        <Slider label="text" value={clockTextPx} min={8} max={20} step={1} unit=" px" onChange={setClockTextPx} />
-        <Slider label="drum glyphs" value={Math.round(clockDrumScale * 100)} min={20} max={150} step={5} unit="%" onChange={(v) => setClockDrumScale(v / 100)} disabled={!clockShowDrums} />
-      </div>
+      <Slider label="text" value={clockTextPx} min={8} max={20} step={1} unit=" px" onChange={setClockTextPx} />
       <div className="pn-field">
         <span className="pn-field-label">drums</span>
         <Segmented value={clockShowDrums} onChange={setClockShowDrums} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />

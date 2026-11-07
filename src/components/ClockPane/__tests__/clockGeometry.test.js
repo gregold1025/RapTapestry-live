@@ -31,8 +31,9 @@ describe("rings", () => {
   it("ends each turn where the next one starts, so bar lines and words run on across 12 o'clock", () => {
     expect(spiralRadius(1, 1, 5, 100, 20)).toBe(spiralRadius(2, 0, 5, 100, 20));
   });
-  it("keeps a single ring a circle on the rim", () => {
-    expect(spiralRadius(0, 0.7, 1, 100, 20)).toBe(100);
+  it("draws a single ring a little inside the rim, stepping in just enough that its end clears its start", () => {
+    expect(spiralRadius(0, 0, 1, 100, 20)).toBe(90);
+    expect(spiralRadius(0, 1, 1, 100, 20)).toBe(85);
     expect(ringPitch(1, 100, 20)).toBe(80);
   });
   it("shows text only while rings are at least two text heights apart", () => {
@@ -221,7 +222,7 @@ import { labelPath, followIndex } from "../clockGeometry";
 describe("word labels", () => {
   it("run clockwise along the spiral just outside the word, upside down on the lower half", () => {
     const d = labelPath(0, 0, 0, 0.5, 0.55, "abc", 12, 1, 100, 20);
-    expect(d.startsWith("M0.00,103.00")).toBe(true);
+    expect(d.startsWith("M0.00,90.50")).toBe(true);   // one ring: 100 × (0.9 − 0.05 × 0.5) + 3
     expect(d).toMatch(/L-[\d.]+,[\d.]+$/);
   });
 });
@@ -229,5 +230,20 @@ describe("word labels", () => {
 describe("followIndex (where Follow keeps the playhead's ring)", () => {
   it("is the middle ring, or with an even count the larger of the two middle rings", () => {
     expect([1, 2, 4, 5, 8, 16, 32].map(followIndex)).toEqual([0, 0, 1, 2, 3, 7, 15]);
+  });
+});
+
+import { clockGeo, drumRadius, DRUM_GLYPH_SCALE } from "../clockGeometry";
+
+describe("the drum band", () => {
+  it("is a fixed band just outside the rim; the clock shrinks to fit it in the window", () => {
+    expect(clockGeo(400, 8)).toMatchObject({ cx: 200, cy: 200, rOuter: 158, drumBand: 36 });
+  });
+  it("paints each glyph just outside the rim, higher classes a little further out", () => {
+    expect(drumRadius({ rOuter: 100, size: 10, height: 0 })).toBe(109);
+    expect(drumRadius({ rOuter: 100, size: 10, height: 30 })).toBe(118);
+  });
+  it("draws glyphs at a fixed scale: 150% of the Drums panel's sizes at 80%", () => {
+    expect(DRUM_GLYPH_SCALE).toBeCloseTo(1.2);
   });
 });

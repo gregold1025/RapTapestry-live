@@ -180,3 +180,8 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 
 - Not made on the clock, but shown: each queried or matched line (visualByLineIdx) colors its stretch of the spiral (first word's start to last word's end; width 70% of the turn gap, 1.5–4 px, 60% opacity, under the words).
 - Its rhyming end comes up as query words: the query line's last three words (engine endUnits, the extent of a line query), a matched line's matched words with the match's form dash and rhyme-vowel dots (sylRange). Word-query visuals win over line-query words.
+
+## One ring and drums (Greg, 2026-11-06)
+
+- One ring: starts at 0.9 × rOuter and steps in 0.05 × rOuter over its turn, so its end clears its start (not to the center).
+- Drums: on / off only (the size setting is gone). Fixed size = each class's Drums-panel size × 1.2 (Greg's 150% clock setting × the Drums panel's 80%), full opacity, never faint. Centers at rOuter + 4 + size/2 + height% × 30 px. The drum band is a fixed 36 px; rOuter = side/2 − 6 − 36 so the glyphs fit in the window.

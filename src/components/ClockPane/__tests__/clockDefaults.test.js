@@ -6,7 +6,7 @@ describe("CLOCK_DEFAULTS", () => {
     expect(CLOCK_DEFAULTS).toEqual({
       cycleBars: 1, rings: 8, words: "all",
       backgroundColor: "#000000", wordColor: "#9a9da5", textPx: 12,
-      showDrums: true, drumScale: 1,
+      showDrums: true,
     });
   });
   it("cannot be changed by accident", () => {

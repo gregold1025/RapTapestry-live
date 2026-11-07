@@ -58,7 +58,7 @@ export default function ClockPane({ duration }) {
   const bodyRef = useRef(null);
   const side = useBodySide(bodyRef);
   const [full, setFull] = useState(false);
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockDrumScale, drumClasses, drumBands } = useParams();
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();
   const { songModel, timing, lyricTranscription } = useSongData();
@@ -151,7 +151,7 @@ export default function ClockPane({ duration }) {
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
               <ClockLines spans={spans} geo={geo} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
-              {clockShowDrums && <ClockDrums marks={drums} geo={geo} scale={clockDrumScale} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
+              {clockShowDrums && <ClockDrums marks={drums} geo={geo} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>

@@ -8,5 +8,4 @@ export const CLOCK_DEFAULTS = Object.freeze({
   wordColor: "#9a9da5",       // words not in a query (a light gray, to read on black)
   textPx: 12,
   showDrums: true,
-  drumScale: 1,
 });

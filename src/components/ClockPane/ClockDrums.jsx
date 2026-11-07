@@ -1,19 +1,20 @@
 // src/components/ClockPane/ClockDrums.jsx
-// One cycle of drum glyphs (the current ring's) in the band outside the
-// outermost ring. Each class or band keeps its glyph, size, opacity and
+// One cycle of drum glyphs (the current ring's) just outside the rim, at a
+// fixed size (DRUM_GLYPH_SCALE of each class's Drums-panel size) and full
+// opacity, always (no faint preview). Each class or band keeps its glyph and
 // visibility from the Drums panel; its height sets how far out it sits.
 // The glyph masks follow DrumsGlyphs (one mask + symbol per glyph url).
 import React, { useId } from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { defaultGlyphFor } from "../../utils/drumGlyphDefaults";
-import { polar, drumInk } from "./clockGeometry";
+import { polar, drumInk, drumRadius, DRUM_GLYPH_SCALE } from "./clockGeometry";
 
 const DRUM_NOMINAL = 300; // symbol viewBox size (glyph occupies 100..200)
 
-export default function ClockDrums({ marks, geo, scale = 1, byClass, background, fallbackInk }) {
+export default function ClockDrums({ marks, geo, byClass, background, fallbackInk }) {
   const { drumParams, drumBands, drumClasses, glyphAssets } = useParams();
   const instanceId = `clock-${useId().replace(/:/g, "")}`;
-  const { cx, cy, rOuter, drumBand } = geo;
+  const { cx, cy, rOuter } = geo;
   const groups = byClass ? drumClasses : drumBands;
   const { fillColor: panelFill = "#bbbbbb", tilt = 10 } = drumParams || {};
   const fillColor = drumInk(panelFill, background, fallbackInk);   // black drums on a black clock: the word color
@@ -28,15 +29,14 @@ export default function ClockDrums({ marks, geo, scale = 1, byClass, background,
 
   const glyphs = marks.map((m, i) => {
     const g = groups?.[m.rowKey] ?? {};
-    const size = (g.size ?? 12) * scale * (drumParams?.size ?? 1);
+    const size = (g.size ?? 12) * DRUM_GLYPH_SCALE;
     const box = size * 3;
-    const { x, y } = polar(cx, cy, rOuter + 4 + (m.height / 100) * Math.max(0, drumBand - 8), m.frac);
+    const { x, y } = polar(cx, cy, drumRadius({ rOuter, size, height: m.height }), m.frac);
     const sym = symbolFor(g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(m.rowKey, byName));
-    const opacity = (drumParams?.opacity ?? 1) * (g.opacity ?? 1) * (byClass && m.conf != null ? 0.5 + 0.5 * Math.min(1, m.conf) : 1);
     return sym ? (
-      <use key={i} href={`#${sym}`} data-start={m.time} transform={`translate(${x}, ${y}) rotate(${tilt})`} x={-box / 2} y={-box / 2} width={box} height={box} fill={fillColor} opacity={opacity} />
+      <use key={i} href={`#${sym}`} transform={`translate(${x}, ${y}) rotate(${tilt})`} x={-box / 2} y={-box / 2} width={box} height={box} fill={fillColor} />
     ) : (
-      <circle key={i} data-start={m.time} cx={x} cy={y} r={size / 2} fill={fillColor} opacity={opacity} />
+      <circle key={i} cx={x} cy={y} r={size / 2} fill={fillColor} />
     );
   });
 

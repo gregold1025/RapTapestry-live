@@ -29,9 +29,16 @@ export function ringPitch(rings, rOuter, rInner) {
   return rings <= 1 ? rOuter - rInner : (rOuter - rInner) / rings;
 }
 
-/** The spiral's radius at ring `ring`, `frac` of the way round: the rim at 0, rInner at the end of the last ring. */
+/** One ring alone: it starts this far in from the rim, and steps in this much over its turn (fractions of rOuter). */
+const ONE_RING = { start: 0.9, step: 0.05 };
+
+/**
+ * The spiral's radius at ring `ring`, `frac` of the way round: the rim at 0,
+ * rInner at the end of the last ring. One ring alone sits a little inside the
+ * rim and steps in just enough that its end clears its start.
+ */
 export function spiralRadius(ring, frac, rings, rOuter, rInner) {
-  if (rings <= 1) return rOuter;
+  if (rings <= 1) return rOuter * (ONE_RING.start - ONE_RING.step * (ring + frac));
   return rOuter - (ring + frac) * ringPitch(rings, rOuter, rInner);
 }
 
@@ -139,11 +146,21 @@ export function faceStrokes(background) {
   return { bar: g.bar, beat: g.beat, ring: g.beat, current: g.bar, glow: pushed(background, 4.5) };
 }
 
-/** The clock's radii for a square of `side` px: rim, inner hole, drum band. */
+/** The drum band outside the rim (px): room for the largest glyph and the spread by class height. */
+const DRUM_BAND = 36;
+/** Drum glyphs on the clock: a fixed scale of the Drums panel's per-class sizes (150% of the sizes at 80%). */
+export const DRUM_GLYPH_SCALE = 1.5 * 0.8;
+
+/** The clock's radii for a square of `side` px: rim, inner hole, and the drum band, which fits inside the window. */
 export function clockGeo(side, rings) {
   const cx = side / 2, cy = side / 2;
-  const rOuter = Math.max(20, (side / 2 - 8) / 1.12);
-  return { cx, cy, rOuter, rInner: 0.18 * rOuter, drumBand: 0.12 * rOuter, rings };
+  const rOuter = Math.max(20, side / 2 - 6 - DRUM_BAND);
+  return { cx, cy, rOuter, rInner: 0.18 * rOuter, drumBand: DRUM_BAND, rings };
+}
+
+/** A drum glyph's center: just outside the rim, classes set higher in the Drums panel a little further out. */
+export function drumRadius({ rOuter, size, height }) {
+  return rOuter + 4 + size / 2 + (Math.max(0, Math.min(100, height)) / 100) * 30;
 }
 
 /** The faint preview's opacity (later rings, and the unplayed part of the current ring, while following). */

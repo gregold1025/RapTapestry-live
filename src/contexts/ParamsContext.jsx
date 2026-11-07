@@ -197,7 +197,6 @@ export function ParamsProvider({ children }) {
   const [clockWordColor, setClockWordColor] = useState(CLOCK_DEFAULTS.wordColor);
   const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
   const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
-  const [clockDrumScale, setClockDrumScale] = useState(CLOCK_DEFAULTS.drumScale);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -430,7 +429,6 @@ export function ParamsProvider({ children }) {
         clockWordColor, setClockWordColor,
         clockTextPx, setClockTextPx,
         clockShowDrums, setClockShowDrums,
-        clockDrumScale, setClockDrumScale,
 
         showHorizontalGrid,
         setShowHorizontalGrid,
