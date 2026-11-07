@@ -1,0 +1,40 @@
+/* The Rhyme Clock: a square in the stage's bottom-right corner (CenterStage
+   sizes its slot), or at full size over the whole stage. */
+.rt-stage { position: relative; }
+.clock-pane {
+  width: 100%; height: 100%; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; border-top: 1px solid var(--rt-line, #2a2a2a); border-left: 1px solid #2a2a2a; overflow: hidden;
+  container-type: inline-size;
+}
+.clock-pane.is-full { position: absolute; inset: 0; z-index: 20; width: auto; height: auto; border: 0; }
+.clock-body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.clock-size { font: inherit; line-height: 0; color: var(--rt-muted); background: transparent; border: 0; cursor: pointer; padding: 2px; }
+.clock-size:hover { color: var(--rt-ink); }
+/* docked at half the stage's width: drop the title text, narrow the rings lever */
+@container (max-width: 600px) { .clock-title-text { display: none; } .clock-bar .ui-seg { width: 150px; } .clock-bar { gap: 6px; } }
+@container (max-width: 400px) { .clock-where { display: none; } }
+.clock-bar {
+  --rt-panel: #353535; --rt-card: #3e3e3e; --rt-head: #474747; --rt-ink: #f0f0f0; --rt-muted: #a9a9ae;
+  --rt-line: #565656; --rt-line-soft: #4a4a4a; --rt-on-ink: #1a1a1a;
+  color: var(--rt-ink);
+  display: flex; align-items: center; gap: 10px; padding: 0 10px;
+  height: 35px; box-sizing: border-box;   /* the Line Staff bar's height: the two bars sit side by side */
+  border-bottom: 1px solid #2a2a2a; background: var(--rt-head); font-size: 11px;
+}
+.clock-bar > * { flex-shrink: 0; }
+.clock-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; white-space: nowrap; }
+.clock-title svg { width: 16px; height: 16px; }
+.clock-bar .ui-seg { width: 190px; }
+.clock-where { margin-left: auto; color: var(--rt-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
+.clock-link { font: inherit; font-size: 11px; color: var(--rt-muted); background: transparent; border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.clock-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
+.clock-close { font: inherit; font-size: 14px; line-height: 1; color: var(--rt-muted); background: transparent; border: 0; cursor: pointer; padding: 0 4px; }
+.clock-close:hover { color: var(--rt-ink); }
+.clock-svg { display: block; user-select: none; touch-action: none; }
+.clock-note { font: 12px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+.clock-follow { font: inherit; font-size: 11px; background: var(--rt-card); color: var(--rt-ink); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.clock-follow.is-on { color: #ff6b6b; border-color: #ff6b6b; }
+.clock-svg { cursor: grab; }
+/* the clock's square in the stage's bottom-right corner (beside the Line Staff, or over the tapestry); at full size it covers the stage */
+.rt-stage-clock { position: absolute; right: 0; bottom: 0; width: var(--clock-side); height: var(--clock-side); z-index: 20; }
+.rt-stage-clock:has(.clock-pane.is-full) { inset: 0; width: auto; height: auto; }

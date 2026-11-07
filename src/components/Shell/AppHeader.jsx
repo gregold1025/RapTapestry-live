@@ -1,7 +1,7 @@
 // src/components/Shell/AppHeader.jsx
 // Left: the lyrics toggle (ABC). Center: the song above the transport (play,
-// stop, loop, bar.beat, scrubber, time) and the Line Staff toggle (treble
-// clef). Right: parameters | queries for the right pane.
+// stop, loop, bar.beat, scrubber, time), the Line Staff toggle (treble
+// clef) and the Rhyme Clock toggle (clock). Right: parameters | queries for the right pane.
 import React from "react";
 import { useUIState } from "../../contexts/UIStateContext";
 import AudioControlsView from "../AudioControlsView";
@@ -37,9 +37,16 @@ export const IconClef = () => (
     <path d="M12.5 2.5 11.2 20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
   </svg>
 );
+export const IconClock = () => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+    <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.6" />
+    <path d="M12 12V3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
 
 export default function AppHeader({ selectedSong, onSongChange, transport = true }) {
-  const { lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, staffOpen, toggleStaff } = useUIState();
+  const { lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, staffOpen, toggleStaff, clockOpen, toggleClock } = useUIState();
   return (
     <>
       <div className="rt-header-left">
@@ -58,6 +65,9 @@ export default function AppHeader({ selectedSong, onSongChange, transport = true
           {transport ? <AudioControlsView /> : null}
           <button type="button" className={`rt-tog ${staffOpen ? "is-active" : ""}`} aria-pressed={staffOpen} onClick={toggleStaff} title={staffOpen ? "Close the Line Staff" : "Open the Line Staff under the tapestry"} disabled={!transport}>
             <IconClef />
+          </button>
+          <button type="button" className={`rt-tog ${clockOpen ? "is-active" : ""}`} aria-pressed={clockOpen} onClick={toggleClock} title={clockOpen ? "Close the Rhyme Clock" : "Open the Rhyme Clock"} disabled={!transport}>
+            <IconClock />
           </button>
         </div>
       </div>

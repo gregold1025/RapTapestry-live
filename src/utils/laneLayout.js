@@ -86,3 +86,13 @@ export function syllablePitchPct(word, si, nSyllables, band, fallbackPct, range 
   const ci = Math.min(centroids.length - 1, Math.floor(si * spacing));
   return pitchPct(centroids[ci], band, range);
 }
+
+/** A height moved with its group: `pct` keeps its distance above `base`, which goes to `to` (clamped to the lane). */
+export function shiftPct(pct, base, to) {
+  return clamp(pct - base + to, 0, 100);
+}
+
+/** A {lo, hi} band moved to start at `lo`, keeping its span (the top clamped to the lane). */
+export function shiftBand(band, lo) {
+  return { lo, hi: Math.min(100, lo + (band.hi - band.lo)) };
+}

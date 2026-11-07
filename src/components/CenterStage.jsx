@@ -1,17 +1,44 @@
 // src/components/CenterStage.jsx
-// The center: the wrap tapestry, and under it (when the treble clef is on)
-// the Line Staff pane; the split keeps the full width.
-import React from "react";
+// The center: the wrap tapestry, and under it (when the treble clef is on) a
+// band, 44% of the stage, for the Line Staff. The Rhyme Clock is a square of
+// the same height in the stage's bottom-right corner: beside the Line Staff
+// (which stops short of it), or, without it, over the tapestry, which then
+// runs full height. The clock stays mounted in one place, so opening or
+// closing the Line Staff keeps its state. At full size it covers the stage.
+import React, { useLayoutEffect, useRef, useState } from "react";
 import TapestryView from "./TapestryView";
 import StaffPane from "./StaffPane/StaffPane";
+import ClockPane from "./ClockPane/ClockPane";
+import { stageLayout } from "./ClockPane/stageLayout";
 import { useUIState } from "../contexts/UIStateContext";
 
 export default function CenterStage({ songKey, duration }) {
-  const { staffOpen } = useUIState();
+  const { staffOpen, clockOpen } = useUIState();
+  const ref = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setSize({ width: el.clientWidth, height: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const { bandH, clockW } = stageLayout({ ...size, staffOpen, clockOpen });
   return (
-    <div className="rt-stage">
+    <div className="rt-stage" ref={ref}>
       <div className="rt-stage-top"><TapestryView key={`tapestry-${songKey}`} /></div>
-      {staffOpen && <div className="rt-stage-bottom"><StaffPane duration={duration} /></div>}
+      {bandH > 0 && (
+        <div className="rt-stage-bottom" style={{ height: bandH, paddingRight: clockW }}>
+          <StaffPane duration={duration} />
+        </div>
+      )}
+      {clockOpen && clockW > 0 && (
+        <div className="rt-stage-clock" style={{ "--clock-side": `${clockW}px` }}>
+          <ClockPane key={`clock-${songKey}`} duration={duration} />
+        </div>
+      )}
     </div>
   );
 }

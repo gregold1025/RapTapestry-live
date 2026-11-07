@@ -37,3 +37,14 @@ describe("grid strokes stay visible on any background", () => {
     expect(gridStrokes("nonsense")).toEqual(gridStrokes("#ffffff"));
   });
 });
+
+import { inkOn } from "../gridStroke";
+
+describe("inkOn (a color that must show on a background)", () => {
+  it("keeps the color when it shows", () => {
+    expect(inkOn("#000000", "#ffffff", "#fff")).toBe("#000000");
+  });
+  it("falls back when it would vanish (contrast under 2)", () => {
+    expect(inkOn("#000000", "#1c1c1c", "#ffffff")).toBe("#ffffff");
+  });
+});

@@ -51,11 +51,24 @@ export default function TapestrySVG({
           onGlyphHoverLeave={onGlyphHoverLeave}
         />
       )}
-      <TapestryLayer name="drums">
-        <DrumsGlyphs />
-        <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
-        <HorizontalGrid />
-      </TapestryLayer>
+      {variant === "staff" ? (
+        // the Line Staff reveals glyphs with the playhead but always shows its grid: two layers
+        <>
+          <TapestryLayer name="drums">
+            <DrumsGlyphs />
+          </TapestryLayer>
+          <TapestryLayer name="grid">
+            <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
+            <HorizontalGrid />
+          </TapestryLayer>
+        </>
+      ) : (
+        <TapestryLayer name="drums">
+          <DrumsGlyphs />
+          <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
+          <HorizontalGrid />
+        </TapestryLayer>
+      )}
       <TapestryLayer name="loop">
         <LoopGlyphs />
       </TapestryLayer>

@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 import { StaffToolbarSlot } from "../../StaffPane/staffSlot";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
-import { followScroll, clampScroll, revealInset } from "../../../utils/scrollWindow";
+import { followScroll, clampScroll, revealInset, revealsLayer } from "../../../utils/scrollWindow";
 import { isBackgroundTarget } from "./scrollTarget";
 import "../TapestryView.css";
 
@@ -39,7 +39,12 @@ export default function ScrollController({ containerRef, contentRef }) {
     else S.scrollX = clampScroll(S.scrollX, viewW, contentW);
     content.style.transform = `translateX(${(-S.scrollX).toFixed(2)}px)`;
     const inset = revealInset({ follow: S.follow, playing: S.playing, xPlayhead: xP, contentWidth: contentW });
-    content.style.clipPath = inset > 0 ? `inset(0 ${inset.toFixed(1)}px 0 0)` : "none";
+    // only the glyph layers are revealed; the grid and the loop stay on both sides of the playhead
+    const clip = inset > 0 ? `inset(0 ${inset.toFixed(1)}px 0 0)` : "";
+    for (const layer of content.querySelectorAll(":scope > [data-layer]")) {
+      const c = revealsLayer(layer.dataset.layer) ? clip : "";
+      if (layer.style.clipPath !== c) layer.style.clipPath = c;
+    }
     const needle = needleRef.current;
     if (needle) {
       const X = xP - S.scrollX;
@@ -60,7 +65,11 @@ export default function ScrollController({ containerRef, contentRef }) {
   // the transform and reveal clip written here.
   useEffect(() => {
     const content = contentRef.current;
-    return () => { if (content) { content.style.transform = ""; content.style.clipPath = ""; } };
+    return () => {
+      if (!content) return;
+      content.style.transform = "";
+      for (const layer of content.querySelectorAll(":scope > [data-layer]")) layer.style.clipPath = "";
+    };
   }, [contentRef]);
 
   // Drag to scrub (freezes), click on the background to play from there.

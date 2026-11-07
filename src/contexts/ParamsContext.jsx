@@ -1,14 +1,13 @@
 // src/contexts/ParamsContext.jsx
-import { isTypingTarget } from "../utils/isTypingTarget";
 import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import { BASS_DEFAULTS, DRUM_DEFAULTS, STAFF_DEFAULTS } from "./paramDefaults";
+import { CLOCK_DEFAULTS } from "../components/ClockPane/clockDefaults";
 
 const ParamsContext = createContext();
 
@@ -182,11 +181,24 @@ export function ParamsProvider({ children }) {
   // Line Staff text: the bottom of its pitch band, percent of the staff height (the band spans 34 points above it)
   const [staffTextHeight, setStaffTextHeight] = useState(STAFF_DEFAULTS.textHeight);
   const [staffTextPx, setStaffTextPx] = useState(12);
-  const [staffBackgroundColor, setStaffBackgroundColor] = useState("#f7f7f9");
-  const [staffWordColor, setStaffWordColor] = useState("#6b6e76"); // unqueried words: text, line, dots
+  // Line Staff drums and bass, like the text height (percent of the staff height):
+  // drums: where the lowest drum row sits (the others keep their heights above it); bass: the bottom of its band
+  const [staffDrumHeight, setStaffDrumHeight] = useState(10);
+  const [staffBassHeight, setStaffBassHeight] = useState(0);
+  const [staffBackgroundColor, setStaffBackgroundColor] = useState("#1c1c1c");
+  const [staffWordColor, setStaffWordColor] = useState("#ffffff"); // unqueried words: text, line, dots
   // grid level: 0 none, 1 bar lines, 2 + beat lines, 3 + eighths, 4 + sixteenths (utils/gridLines.js)
   const [staffGridLevel, setStaffGridLevel] = useState(2);
   const [gridLevel, setGridLevel] = useState(2);
+
+  // — RHYME CLOCK — (its own settings; defaults in ClockPane/clockDefaults.js)
+  const [clockCycleBars, setClockCycleBars] = useState(CLOCK_DEFAULTS.cycleBars);
+  const [clockRings, setClockRings] = useState(CLOCK_DEFAULTS.rings);
+  const [clockWords, setClockWords] = useState(CLOCK_DEFAULTS.words);
+  const [clockBackgroundColor, setClockBackgroundColor] = useState(CLOCK_DEFAULTS.backgroundColor);
+  const [clockWordColor, setClockWordColor] = useState(CLOCK_DEFAULTS.wordColor);
+  const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
+  const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -234,21 +246,6 @@ export function ParamsProvider({ children }) {
   const randomizeBassDivider = useCallback(
     () => setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS)), []
   );
-
-  // Central key bindings for glyph randomizers (S/D/B).
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;   // Cmd-D is the browser's
-      if (isTypingTarget(e.target)) return;
-
-      if (e.key === "s" || e.key === "S") randomizeSyllableGlyph();
-      if (e.key === "d" || e.key === "D") randomizeDrumGlyph();
-      if (e.key === "b" || e.key === "B") randomizeBassDivider();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [randomizeSyllableGlyph, randomizeDrumGlyph, randomizeBassDivider]);
 
   // Expose the glyph asset arrays too (optional but useful for debugging / future UI)
   const glyphAssets = useMemo(
@@ -405,6 +402,8 @@ export function ParamsProvider({ children }) {
         staffTextHeight,
         setStaffTextHeight,
         staffTextPx,
+        staffDrumHeight, setStaffDrumHeight,
+        staffBassHeight, setStaffBassHeight,
         setStaffTextPx,
         staffBackgroundColor,
         setStaffBackgroundColor,
@@ -412,6 +411,13 @@ export function ParamsProvider({ children }) {
         setStaffWordColor,
         staffGridLevel,
         setStaffGridLevel,
+        clockCycleBars, setClockCycleBars,
+        clockRings, setClockRings,
+        clockWords, setClockWords,
+        clockBackgroundColor, setClockBackgroundColor,
+        clockWordColor, setClockWordColor,
+        clockTextPx, setClockTextPx,
+        clockShowDrums, setClockShowDrums,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

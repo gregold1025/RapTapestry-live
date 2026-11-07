@@ -53,3 +53,8 @@ export function gridStrokes(background) {
   const sub = at(reach(1 + (ratio(beat) - 1) * SUB_SHARE));
   return { beat: toHex(beat), bar: toHex(bar), sub: toHex(sub) };
 }
+
+/** `fill`, unless it would vanish on `background` (contrast under 2): then `fallback`. */
+export function inkOn(fill, background, fallback) {
+  return contrastRatio(fill, background) < 2 ? fallback : fill;
+}

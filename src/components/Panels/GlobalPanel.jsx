@@ -4,6 +4,7 @@ import { useStemMix } from "../../contexts/StemMixContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { Segmented, Slider, EyeButton, MuteButton, SoloButton, ColorField, SectionLabel } from "../ui";
 import { GRID_LEVELS } from "../../utils/gridLines";
+import ClockSettings from "../ClockPane/ClockSettings";
 import "./Panels.css";
 
 const STEM_ROWS = [
@@ -27,6 +28,7 @@ export default function GlobalPanel() {
     staffDrumScale, setStaffDrumScale,
     staffTextPx, setStaffTextPx,
     staffBackgroundColor, setStaffBackgroundColor,
+    staffDrumHeight, setStaffDrumHeight, staffBassHeight, setStaffBassHeight,
     staffWordColor, setStaffWordColor,
     staffTextHeight, setStaffTextHeight,
     staffBassThickness, setStaffBassThickness,
@@ -106,6 +108,10 @@ export default function GlobalPanel() {
           <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
         </div>
         <Slider label="text height" value={staffTextHeight} min={0} max={66} step={1} unit="%" onChange={setStaffTextHeight} />
+        <div className="ui-row">
+          <Slider label="drum height" value={staffDrumHeight} min={0} max={90} step={1} unit="%" onChange={setStaffDrumHeight} />
+          <Slider label="bass height" value={staffBassHeight} min={0} max={90} step={1} unit="%" onChange={setStaffBassHeight} />
+        </div>
         <div className="pn-field">
           <span className="pn-field-label">show</span>
           <Segmented value={staffMode} onChange={setStaffMode} options={[{ value: "words", label: "words" }, { value: "spelled", label: "spelled" }, { value: "syllables", label: "syllables" }]} />
@@ -122,6 +128,8 @@ export default function GlobalPanel() {
         <Slider label="grid" value={staffGridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
         <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
       </div>
+
+      <ClockSettings />
     </div>
   );
 }
