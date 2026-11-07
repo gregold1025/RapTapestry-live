@@ -35,3 +35,6 @@
 .clock-follow { font: inherit; font-size: 11px; background: var(--rt-card); color: var(--rt-ink); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
 .clock-follow.is-on { color: #ff6b6b; border-color: #ff6b6b; }
 .clock-svg { cursor: grab; }
+/* the clock's square in the stage's bottom-right corner (beside the Line Staff, or over the tapestry); at full size it covers the stage */
+.rt-stage-clock { position: absolute; right: 0; bottom: 0; width: var(--clock-side); height: var(--clock-side); z-index: 20; }
+.rt-stage-clock:has(.clock-pane.is-full) { inset: 0; width: auto; height: auto; }

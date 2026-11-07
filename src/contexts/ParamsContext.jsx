@@ -1,10 +1,8 @@
 // src/contexts/ParamsContext.jsx
-import { isTypingTarget } from "../utils/isTypingTarget";
 import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -248,21 +246,6 @@ export function ParamsProvider({ children }) {
   const randomizeBassDivider = useCallback(
     () => setBassDividerUrl(pickRandomFrom(BASS_DIVIDER_URLS)), []
   );
-
-  // Central key bindings for glyph randomizers (S/D/B).
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;   // Cmd-D is the browser's
-      if (isTypingTarget(e.target)) return;
-
-      if (e.key === "s" || e.key === "S") randomizeSyllableGlyph();
-      if (e.key === "d" || e.key === "D") randomizeDrumGlyph();
-      if (e.key === "b" || e.key === "B") randomizeBassDivider();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [randomizeSyllableGlyph, randomizeDrumGlyph, randomizeBassDivider]);
 
   // Expose the glyph asset arrays too (optional but useful for debugging / future UI)
   const glyphAssets = useMemo(

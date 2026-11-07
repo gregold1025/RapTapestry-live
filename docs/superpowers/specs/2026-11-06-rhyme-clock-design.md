@@ -194,3 +194,8 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 - The ends fade over min(0.35, rings/4) turns (the spiral's line in 8 stepped pieces per end; marks by their middle), so new material fades in at the inner end and old fades out at the outer end; the ends sweep round with the playhead.
 - Drawing: components render elements carrying song positions (data-u0/u1, data-u); clockDraw redraws them when W moves, every frame while following. React re-renders only when W crosses a whole cycle or the playhead enters a new cycle (drums, glow).
 - The glow is the playhead's cycle P where it lies on the visible stretch; drums are P's.
+
+## The clock alone (Greg, 2026-11-06)
+
+- Without the Line Staff there is no band: the tapestry runs full height and the clock floats over its bottom-right corner at the same size (the empty white half is gone). The clock stays mounted in one place (absolute, bottom-right), so toggling the Line Staff keeps Freeze and full size.
+- The S / D / B keys no longer shuffle the syllable, drum and bass glyphs (the panels' random buttons stay).

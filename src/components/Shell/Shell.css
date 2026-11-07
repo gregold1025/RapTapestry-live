@@ -168,9 +168,8 @@
 /* ---- center stage: tapestry over the Line Staff pane ---- */
 .rt-stage { height: 100%; display: flex; flex-direction: column; min-height: 0; }
 .rt-stage-top { flex: 1 1 0; min-height: 0; position: relative; }
-.rt-stage-bottom { flex: 0 0 auto; min-height: 0; display: flex; flex-direction: row; }
+.rt-stage-bottom { flex: 0 0 auto; min-height: 0; display: flex; flex-direction: row; box-sizing: border-box; }
 .rt-stage-bottom > * { flex: 1 1 0; min-height: 0; min-width: 0; }
-.rt-stage-bottom > .rt-stage-clock { flex: 0 0 auto; }
 
 /* ---- dark surfaces (Greg 2026-11-05): background rgb(53), headers rgb(71) ---- */
 .rt-right, .staff-bar {

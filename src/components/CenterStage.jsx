@@ -1,9 +1,10 @@
 // src/components/CenterStage.jsx
-// The center: the wrap tapestry, and under it a band (half as tall as it is
-// wide) for the Line Staff (the treble clef) and the Rhyme Clock (the clock
-// icon). The clock takes a square in the bottom-right corner and the Line
-// Staff the rest; without the Line Staff the clock keeps its corner. At full
-// size the clock covers the whole stage (ClockPane).
+// The center: the wrap tapestry, and under it (when the treble clef is on) a
+// band, 44% of the stage, for the Line Staff. The Rhyme Clock is a square of
+// the same height in the stage's bottom-right corner: beside the Line Staff
+// (which stops short of it), or, without it, over the tapestry, which then
+// runs full height. The clock stays mounted in one place, so opening or
+// closing the Line Staff keeps its state. At full size it covers the stage.
 import React, { useLayoutEffect, useRef, useState } from "react";
 import TapestryView from "./TapestryView";
 import StaffPane from "./StaffPane/StaffPane";
@@ -29,9 +30,13 @@ export default function CenterStage({ songKey, duration }) {
     <div className="rt-stage" ref={ref}>
       <div className="rt-stage-top"><TapestryView key={`tapestry-${songKey}`} /></div>
       {bandH > 0 && (
-        <div className="rt-stage-bottom" style={{ height: bandH }}>
-          {staffOpen ? <StaffPane duration={duration} /> : <div aria-hidden="true" />}
-          {clockOpen && <div className="rt-stage-clock" style={{ width: clockW }}><ClockPane key={`clock-${songKey}`} duration={duration} /></div>}
+        <div className="rt-stage-bottom" style={{ height: bandH, paddingRight: clockW }}>
+          <StaffPane duration={duration} />
+        </div>
+      )}
+      {clockOpen && clockW > 0 && (
+        <div className="rt-stage-clock" style={{ "--clock-side": `${clockW}px` }}>
+          <ClockPane key={`clock-${songKey}`} duration={duration} />
         </div>
       )}
     </div>
