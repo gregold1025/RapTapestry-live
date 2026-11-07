@@ -10,7 +10,7 @@ import React, { useId, useMemo } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
 import { useSongData } from "../../../contexts/SongDataContext";
-import { laneY } from "../../../utils/laneLayout";
+import { laneY, shiftBand } from "../../../utils/laneLayout";
 import { bassRange, midiPct, noteSegments, topperSlices } from "../../../utils/bassModel";
 
 const BASS_NOMINAL = 100;
@@ -34,7 +34,7 @@ function v1AsNotes(v1) {
 
 export default function BassGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showBass, bassParams, glyphStyle, staffBassThickness } = useParams();
+  const { showBass, bassParams, glyphStyle, staffBassThickness, staffBassHeight } = useParams();
   const { bassNotes, bassTranscription } = useSongData();
   const lane = laneFor("bass");
   const uid = useId().replace(/[:«»]/g, "");
@@ -42,7 +42,9 @@ export default function BassGlyphs() {
   const notes = useMemo(() => (bassNotes?.length ? bassNotes : v1AsNotes(bassTranscription)), [bassNotes, bassTranscription]);
   const range = useMemo(() => bassRange(notes), [notes]);
 
-  const band = bassParams.band ?? { lo: 0, hi: 50 };
+  const panelBand = bassParams.band ?? { lo: 0, hi: 50 };
+  // the Line Staff has its own bass height: the bottom of the band, keeping its span
+  const band = layout?.singleRow ? shiftBand(panelBand, staffBassHeight ?? 0) : panelBand;
   const thickness = layout?.singleRow ? staffBassThickness ?? 6 : bassParams.thickness ?? 6;   // the Line Staff has its own
   const topper = bassParams.topper ?? "divider";
   const dividerUrl = topper === "none" ? null : glyphStyle?.bassDividerUrl ?? null;

@@ -28,6 +28,7 @@ export default function GlobalPanel() {
     staffDrumScale, setStaffDrumScale,
     staffTextPx, setStaffTextPx,
     staffBackgroundColor, setStaffBackgroundColor,
+    staffDrumHeight, setStaffDrumHeight, staffBassHeight, setStaffBassHeight,
     staffWordColor, setStaffWordColor,
     staffTextHeight, setStaffTextHeight,
     staffBassThickness, setStaffBassThickness,
@@ -107,6 +108,10 @@ export default function GlobalPanel() {
           <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
         </div>
         <Slider label="text height" value={staffTextHeight} min={0} max={66} step={1} unit="%" onChange={setStaffTextHeight} />
+        <div className="ui-row">
+          <Slider label="drum height" value={staffDrumHeight} min={0} max={90} step={1} unit="%" onChange={setStaffDrumHeight} />
+          <Slider label="bass height" value={staffBassHeight} min={0} max={90} step={1} unit="%" onChange={setStaffBassHeight} />
+        </div>
         <div className="pn-field">
           <span className="pn-field-label">show</span>
           <Segmented value={staffMode} onChange={setStaffMode} options={[{ value: "words", label: "words" }, { value: "spelled", label: "spelled" }, { value: "syllables", label: "syllables" }]} />

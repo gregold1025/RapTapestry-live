@@ -1,7 +1,7 @@
 import React, { useId } from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
-import { laneY } from "../../../utils/laneLayout";
+import { laneY, shiftPct } from "../../../utils/laneLayout";
 import { inkOn } from "../../../utils/gridStroke";
 import { useDrumHits, useByClass } from "../../../hooks/useDrumHits";
 import { defaultGlyphFor } from "../../../utils/drumGlyphDefaults";
@@ -17,7 +17,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export default function DrumsGlyphs() {
   const { layout, laneFor } = useTapestryLayout();
-  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale, staffBackgroundColor, staffWordColor } = useParams();
+  const { showDrums, showDrumGlyphs, drumParams, drumBands, drumClasses, glyphAssets, staffDrumScale, staffBackgroundColor, staffWordColor, staffDrumHeight } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();   // a song without classifier output falls back to bands
   const instanceId = useId().replace(/:/g, "");
@@ -34,6 +34,9 @@ export default function DrumsGlyphs() {
   const byName = glyphAssets.syllableGlyphByName;   // drums draw from the same set as the syllables
   const groups = byClass ? drumClasses : drumBands;
   const scale = layout.singleRow ? staffDrumScale : 1;   // the staff scales to be read
+  // the Line Staff places the drums by its own drum height: the lowest visible row sits there, the rest keep their heights above it
+  const staffBase = layout.singleRow ? Math.min(...Object.values(groups ?? {}).filter((g) => g && g.visible !== false).map((g) => g.height ?? 50), 100) : 0;
+  const place = (pct) => (layout.singleRow ? shiftPct(pct, staffBase, staffDrumHeight ?? 10) : pct);
 
   // one symbol per distinct glyph url
   const urls = new Map();
@@ -54,7 +57,7 @@ export default function DrumsGlyphs() {
     const { x, y } = timeToPixels(hit.time);
     // unnamed onsets keep their frequency band: low / mid / high sit a little below / at / above the row's height
     const bandOffset = rowKey === "other" ? ({ low: -4, mid: 0, high: 4 }[hit.category] ?? 0) : 0;
-    const cy = laneY(y, rowHeight, lane, Math.max(0, Math.min(100, (g.height ?? 50) + bandOffset)));
+    const cy = laneY(y, rowHeight, lane, place(Math.max(0, Math.min(100, (g.height ?? 50) + bandOffset))));
     const sym = symbolFor(g.glyphUrl === "none" ? null : g.glyphUrl ?? defaultGlyphFor(rowKey, byName));   // "none" = a circle
     const opacity = (drumParams?.opacity ?? 1) * (g.opacity ?? 1) * (byClass && hit.conf != null ? 0.5 + 0.5 * Math.min(1, hit.conf) : 1);
     glyphs.push(

@@ -76,3 +76,17 @@ describe("centroid normalization", () => {
     expect(centroidRange({ lines: [] })).toEqual({ lo: 0, hi: 1 });
   });
 });
+
+import { shiftPct, shiftBand } from "../laneLayout";
+
+describe("Line Staff drum and bass heights (like text height)", () => {
+  it("moves the drums together so the lowest class sits at the drum height", () => {
+    expect(shiftPct(10, 10, 40)).toBe(40);   // kick (the lowest) at 40%
+    expect(shiftPct(33, 10, 40)).toBe(63);   // hi-hat keeps its 23 points above
+    expect(shiftPct(33, 10, 90)).toBe(100);  // clamped to the lane
+  });
+  it("moves the bass band to start at the bass height, keeping its span", () => {
+    expect(shiftBand({ lo: 0, hi: 50 }, 30)).toEqual({ lo: 30, hi: 80 });
+    expect(shiftBand({ lo: 0, hi: 50 }, 70)).toEqual({ lo: 70, hi: 100 });
+  });
+});
