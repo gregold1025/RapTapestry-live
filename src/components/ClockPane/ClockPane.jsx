@@ -81,24 +81,26 @@ export default function ClockPane({ duration }) {
   const wholeSong = clockRings === "all";
   const svgRef = useRef(null);
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
-  const win = useClockWindow({ cycles, rings, wholeSong, svgRef });
-  const { W, current, follow } = win;
+  const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo });
+  const { Wi, P, follow } = win;
+  // the cycles drawn: those the spiral's visible stretch can reach as W moves within this whole cycle
+  const from = wholeSong ? 0 : Wi, to = wholeSong ? rings : Wi + rings + 1;
   const texts = useMemo(() => {
     const m = new Map();
     (lyricTranscription?.lines ?? []).forEach((line, li) => (line.words ?? []).forEach((w, wi) => m.set(`${li}-${wi}`, String(w.text ?? "").replace(/\n/g, "").trim())));
     return m;
   }, [lyricTranscription]);
   const marks = useMemo(
-    () => wordMarks({ timingWords: timing?.words, visuals, cycles, W, rings, words: clockWords, inkColor: clockWordColor, texts }),
-    [timing, visuals, cycles, W, rings, clockWords, clockWordColor, texts]
+    () => wordMarks({ timingWords: timing?.words, visuals, cycles, from, to, words: clockWords, inkColor: clockWordColor, texts }),
+    [timing, visuals, cycles, from, to, clockWords, clockWordColor, texts]
   );
   const spans = useMemo(
-    () => lineSpans({ lines: lineQ.lines, timingWords: timing?.words, songModel, cycles, W, rings }),
-    [lineQ, timing, songModel, cycles, W, rings]
+    () => lineSpans({ lines: lineQ.lines, timingWords: timing?.words, songModel, cycles, from, to }),
+    [lineQ, timing, songModel, cycles, from, to]
   );
   const drums = useMemo(
-    () => (clockShowDrums && current != null ? drumMarks({ hits, cycles, cycle: W + current, groups: byClass ? drumClasses : drumBands, byClass }) : []),
-    [clockShowDrums, hits, cycles, W, current, byClass, drumClasses, drumBands]
+    () => (clockShowDrums && P >= 0 ? drumMarks({ hits, cycles, cycle: P, groups: byClass ? drumClasses : drumBands, byClass }) : []),
+    [clockShowDrums, hits, cycles, P, byClass, drumClasses, drumBands]
   );
   useClockPointer({ svgRef, geo, cycles, win, wholeSong, active: side > 0 });
 
@@ -127,7 +129,7 @@ export default function ClockPane({ duration }) {
       <div className="clock-bar">
         <span className="clock-title"><IconClock /><span className="clock-title-text"> Rhyme Clock</span></span>
         <Segmented size="sm" value={clockRings} onChange={setClockRings} options={RINGS_SEG} ariaLabel="Rings shown" />
-        <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, W + 1)}–${Math.min(cycles.count, W + rings)}${follow ? "" : " · frozen"}` : ""}</span>
+        <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, Wi + 1)}–${Math.min(cycles.count, Wi + rings)}${follow ? "" : " · frozen"}` : ""}</span>
         <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
           title={follow
             ? "Following the playhead: the rings shift with it and words appear as they are played. Click to freeze the rings where they are."
@@ -149,10 +151,10 @@ export default function ClockPane({ duration }) {
             <text className="clock-note" x={side / 2} y={side / 2} textAnchor="middle" fill="#888">No bar grid for this song</text>
           ) : (
             <>
-              <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} currentRing={current} />
-              <ClockLines spans={spans} geo={geo} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
+              <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} />
+              <ClockLines spans={spans} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
-              <ClockWords marks={marks} geo={geo} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
+              <ClockWords marks={marks} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
             </>
           )}

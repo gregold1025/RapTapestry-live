@@ -1,51 +1,49 @@
 // src/components/ClockPane/useClockWindow.js
-// The clock's window over the song, and its per-frame work. W = the cycle on
-// the outermost ring; the current ring is the playhead's. Follow keeps the
-// playhead's ring at the middle (with an even count of rings, the larger of
-// the two middle rings: followIndex); Freeze holds W and lets the current
-// ring move with the playhead, and Follow brings it back to the middle. Per
-// frame, with no React re-render: the hand turns, and while following and
-// playing, marks the playhead has not reached are faint. React state changes
-// only when a cycle boundary is crossed or the user acts.
-import { useCallback, useEffect, useRef, useState } from "react";
+// The clock's window over the song and its per-frame drawing. W (in cycles,
+// fractional) is the song position at the spiral's outer end. Follow moves W
+// with the playhead, so the playhead stays halfway round the middle ring and
+// the spiral expands outward without turning; Freeze holds W (a drag pans it).
+// Each frame, without a React re-render: the spiral and everything on it are
+// redrawn when W moves (clockDraw), the hand turns, and marks fade (ahead of
+// the playhead while following; at the spiral's ends). React state changes
+// only when W crosses a whole cycle (which cycles are drawn) or the playhead
+// enters a new cycle (the drums, the glow).
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
-import { syncWindow, followIndex, revealOpacity, clampWindow, reanchorWindow } from "./clockGeometry";
+import { songPos, syncWindow, reanchorWindow } from "./clockGeometry";
+import { drawSpiral, drawGlow, drawOpacity } from "./clockDraw";
 
-export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
+export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo }) {
   const { subscribePlayhead, getPlayheadTime, isPlaying } = useAudioEngine();
   const [follow, setFollow] = useState(true);
-  const [win, setWin] = useState({ W: 0, current: null });
+  const [win, setWin] = useState({ Wi: 0, P: -1 });
 
   const S = useRef(null);
-  if (!S.current) S.current = { W: 0, current: null };
+  if (!S.current) S.current = { W: 0, Wi: 0, P: -1, drawnW: NaN, glowKey: "" };
   const st = S.current;
-  st.follow = follow; st.playing = isPlaying; st.cycles = cycles; st.rings = rings; st.wholeSong = wholeSong;
-  st.W = win.W; st.current = win.current;
+  st.follow = follow; st.playing = isPlaying; st.cycles = cycles; st.rings = rings; st.wholeSong = wholeSong; st.geo = geo;
 
-  const frame = useCallback((t) => {
+  const frame = useCallback((t, force = false) => {
     const s = S.current;
-    if (!s.cycles || s.cycles.count === 0) return;
+    if (!s.cycles || s.cycles.count === 0 || !s.geo) return;
     const P = s.cycles.cycleOf(t);
-    const r = syncWindow({ follow: s.follow, W: s.W, P, index: followIndex(s.rings), rings: s.rings, wholeSong: s.wholeSong });
-    if (r.W !== s.W || r.current !== s.current) {
-      s.W = r.W; s.current = r.current;
-      setWin({ W: r.W, current: r.current });
-    }
+    s.W = syncWindow({ follow: s.follow, W: s.W, U: songPos(s.cycles, t), rings: s.rings, wholeSong: s.wholeSong });
+    const Wi = s.wholeSong ? 0 : Math.floor(s.W);
+    if (Wi !== s.Wi || P !== s.P) { s.Wi = Wi; s.P = P; setWin({ Wi, P }); }
     const svg = svgRef.current;
     if (!svg) return;
+    if (force || s.W !== s.drawnW) { drawSpiral(svg, { W: s.W, geo: s.geo, wholeSong: s.wholeSong }); s.drawnW = s.W; }
+    const glowKey = `${s.W}|${P}`;
+    if (force || glowKey !== s.glowKey) { drawGlow(svg, { W: s.W, P, geo: s.geo }); s.glowKey = glowKey; }
     const hand = svg.querySelector("[data-hand]");
     if (hand) {
-      if (r.current == null) hand.setAttribute("visibility", "hidden");
+      if (P < 0) hand.setAttribute("visibility", "hidden");
       else {
         hand.setAttribute("visibility", "visible");
         hand.setAttribute("transform", `rotate(${(s.cycles.fracOf(t) * 360).toFixed(2)} ${hand.dataset.cx} ${hand.dataset.cy})`);
       }
     }
-    for (const el of svg.querySelectorAll("[data-start]")) {
-      const ring = el.dataset.ring != null ? +el.dataset.ring : r.current;   // drums are the current cycle
-      const o = revealOpacity({ follow: s.follow, playing: s.playing, ring, current: r.current, start: +el.dataset.start, t });
-      if (el.dataset.o !== String(o)) { el.dataset.o = String(o); el.style.opacity = o === 1 ? "" : String(o); }
-    }
+    drawOpacity(svg, { follow: s.follow, playing: s.playing, t, W: s.W, rings: s.rings, wholeSong: s.wholeSong });
   }, [svgRef]);
 
   // a new cycle length, or leaving whole song, while frozen: keep the window's place in the song
@@ -55,25 +53,25 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef }) {
     prev.current = { cycles, wholeSong };
     if (p.cycles === cycles && p.wholeSong === wholeSong) return;
     if (s.follow || wholeSong) return;   // Follow and whole song set the window themselves
-    const P = cycles.cycleOf(getPlayheadTime());
-    const W = reanchorWindow({ W: s.W, oldCycles: p.cycles, newCycles: cycles, P, index: followIndex(rings), rings, leftWholeSong: p.wholeSong && !wholeSong });
-    if (W !== s.W) { s.W = W; setWin((w) => ({ ...w, W })); }
-  }, [cycles, wholeSong, rings, getPlayheadTime]);
+    const t = getPlayheadTime();
+    s.W = reanchorWindow({ W: s.W, oldCycles: p.cycles, newCycles: cycles, U: songPos(cycles, t), rings, leftWholeSong: p.wholeSong && !wholeSong });
+    frame(t, true);
+  }, [cycles, wholeSong, rings, getPlayheadTime, frame]);
 
   useEffect(() => subscribePlayhead(frame), [subscribePlayhead, frame]);
-  // after every render (new marks, new window, mode changes): bring the DOM up to date
-  useEffect(() => { frame(getPlayheadTime()); });
+  // after every render (new marks, sizes, modes), before paint: draw everything for the current window
+  useLayoutEffect(() => { frame(getPlayheadTime(), true); });
 
-  const panBy = useCallback((k) => {
-    if (!k) return;
+  /** Move the window to W (a drag): freezes. */
+  const panTo = useCallback((W) => {
     const s = S.current;
     s.follow = false;
     setFollow(false);
-    s.W = clampWindow(s.W + k, s.rings, s.cycles?.count ?? 0);
-    setWin((w) => ({ ...w, W: s.W }));
+    s.W = W;
     frame(getPlayheadTime());
   }, [frame, getPlayheadTime]);
   const freeze = useCallback(() => { S.current.follow = false; setFollow(false); }, []);
+  const getW = useCallback(() => S.current.W, []);
 
-  return { W: win.W, current: win.current, follow, setFollow, freeze, panBy };
+  return { Wi: win.Wi, P: win.P, follow, setFollow, freeze, panTo, getW };
 }

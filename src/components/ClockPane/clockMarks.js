@@ -11,18 +11,20 @@ import { sylRange } from "../../utils/phoneMarks";
 export const FORM_DASH = Object.freeze({ word: null, mosaic: "7 4", embedded: "1.5 4", semirhyme: "0.5 3" });
 
 /**
- * @returns {{ id, text, color, dash, hit, form, segments: {ring, f0, f1}[], dots: {ring, frac}[], start }[]}
+ * Marks are placed by song position u = cycle + frac; only the cycles in
+ * [from, to) are kept.
+ * @returns {{ id, text, color, dash, hit, form, segments: {u0, u1}[], dots: {u}[], start }[]}
  */
-export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkColor, texts }) {
+export function wordMarks({ timingWords, visuals, cycles, from, to, words, inkColor, texts }) {
   const out = [];
   if (!timingWords || !cycles || cycles.count === 0) return out;
-  const inView = (cycle) => cycle - W >= 0 && cycle - W < rings;
+  const inView = (cycle) => cycle >= from && cycle < to;
   for (const [id, tw] of timingWords) {
     const vis = visuals?.get(id) ?? null;
     if (words === "query" && !vis) continue;
     const segments = wordSegments(tw.start, tw.end, cycles)
       .filter((s) => inView(s.cycle))
-      .map((s) => ({ ring: s.cycle - W, f0: s.f0, f1: s.f1 }));
+      .map((s) => ({ u0: s.cycle + s.f0, u1: s.cycle + s.f1 }));
     if (!segments.length) continue;
     const dots = [];
     if (vis) {
@@ -30,7 +32,7 @@ export function wordMarks({ timingWords, visuals, cycles, W, rings, words, inkCo
         if (sy.k < (vis.vi0 ?? 0) || sy.k > (vis.vi1 ?? Infinity)) continue;
         const t = ((sy.vStart ?? sy.start) + (sy.vEnd ?? sy.end)) / 2;
         const c = cycles.cycleOf(t);
-        if (c >= 0 && inView(c)) dots.push({ ring: c - W, frac: cycles.fracOf(t) });
+        if (c >= 0 && inView(c)) dots.push({ u: c + cycles.fracOf(t) });
       }
     }
     out.push({
@@ -91,23 +93,23 @@ export function lineMarks({ visualByLineIdx, matchesByQueryId, songModel }) {
 }
 
 /**
- * Where each line lies on the spiral: u = ring + frac from its first word's
- * start to its last word's end (the spiral is continuous, so one stretch),
- * clipped to the rings in view. The intro (before the first bar) is dropped.
+ * Where each line lies on the spiral: song positions (cycle + frac) from its
+ * first word's start to its last word's end (the spiral is continuous, so one
+ * stretch), clipped to the cycles in [from, to). The intro is dropped.
  * @returns {{ li, color, start, u0, u1 }[]}
  */
-export function lineSpans({ lines, timingWords, songModel, cycles, W, rings }) {
+export function lineSpans({ lines, timingWords, songModel, cycles, from, to }) {
   const out = [];
   if (!lines?.length || !timingWords || !cycles || cycles.count === 0) return out;
   const u = (t) => {
     const tt = Math.max(t, cycles.start(0));
-    return cycles.cycleOf(tt) - W + cycles.fracOf(tt);
+    return cycles.cycleOf(tt) + cycles.fracOf(tt);
   };
   for (const { li, color } of lines) {
     const n = songModel?.lines?.[li]?.words?.length ?? 0;
     const first = timingWords.get(`${li}-0`), last = timingWords.get(`${li}-${n - 1}`);
     if (!n || !first || !last) continue;
-    const u0 = Math.max(0, u(first.start)), u1 = Math.min(rings, u(last.end));
+    const u0 = Math.max(from, u(first.start)), u1 = Math.min(to, u(last.end));
     if (!(u1 > u0)) continue;
     out.push({ li, color, start: first.start, u0, u1 });
   }

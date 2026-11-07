@@ -7,7 +7,7 @@ const timingWords = new Map([
   ["0-0", { start: 0.5, end: 1.0, syls: [{ k: 0, start: 0.5, end: 1.0, vStart: 0.5, vEnd: 0.9 }] }],
   ["0-1", { start: 3.0, end: 3.5, syls: [{ k: 0, start: 3.0, end: 3.2, vStart: 3.05, vEnd: 3.15 }, { k: 1, start: 3.2, end: 3.5, vStart: 3.3, vEnd: 3.4 }] }],
 ]);
-const base = { timingWords, visuals: new Map(), cycles, W: 0, rings: 4, words: "all", inkColor: "#666" };
+const base = { timingWords, visuals: new Map(), cycles, from: 0, to: 4, words: "all", inkColor: "#666" };
 
 describe("wordMarks", () => {
   it("draws every word in the ink color, solid, without dots, when no query touches it", () => {
@@ -29,14 +29,14 @@ describe("wordMarks", () => {
     const w = wordMarks({ ...base, visuals }).find((x) => x.id === "0-1");
     expect(w).toMatchObject({ color: "#e00", dash: "7 4", hit: true });
     expect(w.dots).toHaveLength(1);
-    expect(w.dots[0].ring).toBe(1);
-    expect(w.dots[0].frac).toBeCloseTo(cycles.fracOf(3.35));
+    expect(w.dots[0].u).toBeCloseTo(1 + cycles.fracOf(3.35));
   });
 
-  it("keeps only the rings in the window, counted from its outermost cycle", () => {
-    const m = wordMarks({ ...base, W: 1, rings: 1 });
+  it("keeps only the cycles in range, placing each word at its song position (cycle + frac)", () => {
+    const m = wordMarks({ ...base, from: 1, to: 2 });
     expect(m.map((x) => x.id)).toEqual(["0-1"]);
-    expect(m[0].segments[0].ring).toBe(0);
+    expect(m[0].segments[0].u0).toBeCloseTo(1.5);
+    expect(m[0].segments[0].u1).toBeCloseTo(1.75);
   });
 
   it("maps the four forms to the Line Staff's dashes", () => {
@@ -98,13 +98,13 @@ describe("line queries on the clock", () => {
     expect(words.has("1-1")).toBe(false);
   });
 
-  it("places a line on the spiral from its first word's start to its last word's end, inside the window", () => {
+  it("places a line at its song positions, first word's start to last word's end, clipped to the cycles in range", () => {
     const c = makeCycles([0, 2, 4, 6, 8], 1, 8);
     const timingWords = new Map([["0-0", { start: 0.5, end: 1 }], ["0-1", { start: 2.5, end: 3 }]]);
     const sm = { lines: [{ words: w(2) }] };
     const lines = [{ li: 0, color: "#e00" }];
-    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 0, rings: 4 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 0.25, u1: 1.5 }]);
-    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 1, rings: 4 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 0, u1: 0.5 }]);
-    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, W: 2, rings: 2 })).toEqual([]);
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, from: 0, to: 4 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 0.25, u1: 1.5 }]);
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, from: 1, to: 5 })).toEqual([{ li: 0, color: "#e00", start: 0.5, u0: 1, u1: 1.5 }]);
+    expect(lineSpans({ lines, timingWords, songModel: sm, cycles: c, from: 2, to: 4 })).toEqual([]);
   });
 });

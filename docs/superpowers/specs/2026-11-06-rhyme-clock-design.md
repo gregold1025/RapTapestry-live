@@ -185,3 +185,12 @@ Same as the tapestry and the Line Staff (README, "Clicks on the tapestry and the
 
 - One ring: starts at 0.9 × rOuter and steps in 0.05 × rOuter over its turn, so its end clears its start (not to the center).
 - Drums: on / off only (the size setting is gone). Fixed size = each class's Drums-panel size × 1.2 (Greg's 150% clock setting × the Drums panel's 80%), full opacity, never faint. Centers at rOuter + 4 + size/2 + height% × 30 px. The drum band is a fixed 36 px; rOuter = side/2 − 6 − 36 so the glyphs fit in the window.
+
+## The expanding spiral (Greg, 2026-11-06)
+
+- Ends: one ring from 0.9 × rOuter to 2/3 × rOuter; two rings from the rim to rOuter/3; more rings from the rim to the inner hole (0.18 × rOuter).
+- The window W is continuous (cycles, fractional): the song position at the spiral's outer end. A mark at song position u = cycle + frac sits at angle frac and radius r0 − (u − W) × pitch, so as W grows the spiral expands outward without turning.
+- Follow: W = U(t) − (followIndex + 0.5), so the playhead stays halfway round the middle ring. Freeze holds W; a drag pans it continuously (one cycle per turn gap), never jumping from where it started.
+- The ends fade over min(0.35, rings/4) turns (the spiral's line in 8 stepped pieces per end; marks by their middle), so new material fades in at the inner end and old fades out at the outer end; the ends sweep round with the playhead.
+- Drawing: components render elements carrying song positions (data-u0/u1, data-u); clockDraw redraws them when W moves, every frame while following. React re-renders only when W crosses a whole cycle or the playhead enters a new cycle (drums, glow).
+- The glow is the playhead's cycle P where it lies on the visible stretch; drums are P's.
