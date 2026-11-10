@@ -72,9 +72,9 @@ export const ROWS = [
     ] },
 ].map((r) => ({ ...r, label: label(r.key) }));
 
+// each section opens with a short sentence (Greg 2026-11-09)
 export const ONE_SYLLABLE = {
-  text: "A one-syllable word has one vowel and its final consonants, so only the last two columns " +
-    "apply, and its vowel must be the same: it is perfect or loosened, never shifted or truncated.",
+  text: "A one-syllable word has only a vowel and its final consonants. The vowel must be the same, so it is perfect or loosened.",
   rows: [
     { key: "perfect", cells: { stressedVowel: "", internal: "", finalVowel: "same", coda: "same" },
       example: [
@@ -87,6 +87,10 @@ export const ONE_SYLLABLE = {
         ex("blocks", "B L AA1 K S", ["bl"], ["o", "finalVowel"], ["cks", "coda"]),
       ] },
   ].map((r) => ({ ...r, label: label(r.key) })),
+};
+
+export const TWO_SYLLABLES = {
+  text: "A two-syllable foot compares on four columns. Which of them must agree decides its type.",
 };
 
 export const TERMS = [

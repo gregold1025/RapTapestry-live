@@ -205,7 +205,7 @@
 .ri-btn:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
 .ri-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .ri-pop {
-  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.12); --ri-one-line: #4dc3ff; --ri-green: #4cd964; --ri-band: #474747;
+  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.12); --ri-one-line: #4dc3ff; --ri-green: #4cd964; --ri-band: #474747; --ri-black: #111;
   width: min(760px, 100%); max-height: 88vh; overflow: auto; box-sizing: border-box;
   background: #2f2f2f; color: var(--rt-ink); border: 1px solid #4a4a4a; border-radius: 8px; padding: 14px 18px 16px;
   font: 12px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -217,10 +217,8 @@
 .ri-intro { color: var(--rt-muted); margin: 6px 0 12px; }
 .ri-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
 .ri-table th, .ri-table td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid #444; }
-.ri-table thead th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rt-muted); font-weight: 700; }
 .ri-table tbody th { font-weight: 700; white-space: nowrap; }
 .ri-table .is-one { background: var(--ri-one); }
-.ri-table .ri-one-label, .ri-table tbody.ri-type tr:first-child > .ri-one-label { color: var(--ri-one-line); text-transform: none; letter-spacing: 0; font-weight: 600; border-top: 2px solid var(--ri-one-line); }
 .ri-note, .ri-ex { display: block; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--rt-muted); font-size: 10.5px; }
 .ri-ex { font-style: italic; }
 /* one block per type: its rule, its definition, its example pair (spelling, then phones on the axes) */
@@ -230,6 +228,11 @@
 .ri-band > * { background: var(--ri-band); }
 .ri-band > .is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-band); }
 .ri-rule + .ri-word > *, .ri-def + .ri-word > * { padding-top: 8px; }
+/* each section: a short sentence, then its own black column header (Greg 2026-11-09) */
+.ri-table tbody.ri-type .ri-lead > td { padding-top: 14px; padding-bottom: 8px; color: #d6d6da; font-size: 12px; }
+.ri-colhead > th { background: var(--ri-black); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #c9c9cd; font-weight: 700; padding-top: 7px !important; padding-bottom: 7px !important; }
+.ri-colhead > th.ri-blank { background: transparent; }
+.ri-colhead > th.is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-black); border-top: 2px solid var(--ri-one-line); color: var(--ri-one-line); }
 /* faint column lines; a cell spanning columns (text running across them) breaks them there */
 .ri-table th + th, .ri-table th + td, .ri-table td + td { border-left: 1px solid rgba(255, 255, 255, 0.09); }
 .ri-table tbody.ri-type tr:last-child > * { padding-bottom: 12px; }
@@ -240,7 +243,6 @@
 .ri-word td { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .ri-u { text-decoration: underline 2px var(--ri-green); text-underline-offset: 4px; }
 .ri-none { color: #666; }
-.ri-section th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ri-one-line); }
 .ri-ex-inline { font-style: italic; color: var(--rt-muted); }
 .ri-defs { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 14px 0 0; }
 .ri-defs dt { font-weight: 700; }
