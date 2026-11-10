@@ -205,7 +205,7 @@
 .ri-btn:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
 .ri-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .ri-pop {
-  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.12); --ri-one-line: #4dc3ff; --ri-green: #4cd964; --ri-band: #474747; --ri-black: #111;
+  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.06); --ri-one-line: #7fb2c9; --ri-green: #4cd964; --ri-band: #474747; --ri-black: #111;
   width: min(760px, 100%); max-height: 88vh; overflow: auto; box-sizing: border-box;
   background: #2f2f2f; color: var(--rt-ink); border: 1px solid #4a4a4a; border-radius: 8px; padding: 14px 18px 16px;
   font: 12px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -229,8 +229,11 @@
 .ri-band > .is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-band); }
 .ri-rule + .ri-word > *, .ri-def + .ri-word > * { padding-top: 8px; }
 /* each section: a short sentence, then its own black column header (Greg 2026-11-09) */
-.ri-lead { margin: 16px 0 8px; color: #d6d6da; font-size: 12px; }
-.ri-one-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+/* each section: its title, its sentence (centered), then its table */
+.ri-section { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 22px; }
+.ri-section-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; }
+.ri-lead { margin: 0 0 18px; color: #d6d6da; font-size: 12px; }
+.ri-section > .ri-table { text-align: left; }
 .ri-table-one { width: auto; text-align: left; }
 .ri-table-one th, .ri-table-one td { padding-left: 14px; padding-right: 14px; }
 .ri-table .ri-word th { font-weight: 400; }
