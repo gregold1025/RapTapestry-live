@@ -4,10 +4,12 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { BASS_DEFAULTS, DRUM_DEFAULTS, STAFF_DEFAULTS } from "./paramDefaults";
 import { CLOCK_DEFAULTS } from "../components/ClockPane/clockDefaults";
+import { PARAM_KEYS, paramsToApply } from "../session/paramKeys";
 
 const ParamsContext = createContext();
 
@@ -24,6 +26,21 @@ const GLYPH_URLS = Object.values(glyphUrlModules);
 const GLYPH_BY_NAME = Object.fromEntries(Object.entries(glyphUrlModules).map(([k, v]) => [k.split("/").pop().replace(/\.svg$/, ""), v]));
 const GLYPH_NAME_OF = new Map(Object.entries(GLYPH_BY_NAME).map(([n, u]) => [u, n]));
 
+// Glyphs by name for session files (Greg 2026-11-09): "<folder>/<name>" <-> url, over every glyph folder.
+const ASSET_NAME_OF = new Map();
+const ASSET_URL_OF = new Map();
+function registerAssets(modules) {
+  for (const [path, url] of Object.entries(modules)) {
+    const m = path.match(/\/src\/(svg_\w+)\/(.+)\.svg$/);
+    if (!m) continue;
+    const name = `${m[1]}/${m[2]}`;
+    ASSET_NAME_OF.set(url, name);
+    ASSET_URL_OF.set(name, url);
+  }
+}
+const assetNameOf = (url) => (typeof url === "string" ? ASSET_NAME_OF.get(url) ?? null : null);
+const assetUrlOf = (name) => ASSET_URL_OF.get(name) ?? null;
+
 const lineGlyphModules = import.meta.glob("/src/svg_lines/*.svg", {
   eager: true,
   import: "default",
@@ -35,6 +52,9 @@ const dividerModules = import.meta.glob("/src/svg_dividers/*.svg", {
   import: "default",
 });
 const BASS_DIVIDER_URLS = Object.values(dividerModules);
+registerAssets(glyphUrlModules);
+registerAssets(lineGlyphModules);
+registerAssets(dividerModules);
 
 // Safe picker helper
 function pickRandomFrom(list) {
@@ -259,9 +279,7 @@ export function ParamsProvider({ children }) {
     []
   );
 
-  return (
-    <ParamsContext.Provider
-      value={{
+  const value = {
         // tapestry/layout
         rowHeightMode,
         setRowHeightMode,
@@ -434,8 +452,21 @@ export function ParamsProvider({ children }) {
         randomizeDrumGlyph,
         randomizeBassDivider,
         glyphAssets,
-      }}
-    >
+  };
+
+  // Sessions (Greg 2026-11-09): every parameter's value, the defaults being the first render's.
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const defaultsRef = useRef(null);
+  if (!defaultsRef.current) defaultsRef.current = Object.fromEntries(PARAM_KEYS.map((k) => [k, value[k]]));
+  const getParamsSnapshot = useCallback(() => Object.fromEntries(PARAM_KEYS.map((k) => [k, valueRef.current[k]])), []);
+  const applyParamsSnapshot = useCallback((snapshot) => {
+    const next = paramsToApply(snapshot, defaultsRef.current);
+    for (const k of PARAM_KEYS) valueRef.current[`set${k[0].toUpperCase()}${k.slice(1)}`](next[k]);
+  }, []);
+
+  return (
+    <ParamsContext.Provider value={{ ...value, getParamsSnapshot, applyParamsSnapshot, assetNameOf, assetUrlOf }}>
       {children}
     </ParamsContext.Provider>
   );
