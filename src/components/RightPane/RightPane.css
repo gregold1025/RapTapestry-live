@@ -220,13 +220,12 @@
 .ri-table thead th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rt-muted); font-weight: 700; }
 .ri-table tbody th { font-weight: 700; white-space: nowrap; }
 .ri-table .is-one { background: var(--ri-one); }
-.ri-group th { border-bottom: 0; padding-bottom: 2px; }
-.ri-group .ri-one-label { color: var(--ri-one-line); text-transform: none; letter-spacing: 0; font-weight: 600; border-top: 2px solid var(--ri-one-line); border-radius: 4px 4px 0 0; }
+.ri-table .ri-one-label, .ri-table tbody.ri-type tr:first-child > .ri-one-label { color: var(--ri-one-line); text-transform: none; letter-spacing: 0; font-weight: 600; border-top: 2px solid var(--ri-one-line); }
 .ri-note, .ri-ex { display: block; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--rt-muted); font-size: 10.5px; }
 .ri-ex { font-style: italic; }
 /* one block per type: its rule, its definition, its example pair (spelling, then phones on the axes) */
 .ri-table tbody.ri-type th, .ri-table tbody.ri-type td { border-bottom: 0; padding-top: 3px; padding-bottom: 3px; }
-.ri-table tbody.ri-type tr:first-child > * { padding-top: 14px; border-top: 1px solid #4a4a4a; }
+.ri-table tbody.ri-type tr:first-child > * { padding-top: 14px; border-top: 2px solid #8a8a8f; }
 .ri-table tbody.ri-type tr:last-child > * { padding-bottom: 12px; }
 .ri-rule th { font-size: 13px; }
 .ri-rule td { font-weight: 600; }

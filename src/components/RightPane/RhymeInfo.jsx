@@ -7,9 +7,9 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTRO, AXES, ROWS, ONE_SYLLABLE, TERMS, axisPhones, matchedAxes } from "./rhymeTypesInfo";
 
-const one = (a) => (a.oneSyllable ? " is-one" : "");
-
-function TypeBlock({ row, text }) {
+function TypeBlock({ row, text, tint = false }) {
+  // the blue tint marks the one-syllable section's two columns only (Greg 2026-11-09)
+  const one = (a) => (tint && a.oneSyllable ? "is-one" : undefined);
   const matched = new Set(matchedAxes(row));
   return (
     <tbody className="ri-type">
@@ -35,6 +35,31 @@ function TypeBlock({ row, text }) {
   );
 }
 
+/** The chart: one block per two-syllable type, then the one-syllable section, its last two columns in blue. */
+export function RhymeTable() {
+  const cols = AXES.length + 1;
+  return (
+    <table className="ri-table">
+      <thead>
+        <tr>
+          <th>Two syllables</th>
+          {AXES.map((a) => <th key={a.key}>{a.label}{a.note && <span className="ri-note">{a.note}</span>}</th>)}
+        </tr>
+      </thead>
+      {ROWS.map((r) => <TypeBlock key={r.key} row={r} text={r.text} />)}
+      <tbody className="ri-type ri-one-section">
+        <tr className="ri-section">
+          <th>One syllable</th>
+          <th colSpan={2} />
+          <th colSpan={2} className="is-one ri-one-label">one-syllable words: only these two</th>
+        </tr>
+        <tr className="ri-def"><td colSpan={cols}>{ONE_SYLLABLE.text}</td></tr>
+      </tbody>
+      {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={`one-${r.key}`} row={r} tint />)}
+    </table>
+  );
+}
+
 export default function RhymeInfo() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -55,25 +80,7 @@ export default function RhymeInfo() {
             </div>
             <p className="ri-intro">{INTRO} <span className="ri-u">Underlined</span>: what the type requires to agree.</p>
 
-            <table className="ri-table">
-              <thead>
-                <tr className="ri-group">
-                  <th />
-                  <th colSpan={2} />
-                  <th colSpan={2} className="is-one ri-one-label">one-syllable words: only these two</th>
-                </tr>
-                <tr>
-                  <th>Two syllables</th>
-                  {AXES.map((a) => <th key={a.key} className={one(a)}>{a.label}{a.note && <span className="ri-note">{a.note}</span>}</th>)}
-                </tr>
-              </thead>
-              {ROWS.map((r) => <TypeBlock key={r.key} row={r} text={r.text} />)}
-              <tbody className="ri-type">
-                <tr className="ri-section"><th colSpan={AXES.length + 1}>One syllable</th></tr>
-                <tr className="ri-def"><td colSpan={AXES.length + 1}>{ONE_SYLLABLE.text}</td></tr>
-              </tbody>
-              {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={`one-${r.key}`} row={r} />)}
-            </table>
+            <RhymeTable />
 
             <dl className="ri-defs">
               {TERMS.map((t) => <React.Fragment key={t.key}><dt>{t.label}</dt><dd>{t.text} <span className="ri-ex-inline">{t.example}</span></dd></React.Fragment>)}
