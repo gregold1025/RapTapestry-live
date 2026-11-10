@@ -1,7 +1,7 @@
 {
   "format": "rap-tapestry-session",
   "version": 1,
-  "savedAt": "2026-11-10T05:20:10.898Z",
+  "savedAt": "2026-11-10T06:02:00.897Z",
   "song": "93Til",
   "params": {
     "rowHeightMode": "fit",
@@ -9,7 +9,7 @@
     "barsPerRow": 8,
     "timeLayout": "wrap",
     "stemsLayout": "superimposed",
-    "tapestryBackgroundColor": "#ffffff",
+    "tapestryBackgroundColor": "#000000",
     "showVocals": true,
     "vowelColors": {
       "AA": "#00c2a0",
@@ -48,7 +48,7 @@
     "wordInactiveColor": "#9e9ea2",
     "wordInactiveOpacity": 0,
     "wordOpacity": 0.6,
-    "wordMode": "unpitched",
+    "wordMode": "perSyllable",
     "wordThicknessPx": 10,
     "wordCenter": 50,
     "wordBand": {
@@ -71,7 +71,7 @@
     "showLines": true,
     "lineInactiveColor": "#9e9ea2",
     "lineInactiveOpacity": 0,
-    "lineOpacity": 0.3,
+    "lineOpacity": 0.66,
     "lineBand": {
       "lo": 5,
       "hi": 95
@@ -81,24 +81,24 @@
     "showBass": true,
     "bassParams": {
       "rectHeight": 0,
-      "fillColor": "#404b77",
-      "opacity": 0.2,
-      "blur": 1,
-      "thickness": 10,
+      "fillColor": "#bcbe4b",
+      "opacity": 0.51,
+      "blur": 0,
+      "thickness": 4,
       "band": {
         "lo": 0,
         "hi": 50
       },
-      "topper": "none"
+      "topper": "divider"
     },
     "showDrums": true,
     "showDrumGlyphs": true,
     "drumParams": {
       "strokeWeight": 5,
       "tilt": 0,
-      "fillColor": "#000000",
-      "opacity": 0.4,
-      "size": 0.8
+      "fillColor": "#858386",
+      "opacity": 0.62,
+      "size": 0.75
     },
     "drumDetection": "classes",
     "drumBands": {
@@ -187,26 +187,27 @@
     "clockTextPx": 12,
     "clockShowDrums": true,
     "clockShowHand": true,
+    "clockSyllableTicks": "matching",
     "showHorizontalGrid": true,
     "showVerticalGrid": true,
     "glyphStyle": {
       "syllableGlyphUrl": "asset:svg_shapes/flower-star-rectangle-16",
       "drumGlyphUrl": "asset:svg_lines/pattern-checker-board",
-      "bassDividerUrl": "asset:svg_dividers/layered-wave"
+      "bassDividerUrl": "asset:svg_dividers/curve-divider"
     }
   },
   "ui": {
     "lyricsOpen": true,
     "rightOpen": true,
-    "rightView": "queries",
+    "rightView": "params",
     "paramsPanel": "global",
     "staffOpen": true,
-    "staffBars": 4,
+    "staffBars": 2,
     "staffMode": "words",
-    "clockOpen": false,
+    "clockOpen": true,
     "clockFull": false,
     "globalSections": {
-      "tapestry": false,
+      "tapestry": true,
       "staff": false,
       "clock": false
     },
@@ -372,26 +373,6 @@
         "radius": 1
       },
       {
-        "id": "D6rzojUyfAK1EJuR9Y_gT",
-        "kind": "line",
-        "anchorIds": [
-          "27-7"
-        ],
-        "lineIdx": 27,
-        "color": "#24b5e5",
-        "active": true,
-        "createdAt": 1794286282701,
-        "types": {
-          "$set": [
-            "identical",
-            "perfect",
-            "loosened",
-            "assonance"
-          ]
-        },
-        "radius": null
-      },
-      {
         "id": "qLRNsH3zjU5kWdjYYaMal",
         "kind": "word",
         "anchorIds": [
@@ -553,17 +534,17 @@
           "47-3"
         ],
         "color": "#4225e4",
-        "active": true,
+        "active": false,
         "createdAt": 1794286473008,
         "types": {
           "$set": [
             "identical",
             "perfect",
-            "loosened",
-            "assonance"
+            "assonance",
+            "loosened"
           ]
         },
-        "radius": 7
+        "radius": 5
       },
       {
         "id": "LtwbwqldOCp3gcTdaVUQd",
@@ -758,9 +739,28 @@
           ]
         },
         "radius": 3
+      },
+      {
+        "id": "-ac_x81n8853r4FITXQO-",
+        "kind": "word",
+        "anchorIds": [
+          "51-4"
+        ],
+        "color": "#e5249e",
+        "active": true,
+        "createdAt": 1794290203275,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
       }
     ],
-    "focusedId": "CX5EALiDxX782-zIuQ3PX",
+    "focusedId": "Sa2lTZbviqUfWPl_y0MSV",
     "solo": false
   }
 }
