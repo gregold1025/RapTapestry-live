@@ -9,7 +9,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_MENU, ringsFromMenu, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime } from "./clockGeometry";
+import { RINGS_PICK, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime } from "./clockGeometry";
 import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
@@ -18,6 +18,7 @@ import ClockWords from "./ClockWords";
 import { useQueries } from "../../contexts/QueryContext";
 import { makeCycles } from "./clockCycles";
 import ClockFace from "./ClockFace";
+import FitPicker from "../ui/FitPicker";
 import { useClockWindow } from "./useClockWindow";
 import { useClockPointer } from "./useClockPointer";
 import { useQueryActions } from "../../contexts/QueryContext";
@@ -129,9 +130,7 @@ export default function ClockPane({ duration }) {
       <div className="clock-bar">
         <div className="clock-bar-main">
         <span className="clock-title"><IconClock /><span className="clock-title-text"> Rhyme Clock</span></span>
-        <select className="clock-rings" value={String(clockRings)} onChange={(e) => setClockRings(ringsFromMenu(e.target.value))} aria-label="Rings shown" title="Rings shown">
-          {RINGS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        <FitPicker className="clock-rings" options={RINGS_PICK} value={clockRings} onChange={setClockRings} ariaLabel="Rings shown" />
         <span className="clock-where">{cyclesLabel(cycles.count, Wi, rings)}</span>
         <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
           title={follow

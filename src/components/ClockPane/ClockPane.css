@@ -27,7 +27,8 @@
 .clock-bar-end { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
 .clock-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; white-space: nowrap; }
 .clock-title svg { width: 16px; height: 16px; }
-.clock-rings { font: inherit; font-size: 11px; color: var(--rt-ink); background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 4px; cursor: pointer; }
+/* the rings picker: the button row when the bar has room (Greg 2026-11-09); measured: the row needs ~419px with the title hidden, two-digit cycles add ~20px */
+@container (min-width: 450px) { .clock-rings > .ui-seg { display: inline-flex; } .clock-rings > .ui-fit-menu { display: none; } }
 .clock-where { margin-left: auto; color: var(--rt-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
 .clock-link { font: inherit; font-size: 11px; color: var(--rt-muted); background: transparent; border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
 .clock-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }

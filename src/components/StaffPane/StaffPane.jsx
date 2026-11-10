@@ -4,7 +4,8 @@
 // Freeze / Follow control inside it. Opened by the treble clef in the header.
 import React, { useState } from "react";
 import { StaffToolbarSlot } from "./staffSlot";
-import { STAFF_BARS_MENU, barsFromMenu } from "./staffBars";
+import { STAFF_BARS_OPTIONS } from "./staffBars";
+import FitPicker from "../ui/FitPicker";
 import { TapestryLayoutProvider } from "../../contexts/TapestryLayoutContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useUIState } from "../../contexts/UIStateContext";
@@ -21,9 +22,7 @@ export default function StaffPane({ duration }) {
       <div className="staff-bar">
         <div className="staff-bar-main">
           <span className="staff-title"><IconClef /><span className="staff-title-text"> Line Staff</span></span>
-          <select className="staff-bars" value={String(staffBars)} onChange={(e) => setStaffBars(barsFromMenu(e.target.value))} aria-label="Bars in view" title="Bars in view">
-            {STAFF_BARS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <FitPicker className="staff-bars" options={STAFF_BARS_OPTIONS} value={staffBars} onChange={setStaffBars} ariaLabel="Bars in view" />
           <span className="staff-slot" ref={setSlot} />
           <button type="button" className="staff-link" onClick={() => openParamsPanel("global", "staff")} title="Open the Line Staff's settings in the Global panel">settings &rsaquo;</button>
         </div>

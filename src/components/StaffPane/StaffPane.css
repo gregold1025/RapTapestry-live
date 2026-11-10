@@ -12,7 +12,8 @@
 .staff-bar-main > * { flex-shrink: 0; }
 /* x stays pinned at the bar's right end; the rest clips first when the bar is narrow */
 .staff-close { flex-shrink: 0; margin-left: auto; }
-.staff-bars { font: inherit; font-size: 11px; color: var(--rt-ink); background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 4px; cursor: pointer; }
+/* the bars-in-view picker: the button row when the bar has room (Greg 2026-11-09); measured: the row needs ~411px with the title hidden, the place text grows ~75px while following */
+@container (min-width: 500px) { .staff-bars > .ui-seg { display: inline-flex; } .staff-bars > .ui-fit-menu { display: none; } }
 .staff-bar .staff-hint { flex-shrink: 1; }
 .staff-close { font: inherit; font-size: 14px; line-height: 1; color: var(--rt-muted); background: transparent; border: 0; cursor: pointer; padding: 0 4px; }
 .staff-close:hover { color: var(--rt-ink); }
