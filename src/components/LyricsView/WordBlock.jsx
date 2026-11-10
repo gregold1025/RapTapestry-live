@@ -34,7 +34,7 @@ export const WordBlock = React.memo(function WordBlock({ word, lineIdx, wordIdx,
       <span
         className={`word ${isCurrent ? "current" : ""}`}
         onClick={(e) => click(wordId, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey })}
-        onMouseEnter={() => onWordHover?.(word, label, vis && !vis.isAnchor ? { vi0: vis.vi0, vi1: vis.vi1, vowelOnly: vis.vowelOnly } : null, wordId)}
+        onMouseEnter={() => onWordHover?.(word, label, vis && !vis.isAnchor ? { vi0: vis.vi0, vi1: vis.vi1, vowelOnly: vis.vowelOnly, phones: vis.phones } : null, wordId)}
         onMouseLeave={onHoverEnd}
         style={style}
         title={label ? `${label} • click: open its query • cmd: new query • shift: extend • alt: remove` : "Click: query this word • Shift+Click: extend the focused query • Cmd+Click: new query"}

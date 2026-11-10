@@ -1,7 +1,7 @@
 {
   "format": "rap-tapestry-session",
   "version": 1,
-  "savedAt": "2026-11-10T05:01:51.202Z",
+  "savedAt": "2026-11-10T05:20:10.898Z",
   "song": "93Til",
   "params": {
     "rowHeightMode": "fit",
@@ -186,6 +186,7 @@
     "clockWordColor": "#9a9da5",
     "clockTextPx": 12,
     "clockShowDrums": true,
+    "clockShowHand": true,
     "showHorizontalGrid": true,
     "showVerticalGrid": true,
     "glyphStyle": {
@@ -196,7 +197,7 @@
   },
   "ui": {
     "lyricsOpen": true,
-    "rightOpen": false,
+    "rightOpen": true,
     "rightView": "queries",
     "paramsPanel": "global",
     "staffOpen": true,
@@ -247,11 +248,11 @@
           "$set": [
             "identical",
             "perfect",
-            "loosened",
-            "assonance"
+            "assonance",
+            "loosened"
           ]
         },
-        "radius": 10
+        "radius": 6
       },
       {
         "id": "VEZ53PwF6taftNwV3xA3G",
@@ -407,7 +408,7 @@
             "assonance"
           ]
         },
-        "radius": null
+        "radius": 84
       },
       {
         "id": "hXrDfZeG3QyXHjCFQTL9X",
@@ -446,7 +447,7 @@
             "assonance"
           ]
         },
-        "radius": null
+        "radius": 3
       },
       {
         "id": "c03W1sIE5IE7I-3u4dOBr",
@@ -466,7 +467,7 @@
             "assonance"
           ]
         },
-        "radius": 5
+        "radius": 1
       },
       {
         "id": "z7wQBGpnUSQG1ug1-27GF",
@@ -543,7 +544,7 @@
             "assonance"
           ]
         },
-        "radius": null
+        "radius": 10
       },
       {
         "id": "0af3fgEBVejK_Dqx3egbc",
@@ -621,7 +622,7 @@
             "assonance"
           ]
         },
-        "radius": 11
+        "radius": 5
       },
       {
         "id": "aTO0yLjjkQCKqJ1v2EIek",
@@ -637,8 +638,7 @@
           "$set": [
             "identical",
             "perfect",
-            "loosened",
-            "assonance"
+            "loosened"
           ]
         },
         "radius": 1
@@ -668,7 +668,7 @@
         "anchorIds": [
           "85-2"
         ],
-        "color": "#24d8e5",
+        "color": "#2431e5",
         "active": true,
         "createdAt": 1794286632965,
         "types": {
@@ -679,7 +679,7 @@
             "assonance"
           ]
         },
-        "radius": null
+        "radius": 11
       },
       {
         "id": "Qt9hOFCL9Z86pYq-_DWcO",
@@ -737,10 +737,30 @@
             "assonance"
           ]
         },
-        "radius": null
+        "radius": 4
+      },
+      {
+        "id": "Sa2lTZbviqUfWPl_y0MSV",
+        "kind": "word",
+        "anchorIds": [
+          "54-10",
+          "54-11"
+        ],
+        "color": "#24d8e5",
+        "active": true,
+        "createdAt": 1794287843020,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 3
       }
     ],
-    "focusedId": "OQ4xmarm4pjsfRm98iQz5",
+    "focusedId": "CX5EALiDxX782-zIuQ3PX",
     "solo": false
   }
 }

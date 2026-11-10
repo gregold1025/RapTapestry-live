@@ -47,8 +47,20 @@ export function assonantSyllables(m, wordId) {
   return out;
 }
 
+/**
+ * Word w's phones as match m read them: each syllable in the reading the match used (its link's
+ * `ph`), else the word's own (Greg 2026-11-10: says ~ busyness used S IH1 Z, not S EH1 Z).
+ */
+export function phonesAsRead(m, w) {
+  const own = String(w.phones ?? "").split(/\s+/).filter(Boolean);
+  const used = (m.links ?? []).filter((l) => l.wordId === w.id && Array.isArray(l.ph));
+  if (!used.length) return own;
+  const sy = syllabify(own.map((p) => ({ p })));
+  return sy.flatMap((x, k) => used.find((l) => l.k === k)?.ph ?? x.phones.map((y) => y.p));
+}
+
 /** A match's phones in word w: [{ p, on, k, link }]; assonance syllables mark only their vowel. */
 export function matchMarks(m, w) {
   const { vi0, vi1 } = sylRange(m, w);
-  return phoneMarks(w.phones, vi0, vi1, assonantSyllables(m, w.id)).map((x) => ({ ...x, link: x.on ? linkTypeAt(m, w.id, x.k) : null }));
+  return phoneMarks(phonesAsRead(m, w), vi0, vi1, assonantSyllables(m, w.id)).map((x) => ({ ...x, link: x.on ? linkTypeAt(m, w.id, x.k) : null }));
 }

@@ -60,6 +60,7 @@ function wordSyllables(w) {
         coda: ph2.slice(x.v + 1).map(bare),
         // consonants after the vowel up to the next vowel in the word (coda + next onset)
         follow: [...ph2.slice(x.v + 1).map(bare), ...(next ? next.phones.slice(0, next.v).map(bare) : [])],
+        ph: ph2,   // this syllable's phones in this reading, as written (shown when a match uses it)
       };
       // stress and indices from the word's own (first) reading
       if (!per[j]) per[j] = { alts: [], stress: alt.stress, k: x.k, kEnd: x.kEnd };
@@ -132,7 +133,7 @@ function compareFoot(S, q, c, { credit = false, truncated = false } = {}) {
         if (!r) continue;
         const credited = qo.credit || co.credit;
         if (credited && !CREDIT_ALLOWS.includes(r.axes.coda)) continue;
-        const cand = { ...r, credit: credited };
+        const cand = { ...r, credit: credited, cAlts: [...ca] };   // the candidate's readings, step by step
         if (!best || better(cand, best)) best = cand;
       }
       return;
@@ -212,7 +213,7 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
   }
   if (!r) return null;
   let identity = r.soft ? null : r;
-  for (let j = cs.length - 1; j >= 0; j--) all.push({ c: cs[j], row: r.soft ? null : r.row, counted: !r.soft, pickup: false });
+  for (let j = cs.length - 1; j >= 0; j--) all.push({ c: cs[j], row: r.soft ? null : r.row, counted: !r.soft, pickup: false, alt: r.cAlts?.[j] });
   if (!r.soft) footsUsed.push({ head: cs[0].stress >= 1, row: r.row, axes: r.axes, tags: r.tags, i0: cs[0].i, i1: cs[cs.length - 1].i });
   // feet to the left join while they pass; an unstressed candidate holds on the vowel
   let left = cs[0].i;
@@ -222,7 +223,7 @@ function matchAt(song, S, feet, pickups, e, qWords, covered, mode = 'full') {
     if (!sp || !adjacent(sp[sp.length - 1], S[left])) break;
     const rr = footLink(S, F, sp, { credit: 'cross' });   // credit for left feet (Greg 2026-11-06)
     if (!rr) break;
-    for (let j = sp.length - 1; j >= 0; j--) all.push({ c: sp[j], row: rr.soft ? null : rr.row, counted: !rr.soft, pickup: false });
+    for (let j = sp.length - 1; j >= 0; j--) all.push({ c: sp[j], row: rr.soft ? null : rr.row, counted: !rr.soft, pickup: false, alt: rr.cAlts?.[j] });
     if (!rr.soft) { footsUsed.unshift({ head: sp[0].stress >= 1, row: rr.row, axes: rr.axes, tags: rr.tags, i0: sp[0].i, i1: sp[sp.length - 1].i }); if (!identity) identity = rr; }
     left = sp[0].i;
   }
@@ -266,7 +267,8 @@ function toMatch(m, type) {
     end: m.form === 'embedded' ? w1.start + ((m.last.kEnd + 1) * (w1.end - w1.start)) / w1.nSyllables : w1.end,
     vi0: m.first.k, vi1: m.last.kEnd,
     // one entry per covered syllable, left to right: { wordId, k, type, counted, pickup }
-    links: m.all.map((x) => ({ wordId: x.c.w.id, k: x.c.k, kEnd: x.c.kEnd, type: x.type, counted: !!x.counted, pickup: !!x.pickup })),
+    // ph: the syllable's phones in the reading the match used (Greg 2026-11-10: says ~ busyness used S IH1 Z)
+    links: m.all.map((x) => ({ wordId: x.c.w.id, k: x.c.k, kEnd: x.c.kEnd, type: x.type, counted: !!x.counted, pickup: !!x.pickup, ...(x.alt ? { ph: x.alt.ph } : {}) })),
   };
 }
 

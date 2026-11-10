@@ -2,6 +2,10 @@
 import { useState, useCallback, useRef } from "react";
 import { phoneMarks } from "../../../utils/phoneMarks";
 
+/** The phones the footer shows: the match's reading of the word when it is a match (Greg 2026-11-10:
+ *  says ~ busyness used S IH1 Z), else the word's own. */
+export const hoverPhones = (range, own) => range?.phones || own;
+
 /** songModel (optional): the rhyme engine's words, whose phones the matches were made from. */
 export function useHoverInfo(songModel = null) {
   const [hoverData, setHoverData] = useState(null);
@@ -14,7 +18,7 @@ export function useHoverInfo(songModel = null) {
   // (vowelOnly: syllables matched by assonance, only their vowel).
   const setWordHover = useCallback((word, match, range = null, wordId = null) => {
     const own = Array.isArray(word?.phones) ? word.phones[0] : String(word?.phones || "");
-    const phones = (wordId != null && modelRef.current?.byId?.get(wordId)?.phones) || own;
+    const phones = hoverPhones(range, (wordId != null && modelRef.current?.byId?.get(wordId)?.phones) || own);
     // console.log("🔤 Hovered Word:", word?.text);
     // console.log("📞 Phones:", phones);
 

@@ -7,7 +7,7 @@
 // (src/engine). Color = query identity; type and form travel with each
 // visual so layers can style them without a second lookup.
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { sylRange, assonantSyllables } from "../utils/phoneMarks";
+import { sylRange, assonantSyllables, phonesAsRead } from "../utils/phoneMarks";
 import { showsMatch } from "../utils/queryRadius";
 import { useSongData } from "./SongDataContext";
 import { queryReducer, initialQueryState, clickFocuses, restorableQueries } from "./queryReducer";
@@ -95,14 +95,15 @@ export function QueryProvider({ children }) {
           if (prev && !prev.isAnchor && !isAnchor && prev.rank < rank) continue;
           const { vi0, vi1 } = sylRange(m, w);
           const vowelOnly = isAnchor ? [] : [...assonantSyllables(m, w.id)];
-          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, tags: m.tags ?? [], vi0, vi1, vowelOnly, isAnchor, rank, text: m.text });
+          // phones: the word as this match read it (its link's reading), for the hover (Greg 2026-11-10)
+          map.set(w.id, { queryId: q.id, color: q.color, type: m.type, form: m.form, tags: m.tags ?? [], vi0, vi1, vowelOnly, isAnchor, rank, text: m.text, phones: phonesAsRead(m, w).join(" ") });
         }
       }
     }
     const prev = prevVisualRef.current;
     for (const [id, v] of map) {
       const b = prev.get(id);
-      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.vowelOnly.join() === v.vowelOnly.join() && b.tags.join() === v.tags.join()) map.set(id, b);
+      if (b && b.queryId === v.queryId && b.color === v.color && b.type === v.type && b.form === v.form && b.vi0 === v.vi0 && b.vi1 === v.vi1 && b.isAnchor === v.isAnchor && b.phones === v.phones && b.vowelOnly.join() === v.vowelOnly.join() && b.tags.join() === v.tags.join()) map.set(id, b);
     }
     prevVisualRef.current = map;
     return map;
