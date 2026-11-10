@@ -44,6 +44,27 @@ export function wordMarks({ timingWords, visuals, cycles, from, to, words, inkCo
 }
 
 /**
+ * Query syllables against the groove (Greg 2026-11-10): every matched syllable (vi0..vi1) of a
+ * query word or a match whose vowel begins in `cycle`, as a tick in the drum ring at its vowel's
+ * onset (where a syllable lands), in its query's color.
+ * @returns {{ frac, color }[]}
+ */
+export function syllableTicks({ timingWords, visuals, cycles, cycle }) {
+  const out = [];
+  if (!timingWords || !visuals?.size || !cycles || cycles.count === 0 || cycle == null || cycle < 0) return out;
+  for (const [id, vis] of visuals) {
+    const tw = timingWords.get(id);
+    if (!tw) continue;
+    for (const sy of tw.syls ?? []) {
+      if (sy.k < (vis.vi0 ?? 0) || sy.k > (vis.vi1 ?? Infinity)) continue;
+      const t = sy.vStart ?? sy.start;
+      if (cycles.cycleOf(t) === cycle) out.push({ frac: cycles.fracOf(t), color: vis.color });
+    }
+  }
+  return out;
+}
+
+/**
  * One cycle of drum hits, grouped as the drum layer groups them (classes, or
  * bands when the song has no classifier output). Unnamed onsets ("other")
  * keep their frequency band as a small height nudge, as in DrumsGlyphs.

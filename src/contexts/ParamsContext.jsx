@@ -220,6 +220,7 @@ export function ParamsProvider({ children }) {
   const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
   const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
   const [clockShowHand, setClockShowHand] = useState(CLOCK_DEFAULTS.showHand);   // the playhead hand (Greg 2026-11-10)
+  const [clockSyllableTicks, setClockSyllableTicks] = useState(CLOCK_DEFAULTS.syllableTicks);   // query syllables in the drum ring (Greg 2026-11-10)
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -438,6 +439,7 @@ export function ParamsProvider({ children }) {
         clockTextPx, setClockTextPx,
         clockShowDrums, setClockShowDrums,
         clockShowHand, setClockShowHand,
+        clockSyllableTicks, setClockSyllableTicks,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

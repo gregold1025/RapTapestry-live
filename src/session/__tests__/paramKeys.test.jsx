@@ -22,6 +22,7 @@ describe("the parameters in a session", () => {
   });
   it("includes the clock's playhead switch (Greg 2026-11-10)", () => {
     expect(PARAM_KEYS).toContain("clockShowHand");
+    expect(PARAM_KEYS).toContain("clockSyllableTicks");
   });
   it("takes the file's value, else the default", () => {
     expect(paramsToApply({ staffTextPx: 20 }, { staffTextPx: 12, gridLevel: 2 }, ["staffTextPx", "gridLevel"])).toEqual({ staffTextPx: 20, gridLevel: 2 });

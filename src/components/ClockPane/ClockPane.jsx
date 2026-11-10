@@ -9,8 +9,8 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_PICK, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime } from "./clockGeometry";
-import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
+import { RINGS_PICK, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime, polar } from "./clockGeometry";
+import { wordMarks, drumMarks, lineMarks, lineSpans, syllableTicks } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
@@ -58,7 +58,7 @@ export default function ClockPane({ duration }) {
   const bodyRef = useRef(null);
   const side = useBodySide(bodyRef);
   const { clockFull: full, setClockFull: setFull } = useUIState();   // in the UI state, so a session keeps it
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockShowHand, drumClasses, drumBands } = useParams();
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockShowHand, clockSyllableTicks, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();
   const { songModel, timing, lyricTranscription } = useSongData();
@@ -96,6 +96,11 @@ export default function ClockPane({ duration }) {
   const marks = useMemo(
     () => wordMarks({ timingWords: timing?.words, visuals, cycles, from, to, words: clockWords, inkColor: clockWordColor, texts }),
     [timing, visuals, cycles, from, to, clockWords, clockWordColor, texts]
+  );
+  // query syllables against the groove: ticks in the drum ring for the current cycle (Greg 2026-11-10)
+  const ticks = useMemo(
+    () => (clockSyllableTicks && P >= 0 ? syllableTicks({ timingWords: timing?.words, visuals, cycles, cycle: P }) : []),
+    [clockSyllableTicks, P, timing, visuals, cycles]
   );
   const spans = useMemo(
     () => lineSpans({ lines: lineQ.lines, timingWords: timing?.words, songModel, cycles, from, to }),
@@ -160,6 +165,14 @@ export default function ClockPane({ duration }) {
             <>
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} />
               <ClockLines spans={spans} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
+              {ticks.length > 0 && (
+                <g pointerEvents="none" data-syllable-ticks="">
+                  {ticks.map((tk, i) => {
+                    const a = polar(geo.cx, geo.cy, geo.rOuter + 2, tk.frac), b = polar(geo.cx, geo.cy, geo.rOuter + 11, tk.frac);
+                    return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={tk.color} strokeWidth={2} strokeLinecap="round" />;
+                  })}
+                </g>
+              )}
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
               {clockShowHand && <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />}

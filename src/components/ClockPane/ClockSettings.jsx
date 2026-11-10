@@ -11,7 +11,7 @@ export default function ClockSettings() {
   const {
     clockCycleBars, setClockCycleBars, clockRings, setClockRings,
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
-    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockShowHand, setClockShowHand,
+    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockShowHand, setClockShowHand, clockSyllableTicks, setClockSyllableTicks,
   } = useParams();
   const { clockOpen, toggleClock } = useUIState();
   return (
@@ -32,6 +32,10 @@ export default function ClockSettings() {
       <div className="pn-field">
         <span className="pn-field-label">drums</span>
         <Segmented value={clockShowDrums} onChange={setClockShowDrums} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
+      </div>
+      <div className="pn-field">
+        <span className="pn-field-label">query syllables in the drum ring</span>
+        <Segmented value={clockSyllableTicks} onChange={setClockSyllableTicks} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
       </div>
       <div className="pn-field">
         <span className="pn-field-label">playhead</span>

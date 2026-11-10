@@ -9,4 +9,5 @@ export const CLOCK_DEFAULTS = Object.freeze({
   textPx: 12,
   showDrums: true,
   showHand: true,             // the red playhead hand (Greg 2026-11-10: the glows may be enough)
+  syllableTicks: true,        // query syllables as small ticks in the drum ring (Greg 2026-11-10)
 });
