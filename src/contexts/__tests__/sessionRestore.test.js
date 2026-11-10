@@ -2,7 +2,7 @@
 // queries whose words are gone dropped and counted, and the stem mix.
 import { describe, it, expect } from "vitest";
 import { undoable, RESET } from "../undoable";
-import { restorableQueries } from "../queryReducer";
+import { restorableQueries, DEFAULT_TYPES } from "../queryReducer";
 import { stemMixReducer, initialStemMix } from "../stemMixReducer";
 
 const counter = (s, a) => (a.type === "inc" ? s + 1 : s);
@@ -27,7 +27,7 @@ describe("restoring a session", () => {
     const r = restorableQueries(qs, (id) => id === "w1" || id === "w2", 5);
     expect(r.dropped).toBe(2);
     expect(r.queries.map((q) => q.id)).toEqual(["a", "c", "e"]);
-    expect(r.queries[2]).toEqual(qs[4]);
+    expect(r.queries[2]).toMatchObject(qs[4]);   // its own fields kept (missing ones repaired)
   });
   it("tolerates a missing or broken query list", () => {
     expect(restorableQueries(null, () => true, 5)).toEqual({ queries: [], dropped: 0 });
@@ -38,5 +38,19 @@ describe("restoring a session", () => {
     expect(s.muted).toEqual({ vocals: true, drums: false, bass: false, other: false });
     expect(s.soloed).toBe("drums");
     expect(s.visible).toEqual({ vocals: true, drums: true, bass: true, other: true });
+  });
+  it("repairs what a hand-edited file gets wrong, so drawing never crashes (review fix)", () => {
+    const qs = [
+      { id: "a", kind: "word", anchorIds: ["w1"], types: ["perfect"], radius: "far", active: "yes" },
+      { id: "b", kind: "word", anchorIds: ["w1"] },
+    ];
+    const [a, b] = restorableQueries(qs, () => true, 5).queries;
+    expect(a.types).toEqual(new Set(["perfect"]));
+    expect([a.radius, a.active]).toEqual([null, true]);
+    expect(b.types).toEqual(new Set(DEFAULT_TYPES));
+    expect(typeof b.color).toBe("string");
+    expect(b.color).not.toBe(a.color ?? "");
+    const ok = { id: "c", kind: "word", anchorIds: ["w1"], types: new Set(["perfect"]), color: "#123456", radius: 2, active: false };
+    expect(restorableQueries([ok], () => true, 5).queries[0]).toEqual(ok);
   });
 });

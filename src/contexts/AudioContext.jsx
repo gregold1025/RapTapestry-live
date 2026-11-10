@@ -63,6 +63,12 @@ export function AudioProvider({ audioFiles, children }) {
     return () => refs.vocals?.removeEventListener("loadedmetadata", onMeta);
   }, [audioFiles]);
 
+  // Keep every audio element at the current volume. Runs after the elements are made, and again
+  // when a session load sets the volume before they exist (its effect runs first) (review fix).
+  useEffect(() => {
+    Object.values(audioRefs.current).forEach((a) => { a.volume = volume; });
+  }, [volume, audioFiles]);
+
   // rAF loop: update ref + emit to subscribers. NO setState here.
   useEffect(() => {
     if (!isPlaying) return;

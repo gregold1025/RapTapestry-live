@@ -64,7 +64,14 @@ export function restorableQueries(queries, hasWord, lineCount) {
   const ok = (q) => !!q && typeof q.id === "string" && Array.isArray(q.anchorIds) && (q.kind === "line"
     ? Number.isInteger(q.lineIdx) && q.lineIdx >= 0 && q.lineIdx < lineCount
     : q.anchorIds.length > 0 && q.anchorIds.every(hasWord));
-  const kept = queries.filter(ok);
+  // repair what a hand-edited file may get wrong, so drawing never meets a bad query (review fix)
+  const colors = [];
+  const kept = queries.filter(ok).map((q) => {
+    const types = q.types instanceof Set ? q.types : Array.isArray(q.types) ? new Set(q.types) : new Set(DEFAULT_TYPES);
+    const color = typeof q.color === "string" && q.color ? q.color : generateDistinctColor([...colors, ...queries.map((x) => x?.color).filter((c) => typeof c === "string")]);
+    colors.push(color);
+    return { ...q, types, color, radius: typeof q.radius === "number" ? q.radius : null, active: typeof q.active === "boolean" ? q.active : true };
+  });
   return { queries: kept, dropped: queries.length - kept.length };
 }
 

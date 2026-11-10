@@ -96,7 +96,7 @@ export function SessionBridge({ songId }) {
     setVolume(pending.mix?.volume ?? 1);
     setLoop(pending.loop ? { ...NO_LOOP, ...pending.loop } : NO_LOOP);
     const notes = [...(pending.notes ?? [])];
-    if (dropped) notes.push(`${dropped} ${dropped === 1 ? "query" : "queries"} no longer fit this song and were left out`);
+    if (dropped) notes.push(dropped === 1 ? "1 query no longer fits this song and was left out" : `${dropped} queries no longer fit this song and were left out`);
     markApplied(`Loaded ${songId} session${notes.length ? ` (${notes.join("; ")})` : ""}`);
   }, [pending, songId, applyQuerySnapshot, setVolume, setLoop, stopAll, markApplied]);
 
