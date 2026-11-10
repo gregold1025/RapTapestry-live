@@ -22,6 +22,10 @@ export function AudioProvider({ audioFiles, children }) {
 
   // Loop section: on/off + [start, end]. The rAF tick reads it from a ref.
   const [loop, setLoopState] = useState({ on: false, start: 0, end: 0 });
+  // the master volume (0..1), here so a session keeps it (Greg 2026-11-09)
+  const [volume, setVolumeState] = useState(1);
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
   const loopRef = useRef(loop);
   loopRef.current = loop;
 
@@ -50,6 +54,7 @@ export function AudioProvider({ audioFiles, children }) {
     const refs = {};
     for (let [key, src] of Object.entries(audioFiles)) {
       refs[key] = new Audio(src);
+      refs[key].volume = volumeRef.current;
     }
     audioRefs.current = refs;
 
@@ -92,6 +97,11 @@ export function AudioProvider({ audioFiles, children }) {
     setIsPlaying(true);
   }, [emitPlayhead]);
 
+  const setVolume = useCallback((v) => {
+    const x = Math.max(0, Math.min(1, Number(v) || 0));
+    setVolumeState(x);
+    Object.values(audioRefs.current).forEach((a) => { a.volume = x; });
+  }, []);
   const setLoop = useCallback((patch) => setLoopState((prev) => ({ ...prev, ...(typeof patch === "function" ? patch(prev) : patch) })), []);
 
   const pauseAll = useCallback(() => {
@@ -133,8 +143,12 @@ export function AudioProvider({ audioFiles, children }) {
       getPlayheadTime,
       loop,
       setLoop,
+      volume,
+      setVolume,
     }),
     [
+      volume,
+      setVolume,
       isPlaying,
       duration,
       playAll,

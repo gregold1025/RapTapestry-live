@@ -5,6 +5,7 @@
 // bars-in-view.
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { INITIAL_SECTIONS, toggleSection, focusSection } from "./globalSections";
+import { UI_KEYS, uiToApply } from "../session/uiKeys";
 
 const UIStateContext = createContext(null);
 
@@ -26,6 +27,8 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   const [staffBars, setStaffBars] = useState(4);
   const [staffMode, setStaffMode] = useState("words"); // "words" | "spelled" | "syllables"
   const [clockOpen, setClockOpen] = useState(false);   // the Rhyme Clock overlay
+  const [clockFull, setClockFull] = useState(false);   // the clock at full size over the stage
+  const [matchGroupBy, setMatchGroupBy] = useState("time");   // the focused query's matches: "time" | "type"
   // Global's collapsible submenus (tapestry, Line Staff, Rhyme Clock); focus = the last one a
   // pane's settings button asked for, with a counter so the panel scrolls to it every time
   const [globalSections, setGlobalSections] = useState(INITIAL_SECTIONS);
@@ -46,9 +49,22 @@ export function UIStateProvider({ children, initialRightView = "params", initial
   // A click that makes or opens a query brings the Queries view forward.
   const openQueries = useCallback(() => { setRightView("queries"); setRightOpen(true); }, []);
 
+  // Sessions (Greg 2026-11-09): the view's keys, the defaults being the first render's.
+  const current = { lyricsOpen, rightOpen, rightView, paramsPanel, staffOpen, staffBars, staffMode, clockOpen, clockFull, globalSections, matchGroupBy };
+  const currentRef = useRef(current);
+  currentRef.current = current;
+  const defaultsRef = useRef(null);
+  if (!defaultsRef.current) defaultsRef.current = current;
+  const setters = { setLyricsOpen, setRightOpen, setRightView, setParamsPanel, setStaffOpen, setStaffBars, setStaffMode, setClockOpen, setClockFull, setGlobalSections, setMatchGroupBy };
+  const getUISnapshot = useCallback(() => Object.fromEntries(UI_KEYS.map((k) => [k, currentRef.current[k]])), []);
+  const applyUISnapshot = useCallback((snapshot) => {
+    const next = uiToApply(snapshot, defaultsRef.current);
+    for (const k of UI_KEYS) setters[`set${k[0].toUpperCase()}${k.slice(1)}`](next[k]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- state setters are stable
+
   const value = useMemo(
-    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, openQueries, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode, clockOpen, setClockOpen, toggleClock, globalSections, toggleGlobalSection, globalFocus }),
-    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, openQueries, staffOpen, toggleStaff, staffBars, staffMode, clockOpen, toggleClock, globalSections, toggleGlobalSection, globalFocus]
+    () => ({ lyricsOpen, setLyricsOpen, toggleLyrics, rightView, setRightView, rightOpen, setRightOpen, toggleRightView, paramsPanel, setParamsPanel, openParamsPanel, openQueries, staffOpen, setStaffOpen, toggleStaff, staffBars, setStaffBars, staffMode, setStaffMode, clockOpen, setClockOpen, toggleClock, clockFull, setClockFull, globalSections, setGlobalSections, toggleGlobalSection, globalFocus, matchGroupBy, setMatchGroupBy, getUISnapshot, applyUISnapshot }),
+    [lyricsOpen, toggleLyrics, rightView, rightOpen, toggleRightView, paramsPanel, openParamsPanel, openQueries, staffOpen, toggleStaff, staffBars, staffMode, clockOpen, toggleClock, clockFull, globalSections, toggleGlobalSection, globalFocus, matchGroupBy, getUISnapshot, applyUISnapshot]
   );
   return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }

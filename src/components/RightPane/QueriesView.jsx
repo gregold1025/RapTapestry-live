@@ -5,9 +5,10 @@
 // The focused query's header: a click (not on its color or solo button) scrubs to the query;
 // solo hides the other queries. A click on a match in the lyrics or the tapestry opens its query
 // here with that match highlighted.
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
+import { useUIState } from "../../contexts/UIStateContext";
 import { RHYME_TYPES, TYPE_BY_KEY } from "../../engine";
 import RhymeInfo from "./RhymeInfo";
 import { matchLabel, tagsText } from "../../utils/matchLabel";
@@ -63,7 +64,7 @@ function countsOf(ms) {
 export default function QueriesView() {
   const { queries, focusedId, focused, highlight, selectMatch, solo, toggleSolo, matchesByQueryId, songModel, focus, toggleActive, remove, clear, setTypes, setRadius, setColor, undo, redo, canUndo, canRedo } = useQueries();
   const { seekAll } = useAudioControls();
-  const [groupBy, setGroupBy] = useState("time");
+  const { matchGroupBy: groupBy, setMatchGroupBy: setGroupBy } = useUIState();   // in the UI state, so a session keeps it
 
   const rows = [...queries].sort((a, b) => b.createdAt - a.createdAt);
   // the focused query's matches inside its search radius (the chips count these)

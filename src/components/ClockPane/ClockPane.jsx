@@ -57,7 +57,7 @@ const IconShrink = () => (
 export default function ClockPane({ duration }) {
   const bodyRef = useRef(null);
   const side = useBodySide(bodyRef);
-  const [full, setFull] = useState(false);
+  const { clockFull: full, setClockFull: setFull } = useUIState();   // in the UI state, so a session keeps it
   const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();

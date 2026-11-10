@@ -1,6 +1,6 @@
 // src/components/AudioControlsView/index.jsx
 // One-row transport for the header: play/pause, stop, scrubber, time, volume.
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { PlayPauseButton } from "./UIElements/PlayPauseButton";
 import { StopButton } from "./UIElements/StopButton";
@@ -11,14 +11,9 @@ import { isTypingTarget } from "../../utils/isTypingTarget";
 import "./AudioControlsView.css";
 
 export default function AudioControlsView() {
-  const { audioRefs, isPlaying, duration, playAll, pauseAll, stopAll, seekAll } = useAudioEngine();
-  const [volume, setVolume] = useState(1.0);
+  const { isPlaying, duration, playAll, pauseAll, stopAll, seekAll, volume, setVolume } = useAudioEngine();   // volume: in the audio context, so a session keeps it
 
-  const handleVolumeChange = (e) => {
-    const v = parseFloat(e.target.value);
-    setVolume(v);
-    Object.values(audioRefs.current).forEach((a) => { a.volume = v; });
-  };
+  const handleVolumeChange = (e) => setVolume(parseFloat(e.target.value));
 
   // Spacebar is always play / pause, wherever focus landed (a word, a button, a
   // slider), except while typing in a text field.
