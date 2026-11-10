@@ -27,6 +27,15 @@ export function stemMixReducer(state, action) {
       }
       return { ...state, soloed: action.stem };
     }
+    case "restore": {
+      // a session load (Greg 2026-11-09): the file's mix, defaults for what it lacks
+      const r = action.state ?? {};
+      return {
+        muted: { ...allFalse(), ...(r.muted ?? {}) },
+        soloed: STEMS.includes(r.soloed) ? r.soloed : null,
+        visible: { ...allTrue(), ...(r.visible ?? {}) },
+      };
+    }
     case "setVisible": {
       return { ...state, visible: { ...state.visible, [action.stem]: !!action.visible } };
     }

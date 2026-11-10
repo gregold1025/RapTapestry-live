@@ -55,6 +55,19 @@ function removeQuery(state, id) {
   return { queries, focusedId, highlight: focusedId === state.focusedId ? state.highlight : null };
 }
 
+/**
+ * The queries of a loaded session that this song can still show (Greg 2026-11-09): a word query
+ * whose words are all here, a line query whose line is here; the rest dropped and counted.
+ */
+export function restorableQueries(queries, hasWord, lineCount) {
+  if (!Array.isArray(queries)) return { queries: [], dropped: 0 };
+  const ok = (q) => !!q && typeof q.id === "string" && Array.isArray(q.anchorIds) && (q.kind === "line"
+    ? Number.isInteger(q.lineIdx) && q.lineIdx >= 0 && q.lineIdx < lineCount
+    : q.anchorIds.length > 0 && q.anchorIds.every(hasWord));
+  const kept = queries.filter(ok);
+  return { queries: kept, dropped: queries.length - kept.length };
+}
+
 /** Does this click (click or clickLine) leave a query focused? Not an alt-click, nor a reveal on a free word. */
 export function clickFocuses(state, action, env) {
   if (action.alt) return false;

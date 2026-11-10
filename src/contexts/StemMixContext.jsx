@@ -37,6 +37,9 @@ export function StemMixProvider({ children }) {
       toggleMute: (stem) => dispatch({ type: "toggleMute", stem }),
       toggleSolo: (stem) => dispatch({ type: "toggleSolo", stem }),
       setVisible: (stem, visible) => dispatch({ type: "setVisible", stem, visible }),
+      // sessions (Greg 2026-11-09)
+      getMixSnapshot: () => ({ muted: state.muted, soloed: state.soloed, visible: state.visible }),
+      applyMixSnapshot: (mix) => dispatch({ type: "restore", state: mix }),
     }),
     [state, effectiveMuted]
   );

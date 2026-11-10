@@ -8,11 +8,14 @@
 //     applied without a history step
 export const UNDO = "history/undo";
 export const REDO = "history/redo";
+// a session load: this present, with no past and no future (Greg 2026-11-09)
+export const RESET = "history/reset";
 
 export function undoable(reducer, initialPresent, { limit = 100, transientIf = null } = {}) {
   const initial = { past: [], present: initialPresent, future: [], canUndo: false, canRedo: false, lastKey: null };
   const wrap = (past, present, future, lastKey = null) => ({ past, present, future, canUndo: past.length > 0, canRedo: future.length > 0, lastKey });
   return function historyReducer(state = initial, action) {
+    if (action.type === RESET) return wrap([], action.present, []);
     if (action.type === UNDO) {
       if (!state.past.length) return state;
       const past = state.past.slice(0, -1);

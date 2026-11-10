@@ -10,10 +10,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { sylRange, assonantSyllables } from "../utils/phoneMarks";
 import { showsMatch } from "../utils/queryRadius";
 import { useSongData } from "./SongDataContext";
-import { queryReducer, initialQueryState, clickFocuses } from "./queryReducer";
+import { queryReducer, initialQueryState, clickFocuses, restorableQueries } from "./queryReducer";
 import { visibleQueries, wordQueryInfo } from "../utils/queryView";
 import { useUIState } from "./UIStateContext";
-import { undoable, UNDO, REDO } from "./undoable";
+import { undoable, UNDO, REDO, RESET } from "./undoable";
 import { isTypingTarget } from "../utils/isTypingTarget";
 import { computeMatches, TYPE_RANK } from "../engine";
 import { lineEndMatches } from "../engine/lineRhymes";
@@ -164,6 +164,16 @@ export function QueryProvider({ children }) {
     focus: (id) => dispatch({ type: "focus", id }),
     selectMatch: (h) => dispatch({ type: "highlight", highlight: h }),   // { wordId } or { lineIdx }
     clear: () => dispatch({ type: "clear" }),
+    // sessions (Greg 2026-11-09): the queries as saved, and a load that replaces them with a
+    // fresh undo history, dropping queries whose words or lines this song no longer has
+    getQuerySnapshot: () => ({ queries: stateRef.current.queries, focusedId: stateRef.current.focusedId, solo }),
+    applyQuerySnapshot: (snap) => {
+      const { queries, dropped } = restorableQueries(snap?.queries, (id) => !!songModel?.byId.has(id), songModel?.lines?.length ?? 0);
+      const focusedId = queries.some((q) => q.id === snap?.focusedId) ? snap.focusedId : queries.length ? queries[queries.length - 1].id : null;
+      dispatch({ type: RESET, present: { queries, focusedId, highlight: null } });
+      setSolo(!!snap?.solo);
+      return { dropped };
+    },
   });
 
   const focused = state.queries.find((q) => q.id === state.focusedId) ?? null;
