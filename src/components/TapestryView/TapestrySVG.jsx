@@ -12,6 +12,7 @@ import LoopGlyphs from "./global/LoopGlyphs";
 import StaffVocals from "./staff/StaffVocals";
 import { useUIState } from "../../contexts/UIStateContext";
 import TapestryLayer from "./TapestryLayer";
+import { layerOrder } from "./layerOrder";
 import "./TapestryView.css";
 
 export default function TapestrySVG({
@@ -33,45 +34,43 @@ export default function TapestrySVG({
 
   if (!layout) return <div>Loading layout...</div>;
 
-  // Stacked per-layer SVGs, same z-order as the old single SVG:
-  // bass < lines < words < syllables < drums + grids.
-  return (
-    <>
+  // Stacked per-layer SVGs, bottom to top (layerOrder): the grid first, so every glyph sits on
+  // its lines (Greg 2026-11-10); the Line Staff reveals glyphs with the playhead but always shows
+  // its grid (ScrollController leaves the grid and loop layers unclipped).
+  const layers = {
+    grid: (
+      <TapestryLayer name="grid">
+        <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
+        <HorizontalGrid />
+      </TapestryLayer>
+    ),
+    bass: (
       <TapestryLayer name="bass">
         <BassGlyphs />
       </TapestryLayer>
-      {variant === "staff" ? (
-        <TapestryLayer name="staff-vocals">
-          <StaffVocals mode={staffMode} onGlyphHoverEnter={onGlyphHoverEnter} onGlyphHoverLeave={onGlyphHoverLeave} />
-        </TapestryLayer>
-      ) : (
-        <VocalsGlyphs
-          lyricTranscriptionData={lyricTranscription}
-          onGlyphHoverEnter={onGlyphHoverEnter}
-          onGlyphHoverLeave={onGlyphHoverLeave}
-        />
-      )}
-      {variant === "staff" ? (
-        // the Line Staff reveals glyphs with the playhead but always shows its grid: two layers
-        <>
-          <TapestryLayer name="drums">
-            <DrumsGlyphs />
-          </TapestryLayer>
-          <TapestryLayer name="grid">
-            <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
-            <HorizontalGrid />
-          </TapestryLayer>
-        </>
-      ) : (
-        <TapestryLayer name="drums">
-          <DrumsGlyphs />
-          <DrumGrid drumTranscriptionData={drumTranscription} variant={variant} />
-          <HorizontalGrid />
-        </TapestryLayer>
-      )}
+    ),
+    "staff-vocals": (
+      <TapestryLayer name="staff-vocals">
+        <StaffVocals mode={staffMode} onGlyphHoverEnter={onGlyphHoverEnter} onGlyphHoverLeave={onGlyphHoverLeave} />
+      </TapestryLayer>
+    ),
+    vocals: (
+      <VocalsGlyphs
+        lyricTranscriptionData={lyricTranscription}
+        onGlyphHoverEnter={onGlyphHoverEnter}
+        onGlyphHoverLeave={onGlyphHoverLeave}
+      />
+    ),
+    drums: (
+      <TapestryLayer name="drums">
+        <DrumsGlyphs />
+      </TapestryLayer>
+    ),
+    loop: (
       <TapestryLayer name="loop">
         <LoopGlyphs />
       </TapestryLayer>
-    </>
-  );
+    ),
+  };
+  return <>{layerOrder(variant).map((k) => <React.Fragment key={k}>{layers[k]}</React.Fragment>)}</>;
 }
