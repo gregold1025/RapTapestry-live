@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQueries } from "../../contexts/QueryContext";
 import { useAudioControls } from "../../contexts/AudioContext";
 import { RHYME_TYPES, TYPE_BY_KEY } from "../../engine";
+import RhymeInfo from "./RhymeInfo";
 import { matchLabel, tagsText } from "../../utils/matchLabel";
 import { queryLabel } from "../../utils/queryLabel";
 import { matchMarks } from "../../utils/phoneMarks";
@@ -127,6 +128,7 @@ export default function QueriesView() {
                 {t.label} <b>{counts[t.key] ?? 0}</b>
               </button>
             ))}
+            <RhymeInfo />
             <RadiusSlider q={focused} numBars={songModel?.numBars ?? 1} onChange={(r) => setRadius(focused.id, r)} />
           </div>
 
