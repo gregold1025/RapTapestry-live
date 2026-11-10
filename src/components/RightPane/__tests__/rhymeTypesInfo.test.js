@@ -55,6 +55,10 @@ describe("the rhyme info chart", () => {
       expect([ex.word, covered.filter((k) => present.includes(k))]).toEqual([ex.word, present]);
     }
   });
+  it("every example ends in final consonants, so all four columns are filled (Greg 2026-11-09)", () => {
+    for (const r of ROWS) for (const ex of r.example) expect([ex.word, AX.every((k) => axisPhones(ex.phones)[k])]).toEqual([ex.word, true]);
+    for (const r of ONE_SYLLABLE.rows) for (const ex of r.example) expect([ex.word, !!axisPhones(ex.phones).coda]).toEqual([ex.word, true]);
+  });
   it("defines family and additive", () => {
     expect(TERMS.map((t) => t.key)).toEqual(expect.arrayContaining(["family", "additive"]));
   });
