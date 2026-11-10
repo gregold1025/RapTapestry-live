@@ -11,9 +11,11 @@ import StaffPane from "./StaffPane/StaffPane";
 import ClockPane from "./ClockPane/ClockPane";
 import { stageLayout } from "./ClockPane/stageLayout";
 import { useUIState } from "../contexts/UIStateContext";
+import { useSession } from "../session/SessionContext";
 
 export default function CenterStage({ songKey, duration }) {
   const { staffOpen, clockOpen } = useUIState();
+  const epoch = useSession()?.epoch ?? 0;   // a session load remounts the Line Staff and the clock, so both start in Follow
   const ref = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   useLayoutEffect(() => {
@@ -31,12 +33,12 @@ export default function CenterStage({ songKey, duration }) {
       <div className="rt-stage-top"><TapestryView key={`tapestry-${songKey}`} /></div>
       {bandH > 0 && (
         <div className="rt-stage-bottom" style={{ height: bandH, paddingRight: clockW }}>
-          <StaffPane duration={duration} />
+          <StaffPane key={`staff-${songKey}-${epoch}`} duration={duration} />
         </div>
       )}
       {clockOpen && clockW > 0 && (
         <div className="rt-stage-clock" style={{ "--clock-side": `${clockW}px` }}>
-          <ClockPane key={`clock-${songKey}`} duration={duration} />
+          <ClockPane key={`clock-${songKey}-${epoch}`} duration={duration} />
         </div>
       )}
     </div>

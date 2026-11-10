@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
 import { fetchSongData } from "./utils/fetchSongData";
 import { perfMark } from "./utils/perfMarks";
@@ -12,6 +12,8 @@ import { StemMixProvider } from "./contexts/StemMixContext";
 
 import { SongDataProvider } from "./contexts/SongDataContext";
 import { QueryProvider } from "./contexts/QueryContext";
+import { SessionProvider, SessionBridge } from "./session/SessionContext";
+import { SONGS } from "./components/Shell/AppHeader";
 
 import AppShell from "./components/Shell/AppShell";
 import AppHeader from "./components/Shell/AppHeader";
@@ -38,6 +40,8 @@ function CenteredMessage({ children }) {
     </div>
   );
 }
+
+const SONG_IDS = SONGS.map((s) => s.id);
 
 export default function App() {
   const [selectedSong, setSelectedSong] = useState("Amen");
@@ -70,10 +74,16 @@ export default function App() {
     };
   }, [selectedSong]);
 
-  const handleSongChange = (e) => {
+  const switchSong = useCallback((song) => {
     stopAllRef.current?.();
-    setSelectedSong(e.target.value);
-  };
+    setSelectedSong(song);
+  }, []);
+  const handleSongChange = (e) => switchSong(e.target.value);
+  // sessions (Greg 2026-11-09): the provider sits at the same place in both trees below, so a
+  // pending session survives the song switch it asks for
+  const session = (children) => (
+    <SessionProvider currentSong={selectedSong} songs={SONG_IDS} onSwitchSong={switchSong}>{children}</SessionProvider>
+  );
 
   // songData is only "ready" once it belongs to the currently selected song
   // (avoids one render with new keys but old data; see perf notes).
@@ -103,7 +113,7 @@ export default function App() {
   if (!songReady || loadError) {
     return (
       <UIStateProvider>
-        <ParamsProvider>{loading}</ParamsProvider>
+        <ParamsProvider>{session(loading)}</ParamsProvider>
       </UIStateProvider>
     );
   }
@@ -113,7 +123,8 @@ export default function App() {
   return (
     <UIStateProvider>
       <ParamsProvider>
-        {/* key={selectedSong} ensures a clean re-mount of the audio graph per song */}
+        {session(
+        /* key={selectedSong} ensures a clean re-mount of the audio graph per song */
         <AudioProvider key={selectedSong} audioFiles={audio}>
           <StopAllBinder bindRef={stopAllRef} />
           <StemMixProvider>
@@ -127,6 +138,7 @@ export default function App() {
             bassNotes={bassNotes}
           >
             <QueryProvider key={`queries-${selectedSong}`}>
+                  <SessionBridge songId={selectedSong} />
                   <TapestryLayoutProvider
                     key={`layout-${selectedSong}`}
                     duration={duration}
@@ -145,6 +157,7 @@ export default function App() {
           </SongDataProvider>
           </StemMixProvider>
         </AudioProvider>
+        )}
       </ParamsProvider>
     </UIStateProvider>
   );
