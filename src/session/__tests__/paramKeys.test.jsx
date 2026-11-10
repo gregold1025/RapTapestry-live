@@ -20,6 +20,9 @@ describe("the parameters in a session", () => {
     const values = Object.keys(ctx).filter((k) => typeof ctx[k] !== "function" && k !== "glyphAssets");
     expect(values.filter((k) => !PARAM_KEYS.includes(k))).toEqual([]);
   });
+  it("includes the clock's playhead switch (Greg 2026-11-10)", () => {
+    expect(PARAM_KEYS).toContain("clockShowHand");
+  });
   it("takes the file's value, else the default", () => {
     expect(paramsToApply({ staffTextPx: 20 }, { staffTextPx: 12, gridLevel: 2 }, ["staffTextPx", "gridLevel"])).toEqual({ staffTextPx: 20, gridLevel: 2 });
   });

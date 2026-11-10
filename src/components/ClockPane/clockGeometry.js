@@ -107,7 +107,7 @@ export function songPos(cycles, t) {
 
 // The drum rim's glow (Greg 2026-11-09): a hit has no end, so it is current from its onset until
 // the next onset, at most DRUM_GLOW_HOLD seconds; hits within DRUM_TOGETHER glow together.
-export const DRUM_GLOW_HOLD = 0.2;
+export const DRUM_GLOW_HOLD = 0.08;   // Greg 2026-11-10: 0.2 s lingered too long
 export const DRUM_TOGETHER = 0.03;
 
 /** The onset times (sorted) that glow at time t, as { from, to }; null when none does. */

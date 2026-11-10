@@ -7,8 +7,9 @@ import { drumGlowRange, DRUM_GLOW_HOLD, DRUM_TOGETHER } from "../clockGeometry";
 const times = [1.0, 1.01, 1.5, 2.0];
 
 describe("the drum glow", () => {
-  it("holds 0.2 s at most, grouping hits 30 ms apart", () => {
-    expect([DRUM_GLOW_HOLD, DRUM_TOGETHER]).toEqual([0.2, 0.03]);
+  it("holds 0.08 s at most (Greg 2026-11-10: 0.2 s was too long), grouping hits 30 ms apart", () => {
+    expect([DRUM_GLOW_HOLD, DRUM_TOGETHER]).toEqual([0.08, 0.03]);
+    expect(drumGlowRange([1.0, 2.0], 1.1)).toBeNull();
   });
   it("is nothing before the first hit or after the hold", () => {
     expect(drumGlowRange(times, 0.9)).toBeNull();

@@ -11,7 +11,7 @@ export default function ClockSettings() {
   const {
     clockCycleBars, setClockCycleBars, clockRings, setClockRings,
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
-    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums,
+    clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums, clockShowHand, setClockShowHand,
   } = useParams();
   const { clockOpen, toggleClock } = useUIState();
   return (
@@ -32,6 +32,10 @@ export default function ClockSettings() {
       <div className="pn-field">
         <span className="pn-field-label">drums</span>
         <Segmented value={clockShowDrums} onChange={setClockShowDrums} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
+      </div>
+      <div className="pn-field">
+        <span className="pn-field-label">playhead</span>
+        <Segmented value={clockShowHand} onChange={setClockShowHand} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
       </div>
       <ColorField label="Background" value={clockBackgroundColor} onChange={setClockBackgroundColor} />
       <ColorField label="Words" note="words not in a query" value={clockWordColor} onChange={setClockWordColor} />

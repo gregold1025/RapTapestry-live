@@ -77,6 +77,7 @@ export const PARAM_KEYS = [
   "clockWordColor",
   "clockTextPx",
   "clockShowDrums",
+  "clockShowHand",
   "showHorizontalGrid",
   "showVerticalGrid",
   "glyphStyle",

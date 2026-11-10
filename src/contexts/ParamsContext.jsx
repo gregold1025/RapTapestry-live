@@ -219,6 +219,7 @@ export function ParamsProvider({ children }) {
   const [clockWordColor, setClockWordColor] = useState(CLOCK_DEFAULTS.wordColor);
   const [clockTextPx, setClockTextPx] = useState(CLOCK_DEFAULTS.textPx);
   const [clockShowDrums, setClockShowDrums] = useState(CLOCK_DEFAULTS.showDrums);
+  const [clockShowHand, setClockShowHand] = useState(CLOCK_DEFAULTS.showHand);   // the playhead hand (Greg 2026-11-10)
 
   // — GLOBAL TAPESTRY (grids/background) —
   const [showHorizontalGrid, setShowHorizontalGrid] = useState(true);
@@ -436,6 +437,7 @@ export function ParamsProvider({ children }) {
         clockWordColor, setClockWordColor,
         clockTextPx, setClockTextPx,
         clockShowDrums, setClockShowDrums,
+        clockShowHand, setClockShowHand,
 
         showHorizontalGrid,
         setShowHorizontalGrid,

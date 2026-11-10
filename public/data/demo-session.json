@@ -1,0 +1,746 @@
+{
+  "format": "rap-tapestry-session",
+  "version": 1,
+  "savedAt": "2026-11-10T05:01:51.202Z",
+  "song": "93Til",
+  "params": {
+    "rowHeightMode": "fit",
+    "fixedRowHeightPx": 120,
+    "barsPerRow": 8,
+    "timeLayout": "wrap",
+    "stemsLayout": "superimposed",
+    "tapestryBackgroundColor": "#ffffff",
+    "showVocals": true,
+    "vowelColors": {
+      "AA": "#00c2a0",
+      "AE": "#ffff33",
+      "AH": "#a26dc3",
+      "AO": "#ff4c3b",
+      "AW": "#3790d9",
+      "AY": "#ffa726",
+      "EH": "#79d043",
+      "ER": "#ff87d2",
+      "EY": "#f042c9",
+      "IH": "#b23ec7",
+      "IY": "#a3f9a1",
+      "OW": "#ffd600",
+      "OY": "#3cb6a2",
+      "UH": "#f4511e",
+      "UW": "#5c6bc0"
+    },
+    "syllableStrictness": 0.7,
+    "showSyllables": true,
+    "inactiveSyllableColor": "#9e9ea2",
+    "syllableInactiveOpacity": 0,
+    "syllableOpacity": 0.8,
+    "syllableMode": "pitched",
+    "syllableBand": {
+      "lo": 30,
+      "hi": 85
+    },
+    "syllableFixedHeight": 60,
+    "syllableRadius": 4,
+    "syllableArcCurve": 1,
+    "wildcardSkips": 1,
+    "minMatchLen": 2,
+    "showWords": true,
+    "wordActiveColor": "#00aaff",
+    "wordInactiveColor": "#9e9ea2",
+    "wordInactiveOpacity": 0,
+    "wordOpacity": 0.6,
+    "wordMode": "unpitched",
+    "wordThicknessPx": 10,
+    "wordCenter": 50,
+    "wordBand": {
+      "lo": 30,
+      "hi": 85
+    },
+    "exactMatches": false,
+    "showRhymes": true,
+    "rhymeStrictness": 1,
+    "rhymeSearchDistance": 999,
+    "codaTolerance": 0.65,
+    "alliterationTier": "exact",
+    "alliterationSearchDistance": 999,
+    "showAssonance": false,
+    "assonanceStrictness": 1,
+    "assonanceSearchDistance": 999,
+    "showConsonance": false,
+    "consonanceStrictness": 0.7,
+    "consonanceSearchDistance": 999,
+    "showLines": true,
+    "lineInactiveColor": "#9e9ea2",
+    "lineInactiveOpacity": 0,
+    "lineOpacity": 0.3,
+    "lineBand": {
+      "lo": 5,
+      "hi": 95
+    },
+    "lineShadow": 0,
+    "showEndRhymes": true,
+    "showBass": true,
+    "bassParams": {
+      "rectHeight": 0,
+      "fillColor": "#404b77",
+      "opacity": 0.2,
+      "blur": 1,
+      "thickness": 10,
+      "band": {
+        "lo": 0,
+        "hi": 50
+      },
+      "topper": "none"
+    },
+    "showDrums": true,
+    "showDrumGlyphs": true,
+    "drumParams": {
+      "strokeWeight": 5,
+      "tilt": 0,
+      "fillColor": "#000000",
+      "opacity": 0.4,
+      "size": 0.8
+    },
+    "drumDetection": "classes",
+    "drumBands": {
+      "high": {
+        "visible": true,
+        "size": 10,
+        "opacity": 1,
+        "height": 30,
+        "glyphUrl": null
+      },
+      "mid": {
+        "visible": true,
+        "size": 14,
+        "opacity": 1,
+        "height": 20,
+        "glyphUrl": null
+      },
+      "low": {
+        "visible": true,
+        "size": 16,
+        "opacity": 1,
+        "height": 10,
+        "glyphUrl": null
+      }
+    },
+    "drumClasses": {
+      "hihat": {
+        "visible": true,
+        "size": 9,
+        "opacity": 1,
+        "height": 33,
+        "glyphUrl": null
+      },
+      "cymbal": {
+        "visible": true,
+        "size": 11,
+        "opacity": 1,
+        "height": 33,
+        "glyphUrl": null
+      },
+      "snare": {
+        "visible": true,
+        "size": 14,
+        "opacity": 1,
+        "height": 22,
+        "glyphUrl": null
+      },
+      "tom": {
+        "visible": true,
+        "size": 12,
+        "opacity": 1,
+        "height": 15,
+        "glyphUrl": null
+      },
+      "kick": {
+        "visible": true,
+        "size": 16,
+        "opacity": 1,
+        "height": 10,
+        "glyphUrl": null
+      },
+      "other": {
+        "visible": true,
+        "size": 5,
+        "opacity": 0.6,
+        "height": 35,
+        "glyphUrl": null
+      }
+    },
+    "drumThreshold": 1,
+    "staffDrumScale": 1,
+    "staffBassThickness": 6,
+    "staffTextHeight": 50,
+    "staffTextPx": 12,
+    "staffDrumHeight": 10,
+    "staffBassHeight": 0,
+    "staffBackgroundColor": "#1c1c1c",
+    "staffWordColor": "#ffffff",
+    "staffGridLevel": 2,
+    "gridLevel": 2,
+    "clockCycleBars": 1,
+    "clockRings": 8,
+    "clockWords": "all",
+    "clockBackgroundColor": "#000000",
+    "clockWordColor": "#9a9da5",
+    "clockTextPx": 12,
+    "clockShowDrums": true,
+    "showHorizontalGrid": true,
+    "showVerticalGrid": true,
+    "glyphStyle": {
+      "syllableGlyphUrl": "asset:svg_shapes/flower-star-rectangle-16",
+      "drumGlyphUrl": "asset:svg_lines/pattern-checker-board",
+      "bassDividerUrl": "asset:svg_dividers/layered-wave"
+    }
+  },
+  "ui": {
+    "lyricsOpen": true,
+    "rightOpen": false,
+    "rightView": "queries",
+    "paramsPanel": "global",
+    "staffOpen": true,
+    "staffBars": 4,
+    "staffMode": "words",
+    "clockOpen": false,
+    "clockFull": false,
+    "globalSections": {
+      "tapestry": false,
+      "staff": false,
+      "clock": false
+    },
+    "matchGroupBy": "type"
+  },
+  "mix": {
+    "muted": {
+      "vocals": false,
+      "drums": false,
+      "bass": false,
+      "other": false
+    },
+    "soloed": null,
+    "visible": {
+      "vocals": true,
+      "drums": true,
+      "bass": true,
+      "other": true
+    },
+    "volume": 1
+  },
+  "loop": {
+    "on": false,
+    "start": 0,
+    "end": 0
+  },
+  "queries": {
+    "queries": [
+      {
+        "id": "y32_4pjw53QTID8A3Pjh4",
+        "kind": "word",
+        "anchorIds": [
+          "7-6"
+        ],
+        "color": "#8825e4",
+        "active": true,
+        "createdAt": 1794286011155,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 10
+      },
+      {
+        "id": "VEZ53PwF6taftNwV3xA3G",
+        "kind": "word",
+        "anchorIds": [
+          "11-6",
+          "11-7"
+        ],
+        "color": "#25cee4",
+        "active": true,
+        "createdAt": 1794286041168,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "XxeRxIZ8ntyiRpPXf0JmG",
+        "kind": "word",
+        "anchorIds": [
+          "15-5",
+          "15-6"
+        ],
+        "color": "#e4bb25",
+        "active": true,
+        "createdAt": 1794286059458,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "bfwCT1EzeZ4WLMAvMu2fm",
+        "kind": "word",
+        "anchorIds": [
+          "20-3",
+          "20-4"
+        ],
+        "color": "#e42528",
+        "active": true,
+        "createdAt": 1794286070009,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "Wk0yWIz30qp4U1qcNr45C",
+        "kind": "line",
+        "anchorIds": [
+          "14-5"
+        ],
+        "lineIdx": 14,
+        "color": "#254be4",
+        "active": true,
+        "createdAt": 1794286199483,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "kAR2MTzha1b6ApM1CKRna",
+        "kind": "word",
+        "anchorIds": [
+          "17-1",
+          "17-2",
+          "17-3"
+        ],
+        "color": "#25e475",
+        "active": true,
+        "createdAt": 1794286215291,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "0W8r6pdRt-PbL4DnaYHRa",
+        "kind": "word",
+        "anchorIds": [
+          "24-3"
+        ],
+        "color": "#e425b1",
+        "active": true,
+        "createdAt": 1794286273077,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "D6rzojUyfAK1EJuR9Y_gT",
+        "kind": "line",
+        "anchorIds": [
+          "27-7"
+        ],
+        "lineIdx": 27,
+        "color": "#24b5e5",
+        "active": true,
+        "createdAt": 1794286282701,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "qLRNsH3zjU5kWdjYYaMal",
+        "kind": "word",
+        "anchorIds": [
+          "27-7"
+        ],
+        "color": "#25e425",
+        "active": true,
+        "createdAt": 1794286306402,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "hXrDfZeG3QyXHjCFQTL9X",
+        "kind": "word",
+        "anchorIds": [
+          "25-4",
+          "25-5"
+        ],
+        "color": "#e47225",
+        "active": true,
+        "createdAt": 1794286327169,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "9dZApjObmJ9eMnysCaSR9",
+        "kind": "word",
+        "anchorIds": [
+          "26-4"
+        ],
+        "color": "#c7e425",
+        "active": true,
+        "createdAt": 1794286331960,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "c03W1sIE5IE7I-3u4dOBr",
+        "kind": "word",
+        "anchorIds": [
+          "30-0",
+          "30-1"
+        ],
+        "color": "#e52495",
+        "active": true,
+        "createdAt": 1794286363318,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 5
+      },
+      {
+        "id": "z7wQBGpnUSQG1ug1-27GF",
+        "kind": "word",
+        "anchorIds": [
+          "30-9"
+        ],
+        "color": "#2454e5",
+        "active": true,
+        "createdAt": 1794286370617,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "hOTi3UA_4bDn2wjX2M9k9",
+        "kind": "line",
+        "anchorIds": [
+          "32-6"
+        ],
+        "lineIdx": 32,
+        "color": "#e52424",
+        "active": true,
+        "createdAt": 1794286391913,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "Wm9XIkPhIM5i9mAFm5fg3",
+        "kind": "word",
+        "anchorIds": [
+          "43-2"
+        ],
+        "color": "#24abe5",
+        "active": true,
+        "createdAt": 1794286413451,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "DvVDiwsZXyAYR_ko5BXkR",
+        "kind": "word",
+        "anchorIds": [
+          "45-7"
+        ],
+        "color": "#d125e4",
+        "active": true,
+        "createdAt": 1794286469166,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "0af3fgEBVejK_Dqx3egbc",
+        "kind": "word",
+        "anchorIds": [
+          "47-3"
+        ],
+        "color": "#4225e4",
+        "active": true,
+        "createdAt": 1794286473008,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 7
+      },
+      {
+        "id": "LtwbwqldOCp3gcTdaVUQd",
+        "kind": "word",
+        "anchorIds": [
+          "50-4",
+          "50-5"
+        ],
+        "color": "#25e4b4",
+        "active": true,
+        "createdAt": 1794286501449,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "CX5EALiDxX782-zIuQ3PX",
+        "kind": "word",
+        "anchorIds": [
+          "51-0",
+          "51-1"
+        ],
+        "color": "#7be425",
+        "active": true,
+        "createdAt": 1794286507792,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "e4lNCPg7c8UvZVs2iRXyy",
+        "kind": "word",
+        "anchorIds": [
+          "59-0"
+        ],
+        "color": "#e4255e",
+        "active": true,
+        "createdAt": 1794286540607,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 11
+      },
+      {
+        "id": "aTO0yLjjkQCKqJ1v2EIek",
+        "kind": "word",
+        "anchorIds": [
+          "78-0",
+          "78-1"
+        ],
+        "color": "#57fff4",
+        "active": true,
+        "createdAt": 1794286584016,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "104n9uKo08QiDdQK_to7Q",
+        "kind": "word",
+        "anchorIds": [
+          "79-6"
+        ],
+        "color": "#e44b25",
+        "active": true,
+        "createdAt": 1794286622065,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "d_-HTqOlJ1lqa7vu1go8F",
+        "kind": "word",
+        "anchorIds": [
+          "85-2"
+        ],
+        "color": "#24d8e5",
+        "active": true,
+        "createdAt": 1794286632965,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      },
+      {
+        "id": "Qt9hOFCL9Z86pYq-_DWcO",
+        "kind": "word",
+        "anchorIds": [
+          "87-2"
+        ],
+        "color": "#a1e425",
+        "active": true,
+        "createdAt": 1794286648107,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 3
+      },
+      {
+        "id": "ndHLqdYCfxcfDyj5LKwuF",
+        "kind": "word",
+        "anchorIds": [
+          "89-7"
+        ],
+        "color": "#c524e5",
+        "active": true,
+        "createdAt": 1794286688830,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": 1
+      },
+      {
+        "id": "OQ4xmarm4pjsfRm98iQz5",
+        "kind": "word",
+        "anchorIds": [
+          "83-1",
+          "83-2"
+        ],
+        "color": "#e53724",
+        "active": true,
+        "createdAt": 1794286811487,
+        "types": {
+          "$set": [
+            "identical",
+            "perfect",
+            "loosened",
+            "assonance"
+          ]
+        },
+        "radius": null
+      }
+    ],
+    "focusedId": "OQ4xmarm4pjsfRm98iQz5",
+    "solo": false
+  }
+}

@@ -58,7 +58,7 @@ export default function ClockPane({ duration }) {
   const bodyRef = useRef(null);
   const side = useBodySide(bodyRef);
   const { clockFull: full, setClockFull: setFull } = useUIState();   // in the UI state, so a session keeps it
-  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, drumClasses, drumBands } = useParams();
+  const { clockRings, setClockRings, clockBackgroundColor, clockCycleBars, clockWords, clockWordColor, clockTextPx, clockShowDrums, clockShowHand, drumClasses, drumBands } = useParams();
   const hits = useDrumHits();
   const byClass = useByClass();
   const { songModel, timing, lyricTranscription } = useSongData();
@@ -160,7 +160,7 @@ export default function ClockPane({ duration }) {
               <ClockLines spans={spans} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
               {clockShowDrums && <ClockDrums marks={drums} geo={geo} byClass={byClass} background={clockBackgroundColor} fallbackInk={clockWordColor} />}
               <ClockWords marks={marks} textPx={clockTextPx} showLabels={labels} hitWidth={Math.max(6, Math.min(14, spacing * 0.8))} onWord={onWord} onHover={onHover} onLeave={onHoverLeave} />
-              <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />
+              {clockShowHand && <line data-hand="" data-cx={geo.cx} data-cy={geo.cy} x1={geo.cx} y1={geo.cy} x2={geo.cx} y2={geo.cy - geo.rOuter - geo.drumBand} stroke="#e03131" strokeWidth={1.5} visibility="hidden" pointerEvents="none" />}
             </>
           )}
         </svg>
