@@ -6,7 +6,7 @@
 //                            lines; labels add data-tlen and data-off)
 //   circle[data-u]           a point on the spiral (rhyme-vowel dots)
 //   path[data-face]          the spiral's own line, in fading pieces
-//   path[data-glow]          the playhead's cycle
+//   path[data-glow]          the word being sung
 //   [data-umid][data-start]  a mark whose opacity is the reveal × the end fades
 import { spiralPath, labelSpan, radiusAt, polar, facePieces, fadeLen, markOpacity } from "./clockGeometry";
 
@@ -32,11 +32,10 @@ export function drawSpiral(svg, { W, geo, wholeSong }) {
   });
 }
 
-/** The glow on the playhead's cycle P, where it lies on the spiral's visible stretch. */
-export function drawGlow(svg, { W, P, geo }) {
+/** The glow on the word being sung (Greg 2026-11-09): its stretch of spiral, or nothing in a gap. */
+export function drawGlow(svg, { W, span, geo }) {
   const { cx, cy, rOuter, rInner, rings } = geo;
-  const u0 = Math.max(P, W), u1 = Math.min(P + 1, W + rings);
-  const d = P >= 0 && u1 > u0 ? spiralPath(cx, cy, u0, u1, W, rings, rOuter, rInner) : "";
+  const d = span ? spiralPath(cx, cy, span.u0, span.u1, W, rings, rOuter, rInner) : "";
   for (const el of svg.querySelectorAll("path[data-glow]")) el.setAttribute("d", d);
 }
 

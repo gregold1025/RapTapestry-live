@@ -103,6 +103,23 @@ export function songPos(cycles, t) {
   return c < 0 ? 0 : c + cycles.fracOf(t);
 }
 
+/** The timing model's words (a Map by id) as a list ordered by start time. */
+export const wordsByTime = (map) => (map ? [...map.values()].sort((a, b) => a.start - b.start) : []);
+
+/** The index of the word sounding at time t (start <= t < end) in time-sorted words; -1 in a gap. */
+export function wordAt(words, t) {
+  let lo = 0, hi = (words?.length ?? 0) - 1, i = -1;
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (words[m].start <= t) { i = m; lo = m + 1; } else hi = m - 1; }
+  return i >= 0 && t < words[i].end ? i : -1;
+}
+
+/** The stretch of spiral the glowing word covers, clipped to the visible turns [W, W + rings]; null if none. */
+export function wordGlowSpan({ word, cycles, W, rings }) {
+  if (!word) return null;
+  const u0 = Math.max(songPos(cycles, word.start), W), u1 = Math.min(songPos(cycles, word.end), W + rings);
+  return u1 > u0 ? { u0, u1 } : null;
+}
+
 /** The time at song position u. */
 export function timeAtPos(cycles, u) {
   const c = Math.max(0, Math.floor(u));

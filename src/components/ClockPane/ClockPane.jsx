@@ -9,7 +9,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_MENU, ringsFromMenu, cyclesLabel, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
+import { RINGS_MENU, ringsFromMenu, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime } from "./clockGeometry";
 import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
@@ -80,7 +80,8 @@ export default function ClockPane({ duration }) {
   const wholeSong = clockRings === "all";
   const svgRef = useRef(null);
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
-  const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo });
+  const glowWords = useMemo(() => wordsByTime(timing?.words), [timing]);   // the word glow (Greg 2026-11-09)
+  const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo, words: glowWords });
   const { Wi, P, follow } = win;
   // the cycles drawn: those the spiral's visible stretch can reach as W moves within this whole cycle
   const from = wholeSong ? 0 : Wi, to = wholeSong ? rings : Wi + rings + 1;

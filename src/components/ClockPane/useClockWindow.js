@@ -7,13 +7,13 @@
 // redrawn when W moves (clockDraw), the hand turns, and marks fade (ahead of
 // the playhead while following; at the spiral's ends). React state changes
 // only when W crosses a whole cycle (which cycles are drawn) or the playhead
-// enters a new cycle (the drums, the glow).
+// enters a new cycle (the drums). The glow follows the word being sung.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
-import { songPos, syncWindow, reanchorWindow } from "./clockGeometry";
+import { songPos, syncWindow, reanchorWindow, wordAt, wordGlowSpan } from "./clockGeometry";
 import { drawSpiral, drawGlow, drawOpacity } from "./clockDraw";
 
-export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo }) {
+export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo, words }) {
   const { subscribePlayhead, getPlayheadTime, isPlaying } = useAudioEngine();
   const [follow, setFollow] = useState(true);
   const [win, setWin] = useState({ Wi: 0, P: -1 });
@@ -21,7 +21,7 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo }) {
   const S = useRef(null);
   if (!S.current) S.current = { W: 0, Wi: 0, P: -1, drawnW: NaN, glowKey: "" };
   const st = S.current;
-  st.follow = follow; st.playing = isPlaying; st.cycles = cycles; st.rings = rings; st.wholeSong = wholeSong; st.geo = geo;
+  st.follow = follow; st.playing = isPlaying; st.cycles = cycles; st.rings = rings; st.wholeSong = wholeSong; st.geo = geo; st.words = words;
 
   const frame = useCallback((t, force = false) => {
     const s = S.current;
@@ -33,8 +33,12 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo }) {
     const svg = svgRef.current;
     if (!svg) return;
     if (force || s.W !== s.drawnW) { drawSpiral(svg, { W: s.W, geo: s.geo, wholeSong: s.wholeSong }); s.drawnW = s.W; }
-    const glowKey = `${s.W}|${P}`;
-    if (force || glowKey !== s.glowKey) { drawGlow(svg, { W: s.W, P, geo: s.geo }); s.glowKey = glowKey; }
+    const wi = wordAt(s.words, t);
+    const glowKey = `${s.W}|${wi}`;
+    if (force || glowKey !== s.glowKey) {
+      drawGlow(svg, { W: s.W, span: wordGlowSpan({ word: s.words?.[wi] ?? null, cycles: s.cycles, W: s.W, rings: s.rings }), geo: s.geo });
+      s.glowKey = glowKey;
+    }
     const hand = svg.querySelector("[data-hand]");
     if (hand) {
       if (P < 0) hand.setAttribute("visibility", "hidden");

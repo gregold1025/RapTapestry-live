@@ -1,8 +1,8 @@
 // src/components/ClockPane/ClockFace.jsx
 // The clock's face: a spoke per beat (bars stronger) from the spiral's inner
 // end to the drum band's edge, the edge itself, the spiral's line (drawn as
-// fading pieces by clockDraw, so its ends fade), and the playhead's cycle
-// with a soft glow. Colors follow the background like bar and beat lines.
+// fading pieces by clockDraw, so its ends fade), and a soft glow under the
+// word being sung (Greg 2026-11-09). Colors follow the background like bar and beat lines.
 import React, { useId } from "react";
 import { polar, spokes, faceStrokes, radiusAt } from "./clockGeometry";
 
@@ -25,8 +25,8 @@ export default function ClockFace({ geo, cycleBars, beatsPerBar, background }) {
       {Array.from({ length: FACE_PIECES }, (_, k) => (
         <path key={k} data-face="" fill="none" stroke={st.ring} strokeWidth={1} />
       ))}
-      <path data-glow="" fill="none" stroke={st.glow} strokeWidth={6} strokeOpacity={0.55} filter={`url(#${glowId})`} />
-      <path data-glow="" fill="none" stroke={st.glow} strokeWidth={2.5} />
+      <path data-glow="" fill="none" stroke={st.glow} strokeWidth={12} strokeOpacity={0.7} strokeLinecap="round" filter={`url(#${glowId})`} />
+      <path data-glow="" fill="none" stroke={st.glow} strokeWidth={5} strokeOpacity={0.45} strokeLinecap="round" />
       <circle cx={cx} cy={cy} r={rOuter + drumBand} fill="none" stroke={st.beat} strokeWidth={1} />
     </g>
   );
