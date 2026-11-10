@@ -166,10 +166,17 @@ export default function ClockPane({ duration }) {
               <ClockFace geo={geo} cycleBars={clockCycleBars} beatsPerBar={beatsPerBar} background={clockBackgroundColor} />
               <ClockLines spans={spans} width={Math.max(1.5, Math.min(4, spacing * 0.7))} />
               {ticks.length > 0 && (
-                <g pointerEvents="none" data-syllable-ticks="">
+                <g data-syllable-ticks="">
                   {ticks.map((tk, i) => {
                     const a = polar(geo.cx, geo.cy, geo.rOuter + 2, tk.frac), b = polar(geo.cx, geo.cy, geo.rOuter + 11, tk.frac);
-                    return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={tk.color} strokeWidth={2} strokeLinecap="round" />;
+                    // hover: the word and the syllable (Greg 2026-11-10); a wider invisible line is the target
+                    const hover = (e) => onHoverEnter(e, { type: "syllable", wordId: tk.wordId, wordText: texts.get(tk.wordId) ?? "", vowel: tk.vowel, syllableIndex: tk.k, totalSyllables: tk.n });
+                    return (
+                      <g key={i}>
+                        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={tk.color} strokeWidth={2} strokeLinecap="round" pointerEvents="none" />
+                        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={9} pointerEvents="stroke" onMouseEnter={hover} onMouseLeave={onHoverLeave} />
+                      </g>
+                    );
                   })}
                 </g>
               )}

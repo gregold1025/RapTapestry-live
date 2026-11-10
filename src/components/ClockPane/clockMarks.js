@@ -47,7 +47,7 @@ export function wordMarks({ timingWords, visuals, cycles, from, to, words, inkCo
  * Query syllables against the groove (Greg 2026-11-10): every matched syllable (vi0..vi1) of a
  * query word or a match whose vowel begins in `cycle`, as a tick in the drum ring at its vowel's
  * onset (where a syllable lands), in its query's color.
- * @returns {{ frac, color }[]}
+ * @returns {{ frac, color, wordId, k, n, vowel }[]}
  */
 export function syllableTicks({ timingWords, visuals, cycles, cycle }) {
   const out = [];
@@ -58,7 +58,8 @@ export function syllableTicks({ timingWords, visuals, cycles, cycle }) {
     for (const sy of tw.syls ?? []) {
       if (sy.k < (vis.vi0 ?? 0) || sy.k > (vis.vi1 ?? Infinity)) continue;
       const t = sy.vStart ?? sy.start;
-      if (cycles.cycleOf(t) === cycle) out.push({ frac: cycles.fracOf(t), color: vis.color });
+      // the word and syllable ride along for the hover (Greg 2026-11-10)
+      if (cycles.cycleOf(t) === cycle) out.push({ frac: cycles.fracOf(t), color: vis.color, wordId: id, k: sy.k, n: tw.syls.length, vowel: sy.vowel ?? null });
     }
   }
   return out;
