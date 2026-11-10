@@ -81,7 +81,9 @@ export default function ClockPane({ duration }) {
   const wholeSong = clockRings === "all";
   const svgRef = useRef(null);
   const geo = useMemo(() => clockGeo(side, rings), [side, rings]);
-  const glowWords = useMemo(() => wordsByTime(timing?.words), [timing]);   // the word glow (Greg 2026-11-09)
+  // the word glow (Greg 2026-11-09): every word, or with "query words" only the query words and
+  // their matches (Greg 2026-11-10)
+  const glowWords = useMemo(() => wordsByTime(timing?.words, clockWords === "query" ? visuals : null), [timing, clockWords, visuals]);
   const win = useClockWindow({ cycles, rings, wholeSong, svgRef, geo, words: glowWords });
   const { Wi, P, follow } = win;
   // the cycles drawn: those the spiral's visible stretch can reach as W moves within this whole cycle

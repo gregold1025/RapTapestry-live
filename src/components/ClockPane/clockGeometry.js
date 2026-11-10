@@ -118,8 +118,10 @@ export function drumGlowRange(times, t) {
   return { from: times[i] - DRUM_TOGETHER, to: times[i] };
 }
 
-/** The timing model's words (a Map by id) as a list ordered by start time. */
-export const wordsByTime = (map) => (map ? [...map.values()].sort((a, b) => a.start - b.start) : []);
+/** The timing model's words (a Map by id) as a list ordered by start time; `only` (a Map or Set of
+ *  ids, optional) keeps just those (query words only: the query words and their matches). */
+export const wordsByTime = (map, only = null) =>
+  (map ? [...map.entries()].filter(([id]) => !only || only.has(id)).map(([, w]) => w).sort((a, b) => a.start - b.start) : []);
 
 /** The index of the word sounding at time t (start <= t < end) in time-sorted words; -1 in a gap. */
 export function wordAt(words, t) {

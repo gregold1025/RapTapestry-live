@@ -27,4 +27,10 @@ describe("the word glow", () => {
     expect(wordsByTime(m).map((w) => w.start)).toEqual([0, 2]);
     expect(wordsByTime(undefined)).toEqual([]);
   });
+  it("with query words only, glows only the query words and their matches (Greg 2026-11-10)", () => {
+    const m = new Map([["a", { start: 0, end: 1 }], ["b", { start: 1, end: 2 }], ["c", { start: 2, end: 3 }]]);
+    const drawn = new Map([["c", {}], ["a", {}]]);
+    expect(wordsByTime(m, drawn).map((w) => w.start)).toEqual([0, 2]);
+    expect(wordsByTime(m, null).map((w) => w.start)).toEqual([0, 1, 2]);
+  });
 });
