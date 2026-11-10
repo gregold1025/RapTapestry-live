@@ -36,36 +36,46 @@ export function axisPhones(phones) {
   };
 }
 
-// a cell that leaves its axis free: nothing there is underlined
-const FREE = new Set(["", "anything", "anything else", "differs"]);
-/** The axes a row requires to agree (underlined in its example). */
-export const matchedAxes = (row) => AXES.map((a) => a.key).filter((k) => !FREE.has(row.cells[k]));
+// The chart's shorthand (Greg 2026-11-09): what each axis may be, in the vocabulary below.
+// FA = family and additive at once (one consonant added or dropped, the rest within family).
+export const CODES = ["S", "F", "A", "FA", "W", "X"];
+export const VOCAB = [
+  { code: "S", label: "Same", text: "Identical phonemes, vowels or consonants." },
+  { code: "F", label: "Family", text: "Consonants with similar features.", example: "clock / stop" },
+  { code: "A", label: "Additive", text: "One consonant added or dropped from a cluster.", example: "mat / mast; clock / blocks" },
+  { code: "W", label: "Weak", text: "Unstressed [AH IH EH] vowels are voiced the same.", example: "famous / Hey, miss" },
+  { code: "X", label: "Unrelated", text: "Unrelated phonemes." },
+];
+export const FA_NOTE = { text: "Family and additive at once.", example: "hot / rocks" };
+
+/** The axes a row requires to agree (underlined in its example): those that may not be X. */
+export const matchedAxes = (row) => AXES.map((a) => a.key).filter((k) => row.cells[k] && !row.cells[k].includes("X"));
 
 // an example word: its spelling cut into pieces, each piece tagged with the axes it spells
 const ex = (word, phones, ...spelling) => ({ word, phones, spelling });
-const LOOSE = "same, family, additive or both";
+const LOOSE = ["S", "F", "A", "FA"];
 
 export const ROWS = [
   { key: "perfect", text: "Everything from the stressed vowel on repeats; the opening consonants are free.",
-    cells: { stressedVowel: "same", internal: "same", finalVowel: "same or weak", coda: "same" },
+    cells: { stressedVowel: ["S"], internal: ["S"], finalVowel: ["S", "W"], coda: ["S"] },
     example: [
       ex("candle", "K AE1 N D AH0 L", ["c"], ["a", "stressedVowel"], ["nd", "internal"], ["le", "finalVowel", "coda"]),
       ex("handle", "HH AE1 N D AH0 L", ["h"], ["a", "stressedVowel"], ["nd", "internal"], ["le", "finalVowel", "coda"]),
     ] },
   { key: "loosened", text: "The stressed vowel repeats; the consonants after it loosen (the tags say how).",
-    cells: { stressedVowel: "same", internal: "anything", finalVowel: "same or weak", coda: LOOSE },
+    cells: { stressedVowel: ["S"], internal: [...LOOSE, "X"], finalVowel: ["S", "W"], coda: LOOSE },
     example: [
       ex("rapid", "R AE1 P IH0 D", ["r"], ["a", "stressedVowel"], ["p", "internal"], ["i", "finalVowel"], ["d", "coda"]),
       ex("habit", "HH AE1 B AH0 T", ["h"], ["a", "stressedVowel"], ["b", "internal"], ["i", "finalVowel"], ["t", "coda"]),
     ] },
   { key: "shifted", text: "The stressed vowel changes; the rest of the foot repeats.",
-    cells: { stressedVowel: "differs", internal: LOOSE, finalVowel: "same or weak", coda: "same" },
+    cells: { stressedVowel: ["X"], internal: LOOSE, finalVowel: ["S", "W"], coda: ["S"] },
     example: [
       ex("jacket", "JH AE1 K AH0 T", ["j"], ["a", "stressedVowel"], ["ck", "internal"], ["e", "finalVowel"], ["t", "coda"]),
       ex("rocket", "R AA1 K AH0 T", ["r"], ["o", "stressedVowel"], ["ck", "internal"], ["e", "finalVowel"], ["t", "coda"]),
     ] },
   { key: "truncated", text: "Tentative. Only the ending repeats: the final vowel and the final consonants.",
-    cells: { stressedVowel: "differs", internal: "anything else", finalVowel: "same or weak", coda: LOOSE },
+    cells: { stressedVowel: ["X"], internal: ["X"], finalVowel: ["S", "W"], coda: LOOSE },
     example: [
       ex("pencil", "P EH1 N S AH0 L", ["p"], ["e", "stressedVowel"], ["nc", "internal"], ["i", "finalVowel"], ["l", "coda"]),
       ex("simple", "S IH1 M P AH0 L", ["s"], ["i", "stressedVowel"], ["mp", "internal"], ["le", "finalVowel", "coda"]),
@@ -76,12 +86,13 @@ export const ROWS = [
 export const ONE_SYLLABLE = {
   text: "A one-syllable word is compared by its vowel and its final consonants.",
   rows: [
-    { key: "perfect", cells: { stressedVowel: "", internal: "", finalVowel: "same", coda: "same" },
+    { key: "perfect", cells: { finalVowel: ["S"], coda: ["S"] },
       example: [
         ex("block", "B L AA1 K", ["bl"], ["o", "finalVowel"], ["ck", "coda"]),
         ex("glock", "G L AA1 K", ["gl"], ["o", "finalVowel"], ["ck", "coda"]),
       ] },
-    { key: "loosened", cells: { stressedVowel: "", internal: "", finalVowel: "same", coda: LOOSE },
+    // the same final consonants make a one-syllable pair perfect, so loosened is F, A or FA there
+    { key: "loosened", cells: { finalVowel: ["S"], coda: ["F", "A", "FA"] },
       example: [
         ex("clock", "K L AA1 K", ["cl"], ["o", "finalVowel"], ["ck", "coda"]),
         ex("blocks", "B L AA1 K S", ["bl"], ["o", "finalVowel"], ["cks", "coda"]),
@@ -92,10 +103,3 @@ export const ONE_SYLLABLE = {
 export const TWO_SYLLABLES = {
   text: "A two-syllable foot compares on four columns. Which of them must agree decides its type.",
 };
-
-export const TERMS = [
-  { key: "family", label: "Family", text: "A consonant swapped for one of its kind: plosives (p b t d k g), fricatives (f v th s z sh zh), nasals (m n ng); voicing free.", example: "clock / stop" },
-  { key: "additive", label: "Additive", text: "Exactly one consonant added or dropped, anywhere; the rest identical.", example: "mat / mast; clock / blocks" },
-  { key: "both", label: "Family + additive", text: "Both at once.", example: "hot / rocks" },
-  { key: "weak", label: "Weak", text: "Unstressed uh, ih and eh count as the same vowel.", example: "famous / Hey, miss" },
-];

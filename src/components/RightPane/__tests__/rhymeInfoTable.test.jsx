@@ -20,7 +20,7 @@ describe("the rhyme info tables", () => {
     expect(secs.length).toBe(2);
     for (const [sec, title, lead] of [[secs[0], "One syllable words", ONE_SYLLABLE.text], [secs[1], "Two syllable words", TWO_SYLLABLES.text]]) {
       expect(sec).toMatch(new RegExp(`^<h4 class="ri-section-title">${title}</h4><p class="ri-lead">`));
-      expect(text(sec.split("<table")[0])).toBe(`${title} ${lead}`);
+      expect(text(sec.split(/<table|<div class="ri-one-row"/)[0])).toBe(`${title} ${lead}`);
     }
     expect(blocks(one)).toEqual(["Perfect", "Loosened"]);
     expect(blocks(two)).toEqual(["Perfect", "Loosened", "Shifted", "Truncated"]);
@@ -53,5 +53,19 @@ describe("the rhyme info tables", () => {
     expect(rows(two, "ri-rule ri-band").length).toBe(4);
     expect(rows(two, "ri-def ri-band").length).toBe(4);
     expect(html).not.toMatch(/ri-word ri-band/);
+  });
+  it("puts the vocabulary box beside the one-syllable table, one entry per code", () => {
+    const sec = html.split("<section")[1];
+    const box = sec.match(/<aside class="ri-vocab"[^>]*>(.*?)<\/aside>/)[1];
+    expect(box).toMatch(/^<h5[^>]*>Vocabulary<\/h5>/);
+    expect([...box.matchAll(/<dt><span class="ri-code ri-code-(\w+)">/g)].map((m) => m[1])).toEqual(["S", "F", "A", "W", "X"]);
+    expect(sec.indexOf("ri-vocab")).toBeLessThan(sec.indexOf("<table"));
+  });
+  it("writes the rule rows as colored codes, not words", () => {
+    for (const r of [...rows(one, "ri-rule"), ...rows(two, "ri-rule")]) {
+      const cellsHtml = r.split("</th>").slice(1).join("");
+      expect(text(cellsHtml)).toMatch(/^[SFAWX ]+$/);
+      expect(cellsHtml).toMatch(/class="ri-code ri-code-[SFAWX]"/);
+    }
   });
 });

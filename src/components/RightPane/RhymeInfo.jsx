@@ -5,7 +5,7 @@
 // underlined in green in both spellings (Greg 2026-11-09).
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { INTRO, AXES, ROWS, ONE_SYLLABLE, TWO_SYLLABLES, TERMS, axisPhones, matchedAxes } from "./rhymeTypesInfo";
+import { INTRO, AXES, ROWS, ONE_SYLLABLE, TWO_SYLLABLES, VOCAB, FA_NOTE, axisPhones, matchedAxes } from "./rhymeTypesInfo";
 
 // the columns each section shows: one syllable only has the last two (Greg 2026-11-09)
 const ONE_AXES = AXES.filter((a) => a.oneSyllable);
@@ -13,13 +13,43 @@ const ONE_AXES = AXES.filter((a) => a.oneSyllable);
 // the final vowel and final consonants (all a one-syllable word has) in faint blue, in both tables
 const cls = (a) => (a.oneSyllable ? "is-one" : undefined);
 
+/** One shorthand letter, in its color (S F A W X). */
+const Code = ({ c }) => <span className={`ri-code ri-code-${c}`}>{c}</span>;
+
+/** What an axis may be, as colored letters; FA (family and additive at once) is F and A joined. */
+function Codes({ codes }) {
+  return (
+    <span className="ri-codes">
+      {codes.map((c) => (c === "FA" ? <span key={c} className="ri-fa"><Code c="F" /><Code c="A" /></span> : <Code key={c} c={c} />))}
+    </span>
+  );
+}
+
+/** The shorthand's key, beside the one-syllable table (Greg 2026-11-09). */
+function Vocabulary() {
+  return (
+    <aside className="ri-vocab" aria-label="Vocabulary">
+      <h5>Vocabulary</h5>
+      <dl>
+        {VOCAB.map((v) => (
+          <React.Fragment key={v.code}>
+            <dt><Code c={v.code} /></dt>
+            <dd><b>{v.label}</b>: {v.text}{v.example && <> <span className="ri-ex-inline">{v.example}</span></>}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
+      <p className="ri-vocab-note"><span className="ri-fa"><Code c="F" /><Code c="A" /></span> {FA_NOTE.text} <span className="ri-ex-inline">{FA_NOTE.example}</span></p>
+    </aside>
+  );
+}
+
 function TypeBlock({ row, axes, text }) {
   const matched = new Set(matchedAxes(row));
   return (
     <tbody className="ri-type">
       <tr className="ri-rule ri-band">
         <th>{row.label}</th>
-        {axes.map((a) => <td key={a.key} className={cls(a)}>{row.cells[a.key]}</td>)}
+        {axes.map((a) => <td key={a.key} className={cls(a)}><Codes codes={row.cells[a.key]} /></td>)}
       </tr>
       {text && <tr className="ri-def ri-band"><td colSpan={axes.length + 1}>{text}</td></tr>}
       {row.example.map((ex) => {
@@ -69,10 +99,13 @@ export function RhymeTable() {
   return (
     <>
       <Section title="One syllable words" lead={ONE_SYLLABLE.text}>
-        <table className="ri-table ri-table-one">
-          <ColHead title="One syllable" axes={ONE_AXES} />
-          {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} />)}
-        </table>
+        <div className="ri-one-row">
+          <Vocabulary />
+          <table className="ri-table ri-table-one">
+            <ColHead title="One syllable" axes={ONE_AXES} />
+            {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} />)}
+          </table>
+        </div>
       </Section>
       <Section title="Two syllable words" lead={TWO_SYLLABLES.text}>
         <table className="ri-table">
@@ -106,9 +139,6 @@ export default function RhymeInfo() {
 
             <RhymeTable />
 
-            <dl className="ri-defs">
-              {TERMS.map((t) => <React.Fragment key={t.key}><dt>{t.label}</dt><dd>{t.text} <span className="ri-ex-inline">{t.example}</span></dd></React.Fragment>)}
-            </dl>
           </div>
         </div>,
         document.body,

@@ -4,7 +4,8 @@
 import { describe, it, expect } from "vitest";
 import { buildSongModel } from "../../../engine/songModel.js";
 import { computeMatches, RHYME_TYPES } from "../../../engine";
-import { AXES, ROWS, ONE_SYLLABLE, TERMS, axisPhones, matchedAxes } from "../rhymeTypesInfo";
+import { AXES, ROWS, ONE_SYLLABLE, VOCAB, CODES, axisPhones, matchedAxes } from "../rhymeTypesInfo";
+import { REDUCED } from "../../../engine/rhymeTypes.js";
 
 function tiny(lines) {
   let t = 0;
@@ -24,7 +25,8 @@ describe("the rhyme info chart", () => {
   it("has a row for perfect, loosened, shifted vowel and truncated, labeled as the pills are, each with its definition", () => {
     expect(ROWS.map((r) => r.key)).toEqual(["perfect", "loosened", "shifted", "truncated"]);
     for (const r of ROWS) expect(r.label).toBe(RHYME_TYPES.find((t) => t.key === r.key).label);
-    for (const r of ALL) expect(Object.keys(r.cells)).toEqual(AX);
+    for (const r of ROWS) expect(Object.keys(r.cells)).toEqual(AX);
+    for (const r of ONE_SYLLABLE.rows) expect(Object.keys(r.cells)).toEqual(["finalVowel", "coda"]);
     for (const r of ROWS) expect(r.text).toMatch(/\w/);
   });
   it("each two-syllable example lands on its row in the engine", () => {
@@ -59,7 +61,26 @@ describe("the rhyme info chart", () => {
     for (const r of ROWS) for (const ex of r.example) expect([ex.word, AX.every((k) => axisPhones(ex.phones)[k])]).toEqual([ex.word, true]);
     for (const r of ONE_SYLLABLE.rows) for (const ex of r.example) expect([ex.word, !!axisPhones(ex.phones).coda]).toEqual([ex.word, true]);
   });
-  it("defines family and additive", () => {
-    expect(TERMS.map((t) => t.key)).toEqual(expect.arrayContaining(["family", "additive"]));
+  it("has the vocabulary S F A W X, the weak vowels being the engine's", () => {
+    expect(VOCAB.map((v) => [v.code, v.label])).toEqual([["S", "Same"], ["F", "Family"], ["A", "Additive"], ["W", "Weak"], ["X", "Unrelated"]]);
+    const weak = VOCAB.find((v) => v.code === "W").text;
+    for (const v of REDUCED) expect(weak).toContain(v);
+  });
+  it("writes every chart cell in that shorthand (FA = family and additive at once)", () => {
+    expect(CODES).toEqual(["S", "F", "A", "FA", "W", "X"]);
+    for (const r of ALL) for (const codes of Object.values(r.cells)) {
+      expect(codes.length).toBeGreaterThan(0);
+      for (const c of codes) expect(CODES).toContain(c);
+    }
+    const c = Object.fromEntries(ROWS.map((r) => [r.key, r.cells]));
+    expect(c.perfect).toEqual({ stressedVowel: ["S"], internal: ["S"], finalVowel: ["S", "W"], coda: ["S"] });
+    expect(c.loosened).toEqual({ stressedVowel: ["S"], internal: ["S", "F", "A", "FA", "X"], finalVowel: ["S", "W"], coda: ["S", "F", "A", "FA"] });
+    expect(c.shifted).toEqual({ stressedVowel: ["X"], internal: ["S", "F", "A", "FA"], finalVowel: ["S", "W"], coda: ["S"] });
+    expect(c.truncated).toEqual({ stressedVowel: ["X"], internal: ["X"], finalVowel: ["S", "W"], coda: ["S", "F", "A", "FA"] });
+  });
+  it("a one-syllable word is loosened only when its final consonants differ (same ones make it perfect)", () => {
+    const [perfect, loosened] = ONE_SYLLABLE.rows;
+    expect(perfect.cells).toEqual({ finalVowel: ["S"], coda: ["S"] });
+    expect(loosened.cells).toEqual({ finalVowel: ["S"], coda: ["F", "A", "FA"] });
   });
 });
