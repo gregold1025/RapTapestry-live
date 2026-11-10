@@ -17,6 +17,8 @@ This branch (`claude/rhyme-protocol`) is live at https://rap-tapestry-live-v2.ve
 
 ## Interface (2026-11)
 
+- **Sessions** (2026-11-09): two buttons at the header's right, before the params / queries toggles. **Download** saves the session for the current song as `<song>-session-<date>.json`. **Upload** opens a menu: **Load demo** (`public/data/demo-session.json`; "No demo session yet" until it exists) or **Choose file…**. A session holds the song, every query (focus, pills, radius, solo), every parameter, the stem mix and volume, the loop, and the view (which panes are open and how, the clock's size, the match grouping, the Global submenus). Loading replaces all of it (what a file lacks returns to its default), switches songs first if the file is for another song, starts the playhead at 0 with both panes in Follow, and starts the undo history fresh. Glyphs are saved by name, so a file loads on any build. A bad file changes nothing and says why; queries whose words the song no longer has are left out and counted. No unsaved-changes warning (Greg). `src/session/`, `src/components/Shell/SessionButtons.jsx`.
+
 The shell (Greg's whiteboard, 2026-11-05): lyrics on the left, the tapestry in the center with the Line Staff under it when opened, and on the right either the parameters or the queries.
 
 - **Header:** left = ABC (show / hide the lyrics); center = song select above the transport (play/pause, stop, loop, `bar . beat`, scrubber, `current / duration`, volume) the treble clef (open / close the Line Staff) and the clock (open / close the Rhyme Clock); right = parameters | queries for the right pane (click the lit one to hide the pane).

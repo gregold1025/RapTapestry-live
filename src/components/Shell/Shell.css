@@ -85,7 +85,7 @@
 .rt-header-center {
   min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
 }
-.rt-header-right { display: flex; align-items: center; justify-self: end; }
+.rt-header-right { display: flex; align-items: center; justify-self: end; gap: 10px; }
 
 /* a header toggle: an icon button that stays lit while its pane is open */
 .rt-tog {
@@ -186,3 +186,18 @@
 }
 .rt-right { background: var(--rt-panel); border-left-color: #2a2a2a; }
 .rt-left { background: #353535; }
+
+/* ---- session buttons: Download, and Upload with its menu (Greg 2026-11-09) ---- */
+.rt-session { position: relative; display: flex; align-items: center; gap: 6px; }
+.rt-session-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; min-width: 150px;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+.rt-session-menu > button { font: inherit; font-size: 12px; text-align: left; color: var(--rt-ink); background: transparent; border: 0; border-radius: 4px; padding: 7px 10px; cursor: pointer; }
+.rt-session-menu > button:hover { background: var(--rt-line-soft); }
+.rt-session-status {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40; max-width: 360px; width: max-content;
+  font-size: 11px; color: var(--rt-ink); background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); padding: 5px 9px;
+}
+.rt-session-status.is-error { color: #b3261e; border-color: #e3a29c; }

@@ -4,6 +4,7 @@
 // clef) and the Rhyme Clock toggle (clock). Right: parameters | queries for the right pane.
 import React from "react";
 import { useUIState } from "../../contexts/UIStateContext";
+import SessionButtons from "./SessionButtons";
 import AudioControlsView from "../AudioControlsView";
 
 export const SONGS = [
@@ -73,6 +74,7 @@ export default function AppHeader({ selectedSong, onSongChange, transport = true
       </div>
 
       <div className="rt-header-right">
+        {transport ? <SessionButtons /> : null}
         <div className="rt-seg rt-seg--icons" role="group" aria-label="Right pane">
           <button type="button" className={rightOpen && rightView === "params" ? "is-active" : ""} aria-pressed={rightOpen && rightView === "params"} onClick={() => toggleRightView("params")} title={rightOpen && rightView === "params" ? "Hide the parameters" : "Parameters"}><IconSliders /></button>
           <button type="button" className={rightOpen && rightView === "queries" ? "is-active" : ""} aria-pressed={rightOpen && rightView === "queries"} onClick={() => toggleRightView("queries")} title={rightOpen && rightView === "queries" ? "Hide the queries" : "Queries"}><IconList /></button>
