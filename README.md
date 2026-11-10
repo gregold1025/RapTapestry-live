@@ -11,6 +11,10 @@ Currently, two official plugins are available:
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
+## Deployment
+
+This branch (`claude/rhyme-protocol`) is live at https://rap-tapestry-live-v2.vercel.app/ : its own Vercel project, production branch `claude/rhyme-protocol` (Settings > Environments > Production > Branch Tracking), redeployed on every push to this branch. The older site keeps building from `master`. Push over SSH (`git@github.com:gregold1025/RapTapestry-live.git`).
+
 ## Interface (2026-11)
 
 The shell (Greg's whiteboard, 2026-11-05): lyrics on the left, the tapestry in the center with the Line Staff under it when opened, and on the right either the parameters or the queries.
