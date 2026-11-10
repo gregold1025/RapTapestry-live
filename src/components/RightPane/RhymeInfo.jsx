@@ -64,12 +64,27 @@ function TypeBlock({ row, axes, text }) {
   );
 }
 
-/** A section's black column header. */
-function ColHead({ title, axes }) {
+/** A horizontal curly brace over the columns it spans, its label above (Greg 2026-11-09). */
+function Brace({ label }) {
+  return (
+    <>
+      <span className="ri-brace-label">{label}</span>
+      <span className="ri-brace" aria-hidden="true"><i /><i /><i /><i /></span>
+    </>
+  );
+}
+
+/** A table's head: a brace over each syllable's columns, then the black column header. `syllables`
+ *  says how many columns each syllable spans, left to right after the first column. */
+function ColHead({ axes, syllables }) {
   return (
     <thead>
+      <tr className="ri-braces">
+        <th />
+        {syllables.map((n, i) => <th key={i} colSpan={n}><Brace label="syllable" /></th>)}
+      </tr>
       <tr className="ri-colhead">
-        <th>{title}</th>
+        <th>Rhyme types</th>
         {axes.map((a) => <th key={a.key} className={cls(a)}>{a.label}{a.note && <span className="ri-note">{a.note}</span>}</th>)}
       </tr>
     </thead>
@@ -101,13 +116,13 @@ export function RhymeTable() {
     <>
       <Section title="One syllable words" lead={<>{ONE_SYLLABLE.lines[0]}<br />{ONE_SYLLABLE.lines[1]}</>} aside={<Vocabulary />}>
         <table className="ri-table ri-table-one">
-          <ColHead title="One syllable" axes={ONE_AXES} />
+          <ColHead axes={ONE_AXES} syllables={[2]} />
           {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} />)}
         </table>
       </Section>
       <Section title="Two syllable words" lead={TWO_SYLLABLES.text}>
         <table className="ri-table">
-          <ColHead title="Two syllables" axes={AXES} />
+          <ColHead axes={AXES} syllables={[2, 2]} />
           {ROWS.map((r) => <TypeBlock key={r.key} row={r} axes={AXES} text={r.text} />)}
         </table>
       </Section>

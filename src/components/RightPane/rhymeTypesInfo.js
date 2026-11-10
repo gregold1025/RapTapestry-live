@@ -12,9 +12,9 @@ import { REDUCED } from "../../engine/rhymeTypes.js";
 const label = (key) => RHYME_TYPES.find((t) => t.key === key).label;
 
 export const INTRO =
-  "A match is compared foot by foot, from the end of the query backward. A foot is a stressed " +
-  "syllable and the unstressed syllables after it (DIG-its is one foot). The last foot gives the " +
-  "match its type; the pills show or hide each type.";
+  "We identify rhymes by breaking down syllables into vowel and consonant parts, and sorting them by " +
+  "the vocabulary below. If a word or phrase matches your query according to the tables, it is " +
+  "identified as the corresponding rhyme type."; // Greg 2026-11-09
 
 // the four axes of a two-syllable foot, left to right; a one-syllable word has only the last two
 export const AXES = [

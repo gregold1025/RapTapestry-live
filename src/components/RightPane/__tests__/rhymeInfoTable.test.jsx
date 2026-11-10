@@ -5,7 +5,7 @@ import { describe, it, expect } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RhymeTable } from "../RhymeInfo.jsx";
-import { ONE_SYLLABLE, TWO_SYLLABLES } from "../rhymeTypesInfo";
+import { ONE_SYLLABLE, TWO_SYLLABLES, INTRO } from "../rhymeTypesInfo";
 
 const html = renderToStaticMarkup(<RhymeTable />);
 const text = (s) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -27,7 +27,7 @@ describe("the rhyme info tables", () => {
   });
   it("the one-syllable table has only its two columns, no vacant ones, tinted blue", () => {
     const [head] = rows(one, "ri-colhead");
-    expect(text(head)).toBe("One syllable Final vowel Final consonants");
+    expect(text(head)).toBe("Rhyme types Final vowel Final consonants");
     expect(one).not.toMatch(/ri-blank/);
     for (const r of [...rows(one, "ri-rule"), ...rows(one, "ri-word")]) {
       expect(cells(r)).toBe(3);
@@ -36,7 +36,7 @@ describe("the rhyme info tables", () => {
   });
   it("the two-syllable table has all four columns under a black header, its last two in the same blue", () => {
     const [head] = rows(two, "ri-colhead");
-    expect(text(head)).toMatch(/^Two syllables Stressed vowel Middle consonants.*Final vowel Final consonants$/);
+    expect(text(head)).toMatch(/^Rhyme types Stressed vowel Middle consonants.*Final vowel Final consonants$/);
     expect((head.match(/is-one/g) || []).length).toBe(2);
     for (const r of [...rows(two, "ri-rule"), ...rows(two, "ri-word")]) {
       expect(cells(r)).toBe(5);
@@ -85,5 +85,17 @@ describe("the rhyme info tables", () => {
     expect(sec).toMatch(/<div class="ri-one-row"><aside class="ri-vocab"[^]*<\/aside><div class="ri-one-main"><h4/);
     expect(sec).toMatch(/<p class="ri-lead">[^<]*<br\/>[^<]*<\/p>/);
     expect(ONE_SYLLABLE.lines.join(" ")).toBe(ONE_SYLLABLE.text);
+  });
+  it("braces each syllable's columns: one over the one-syllable table, two over the two-syllable one", () => {
+    const braces = (t) => {
+      const [row] = rows(t, "ri-braces");
+      return [...row.matchAll(/<th([^>]*)>(.*?)<\/th>/g)].map(([, attrs, inner]) => [Number((attrs.match(/colSpan="(\d+)"/) || [0, 1])[1]), text(inner)]);
+    };
+    expect(braces(one)).toEqual([[1, ""], [2, "syllable"]]);
+    expect(braces(two)).toEqual([[1, ""], [2, "syllable"], [2, "syllable"]]);
+    expect(one).toMatch(/ri-braces[^]*ri-colhead/);
+  });
+  it("opens with Greg's description", () => {
+    expect(INTRO).toBe("We identify rhymes by breaking down syllables into vowel and consonant parts, and sorting them by the vocabulary below. If a word or phrase matches your query according to the tables, it is identified as the corresponding rhyme type.");
   });
 });
