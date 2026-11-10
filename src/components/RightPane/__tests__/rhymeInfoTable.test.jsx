@@ -19,8 +19,8 @@ describe("the rhyme info tables", () => {
     const secs = [...html.matchAll(/<section class="ri-section">(.*?)<\/section>/g)].map((m) => m[1]);
     expect(secs.length).toBe(2);
     for (const [sec, title, lead] of [[secs[0], "One syllable words", ONE_SYLLABLE.text], [secs[1], "Two syllable words", TWO_SYLLABLES.text]]) {
-      expect(sec).toMatch(new RegExp(`^<h4 class="ri-section-title">${title}</h4><p class="ri-lead">`));
-      expect(text(sec.split(/<table|<div class="ri-one-row"/)[0])).toBe(`${title} ${lead}`);
+      expect(sec).toMatch(new RegExp(`<h4 class="ri-section-title">${title}</h4><p class="ri-lead">`));
+      expect(text(sec.replace(/<aside.*<\/aside>/, "").split("<table")[0])).toBe(`${title} ${lead}`);
     }
     expect(blocks(one)).toEqual(["Perfect", "Loosened"]);
     expect(blocks(two)).toEqual(["Perfect", "Loosened", "Shifted", "Truncated"]);
@@ -67,5 +67,23 @@ describe("the rhyme info tables", () => {
       expect(text(cellsHtml)).toMatch(/^[SFAWX ]+$/);
       expect(cellsHtml).toMatch(/class="ri-code ri-code-[SFAWX]"/);
     }
+  });
+  it("colors each underline by its relation, in both spellings", () => {
+    const rapid = rows(two, "ri-word").find((r) => r.replace(/<[^>]+>/g, "").startsWith("rapid"));
+    expect(rapid).toMatch(/class="ri-u ri-u-S">a</);    // the stressed vowel: same
+    expect(rapid).toMatch(/class="ri-u ri-u-W">i</);    // the final vowel: weak
+    expect(rapid).toMatch(/class="ri-u ri-u-F">d</);    // the final consonant: family
+    expect(rapid).toMatch(/class="ri-u ri-u-W">IH</);
+    expect(rapid).toMatch(/class="ri-u ri-u-F">D</);
+    expect(html).not.toMatch(/class="ri-u"/);
+  });
+  it("has no FA in the vocabulary box", () => {
+    expect(html).not.toMatch(/ri-fa|ri-vocab-note/);
+  });
+  it("the vocabulary box stands beside the whole one-syllable section, its sentence on two lines", () => {
+    const sec = html.split("<section")[1];
+    expect(sec).toMatch(/<div class="ri-one-row"><aside class="ri-vocab"[^]*<\/aside><div class="ri-one-main"><h4/);
+    expect(sec).toMatch(/<p class="ri-lead">[^<]*<br\/>[^<]*<\/p>/);
+    expect(ONE_SYLLABLE.lines.join(" ")).toBe(ONE_SYLLABLE.text);
   });
 });

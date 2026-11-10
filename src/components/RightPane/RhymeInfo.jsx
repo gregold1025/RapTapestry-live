@@ -5,7 +5,7 @@
 // underlined in green in both spellings (Greg 2026-11-09).
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { INTRO, AXES, ROWS, ONE_SYLLABLE, TWO_SYLLABLES, VOCAB, FA_NOTE, axisPhones, matchedAxes } from "./rhymeTypesInfo";
+import { INTRO, AXES, ROWS, ONE_SYLLABLE, TWO_SYLLABLES, VOCAB, axisPhones, matchedAxes, pairRelations } from "./rhymeTypesInfo";
 
 // the columns each section shows: one syllable only has the last two (Greg 2026-11-09)
 const ONE_AXES = AXES.filter((a) => a.oneSyllable);
@@ -16,14 +16,8 @@ const cls = (a) => (a.oneSyllable ? "is-one" : undefined);
 /** One shorthand letter, in its color (S F A W X). */
 const Code = ({ c }) => <span className={`ri-code ri-code-${c}`}>{c}</span>;
 
-/** What an axis may be, as colored letters; FA (family and additive at once) is F and A joined. */
-function Codes({ codes }) {
-  return (
-    <span className="ri-codes">
-      {codes.map((c) => (c === "FA" ? <span key={c} className="ri-fa"><Code c="F" /><Code c="A" /></span> : <Code key={c} c={c} />))}
-    </span>
-  );
-}
+/** What an axis may be, as colored letters (any of them). */
+const Codes = ({ codes }) => <span className="ri-codes">{codes.map((c) => <Code key={c} c={c} />)}</span>;
 
 /** The shorthand's key, beside the one-syllable table (Greg 2026-11-09). */
 function Vocabulary() {
@@ -38,13 +32,14 @@ function Vocabulary() {
           </React.Fragment>
         ))}
       </dl>
-      <p className="ri-vocab-note"><span className="ri-fa"><Code c="F" /><Code c="A" /></span> {FA_NOTE.text} <span className="ri-ex-inline">{FA_NOTE.example}</span></p>
     </aside>
   );
 }
 
 function TypeBlock({ row, axes, text }) {
   const matched = new Set(matchedAxes(row));
+  const rel = pairRelations(row.example); // each underline in the color of how the pair agrees there
+  const u = (k) => `ri-u ri-u-${rel[k]}`;
   return (
     <tbody className="ri-type">
       <tr className="ri-rule ri-band">
@@ -56,10 +51,10 @@ function TypeBlock({ row, axes, text }) {
         const ph = axisPhones(ex.phones);
         return (
           <tr key={ex.word} className="ri-word">
-            <th>{ex.spelling.map(([t, ...ax], i) => <span key={i} className={ax.some((k) => matched.has(k)) ? "ri-u" : undefined}>{t}</span>)}</th>
+            <th>{ex.spelling.map(([t, ...ax], i) => <span key={i} className={ax.some((k) => matched.has(k)) ? u(ax.find((k) => matched.has(k))) : undefined}>{t}</span>)}</th>
             {axes.map((a) => (
               <td key={a.key} className={cls(a)}>
-                {ph[a.key] ? <span className={matched.has(a.key) ? "ri-u" : undefined}>{ph[a.key]}</span> : <span className="ri-none">&mdash;</span>}
+                {ph[a.key] ? <span className={matched.has(a.key) ? u(a.key) : undefined}>{ph[a.key]}</span> : <span className="ri-none">&mdash;</span>}
               </td>
             ))}
           </tr>
@@ -81,13 +76,19 @@ function ColHead({ title, axes }) {
   );
 }
 
-/** One section: its title, its sentence, then its table, flush right. */
-function Section({ title, lead, children }) {
-  return (
-    <section className="ri-section">
+/** One section: its title, its sentence, then its table, flush right; `aside` stands to the left
+ *  of all three (the vocabulary box beside the one-syllable section). */
+function Section({ title, lead, aside, children }) {
+  const main = (
+    <>
       <h4 className="ri-section-title">{title}</h4>
       <p className="ri-lead">{lead}</p>
       {children}
+    </>
+  );
+  return (
+    <section className="ri-section">
+      {aside ? <div className="ri-one-row">{aside}<div className="ri-one-main">{main}</div></div> : main}
     </section>
   );
 }
@@ -98,14 +99,11 @@ function Section({ title, lead, children }) {
 export function RhymeTable() {
   return (
     <>
-      <Section title="One syllable words" lead={ONE_SYLLABLE.text}>
-        <div className="ri-one-row">
-          <Vocabulary />
-          <table className="ri-table ri-table-one">
-            <ColHead title="One syllable" axes={ONE_AXES} />
-            {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} />)}
-          </table>
-        </div>
+      <Section title="One syllable words" lead={<>{ONE_SYLLABLE.lines[0]}<br />{ONE_SYLLABLE.lines[1]}</>} aside={<Vocabulary />}>
+        <table className="ri-table ri-table-one">
+          <ColHead title="One syllable" axes={ONE_AXES} />
+          {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} />)}
+        </table>
       </Section>
       <Section title="Two syllable words" lead={TWO_SYLLABLES.text}>
         <table className="ri-table">
@@ -135,7 +133,7 @@ export default function RhymeInfo() {
               <h3>Rhyme types</h3>
               <button type="button" className="ri-close" onClick={() => setOpen(false)} title="Close (Esc)">&times;</button>
             </div>
-            <p className="ri-intro">{INTRO} <span className="ri-u">Underlined</span>: what the type requires to agree.</p>
+            <p className="ri-intro">{INTRO} <span className="ri-u ri-u-S">Underlined</span>: what the type requires to agree, in the color of how the pair agrees there.</p>
 
             <RhymeTable />
 

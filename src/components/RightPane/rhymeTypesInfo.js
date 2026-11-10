@@ -6,6 +6,8 @@
 // test runs every example through the engine, so the chart cannot drift from what the engine does.
 import { RHYME_TYPES } from "../../engine";
 import { syllabify, bare } from "../../utils/syllabify.js";
+import { consAxis } from "../../engine/protocol.js";
+import { REDUCED } from "../../engine/rhymeTypes.js";
 
 const label = (key) => RHYME_TYPES.find((t) => t.key === key).label;
 
@@ -36,9 +38,9 @@ export function axisPhones(phones) {
   };
 }
 
-// The chart's shorthand (Greg 2026-11-09): what each axis may be, in the vocabulary below.
-// FA = family and additive at once (one consonant added or dropped, the rest within family).
-export const CODES = ["S", "F", "A", "FA", "W", "X"];
+// The chart's shorthand (Greg 2026-11-09): what each axis may be, in the vocabulary below. Letters
+// together mean any of them (F A: family, additive or both at once); X means anything at all.
+export const CODES = ["S", "F", "A", "W", "X"];
 export const VOCAB = [
   { code: "S", label: "Same", text: "Identical phonemes, vowels or consonants." },
   { code: "F", label: "Family", text: "Consonants with similar features.", example: "clock / stop" },
@@ -46,14 +48,26 @@ export const VOCAB = [
   { code: "W", label: "Weak", text: "Unstressed [AH IH EH] vowels are voiced the same.", example: "famous / Hey, miss" },
   { code: "X", label: "Unrelated", text: "Unrelated phonemes." },
 ];
-export const FA_NOTE = { text: "Family and additive at once.", example: "hot / rocks" };
+
+const VOWEL_AXES = new Set(["stressedVowel", "finalVowel"]);
+const vowelRel = (a, b) => (a === b ? "S" : REDUCED.has(a) && REDUCED.has(b) ? "W" : "X");
+// the engine's consonant axis in the shorthand; family and additive at once shows as additive
+const CONS = { 1: "S", F: "F", A: "A", FA: "A", W: "X" };
+const consRel = (a, b) => CONS[consAxis(a ? a.split(" ") : [], b ? b.split(" ") : [])];
+
+/** How an example pair relates on each of its columns (the underline's color): S F A W or X. */
+export function pairRelations([a, b]) {
+  const [pa, pb] = [axisPhones(a.phones), axisPhones(b.phones)];
+  const keys = AXES.map((x) => x.key).filter((k) => !(k === "stressedVowel" || k === "internal") || pa.stressedVowel);
+  return Object.fromEntries(keys.map((k) => [k, VOWEL_AXES.has(k) ? vowelRel(pa[k], pb[k]) : consRel(pa[k], pb[k])]));
+}
 
 /** The axes a row requires to agree (underlined in its example): those that may not be X. */
 export const matchedAxes = (row) => AXES.map((a) => a.key).filter((k) => row.cells[k] && !row.cells[k].includes("X"));
 
 // an example word: its spelling cut into pieces, each piece tagged with the axes it spells
 const ex = (word, phones, ...spelling) => ({ word, phones, spelling });
-const LOOSE = ["S", "F", "A", "FA"];
+const LOOSE = ["S", "F", "A"];
 
 export const ROWS = [
   { key: "perfect", text: "Everything from the stressed vowel on repeats; the opening consonants are free.",
@@ -63,7 +77,7 @@ export const ROWS = [
       ex("handle", "HH AE1 N D AH0 L", ["h"], ["a", "stressedVowel"], ["nd", "internal"], ["le", "finalVowel", "coda"]),
     ] },
   { key: "loosened", text: "The stressed vowel repeats; the consonants after it loosen (the tags say how).",
-    cells: { stressedVowel: ["S"], internal: [...LOOSE, "X"], finalVowel: ["S", "W"], coda: LOOSE },
+    cells: { stressedVowel: ["S"], internal: ["X"], finalVowel: ["S", "W"], coda: LOOSE },
     example: [
       ex("rapid", "R AE1 P IH0 D", ["r"], ["a", "stressedVowel"], ["p", "internal"], ["i", "finalVowel"], ["d", "coda"]),
       ex("habit", "HH AE1 B AH0 T", ["h"], ["a", "stressedVowel"], ["b", "internal"], ["i", "finalVowel"], ["t", "coda"]),
@@ -84,15 +98,17 @@ export const ROWS = [
 
 // each section opens with a short sentence (Greg 2026-11-09)
 export const ONE_SYLLABLE = {
-  text: "A one-syllable word is compared by its vowel and its final consonants.",
+  // two lines, so the vocabulary box beside it can stand taller (Greg 2026-11-09)
+  lines: ["A one-syllable word is compared by its vowel", "and its final consonants."],
+  get text() { return this.lines.join(" "); },
   rows: [
     { key: "perfect", cells: { finalVowel: ["S"], coda: ["S"] },
       example: [
         ex("block", "B L AA1 K", ["bl"], ["o", "finalVowel"], ["ck", "coda"]),
         ex("glock", "G L AA1 K", ["gl"], ["o", "finalVowel"], ["ck", "coda"]),
       ] },
-    // the same final consonants make a one-syllable pair perfect, so loosened is F, A or FA there
-    { key: "loosened", cells: { finalVowel: ["S"], coda: ["F", "A", "FA"] },
+    // the same final consonants make a one-syllable pair perfect, so loosened is F or A there
+    { key: "loosened", cells: { finalVowel: ["S"], coda: ["F", "A"] },
       example: [
         ex("clock", "K L AA1 K", ["cl"], ["o", "finalVowel"], ["ck", "coda"]),
         ex("blocks", "B L AA1 K S", ["bl"], ["o", "finalVowel"], ["cks", "coda"]),
