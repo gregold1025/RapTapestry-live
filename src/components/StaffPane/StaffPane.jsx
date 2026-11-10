@@ -25,7 +25,7 @@ export default function StaffPane({ duration }) {
             {STAFF_BARS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
           <span className="staff-slot" ref={setSlot} />
-          <button type="button" className="staff-link" onClick={() => openParamsPanel("global")} title="Show, sizes and colors live in the Global panel">settings &rsaquo;</button>
+          <button type="button" className="staff-link" onClick={() => openParamsPanel("global", "staff")} title="Open the Line Staff's settings in the Global panel">settings &rsaquo;</button>
         </div>
         <button type="button" className="staff-close" onClick={toggleStaff} title="Close the Line Staff">&times;</button>
       </div>

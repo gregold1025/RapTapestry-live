@@ -138,7 +138,7 @@ export default function ClockPane({ duration }) {
             : "Frozen: the rings stay put and show everything in them. Click to follow the playhead again."}>
           {follow ? "Freeze" : "Follow"}
         </button>
-        <button type="button" className="clock-link" onClick={() => openParamsPanel("global")} title="The clock's settings live in the Global panel">settings &rsaquo;</button>
+        <button type="button" className="clock-link" onClick={() => openParamsPanel("global", "clock")} title="Open the Rhyme Clock's settings in the Global panel">settings &rsaquo;</button>
         </div>
         <div className="clock-bar-end">
         <button type="button" className="clock-size" onClick={() => setFull(!full)} aria-pressed={full}

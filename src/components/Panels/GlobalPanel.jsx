@@ -5,6 +5,7 @@ import { useUIState } from "../../contexts/UIStateContext";
 import { Segmented, Slider, EyeButton, MuteButton, SoloButton, ColorField, SectionLabel } from "../ui";
 import { GRID_LEVELS } from "../../utils/gridLines";
 import ClockSettings from "../ClockPane/ClockSettings";
+import GlobalSection from "./GlobalSection";
 import "./Panels.css";
 
 const STEM_ROWS = [
@@ -15,7 +16,8 @@ const STEM_ROWS = [
 ];
 
 /** Global: the stems (show / mute / solo; a name opens that stem's panel), the
- *  tapestry's view width and row height, appearance. */
+ *  collapsible submenus: the tapestry (view width, row height, appearance), the Line Staff
+ *  and the Rhyme Clock. */
 export default function GlobalPanel() {
   const { muted, soloed, visible, toggleMute, toggleSolo, setVisible } = useStemMix();
   const { openParamsPanel } = useUIState();
@@ -65,8 +67,7 @@ export default function GlobalPanel() {
         </div>
       </div>
 
-      <div className="pn-section">
-        <SectionLabel>Tapestry</SectionLabel>
+      <GlobalSection id="tapestry" title="Tapestry">
         <div className="pn-field">
           <span className="pn-field-label">view width</span>
           <Segmented
@@ -93,16 +94,12 @@ export default function GlobalPanel() {
             <Slider label="pixels" value={fixedRowHeightPx} min={40} max={400} step={1} unit=" px" onChange={setFixedRowHeightPx} />
           )}
         </div>
-      </div>
-
-      <div className="pn-section">
-        <SectionLabel>Appearance</SectionLabel>
+        <span className="pn-field-label">appearance</span>
         <ColorField label="Background" value={tapestryBackgroundColor} onChange={setTapestryBackgroundColor} />
         <Slider label="grid" value={gridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setGridLevel} />
-      </div>
+      </GlobalSection>
 
-      <div className="pn-section">
-        <SectionLabel>Line Staff</SectionLabel>
+      <GlobalSection id="staff" title="Line Staff">
         <div className="pn-field">
           <span className="pn-field-label">view width</span>
           <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
@@ -127,7 +124,7 @@ export default function GlobalPanel() {
         <ColorField label="Words" note="text, line and dots" value={staffWordColor} onChange={setStaffWordColor} />
         <Slider label="grid" value={staffGridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setStaffGridLevel} />
         <p className="ui-note">The staff keeps its own sizes, background and grid; open it with the treble clef.</p>
-      </div>
+      </GlobalSection>
 
       <ClockSettings />
     </div>

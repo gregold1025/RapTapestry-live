@@ -2,7 +2,8 @@
 // The Rhyme Clock's section of the Global panel.
 import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
-import { Segmented, Slider, ColorField, SectionLabel } from "../ui";
+import { Segmented, Slider, ColorField } from "../ui";
+import GlobalSection from "../Panels/GlobalSection";
 import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
 
 export default function ClockSettings() {
@@ -12,8 +13,7 @@ export default function ClockSettings() {
     clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums,
   } = useParams();
   return (
-    <div className="pn-section">
-      <SectionLabel>Rhyme Clock</SectionLabel>
+    <GlobalSection id="clock" title="Rhyme Clock">
       <div className="pn-field">
         <span className="pn-field-label">cycle</span>
         <Segmented value={clockCycleBars} onChange={setClockCycleBars} options={CYCLE_OPTIONS.map((b) => ({ value: b, label: `${b} bar` }))} />
@@ -34,6 +34,6 @@ export default function ClockSettings() {
       <ColorField label="Background" value={clockBackgroundColor} onChange={setClockBackgroundColor} />
       <ColorField label="Words" note="words not in a query" value={clockWordColor} onChange={setClockWordColor} />
       <p className="ui-note">Open the clock with the clock icon in the header.</p>
-    </div>
+    </GlobalSection>
   );
 }
