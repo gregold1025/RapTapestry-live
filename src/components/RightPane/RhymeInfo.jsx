@@ -51,7 +51,7 @@ function ColHead({ title, axes }) {
   );
 }
 
-/** One section: its title, its sentence (centered), then its table. */
+/** One section: its title, its sentence, then its table, flush right. */
 function Section({ title, lead, children }) {
   return (
     <section className="ri-section">
@@ -62,7 +62,8 @@ function Section({ title, lead, children }) {
   );
 }
 
-/** The chart: the one-syllable section first, centered, on its two columns; then the
+/** The chart: the one-syllable section first, on its two columns (flush right, toward the
+ *  two-syllable table's last two); then the
  *  two-syllable section on all four. The final vowel and final consonants are faint blue in both. */
 export function RhymeTable() {
   return (

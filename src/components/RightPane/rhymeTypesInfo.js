@@ -74,7 +74,7 @@ export const ROWS = [
 
 // each section opens with a short sentence (Greg 2026-11-09)
 export const ONE_SYLLABLE = {
-  text: "A one-syllable word has only a vowel and its final consonants. The vowel must be the same, so it is perfect or loosened.",
+  text: "A one-syllable word is compared by its vowel and its final consonants.",
   rows: [
     { key: "perfect", cells: { stressedVowel: "", internal: "", finalVowel: "same", coda: "same" },
       example: [
