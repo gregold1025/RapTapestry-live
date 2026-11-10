@@ -48,3 +48,18 @@ describe("inkOn (a color that must show on a background)", () => {
     expect(inkOn("#000000", "#1c1c1c", "#ffffff")).toBe("#ffffff");
   });
 });
+
+// The Line Staff's beat lines recede so its bar lines stand out (Greg 2026-11-09).
+import { staffGridStrokes } from "../gridStroke";
+describe("the Line Staff grid", () => {
+  for (const bg of ["#1c1c1c", "#ffffff", "#777777"]) {
+    it(`keeps the bar line and fades the beat lines on ${bg}`, () => {
+      const t = gridStrokes(bg), s = staffGridStrokes(bg);
+      expect(s.bar).toBe(t.bar);
+      expect(contrastRatio(s.beat, bg)).toBeLessThan(contrastRatio(t.beat, bg));
+      expect(contrastRatio(s.beat, bg)).toBeGreaterThan(1.1);   // still visible
+      expect(contrastRatio(s.sub, bg)).toBeLessThan(contrastRatio(s.beat, bg));
+      expect(contrastRatio(s.bar, bg) - 1).toBeGreaterThan(2 * (contrastRatio(s.beat, bg) - 1));
+    });
+  }
+});

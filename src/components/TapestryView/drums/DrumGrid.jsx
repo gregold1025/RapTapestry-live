@@ -2,7 +2,7 @@
 import React from "react";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useParams } from "../../../contexts/ParamsContext";
-import { gridStrokes } from "../../../utils/gridStroke";
+import { gridStrokes, staffGridStrokes } from "../../../utils/gridStroke";
 import { gridLines } from "../../../utils/gridLines";
 
 const WIDTH = { bar: 3, beat: 1, sub: 0.5 };
@@ -22,7 +22,8 @@ export default function DrumGrid({ drumTranscriptionData, variant = "tapestry" }
   if (!layout || !drumTranscriptionData || !level) return null;
 
   // Opaque colors pushed off the background, so the grid reads on any background.
-  const strokes = gridStrokes(background);
+  // the Line Staff's beats recede so its bars stand out (Greg 2026-11-09)
+  const strokes = staff ? staffGridStrokes(background) : gridStrokes(background);
   const { rowHeight, timeToPixels, gridTimes, beatsPerBar } = layout;
   const ts = Number(drumTranscriptionData.time_signature_beats);
   const per = Number.isFinite(beatsPerBar) && beatsPerBar > 0 ? beatsPerBar : ts > 0 ? ts : 4;

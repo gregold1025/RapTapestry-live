@@ -54,6 +54,35 @@ export function gridStrokes(background) {
   return { beat: toHex(beat), bar: toHex(bar), sub: toHex(sub) };
 }
 
+// The Line Staff's beat (and eighth) lines recede so its bar lines stand out (Greg 2026-11-09):
+// they stand off the background a share of what the bar line does.
+export const STAFF_BEAT_SHARE = 0.35;
+export const STAFF_SUB_SHARE = 0.18;
+
+/** `background` pushed toward black or white until it reaches contrast `target`. */
+function pushTo(background, target) {
+  const bg = parse(background);
+  const l = luminance(bg);
+  const pole = (1.05 / (l + 0.05)) > ((l + 0.05) / 0.05) ? 255 : 0;
+  for (let a = 0; a < 1; a += 0.005) {
+    const c = bg.map((v) => Math.round(v + (pole - v) * a));
+    const lc = luminance(c);
+    if ((Math.max(l, lc) + 0.05) / (Math.min(l, lc) + 0.05) >= target) return toHex(c);
+  }
+  return toHex(bg.map(() => pole));
+}
+
+/** { beat, bar, sub } for the Line Staff: the tapestry's bar line, fainter beats and eighths. */
+export function staffGridStrokes(background) {
+  const s = gridStrokes(background);
+  const bar = contrastRatio(s.bar, background);
+  return {
+    bar: s.bar,
+    beat: pushTo(background, 1 + (bar - 1) * STAFF_BEAT_SHARE),
+    sub: pushTo(background, 1 + (bar - 1) * STAFF_SUB_SHARE),
+  };
+}
+
 /** `fill`, unless it would vanish on `background` (contrast under 2): then `fallback`. */
 export function inkOn(fill, background, fallback) {
   return contrastRatio(fill, background) < 2 ? fallback : fill;

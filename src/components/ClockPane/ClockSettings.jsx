@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { Segmented, Slider, ColorField } from "../ui";
 import GlobalSection from "../Panels/GlobalSection";
+import { useUIState } from "../../contexts/UIStateContext";
 import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
 
 export default function ClockSettings() {
@@ -12,8 +13,9 @@ export default function ClockSettings() {
     clockWords, setClockWords, clockBackgroundColor, setClockBackgroundColor, clockWordColor, setClockWordColor,
     clockTextPx, setClockTextPx, clockShowDrums, setClockShowDrums,
   } = useParams();
+  const { clockOpen, toggleClock } = useUIState();
   return (
-    <GlobalSection id="clock" title="Rhyme Clock">
+    <GlobalSection id="clock" title="Rhyme Clock" power={{ on: clockOpen, onToggle: toggleClock, label: clockOpen ? "Hide the Rhyme Clock" : "Show the Rhyme Clock" }}>
       <div className="pn-field">
         <span className="pn-field-label">cycle</span>
         <Segmented value={clockCycleBars} onChange={setClockCycleBars} options={CYCLE_OPTIONS.map((b) => ({ value: b, label: `${b} bar` }))} />

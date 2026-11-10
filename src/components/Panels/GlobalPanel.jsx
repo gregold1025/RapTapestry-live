@@ -36,7 +36,7 @@ export default function GlobalPanel() {
     staffBassThickness, setStaffBassThickness,
     staffGridLevel, setStaffGridLevel,
   } = useParams();
-  const { staffBars, setStaffBars, staffMode, setStaffMode } = useUIState();
+  const { staffBars, setStaffBars, staffMode, setStaffMode, staffOpen, toggleStaff } = useUIState();
 
   return (
     <div className="pn-root">
@@ -99,7 +99,7 @@ export default function GlobalPanel() {
         <Slider label="grid" value={gridLevel} min={0} max={4} step={1} format={(v) => GRID_LEVELS[v]} onChange={setGridLevel} />
       </GlobalSection>
 
-      <GlobalSection id="staff" title="Line Staff">
+      <GlobalSection id="staff" title="Line Staff" power={{ on: staffOpen, onToggle: toggleStaff, label: staffOpen ? "Hide the Line Staff" : "Show the Line Staff" }}>
         <div className="pn-field">
           <span className="pn-field-label">view width</span>
           <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />

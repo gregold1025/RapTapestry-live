@@ -75,7 +75,8 @@
 
 
 /* collapsible submenus (tapestry, Line Staff, Rhyme Clock): the header folds and unfolds them */
-.pn-section-toggle { font-family: inherit; border: 0; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px; width: calc(100% + 24px); }
+.pn-section-head { display: flex; align-items: center; gap: 8px; background: var(--rt-head); margin: 0 -12px; padding-right: 12px; }
+.pn-section-toggle { font-family: inherit; border: 0; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; background: transparent; color: var(--rt-ink); padding: 5px 12px; }
 .pn-section-toggle:hover { color: var(--rt-ink); filter: brightness(1.15); }
 .pn-section-chev { display: inline-block; width: 9px; font-size: 9px; }
 .pn-collapsible { scroll-margin-top: 0; }

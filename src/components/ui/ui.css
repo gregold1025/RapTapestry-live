@@ -280,3 +280,9 @@
 
 /* section header bars in the panels: rgb(71) */
 .pn-section > .ui-section-label { background: var(--rt-head); color: var(--rt-ink); margin: 0 -12px; padding: 5px 12px; }
+
+/* ---- switch (on / off) ---- */
+.ui-switch { flex: 0 0 auto; position: relative; width: 28px; height: 16px; padding: 0; border-radius: 8px; border: 1px solid var(--rt-line); background: var(--rt-card); cursor: pointer; }
+.ui-switch-knob { position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--rt-muted); transition: left 0.12s, background 0.12s; }
+.ui-switch.is-on { background: var(--rt-ink); border-color: var(--rt-ink); }
+.ui-switch.is-on .ui-switch-knob { left: 14px; background: var(--rt-on-ink); }
