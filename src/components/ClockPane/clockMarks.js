@@ -43,23 +43,36 @@ export function wordMarks({ timingWords, visuals, cycles, from, to, words, inkCo
   return out;
 }
 
+// Which syllables tick in the drum ring (Greg 2026-11-10): none, only the syllables a match covers,
+// every syllable of the query words and matches, or every syllable of the song.
+export const TICK_MODES = [
+  { value: "none", label: "off" },
+  { value: "matching", label: "matching" },
+  { value: "words", label: "query words" },
+  { value: "all", label: "all" },
+];
+/** The tick mode, reading an older on / off setting as matching / none. */
+export const tickMode = (v) => (v === false ? "none" : TICK_MODES.some((m) => m.value === v) ? v : "matching");
+
 /**
- * Query syllables against the groove (Greg 2026-11-10): every matched syllable (vi0..vi1) of a
- * query word or a match whose vowel begins in `cycle`, as a tick in the drum ring at its vowel's
- * onset (where a syllable lands), in its query's color.
+ * Syllables against the groove (Greg 2026-11-10): the syllables `mode` picks whose vowel begins in
+ * `cycle`, as ticks in the drum ring at the vowel's onset (where a syllable lands), in their query's
+ * color (all syllables: words outside the queries in `inkColor`). Each tick carries its word and
+ * syllable for the hover.
  * @returns {{ frac, color, wordId, k, n, vowel }[]}
  */
-export function syllableTicks({ timingWords, visuals, cycles, cycle }) {
+export function syllableTicks({ timingWords, visuals, cycles, cycle, mode = "matching", inkColor = "#9a9da5" }) {
   const out = [];
-  if (!timingWords || !visuals?.size || !cycles || cycles.count === 0 || cycle == null || cycle < 0) return out;
-  for (const [id, vis] of visuals) {
+  if (mode === "none" || !timingWords || !cycles || cycles.count === 0 || cycle == null || cycle < 0) return out;
+  const words = mode === "all" ? [...timingWords.keys()] : [...(visuals?.keys() ?? [])];
+  for (const id of words) {
     const tw = timingWords.get(id);
     if (!tw) continue;
+    const vis = visuals?.get(id) ?? null;
     for (const sy of tw.syls ?? []) {
-      if (sy.k < (vis.vi0 ?? 0) || sy.k > (vis.vi1 ?? Infinity)) continue;
+      if (mode === "matching" && (sy.k < (vis?.vi0 ?? 0) || sy.k > (vis?.vi1 ?? Infinity))) continue;
       const t = sy.vStart ?? sy.start;
-      // the word and syllable ride along for the hover (Greg 2026-11-10)
-      if (cycles.cycleOf(t) === cycle) out.push({ frac: cycles.fracOf(t), color: vis.color, wordId: id, k: sy.k, n: tw.syls.length, vowel: sy.vowel ?? null });
+      if (cycles.cycleOf(t) === cycle) out.push({ frac: cycles.fracOf(t), color: vis?.color ?? inkColor, wordId: id, k: sy.k, n: tw.syls.length, vowel: sy.vowel ?? null });
     }
   }
   return out;

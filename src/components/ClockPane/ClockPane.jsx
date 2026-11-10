@@ -10,7 +10,7 @@ import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
 import { RINGS_PICK, cyclesLabel, ringCount, clockGeo, ringPitch, showText, wordsByTime, polar } from "./clockGeometry";
-import { wordMarks, drumMarks, lineMarks, lineSpans, syllableTicks } from "./clockMarks";
+import { wordMarks, drumMarks, lineMarks, lineSpans, syllableTicks, tickMode } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
 import { useDrumHits, useByClass } from "../../hooks/useDrumHits";
@@ -99,8 +99,8 @@ export default function ClockPane({ duration }) {
   );
   // query syllables against the groove: ticks in the drum ring for the current cycle (Greg 2026-11-10)
   const ticks = useMemo(
-    () => (clockSyllableTicks && P >= 0 ? syllableTicks({ timingWords: timing?.words, visuals, cycles, cycle: P }) : []),
-    [clockSyllableTicks, P, timing, visuals, cycles]
+    () => (P >= 0 ? syllableTicks({ timingWords: timing?.words, visuals, cycles, cycle: P, mode: tickMode(clockSyllableTicks), inkColor: clockWordColor }) : []),
+    [clockSyllableTicks, P, timing, visuals, cycles, clockWordColor]
   );
   const spans = useMemo(
     () => lineSpans({ lines: lineQ.lines, timingWords: timing?.words, songModel, cycles, from, to }),

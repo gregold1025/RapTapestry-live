@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "../../contexts/ParamsContext";
 import { Segmented, Slider, ColorField } from "../ui";
 import GlobalSection from "../Panels/GlobalSection";
+import { TICK_MODES, tickMode } from "./clockMarks";
 import { useUIState } from "../../contexts/UIStateContext";
 import { RINGS_SEG, CYCLE_OPTIONS } from "./clockGeometry";
 
@@ -34,8 +35,8 @@ export default function ClockSettings() {
         <Segmented value={clockShowDrums} onChange={setClockShowDrums} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
       </div>
       <div className="pn-field">
-        <span className="pn-field-label">query syllables in the drum ring</span>
-        <Segmented value={clockSyllableTicks} onChange={setClockSyllableTicks} options={[{ value: true, label: "on" }, { value: false, label: "off" }]} />
+        <span className="pn-field-label">syllables in the drum ring</span>
+        <Segmented value={tickMode(clockSyllableTicks)} onChange={setClockSyllableTicks} options={TICK_MODES} />
       </div>
       <div className="pn-field">
         <span className="pn-field-label">playhead</span>

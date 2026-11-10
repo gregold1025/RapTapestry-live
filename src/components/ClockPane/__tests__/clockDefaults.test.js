@@ -7,7 +7,7 @@ describe("CLOCK_DEFAULTS", () => {
       cycleBars: 1, rings: 8, words: "all",
       backgroundColor: "#000000", wordColor: "#9a9da5", textPx: 12,
       showDrums: true, showHand: true,   // the playhead hand, on / off (Greg 2026-11-10)
-      syllableTicks: true,               // query syllables as ticks in the drum ring (Greg 2026-11-10)
+      syllableTicks: "matching",         // syllables in the drum ring: none | matching | words | all (Greg 2026-11-10)
     });
   });
   it("cannot be changed by accident", () => {
