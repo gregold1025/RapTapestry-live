@@ -1,10 +1,39 @@
 // src/components/RightPane/RhymeInfo.jsx
 // The focused query's info button and its pop-up: what the rhyme types mean (rhymeTypesInfo.js).
+// One block per type: its rule across the four axes, its definition, and its example pair, each
+// word spelled out and then split phonetically onto the axes; what the type requires to agree is
+// underlined in green in both spellings (Greg 2026-11-09).
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { INTRO, AXES, ROWS, ONE_SYLLABLE, DEFINITIONS, TERMS } from "./rhymeTypesInfo";
+import { INTRO, AXES, ROWS, ONE_SYLLABLE, TERMS, axisPhones, matchedAxes } from "./rhymeTypesInfo";
 
-const pair = (ex) => ex.map(([w]) => w).join(" / ");
+const one = (a) => (a.oneSyllable ? " is-one" : "");
+
+function TypeBlock({ row, text }) {
+  const matched = new Set(matchedAxes(row));
+  return (
+    <tbody className="ri-type">
+      <tr className="ri-rule">
+        <th>{row.label}</th>
+        {AXES.map((a) => <td key={a.key} className={one(a)}>{row.cells[a.key]}</td>)}
+      </tr>
+      {text && <tr className="ri-def"><td colSpan={AXES.length + 1}>{text}</td></tr>}
+      {row.example.map((ex) => {
+        const ph = axisPhones(ex.phones);
+        return (
+          <tr key={ex.word} className="ri-word">
+            <th>{ex.spelling.map(([t, ...axes], i) => <span key={i} className={axes.some((k) => matched.has(k)) ? "ri-u" : undefined}>{t}</span>)}</th>
+            {AXES.map((a) => (
+              <td key={a.key} className={one(a)}>
+                {ph[a.key] ? <span className={matched.has(a.key) ? "ri-u" : undefined}>{ph[a.key]}</span> : <span className="ri-none">&mdash;</span>}
+              </td>
+            ))}
+          </tr>
+        );
+      })}
+    </tbody>
+  );
+}
 
 export default function RhymeInfo() {
   const [open, setOpen] = useState(false);
@@ -14,7 +43,6 @@ export default function RhymeInfo() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
-  const one = (a) => (a.oneSyllable ? " is-one" : "");
   return (
     <>
       <button type="button" className="ri-btn" onClick={() => setOpen(true)} title="What the rhyme types mean" aria-label="What the rhyme types mean" aria-haspopup="dialog">i</button>
@@ -25,7 +53,7 @@ export default function RhymeInfo() {
               <h3>Rhyme types</h3>
               <button type="button" className="ri-close" onClick={() => setOpen(false)} title="Close (Esc)">&times;</button>
             </div>
-            <p className="ri-intro">{INTRO}</p>
+            <p className="ri-intro">{INTRO} <span className="ri-u">Underlined</span>: what the type requires to agree.</p>
 
             <table className="ri-table">
               <thead>
@@ -39,20 +67,14 @@ export default function RhymeInfo() {
                   {AXES.map((a) => <th key={a.key} className={one(a)}>{a.label}{a.note && <span className="ri-note">{a.note}</span>}</th>)}
                 </tr>
               </thead>
-              <tbody>
-                {ROWS.map((r) => (
-                  <tr key={r.key}>
-                    <th>{r.label}<span className="ri-ex">{pair(r.example)}</span></th>
-                    {AXES.map((a) => <td key={a.key} className={one(a)}>{r.cells[a.key]}</td>)}
-                  </tr>
-                ))}
+              {ROWS.map((r) => <TypeBlock key={r.key} row={r} text={r.text} />)}
+              <tbody className="ri-type">
+                <tr className="ri-section"><th colSpan={AXES.length + 1}>One syllable</th></tr>
+                <tr className="ri-def"><td colSpan={AXES.length + 1}>{ONE_SYLLABLE.text}</td></tr>
               </tbody>
+              {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={`one-${r.key}`} row={r} />)}
             </table>
-            <p className="ri-one-text"><span className="ri-one-chip" />{ONE_SYLLABLE.text} ({ONE_SYLLABLE.rows.map((r) => `${r.key}: ${pair(r.example)}`).join("; ")}.)</p>
 
-            <dl className="ri-defs">
-              {DEFINITIONS.map((d) => <React.Fragment key={d.key}><dt>{d.label}</dt><dd>{d.text}</dd></React.Fragment>)}
-            </dl>
             <dl className="ri-defs">
               {TERMS.map((t) => <React.Fragment key={t.key}><dt>{t.label}</dt><dd>{t.text} <span className="ri-ex-inline">{t.example}</span></dd></React.Fragment>)}
             </dl>
