@@ -4,6 +4,7 @@ import { WordBlock } from "./WordBlock";
 import { useLineVisual, useQueryActions } from "../../contexts/QueryContext";
 import { useParams } from "../../contexts/ParamsContext";
 import { useAudioControls } from "../../contexts/AudioContext";
+import { isLineClick } from "./lineClick";
 
 function hexToRgba(hex, alpha = 1) {
   if (!hex) return `rgba(0,0,0,${alpha})`;
@@ -23,18 +24,15 @@ export const WordLine = React.memo(function WordLine({ line, lineIdx, isCurrent,
     : undefined;
 
   return (
-    <div className={["line", lineIdx % 2 ? "alt" : "", isCurrent ? "current" : ""].join(" ").replace(/\s+/g, " ").trim()} data-line-idx={dataLineIdx} style={lineStyle}>
-      {/* Line query: this line, matched to other lines by the end rhyme of their last words */}
-      <div
-        className="line-select"
-        onClick={(e) => clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey })}
-        title={vis?.role === "anchor" ? "This line is a line query (alt-click: remove)" : vis?.role === "match" ? "This line rhymes with a line query (click: open it; cmd-click: a new line query)" : "Line query: lines whose last word rhymes with this one"}
-        aria-pressed={vis?.role === "anchor"}
-        role="button"
-      >
-        {vis?.role === "anchor" ? "■" : "□"}
-      </div>
-
+    <div
+      className={["line", lineIdx % 2 ? "alt" : "", isCurrent ? "current" : ""].join(" ").replace(/\s+/g, " ").trim()}
+      data-line-idx={dataLineIdx}
+      style={lineStyle}
+      // the line itself is the line query's button (Greg 2026-11-10): a click on its own space
+      // (not a word, not the jump button) makes or opens it; cmd / shift / alt as before
+      onClick={(e) => { if (isLineClick(e.target)) clickLine(lineIdx, { shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, alt: e.altKey }); }}
+      title={vis?.role === "anchor" ? "This line is a line query (alt-click the line: remove)" : vis?.role === "match" ? "This line rhymes with a line query (click the line: open it; cmd-click: a new line query)" : "Click the line (not a word) for a line query: lines whose last word rhymes with this one"}
+    >
       <div className="words-container">
         {line.words?.map((word, wordIdx) => (
           <WordBlock

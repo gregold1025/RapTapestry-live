@@ -69,13 +69,10 @@
   font-weight: 800;
 }
 
-/* The “select line” square */
-.line .line-select {
-  cursor: pointer;
-  user-select: none;
-  padding: 0px;
-  font-size: 1rem;
-}
+/* The line itself is the line query's button (Greg 2026-11-10): a pointer and a left edge on hover */
+.line { cursor: pointer; }
+.line .word-wrapper, .line .line-jump { cursor: auto; }
+.lyrics-container .line:hover { box-shadow: inset 3px 0 0 #8a8a8f; }
 
 /* Words area */
 .words-container {
@@ -149,7 +146,6 @@
 .lyrics-container .line.alt { background-color: #474747; }
 .lyrics-container .word { color: #f2f2f3; }
 .lyrics-container .word.current { color: #ff6b6b; }
-.lyrics-container .line-select,
 .lyrics-container .line-jump { color: #c4c6cc; background: transparent; border-color: #5a5c62; }
 .lyrics-container .lyrics-footer { background: #474747; border-top-color: #2a2a2a; }
 .lyrics-container .recenter-btn { background: #3e3e3e; color: #f2f2f3; border-color: #5a5c62; }
