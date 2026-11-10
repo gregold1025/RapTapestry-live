@@ -7,24 +7,26 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { INTRO, AXES, ROWS, ONE_SYLLABLE, TWO_SYLLABLES, TERMS, axisPhones, matchedAxes } from "./rhymeTypesInfo";
 
-function TypeBlock({ row, text, tint = false }) {
-  // the blue tint marks the one-syllable section's two columns only (Greg 2026-11-09)
-  const one = (a) => (tint && a.oneSyllable ? "is-one" : undefined);
+// the columns each section shows: one syllable only has the last two (Greg 2026-11-09)
+const ONE_AXES = AXES.filter((a) => a.oneSyllable);
+
+function TypeBlock({ row, axes, text, tint = false }) {
+  const cls = tint ? "is-one" : undefined; // the one-syllable section is blue throughout
   const matched = new Set(matchedAxes(row));
   return (
     <tbody className="ri-type">
       <tr className="ri-rule ri-band">
         <th>{row.label}</th>
-        {AXES.map((a) => <td key={a.key} className={one(a)}>{row.cells[a.key]}</td>)}
+        {axes.map((a) => <td key={a.key} className={cls}>{row.cells[a.key]}</td>)}
       </tr>
-      {text && <tr className="ri-def ri-band"><td colSpan={AXES.length + 1}>{text}</td></tr>}
+      {text && <tr className="ri-def ri-band"><td colSpan={axes.length + 1}>{text}</td></tr>}
       {row.example.map((ex) => {
         const ph = axisPhones(ex.phones);
         return (
           <tr key={ex.word} className="ri-word">
-            <th>{ex.spelling.map(([t, ...axes], i) => <span key={i} className={axes.some((k) => matched.has(k)) ? "ri-u" : undefined}>{t}</span>)}</th>
-            {AXES.map((a) => (
-              <td key={a.key} className={one(a)}>
+            <th>{ex.spelling.map(([t, ...ax], i) => <span key={i} className={ax.some((k) => matched.has(k)) ? "ri-u" : undefined}>{t}</span>)}</th>
+            {axes.map((a) => (
+              <td key={a.key} className={cls}>
                 {ph[a.key] ? <span className={matched.has(a.key) ? "ri-u" : undefined}>{ph[a.key]}</span> : <span className="ri-none">&mdash;</span>}
               </td>
             ))}
@@ -35,31 +37,36 @@ function TypeBlock({ row, text, tint = false }) {
   );
 }
 
-/** A section's opening: a short sentence, then its own black column header. `one`: only the
- *  one-syllable columns (final vowel, final consonants), tinted blue. */
-function SectionHead({ title, lead, one = false }) {
+/** A section's black column header. */
+function ColHead({ title, axes, tint = false }) {
   return (
-    <tbody className="ri-type">
-      <tr className="ri-lead"><td colSpan={AXES.length + 1}>{lead}</td></tr>
-      <tr className={`ri-colhead${one ? " ri-colhead-one" : ""}`}>
+    <thead>
+      <tr className="ri-colhead">
         <th>{title}</th>
-        {AXES.map((a) => (one && !a.oneSyllable
-          ? <th key={a.key} className="ri-blank" />
-          : <th key={a.key} className={one ? "is-one" : undefined}>{a.label}{!one && a.note && <span className="ri-note">{a.note}</span>}</th>))}
+        {axes.map((a) => <th key={a.key} className={tint ? "is-one" : undefined}>{a.label}{!tint && a.note && <span className="ri-note">{a.note}</span>}</th>)}
       </tr>
-    </tbody>
+    </thead>
   );
 }
 
-/** The chart: the one-syllable section (its two columns in blue), then one block per two-syllable type. */
+/** The chart: the one-syllable section first, centered, on its two columns (in blue); then the
+ *  two-syllable section on all four. Each opens with a short sentence. */
 export function RhymeTable() {
   return (
-    <table className="ri-table">
-      <SectionHead title="One syllable" lead={ONE_SYLLABLE.text} one />
-      {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={`one-${r.key}`} row={r} tint />)}
-      <SectionHead title="Two syllables" lead={TWO_SYLLABLES.text} />
-      {ROWS.map((r) => <TypeBlock key={r.key} row={r} text={r.text} />)}
-    </table>
+    <>
+      <div className="ri-one-wrap">
+        <p className="ri-lead">{ONE_SYLLABLE.text}</p>
+        <table className="ri-table ri-table-one">
+          <ColHead title="One syllable" axes={ONE_AXES} tint />
+          {ONE_SYLLABLE.rows.map((r) => <TypeBlock key={r.key} row={r} axes={ONE_AXES} tint />)}
+        </table>
+      </div>
+      <p className="ri-lead">{TWO_SYLLABLES.text}</p>
+      <table className="ri-table">
+        <ColHead title="Two syllables" axes={AXES} />
+        {ROWS.map((r) => <TypeBlock key={r.key} row={r} axes={AXES} text={r.text} />)}
+      </table>
+    </>
   );
 }
 

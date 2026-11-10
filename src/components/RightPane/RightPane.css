@@ -229,9 +229,12 @@
 .ri-band > .is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-band); }
 .ri-rule + .ri-word > *, .ri-def + .ri-word > * { padding-top: 8px; }
 /* each section: a short sentence, then its own black column header (Greg 2026-11-09) */
-.ri-table tbody.ri-type .ri-lead > td { padding-top: 14px; padding-bottom: 8px; color: #d6d6da; font-size: 12px; }
+.ri-lead { margin: 16px 0 8px; color: #d6d6da; font-size: 12px; }
+.ri-one-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.ri-table-one { width: auto; text-align: left; }
+.ri-table-one th, .ri-table-one td { padding-left: 14px; padding-right: 14px; }
+.ri-table .ri-word th { font-weight: 400; }
 .ri-colhead > th { background: var(--ri-black); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #c9c9cd; font-weight: 700; padding-top: 7px !important; padding-bottom: 7px !important; }
-.ri-colhead > th.ri-blank { background: transparent; }
 .ri-colhead > th.is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-black); border-top: 2px solid var(--ri-one-line); color: var(--ri-one-line); }
 /* faint column lines; a cell spanning columns (text running across them) breaks them there */
 .ri-table th + th, .ri-table th + td, .ri-table td + td { border-left: 1px solid rgba(255, 255, 255, 0.09); }
