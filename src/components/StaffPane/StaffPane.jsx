@@ -4,7 +4,7 @@
 // Freeze / Follow control inside it. Opened by the treble clef in the header.
 import React, { useState } from "react";
 import { StaffToolbarSlot } from "./staffSlot";
-import { Segmented } from "../ui";
+import { STAFF_BARS_MENU, barsFromMenu } from "./staffBars";
 import { TapestryLayoutProvider } from "../../contexts/TapestryLayoutContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { useUIState } from "../../contexts/UIStateContext";
@@ -19,10 +19,14 @@ export default function StaffPane({ duration }) {
   return (
     <section className="staff-pane" aria-label="Line Staff">
       <div className="staff-bar">
-        <span className="staff-title"><IconClef /><span className="staff-title-text"> Line Staff</span></span>
-        <Segmented value={staffBars} onChange={setStaffBars} options={[{ value: 2, label: "2 bar" }, { value: 4, label: "4 bar" }, { value: 8, label: "8 bar" }]} />
-        <span className="staff-slot" ref={setSlot} />
-        <button type="button" className="staff-link" onClick={() => openParamsPanel("global")} title="Show, sizes and colors live in the Global panel">settings &rsaquo;</button>
+        <div className="staff-bar-main">
+          <span className="staff-title"><IconClef /><span className="staff-title-text"> Line Staff</span></span>
+          <select className="staff-bars" value={String(staffBars)} onChange={(e) => setStaffBars(barsFromMenu(e.target.value))} aria-label="Bars in view" title="Bars in view">
+            {STAFF_BARS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          <span className="staff-slot" ref={setSlot} />
+          <button type="button" className="staff-link" onClick={() => openParamsPanel("global")} title="Show, sizes and colors live in the Global panel">settings &rsaquo;</button>
+        </div>
         <button type="button" className="staff-close" onClick={toggleStaff} title="Close the Line Staff">&times;</button>
       </div>
       <div className="staff-body">

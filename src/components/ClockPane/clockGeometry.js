@@ -15,6 +15,8 @@ export const CYCLE_OPTIONS = [1, 2, 4];
 export const RINGS_SEG = RINGS_OPTIONS.map((r) => ({ value: r, label: String(r) }));
 /** Drop-down options for the rings-shown lever in the clock's own bar (Greg 2026-11-09: room for its buttons). */
 export const RINGS_MENU = RINGS_OPTIONS.map((r) => ({ value: String(r), label: r === "all" ? "all rings" : `${r} ring${r === 1 ? "" : "s"}` }));
+/** The clock's place text: the cycles in view (no "frozen": the Follow button says it). */
+export const cyclesLabel = (count, Wi, rings) => (count ? `cycles ${Math.max(1, Wi + 1)}–${Math.min(count, Wi + rings)}` : "");
 /** A <select> hands back strings: "8" -> 8, "all" -> "all". */
 export const ringsFromMenu = (v) => (v === "all" ? "all" : Number(v));
 

@@ -21,7 +21,10 @@
   height: 35px; box-sizing: border-box;   /* the Line Staff bar's height: the two bars sit side by side */
   border-bottom: 1px solid #2a2a2a; background: var(--rt-head); font-size: 11px;
 }
-.clock-bar > * { flex-shrink: 0; }
+.clock-bar-main { flex: 1 1 auto; min-width: 0; overflow: hidden; display: flex; align-items: center; gap: inherit; }
+.clock-bar-main > * { flex-shrink: 0; }
+/* expand and x stay pinned at the bar's right end; the rest clips first when the bar is narrow */
+.clock-bar-end { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
 .clock-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; white-space: nowrap; }
 .clock-title svg { width: 16px; height: 16px; }
 .clock-rings { font: inherit; font-size: 11px; color: var(--rt-ink); background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 4px; cursor: pointer; }

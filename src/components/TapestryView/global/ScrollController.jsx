@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 import { StaffToolbarSlot } from "../../StaffPane/staffSlot";
 import { useTapestryLayout } from "../../../contexts/TapestryLayoutContext";
 import { useAudioEngine } from "../../../contexts/AudioContext";
-import { followScroll, clampScroll, revealInset, revealsLayer } from "../../../utils/scrollWindow";
+import { followScroll, clampScroll, revealInset, revealsLayer, barsLabel } from "../../../utils/scrollWindow";
 import { isBackgroundTarget } from "./scrollTarget";
 import "../TapestryView.css";
 
@@ -54,7 +54,7 @@ export default function ScrollController({ containerRef, contentRef }) {
     }
     const u = S.scrollX / lay.pxPerBar;
     const lo = Math.floor(u) + 1, hi = Math.min(Math.ceil(u + lay.barsPerRow), Math.ceil(contentW / lay.pxPerBar));
-    const label = `bars ${lo}${hi > lo ? `–${hi}` : ""}${S.follow && S.playing ? " · following" : S.follow ? "" : " · frozen"}`;
+    const label = barsLabel(lo, hi, S.follow, S.playing);
     setWhere((prev) => (prev === label ? prev : label));
   }, [contentRef]);
 

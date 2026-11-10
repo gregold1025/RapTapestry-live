@@ -9,7 +9,7 @@ import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_MENU, ringsFromMenu, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
+import { RINGS_MENU, ringsFromMenu, cyclesLabel, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
 import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
@@ -126,11 +126,12 @@ export default function ClockPane({ duration }) {
     <>
     <section className={`clock-pane${full ? " is-full" : ""}`} aria-label="Rhyme Clock">
       <div className="clock-bar">
+        <div className="clock-bar-main">
         <span className="clock-title"><IconClock /><span className="clock-title-text"> Rhyme Clock</span></span>
         <select className="clock-rings" value={String(clockRings)} onChange={(e) => setClockRings(ringsFromMenu(e.target.value))} aria-label="Rings shown" title="Rings shown">
           {RINGS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-        <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, Wi + 1)}–${Math.min(cycles.count, Wi + rings)}${follow ? "" : " · frozen"}` : ""}</span>
+        <span className="clock-where">{cyclesLabel(cycles.count, Wi, rings)}</span>
         <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
           title={follow
             ? "Following the playhead: the rings shift with it and words appear as they are played. Click to freeze the rings where they are."
@@ -138,11 +139,14 @@ export default function ClockPane({ duration }) {
           {follow ? "Freeze" : "Follow"}
         </button>
         <button type="button" className="clock-link" onClick={() => openParamsPanel("global")} title="The clock's settings live in the Global panel">settings &rsaquo;</button>
+        </div>
+        <div className="clock-bar-end">
         <button type="button" className="clock-size" onClick={() => setFull(!full)} aria-pressed={full}
           title={full ? "Make the Rhyme Clock smaller (back to its corner)" : "Make the Rhyme Clock full size (over the tapestry and the Line Staff)"}>
           {full ? <IconShrink /> : <IconExpand />}
         </button>
         <button type="button" className="clock-close" onClick={toggleClock} title="Close the Rhyme Clock">&times;</button>
+        </div>
       </div>
       <div ref={bodyRef} className="clock-body" style={{ background: clockBackgroundColor }}>
       {side > 0 && (

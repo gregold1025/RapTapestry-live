@@ -30,3 +30,6 @@ const ALWAYS_SHOWN = new Set(["grid", "loop"]);
 export function revealsLayer(name) {
   return !ALWAYS_SHOWN.has(name);
 }
+
+/** The Line Staff's place text: the bars in view, plus "following" while it plays and follows (no "frozen": the Follow button says it). */
+export const barsLabel = (lo, hi, follow, playing) => `bars ${lo}${hi > lo ? `–${hi}` : ""}${follow && playing ? " · following" : ""}`;
