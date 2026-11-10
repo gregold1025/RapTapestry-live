@@ -5,12 +5,11 @@
 // center through the rim. It sits in the bottom-right corner of the stage, beside the
 // Line Staff (CenterStage), or, at full size, over the whole stage.
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Segmented } from "../ui";
 import { useParams } from "../../contexts/ParamsContext";
 import { useUIState } from "../../contexts/UIStateContext";
 import { useSongData } from "../../contexts/SongDataContext";
 import { IconClock } from "../Shell/AppHeader";
-import { RINGS_SEG, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
+import { RINGS_MENU, ringsFromMenu, ringCount, clockGeo, ringPitch, showText } from "./clockGeometry";
 import { wordMarks, drumMarks, lineMarks, lineSpans } from "./clockMarks";
 import ClockLines from "./ClockLines";
 import ClockDrums from "./ClockDrums";
@@ -128,7 +127,9 @@ export default function ClockPane({ duration }) {
     <section className={`clock-pane${full ? " is-full" : ""}`} aria-label="Rhyme Clock">
       <div className="clock-bar">
         <span className="clock-title"><IconClock /><span className="clock-title-text"> Rhyme Clock</span></span>
-        <Segmented size="sm" value={clockRings} onChange={setClockRings} options={RINGS_SEG} ariaLabel="Rings shown" />
+        <select className="clock-rings" value={String(clockRings)} onChange={(e) => setClockRings(ringsFromMenu(e.target.value))} aria-label="Rings shown" title="Rings shown">
+          {RINGS_MENU.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
         <span className="clock-where">{cycles.count ? `cycles ${Math.max(1, Wi + 1)}–${Math.min(cycles.count, Wi + rings)}${follow ? "" : " · frozen"}` : ""}</span>
         <button type="button" className={`clock-follow ${follow ? "is-on" : ""}`} onClick={() => win.setFollow(!follow)}
           title={follow

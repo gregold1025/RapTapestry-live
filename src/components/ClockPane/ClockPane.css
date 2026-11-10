@@ -10,8 +10,8 @@
 .clock-body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .clock-size { font: inherit; line-height: 0; color: var(--rt-muted); background: transparent; border: 0; cursor: pointer; padding: 2px; }
 .clock-size:hover { color: var(--rt-ink); }
-/* docked at half the stage's width: drop the title text, narrow the rings lever */
-@container (max-width: 600px) { .clock-title-text { display: none; } .clock-bar .ui-seg { width: 150px; } .clock-bar { gap: 6px; } }
+/* docked at half the stage's width: drop the title text */
+@container (max-width: 600px) { .clock-title-text { display: none; } .clock-bar { gap: 6px; } }
 @container (max-width: 400px) { .clock-where { display: none; } }
 .clock-bar {
   --rt-panel: #353535; --rt-card: #3e3e3e; --rt-head: #474747; --rt-ink: #f0f0f0; --rt-muted: #a9a9ae;
@@ -24,7 +24,7 @@
 .clock-bar > * { flex-shrink: 0; }
 .clock-title { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; white-space: nowrap; }
 .clock-title svg { width: 16px; height: 16px; }
-.clock-bar .ui-seg { width: 190px; }
+.clock-rings { font: inherit; font-size: 11px; color: var(--rt-ink); background: var(--rt-card); border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 4px; cursor: pointer; }
 .clock-where { margin-left: auto; color: var(--rt-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
 .clock-link { font: inherit; font-size: 11px; color: var(--rt-muted); background: transparent; border: 1px solid var(--rt-line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
 .clock-link:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
