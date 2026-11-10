@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAudioEngine } from "../../contexts/AudioContext";
 import { songPos, syncWindow, reanchorWindow, wordAt, wordGlowSpan } from "./clockGeometry";
-import { drawSpiral, drawGlow, drawOpacity } from "./clockDraw";
+import { drawSpiral, drawGlow, drawDrumGlow, drawOpacity } from "./clockDraw";
 
 export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo, words }) {
   const { subscribePlayhead, getPlayheadTime, isPlaying } = useAudioEngine();
@@ -39,6 +39,7 @@ export function useClockWindow({ cycles, rings, wholeSong, svgRef, geo, words })
       drawGlow(svg, { W: s.W, span: wordGlowSpan({ word: s.words?.[wi] ?? null, cycles: s.cycles, W: s.W, rings: s.rings }), geo: s.geo });
       s.glowKey = glowKey;
     }
+    drawDrumGlow(svg, t);
     const hand = svg.querySelector("[data-hand]");
     if (hand) {
       if (P < 0) hand.setAttribute("visibility", "hidden");

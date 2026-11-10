@@ -105,6 +105,19 @@ export function songPos(cycles, t) {
   return c < 0 ? 0 : c + cycles.fracOf(t);
 }
 
+// The drum rim's glow (Greg 2026-11-09): a hit has no end, so it is current from its onset until
+// the next onset, at most DRUM_GLOW_HOLD seconds; hits within DRUM_TOGETHER glow together.
+export const DRUM_GLOW_HOLD = 0.2;
+export const DRUM_TOGETHER = 0.03;
+
+/** The onset times (sorted) that glow at time t, as { from, to }; null when none does. */
+export function drumGlowRange(times, t) {
+  let lo = 0, hi = (times?.length ?? 0) - 1, i = -1;
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (times[m] <= t) { i = m; lo = m + 1; } else hi = m - 1; }
+  if (i < 0 || t - times[i] >= DRUM_GLOW_HOLD) return null;
+  return { from: times[i] - DRUM_TOGETHER, to: times[i] };
+}
+
 /** The timing model's words (a Map by id) as a list ordered by start time. */
 export const wordsByTime = (map) => (map ? [...map.values()].sort((a, b) => a.start - b.start) : []);
 

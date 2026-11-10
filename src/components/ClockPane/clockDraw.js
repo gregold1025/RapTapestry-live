@@ -7,8 +7,9 @@
 //   circle[data-u]           a point on the spiral (rhyme-vowel dots)
 //   path[data-face]          the spiral's own line, in fading pieces
 //   path[data-glow]          the word being sung
+//   [data-dglow][data-time]  a drum glyph's halo, lit while its hit is current
 //   [data-umid][data-start]  a mark whose opacity is the reveal × the end fades
-import { spiralPath, labelSpan, radiusAt, polar, facePieces, fadeLen, markOpacity } from "./clockGeometry";
+import { spiralPath, labelSpan, radiusAt, polar, facePieces, fadeLen, markOpacity, drumGlowRange } from "./clockGeometry";
 
 /** Every stretch and point on the spiral, and the spiral itself, for window W. */
 export function drawSpiral(svg, { W, geo, wholeSong }) {
@@ -37,6 +38,19 @@ export function drawGlow(svg, { W, span, geo }) {
   const { cx, cy, rOuter, rInner, rings } = geo;
   const d = span ? spiralPath(cx, cy, span.u0, span.u1, W, rings, rOuter, rInner) : "";
   for (const el of svg.querySelectorAll("path[data-glow]")) el.setAttribute("d", d);
+}
+
+/** Light the halos of the drum hits current at time t (Greg 2026-11-09). */
+export function drawDrumGlow(svg, t) {
+  const els = svg.querySelectorAll("[data-dglow]");
+  if (!els.length) return;
+  const times = [...new Set([...els].map((el) => +el.dataset.time))].sort((a, b) => a - b);
+  const r = drumGlowRange(times, t);
+  for (const el of els) {
+    const tm = +el.dataset.time;
+    const on = r && tm >= r.from && tm <= r.to ? "1" : "0";
+    if (el.dataset.on !== on) { el.dataset.on = on; el.style.opacity = on; }
+  }
 }
 
 /** Each mark's opacity: faint ahead of the playhead while following, fading at the spiral's ends. */
