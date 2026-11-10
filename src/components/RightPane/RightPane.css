@@ -205,7 +205,7 @@
 .ri-btn:hover { color: var(--rt-ink); border-color: var(--rt-ink); }
 .ri-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .ri-pop {
-  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.12); --ri-one-line: #4dc3ff; --ri-green: #4cd964;
+  --rt-ink: #f0f0f0; --rt-muted: #a9a9ae; --rt-line: #565656; --ri-one: rgba(77, 195, 255, 0.12); --ri-one-line: #4dc3ff; --ri-green: #4cd964; --ri-band: #474747;
   width: min(760px, 100%); max-height: 88vh; overflow: auto; box-sizing: border-box;
   background: #2f2f2f; color: var(--rt-ink); border: 1px solid #4a4a4a; border-radius: 8px; padding: 14px 18px 16px;
   font: 12px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -225,11 +225,17 @@
 .ri-ex { font-style: italic; }
 /* one block per type: its rule, its definition, its example pair (spelling, then phones on the axes) */
 .ri-table tbody.ri-type th, .ri-table tbody.ri-type td { border-bottom: 0; padding-top: 3px; padding-bottom: 3px; }
-.ri-table tbody.ri-type tr:first-child > * { padding-top: 14px; border-top: 2px solid #8a8a8f; }
+.ri-table tbody.ri-type tr:first-child > * { padding-top: 8px; border-top: 2px solid #8a8a8f; }
+/* the type itself (rule + definition) on the platform's header gray; its examples on the pop-up's own */
+.ri-band > * { background: var(--ri-band); }
+.ri-band > .is-one { background: linear-gradient(var(--ri-one), var(--ri-one)) var(--ri-band); }
+.ri-rule + .ri-word > *, .ri-def + .ri-word > * { padding-top: 8px; }
+/* faint column lines; a cell spanning columns (text running across them) breaks them there */
+.ri-table th + th, .ri-table th + td, .ri-table td + td { border-left: 1px solid rgba(255, 255, 255, 0.09); }
 .ri-table tbody.ri-type tr:last-child > * { padding-bottom: 12px; }
 .ri-rule th { font-size: 13px; }
 .ri-rule td { font-weight: 600; }
-.ri-def td { color: var(--rt-muted); padding-bottom: 6px !important; }
+.ri-def td { color: #c4c4c8; padding-bottom: 8px !important; }
 .ri-word th { font-weight: 400; font-size: 13px; }
 .ri-word td { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .ri-u { text-decoration: underline 2px var(--ri-green); text-underline-offset: 4px; }

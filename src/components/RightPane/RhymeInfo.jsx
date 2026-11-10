@@ -13,11 +13,11 @@ function TypeBlock({ row, text, tint = false }) {
   const matched = new Set(matchedAxes(row));
   return (
     <tbody className="ri-type">
-      <tr className="ri-rule">
+      <tr className="ri-rule ri-band">
         <th>{row.label}</th>
         {AXES.map((a) => <td key={a.key} className={one(a)}>{row.cells[a.key]}</td>)}
       </tr>
-      {text && <tr className="ri-def"><td colSpan={AXES.length + 1}>{text}</td></tr>}
+      {text && <tr className="ri-def ri-band"><td colSpan={AXES.length + 1}>{text}</td></tr>}
       {row.example.map((ex) => {
         const ph = axisPhones(ex.phones);
         return (
@@ -50,7 +50,8 @@ export function RhymeTable() {
       <tbody className="ri-type ri-one-section">
         <tr className="ri-section">
           <th>One syllable</th>
-          <th colSpan={2} />
+          <th />
+          <th />
           <th colSpan={2} className="is-one ri-one-label">one-syllable words: only these two</th>
         </tr>
         <tr className="ri-def"><td colSpan={cols}>{ONE_SYLLABLE.text}</td></tr>

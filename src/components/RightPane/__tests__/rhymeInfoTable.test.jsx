@@ -20,4 +20,16 @@ describe("the rhyme info table", () => {
     expect(section).toMatch(/colSpan="2" class="[^"]*is-one[^"]*"[^>]*>one-syllable words: only these two/i);
     for (const b of bodies.slice(5)) expect((b.match(/is-one/g) || []).length).toBe(2 * 3); // rule row + two words, two columns each
   });
+  it("spans columns only where text runs across them, so the faint column lines break only there", () => {
+    const spans = [...html.matchAll(/<t[hd][^>]*colSpan="(\d+)"[^>]*>(.*?)<\/t[hd]>/g)];
+    expect(spans.length).toBeGreaterThan(0);
+    for (const [, , inner] of spans) expect(inner.replace(/<[^>]+>/g, "").trim()).not.toBe("");
+  });
+  it("marks each type's rule row and definition as the type band (shaded), apart from its examples", () => {
+    for (const b of bodies.filter((x) => /ri-rule/.test(x))) {
+      expect(b).toMatch(/class="ri-rule ri-band"/);
+      expect(b).not.toMatch(/ri-word ri-band/);
+    }
+    for (const b of bodies.slice(0, 4)) expect(b).toMatch(/class="ri-def ri-band"/);
+  });
 });
